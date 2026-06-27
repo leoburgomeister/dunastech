@@ -163,7 +163,7 @@ export default function AdminDashboardPage() {
               return (
                 <button
                   key={btn.id}
-                  onClick={() => setFilterMode(btn.id as any)}
+                  onClick={() => setFilterMode(btn.id as 'all' | 'spot' | 'region')}
                   className={cn(
                     "px-3 py-2 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer",
                     active

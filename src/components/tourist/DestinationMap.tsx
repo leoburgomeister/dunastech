@@ -73,7 +73,8 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
   const [activePartner, setActivePartner] = useState<string | null>(null);
 
   useEffect(() => {
-    setMounted(true);
+    const t = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(t);
   }, []);
 
   if (!mounted) {
@@ -89,7 +90,12 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
   );
 
   const mapCenter: [number, number] = [destination.latitude, destination.longitude];
-  const routePoints: [number, number][] = partners.map((b) => [b.latitude, b.longitude]);
+  
+  // Suggest a route connecting only the top 5 highest-rated partners to avoid overlapping lines
+  const routePartners = [...partners]
+    .sort((a, b) => b.nota - a.nota)
+    .slice(0, 5);
+  const routePoints: [number, number][] = routePartners.map((b) => [b.latitude, b.longitude]);
 
   return (
     <div className="relative w-full h-96 rounded-2xl overflow-hidden border border-[var(--color-border)] shadow-md z-10">

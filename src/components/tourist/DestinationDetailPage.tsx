@@ -203,7 +203,7 @@ export default function DestinationDetailPage({ destination }: DestinationDetail
                 {partners.length} ativos
               </Badge>
             </CardHeader>
-            <div className="space-y-3">
+            <div className="space-y-3 max-h-[550px] overflow-y-auto pr-1 custom-scrollbar">
               {partners.length === 0 ? (
                 <div className="text-center py-6 text-[var(--color-text-muted)] text-sm">
                   Nenhum parceiro registrado para este destino.

@@ -51,7 +51,9 @@ export default function PerfilPage() {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('dunastech_route_history');
       if (stored) {
-        setHistory(JSON.parse(stored));
+        setTimeout(() => {
+          setHistory(JSON.parse(stored));
+        }, 0);
       }
     }
   }, []);

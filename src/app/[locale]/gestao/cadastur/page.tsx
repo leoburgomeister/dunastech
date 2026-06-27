@@ -173,7 +173,7 @@ export default function CadasturGestaoPage() {
             ].map((f) => (
               <button
                 key={f.id}
-                onClick={() => setStatusFilter(f.id as any)}
+                onClick={() => setStatusFilter(f.id as "all" | "active" | "expiring" | "expired")}
                 className={cn(
                   "px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer",
                   statusFilter === f.id

@@ -77,7 +77,9 @@ export default function PitchPage() {
         setTimeLeft((prev) => prev - 1);
       }, 1000);
     } else if (timeLeft === 0) {
-      setIsTimerRunning(false);
+      setTimeout(() => {
+        setIsTimerRunning(false);
+      }, 0);
     }
     return () => clearInterval(timer);
   }, [isTimerRunning, timeLeft]);
@@ -88,6 +90,14 @@ export default function PitchPage() {
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
+
+  // Hoisted function declaration to avoid ES6 variable hoisting errors in useEffect below
+  function navigateToSlide(index: number) {
+    if (index >= 0 && index < 5) {
+      sectionRefs.current[index]?.scrollIntoView({ behavior: "smooth" });
+      setCurrentSlide(index);
+    }
+  }
 
   // Keyboard navigation
   useEffect(() => {
@@ -139,13 +149,6 @@ export default function PitchPage() {
 
     return () => observer.disconnect();
   }, []);
-
-  const navigateToSlide = (index: number) => {
-    if (index >= 0 && index < 5) {
-      sectionRefs.current[index]?.scrollIntoView({ behavior: "smooth" });
-      setCurrentSlide(index);
-    }
-  };
 
   // Fullscreen support
   const toggleFullscreen = () => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Search, X, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -15,8 +15,7 @@ interface SearchBarProps {
 
 export function SearchBar({ placeholder = 'Buscar destinos...', suggestions = [], onSelect, onChange, className, variant = 'default' }: SearchBarProps) {
   const [query, setQuery] = useState('');
-  const [open, setOpen] = useState(false);
-  const [filtered, setFiltered] = useState<string[]>([]);
+  const [focused, setFocused] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -25,15 +24,17 @@ export function SearchBar({ placeholder = 'Buscar destinos...', suggestions = []
     return suggestions.filter(s => s.toLowerCase().includes(q.toLowerCase())).slice(0, 6);
   }, [suggestions]);
 
-  useEffect(() => {
-    const results = filterSuggestions(query);
-    setFiltered(results);
-    setOpen(results.length > 0 && query.length > 0);
+  const filtered = useMemo(() => {
+    return filterSuggestions(query);
   }, [query, filterSuggestions]);
+
+  const open = focused && filtered.length > 0 && query.length > 0;
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setFocused(false);
+      }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -41,7 +42,7 @@ export function SearchBar({ placeholder = 'Buscar destinos...', suggestions = []
 
   const handleSelect = (value: string) => {
     setQuery(value);
-    setOpen(false);
+    setFocused(false);
     onSelect?.(value);
   };
 
@@ -68,7 +69,7 @@ export function SearchBar({ placeholder = 'Buscar destinos...', suggestions = []
             setQuery(e.target.value);
             onChange?.(e.target.value);
           }}
-          onFocus={() => filtered.length > 0 && setOpen(true)}
+          onFocus={() => setFocused(true)}
           placeholder={placeholder}
           className={cn(
             'w-full bg-transparent text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none',
@@ -77,7 +78,7 @@ export function SearchBar({ placeholder = 'Buscar destinos...', suggestions = []
         />
         {query && (
           <button
-            onClick={() => { setQuery(''); setOpen(false); onChange?.(''); }}
+            onClick={() => { setQuery(''); setFocused(false); onChange?.(''); }}
             className="absolute right-4 text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
           >
             <X className="h-4 w-4" />
@@ -92,7 +93,7 @@ export function SearchBar({ placeholder = 'Buscar destinos...', suggestions = []
             ? 'glass-strong rounded-b-2xl shadow-xl border-t border-[var(--color-border)]'
             : 'bg-[var(--color-surface)] border border-t-0 border-[var(--color-border)] rounded-b-xl shadow-lg',
         )}>
-          {filtered.map((item, i) => (
+          {filtered.map((item: string, i: number) => (
             <button
               key={item}
               onClick={() => handleSelect(item)}

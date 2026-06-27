@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { destinosInfo, fluxoData, transporteData, investimentosData, calcularISA } from "@/data/mockData";
+import type { Feedback } from "@/data/mockData";
+import { subscribeFeedbacks } from "@/lib/firebase";
 import { Brain, Sparkles, Loader2, Send, MessageSquare, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -68,27 +70,34 @@ export default function IAGestaoPage() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [loadingChat, setLoadingChat] = useState(false);
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
 
-  const currentFluxo = fluxoData.find((f) => f.destino === selectedDestino);
+  useEffect(() => {
+    const unsub = subscribeFeedbacks(setFeedbacks);
+    return () => unsub();
+  }, []);
+
   const currentTransport = transporteData.find((t) => t.destino === selectedDestino);
   const currentInvest = investimentosData.find((i) => i.destino === selectedDestino);
 
   // Auto-load reports and greetings when switching destinations
   useEffect(() => {
-    // 1. Populate the recommendations instantly so the page is never blank
     const key = selectedDestino;
     const defaultText = localMockDiagnostics[key] || localMockDiagnostics["Ponta Negra e Morro do Careca"];
-    setAiInsight(defaultText);
+    const isa = calcularISA(selectedDestino, feedbacks);
+    
+    const t = setTimeout(() => {
+      setAiInsight(defaultText);
+      setChatMessages([
+        { 
+          sender: "ai", 
+          text: `Olá! Sou a DunasIA. Estou monitorando o atrativo "${selectedDestino}". O Índice ISA atual está em ${isa}/100. Posso ajudar a detalhar o relatório ecológico ou discutir alternativas de investimento para esta praia. O que gostaria de saber sobre a gestão deste atrativo?` 
+        }
+      ]);
+    }, 0);
 
-    // 2. Refresh chatbot greeting with destination context
-    const isa = calcularISA(selectedDestino, []);
-    setChatMessages([
-      { 
-        sender: "ai", 
-        text: `Olá! Sou a DunasIA. Estou monitorando o atrativo "${selectedDestino}". O Índice ISA atual está em ${isa}/100. Posso ajudar a detalhar o relatório ecológico ou discutir alternativas de investimento para esta praia. O que gostaria de saber sobre a gestão deste atrativo?` 
-      }
-    ]);
-  }, [selectedDestino]);
+    return () => clearTimeout(t);
+  }, [selectedDestino, feedbacks]);
 
   const generateDiagnostic = async () => {
     setLoadingInsight(true);
@@ -98,10 +107,10 @@ export default function IAGestaoPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           destino: selectedDestino,
-          feedbacks: [],
+          feedbacks,
           transporteInfo: currentTransport,
           investimentoInfo: currentInvest,
-          isaScore: calcularISA(selectedDestino, []),
+          isaScore: calcularISA(selectedDestino, feedbacks),
         }),
       });
       const data = await res.json();
@@ -126,14 +135,19 @@ export default function IAGestaoPage() {
     setLoadingChat(true);
 
     try {
-      const prompt = `Analise no contexto do turismo do Rio Grande do Norte (Destino selecionado: ${selectedDestino}). Pergunta do gestor: ${userText}`;
+      const formattedHistory = chatMessages.map((m) => ({
+        role: m.sender === "user" ? "user" : "model",
+        text: m.text,
+      }));
+
       const res = await fetch("/api/gemini", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          destino: selectedDestino,
-          customPrompt: prompt,
-          isaScore: calcularISA(selectedDestino, []),
+          chatMode: true,
+          message: userText,
+          history: formattedHistory,
+          feedbacks,
         }),
       });
       const data = await res.json();

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import {
-  ArrowLeft, Star, Phone, ShieldCheck, MapPin, Building, Award, CheckCircle
+  ArrowLeft, Star, Phone, ShieldCheck, MapPin, Building, Award, CheckCircle, Sparkles
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -83,6 +83,38 @@ export default function VitrinePage({ params }: { params: Promise<{ id: string }
                 {negocio.descricao || 'Este estabelecimento parceiro oferece serviços especializados para turistas no Rio Grande do Norte, com garantia de qualidade e suporte do Cadastur.'}
               </p>
             </Card>
+
+            {/* Experiências Oferecidas */}
+            {negocio.experiencias && negocio.experiencias.length > 0 && (
+              <Card className="space-y-4">
+                <CardHeader className="flex flex-row items-center gap-2 border-b border-[var(--color-border)] pb-3">
+                  <Sparkles className="h-5 w-5 text-[var(--color-accent)] animate-pulse" />
+                  <CardTitle className="text-lg">Experiências Oferecidas</CardTitle>
+                </CardHeader>
+                <div className="grid grid-cols-1 gap-4 pt-2">
+                  {negocio.experiencias.map((exp, idx) => (
+                    <div 
+                      key={idx}
+                      className="p-4 rounded-xl bg-[var(--color-surface-alt)] border border-[var(--color-border-light)] hover:border-[var(--color-accent)]/30 hover:bg-[var(--color-accent-soft)]/5 transition-all duration-300 group"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="h-8 w-8 rounded-lg bg-[var(--color-accent-soft)] text-[var(--color-accent)] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                          <CheckCircle className="h-4.5 w-4.5" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="font-bold text-sm text-[var(--color-text)] group-hover:text-[var(--color-accent)] transition-colors duration-200">
+                            {exp.titulo}
+                          </h4>
+                          <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                            {exp.descricao}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
 
             {/* Certifications and safety badges */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

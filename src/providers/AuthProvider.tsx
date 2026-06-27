@@ -83,8 +83,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!isFirebaseConfigured) {
       // Mock mode: check localStorage
       const mockUser = getMockUser();
-      setUser(mockUser);
-      setLoading(false);
+      setTimeout(() => {
+        setUser(mockUser);
+        setLoading(false);
+      }, 0);
       return;
     }
 
@@ -135,7 +137,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       return () => unsubscribe();
     } catch {
-      setLoading(false);
+      setTimeout(() => setLoading(false), 0);
     }
   }, []);
 

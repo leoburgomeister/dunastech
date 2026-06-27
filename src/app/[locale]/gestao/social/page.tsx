@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { destinosInfo, fluxoData } from "@/data/mockData";
-import { Share2, Heart, MessageCircle, Camera, Loader2, Sparkles } from "lucide-react";
+import { Share2, Heart, MessageCircle, Camera, Loader2 } from "lucide-react";
 
 interface InstagramPost {
   id: string;
@@ -23,12 +23,14 @@ interface InstagramResult {
   posts: InstagramPost[];
   totalLikes: number;
   totalComments: number;
+  cachedAt?: number;
 }
 
 export default function SocialGestaoPage() {
   const [selectedDestino, setSelectedDestino] = useState(destinosInfo[0].nome);
   const [instagramData, setInstagramData] = useState<InstagramResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [forceRefresh, setForceRefresh] = useState(false);
 
   const currentFluxo = fluxoData.find((f) => f.destino === selectedDestino);
 
@@ -39,10 +41,11 @@ export default function SocialGestaoPage() {
       const res = await fetch("/api/scraper", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ hashtag }),
+        body: JSON.stringify({ hashtag, forceRefresh }),
       });
       const data = await res.json();
       setInstagramData(data);
+      setForceRefresh(false); // Reset after successful fetch
     } catch (err) {
       console.error("Error fetching Instagram posts:", err);
     } finally {
@@ -62,6 +65,17 @@ export default function SocialGestaoPage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            {/* Force Refresh toggle checkbox */}
+            <label className="flex items-center gap-2 text-xs text-[var(--color-text-secondary)] font-semibold cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={forceRefresh}
+                onChange={(e) => setForceRefresh(e.target.checked)}
+                className="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)] cursor-pointer"
+              />
+              <span>Forçar atualização</span>
+            </label>
+
             <select
               value={selectedDestino}
               onChange={(e) => {
@@ -99,7 +113,7 @@ export default function SocialGestaoPage() {
           <div className="text-center py-20 text-[var(--color-text-muted)] bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl">
             <Camera className="h-12 w-12 mx-auto mb-3 opacity-30 animate-pulse" />
             <p className="text-sm font-semibold">Nenhum post carregado ainda</p>
-            <p className="text-xs mt-1">Selecione o destino e clique em "Buscar Posts" para iniciar a varredura da hashtag #{currentFluxo?.hashtag_instagram || "pontanegranatal"}.</p>
+            <p className="text-xs mt-1">Selecione o destino e clique em &ldquo;Buscar Posts&rdquo; para iniciar a varredura da hashtag #{currentFluxo?.hashtag_instagram || "pontanegranatal"}.</p>
           </div>
         ) : loading ? (
           <div className="text-center py-24 text-[var(--color-text-muted)] bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl flex flex-col items-center justify-center space-y-4">
@@ -115,6 +129,10 @@ export default function SocialGestaoPage() {
                 <div>
                   <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-extrabold">Hashtag Rastreada</span>
                   <span className="text-lg font-black block mt-1 text-[var(--color-primary)]">#{instagramData?.hashtag}</span>
+                  <span className="text-[9px] text-[var(--color-text-muted)] mt-1.5 block">
+                    Origem: {instagramData?.source === "apify-cache" ? "💾 Cache do Servidor" : instagramData?.source === "apify" ? "⚡ Ao vivo (Apify)" : instagramData?.source === "mock-cache" ? "💾 Cache Simulado" : "🤖 Simulado"}
+                    {instagramData?.cachedAt && ` (${new Date(instagramData.cachedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })})`}
+                  </span>
                 </div>
                 <div className="w-10 h-10 rounded-lg bg-[var(--color-primary-soft)] flex items-center justify-center text-[var(--color-primary)]">
                   <Share2 className="w-5 h-5" />

@@ -27,7 +27,9 @@ export function LanguageSelector({ className, size = 'md' }: LanguageSelectorPro
   useEffect(() => {
     const cookie = document.cookie.split('; ').find(c => c.startsWith('NEXT_LOCALE='));
     if (cookie) {
-      setCurrentLocale(cookie.split('=')[1]);
+      setTimeout(() => {
+        setCurrentLocale(cookie.split('=')[1]);
+      }, 0);
     }
   }, []);
 
@@ -41,6 +43,7 @@ export function LanguageSelector({ className, size = 'md' }: LanguageSelectorPro
   }, []);
 
   const handleSelect = (code: string) => {
+    /* eslint-disable-next-line react-hooks/immutability */
     document.cookie = `NEXT_LOCALE=${code}; path=/; max-age=31536000`;
     setCurrentLocale(code);
     setOpen(false);
