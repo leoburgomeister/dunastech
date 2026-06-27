@@ -6,7 +6,8 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { 
   MapPin, Star, Users, TrendingUp, ArrowRight, Shield, Sparkles, 
-  Map, Award, Calendar, Compass, ShieldAlert, CheckCircle, Navigation, Eye
+  Map, Award, Calendar, Compass, ShieldAlert, CheckCircle, Navigation, Eye,
+  ChevronDown, ChevronUp, Clock, Info
 } from 'lucide-react';
 import { cn, slugify } from '@/lib/utils';
 import { Card } from '@/components/ui/Card';
@@ -53,12 +54,32 @@ interface RouteDay {
   description: string;
 }
 
+function getHaversineDistance(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
+  const R = 6371; // km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 export default function TouristHomePage() {
   // Questionnaire States
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [selectedStyle, setSelectedStyle] = useState('adventure');
   const [selectedDuration, setSelectedDuration] = useState('1day');
   const [selectedTransport, setSelectedTransport] = useState('buggy');
+  const [expandedDay, setExpandedDay] = useState<number | null>(1);
 
   // Suggested Route States
   const [suggestedRoute, setSuggestedRoute] = useState<{
@@ -87,24 +108,66 @@ export default function TouristHomePage() {
     let selectedDestNames: string[] = [];
 
     if (selectedStyle === 'adventure') {
-      title = 'Rota Emoção & Dunas Móveis';
-      description = 'Roteiro de aventura focado nas dunas do litoral norte, lagoas de Pitangui e passeios de buggy.';
-      selectedDestNames = ['Dunas de Genipabu', 'Lagoa de Pitangui', 'Ponta Negra e Morro do Careca'];
+      if (selectedTransport === 'hike') {
+        title = 'Trilha Ecológica de Genipabu & Pitangui';
+        description = 'Uma caminhada cheia de aventura cruzando as famosas dunas de Genipabu até chegar à lagoa de Pitangui.';
+        selectedDestNames = ['Dunas de Genipabu', 'Lagoa de Pitangui'];
+      } else if (selectedTransport === 'buggy') {
+        title = 'Roteiro Buggy Litoral Norte Emoção';
+        description = 'Roteiro clássico de buggy pelas dunas móveis de Genipabu, lagoa de Pitangui e mergulho nos parrachos.';
+        selectedDestNames = ['Dunas de Genipabu', 'Lagoa de Pitangui', 'Parrachos de Maracajaú'];
+      } else {
+        title = 'Rota de Aventura Litoral Sul & Norte';
+        description = 'Roteiro completo de van/translado conectando a famosa Ponta Negra, as dunas de Genipabu e as falésias de Pipa.';
+        selectedDestNames = ['Ponta Negra e Morro do Careca', 'Dunas de Genipabu', 'Praia da Pipa'];
+      }
     } else if (selectedStyle === 'relax') {
-      title = 'Rota das Águas Calmas & Piscinas Naturais';
-      description = 'Roteiro perfeito para relaxar nas piscinas de Maracajaú e na lagoa tranquila de Galinhos.';
-      selectedDestNames = ['Parrachos de Maracajaú', 'Galinhos', 'São Miguel do Gostoso'];
+      if (selectedTransport === 'hike') {
+        title = 'Trilha das Falésias & Praia do Madeiro';
+        description = 'Caminhada relaxante à beira-mar de Pipa até a Praia do Madeiro com grande chance de avistar golfinhos.';
+        selectedDestNames = ['Praia da Pipa', 'Praia do Madeiro'];
+      } else if (selectedTransport === 'buggy') {
+        title = 'Rota das Dunas Calmas & Litoral Norte';
+        description = 'Roteiro relaxante de buggy passando pelas piscinas naturais de Maracajaú e a charmosa Gostoso.';
+        selectedDestNames = ['Parrachos de Maracajaú', 'São Miguel do Gostoso'];
+      } else {
+        title = 'Rota das Águas Calmas & Península Isolada';
+        description = 'Perfeito para relaxar nas piscinas de Maracajaú, na lagoa de Galinhos e nas praias calmas de Gostoso.';
+        selectedDestNames = ['Parrachos de Maracajaú', 'Galinhos', 'São Miguel do Gostoso'];
+      }
     } else if (selectedStyle === 'culture') {
-      title = 'Rota dos Fortes & História Potiguar';
-      description = 'Caminhada cultural explorando o Forte dos Reis Magos, a Cidade Histórica de Mossoró e marcos do descobrimento.';
-      selectedDestNames = ['Forte dos Reis Magos', 'Cidade Histórica de Mossoró', 'Barreira do Inferno'];
-    } else {
-      title = 'Rota dos Sabores Potiguares';
-      description = 'Aproveite a rica culinária praiana de Ponta Negra e as falésias culinárias da Praia da Pipa.';
-      selectedDestNames = ['Ponta Negra e Morro do Careca', 'Praia da Pipa', 'Praia do Madeiro'];
+      if (selectedTransport === 'hike') {
+        title = 'Caminhada Histórica do Morro à Barreira';
+        description = 'Explore a pé a praia de Ponta Negra e caminhe até o centro de lançamento histórico da Barreira do Inferno.';
+        selectedDestNames = ['Ponta Negra e Morro do Careca', 'Barreira do Inferno'];
+      } else if (selectedTransport === 'buggy') {
+        title = 'Rota Histórica & Buggy Litoral Norte';
+        description = 'Descubra a história do Forte dos Reis Magos e aventure-se pelas dunas de Genipabu de buggy.';
+        selectedDestNames = ['Forte dos Reis Magos', 'Dunas de Genipabu'];
+      } else {
+        title = 'Grande Rota Histórica e Arqueológica';
+        description = 'Viagem de van/translado explorando o Forte colonial em Natal, a Cidade Histórica de Mossoró e o Lajedo de Soledade.';
+        selectedDestNames = ['Forte dos Reis Magos', 'Cidade Histórica de Mossoró', 'Lajedo de Soledade'];
+      }
+    } else { // gastronomy
+      if (selectedTransport === 'hike') {
+        title = 'Caminhada Gastronômica da Pipa ao Madeiro';
+        description = 'Caminhe pela praia saboreando petiscos regionais, drinks tropicais e o melhor da culinária de Pipa.';
+        selectedDestNames = ['Praia da Pipa', 'Praia do Madeiro'];
+      } else if (selectedTransport === 'buggy') {
+        title = 'Roteiro de Buggy Gastronômico Litoral Sul';
+        description = 'Deguste os melhores caranguejos e frutos do mar entre as falésias de Pipa e Barra de Cunhaú.';
+        selectedDestNames = ['Praia da Pipa', 'Barra de Cunhaú'];
+      } else {
+        title = 'Circuito dos Sabores Potiguares Litoral Sul';
+        description = 'Aproveite a rica culinária praiana de Ponta Negra, Pipa e os manguezais gastronômicos de Cunhaú.';
+        selectedDestNames = ['Ponta Negra e Morro do Careca', 'Praia da Pipa', 'Barra de Cunhaú'];
+      }
     }
 
-    const matchedDestinations = destinosInfo.filter(d => selectedDestNames.includes(d.nome));
+    const matchedDestinations = selectedDestNames
+      .map(name => destinosInfo.find(d => d.nome === name))
+      .filter(Boolean) as typeof destinosInfo;
     
     // Create day-by-day itineraries based on duration selected
     const routeDays: RouteDay[] = [];
@@ -148,10 +211,11 @@ export default function TouristHomePage() {
       title,
       description,
       destinations: matchedDestinations,
-      days: routeDays,
+      days: routeDays.filter(day => day.destinations.length > 0),
     };
 
     setSuggestedRoute(generated);
+    setExpandedDay(1); // Auto-expand Day 1 on route generation
 
     // Save generated route to search/route history in local storage
     if (typeof window !== 'undefined') {
@@ -324,28 +388,237 @@ export default function TouristHomePage() {
                       </p>
 
                       {/* Daily breakdowns for longer stays */}
-                      <div className="mt-4 space-y-3">
+                      <div className="mt-4 space-y-3 animate-fade-in">
                         <p className="text-[10px] uppercase font-bold text-[var(--color-text-muted)] tracking-wider">Cronograma do Roteiro</p>
                         
-                        <div className="space-y-2">
-                          {suggestedRoute.days.map((dayItem) => (
-                            <div key={dayItem.day} className="p-3 rounded-lg bg-[var(--color-surface-alt)] border border-[var(--color-border-light)] text-xs">
-                              <p className="font-bold text-[var(--color-primary)] flex items-center gap-1.5 mb-1">
-                                <Calendar className="h-3.5 w-3.5" /> Dia {dayItem.day}
-                              </p>
-                              <p className="text-[var(--color-text-secondary)] mb-2">{dayItem.description}</p>
-                              
-                              <div className="flex flex-wrap gap-1.5">
-                                {dayItem.destinations.map(d => (
-                                  <Link key={d.nome} href={`/destino/${slugify(d.nome)}`}>
-                                    <Badge variant="primary" className="cursor-pointer hover:bg-[var(--color-primary)] hover:text-white transition-colors" size="sm">
-                                      📍 {d.nome}
-                                    </Badge>
-                                  </Link>
-                                ))}
+                        <div className="space-y-2.5">
+                          {suggestedRoute.days.map((dayItem, dayIndex) => {
+                            const isExpanded = expandedDay === dayItem.day;
+                            
+                            // Calculate legs/mobility details for this day
+                            const legs: {
+                              from: string;
+                              to: string;
+                              distance: number;
+                              timeText: string;
+                              isTooLongForWalking: boolean;
+                            }[] = [];
+
+                            // Find previous destination if any
+                            let prevDest: typeof destinosInfo[0] | null = null;
+                            if (dayIndex > 0) {
+                              const prevDay = suggestedRoute.days[dayIndex - 1];
+                              if (prevDay.destinations.length > 0) {
+                                prevDest = prevDay.destinations[prevDay.destinations.length - 1];
+                              }
+                            }
+
+                            // Build legs
+                            let currentPrev = prevDest;
+                            dayItem.destinations.forEach((dest) => {
+                              if (currentPrev && currentPrev.nome !== dest.nome) {
+                                const dist = getHaversineDistance(
+                                  currentPrev.latitude,
+                                  currentPrev.longitude,
+                                  dest.latitude,
+                                  dest.longitude
+                                );
+                                
+                                // Calculate travel time
+                                let speed = 60; // default shuttle
+                                let transportLabel = 'van/carro';
+                                if (selectedTransport === 'hike') {
+                                  speed = 4.5;
+                                  transportLabel = 'caminhada';
+                                } else if (selectedTransport === 'buggy') {
+                                  speed = 30;
+                                  transportLabel = 'buggy';
+                                }
+
+                                const timeHrs = dist / speed;
+                                const timeMins = Math.round(timeHrs * 60);
+                                let timeText = '';
+                                if (timeMins < 60) {
+                                  timeText = `${timeMins} min de ${transportLabel}`;
+                                } else {
+                                  const hrs = Math.floor(timeMins / 60);
+                                  const mins = timeMins % 60;
+                                  timeText = `${hrs}h${mins > 0 ? ` ${mins}min` : ''} de ${transportLabel}`;
+                                }
+
+                                legs.push({
+                                  from: currentPrev.nome,
+                                  to: dest.nome,
+                                  distance: Number(dist.toFixed(1)),
+                                  timeText,
+                                  isTooLongForWalking: selectedTransport === 'hike' && dist > 5,
+                                });
+                              }
+                              currentPrev = dest;
+                            });
+
+                            return (
+                              <div 
+                                key={dayItem.day} 
+                                className={cn(
+                                  "rounded-xl border transition-all overflow-hidden",
+                                  isExpanded 
+                                    ? "bg-[var(--color-surface)] border-[var(--color-primary)] shadow-md"
+                                    : "bg-[var(--color-surface-alt)] border-[var(--color-border-light)] hover:border-[var(--color-primary)]/40"
+                                )}
+                              >
+                                {/* Header (always visible, clickable) */}
+                                <button
+                                  type="button"
+                                  onClick={() => setExpandedDay(isExpanded ? null : dayItem.day)}
+                                  className="w-full p-3 flex items-center justify-between text-left cursor-pointer focus:outline-none"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <div className={cn(
+                                      "h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0",
+                                      isExpanded 
+                                        ? "bg-[var(--color-primary)] text-white" 
+                                        : "bg-[var(--color-primary-soft)] text-[var(--color-primary)]"
+                                    )}>
+                                      {dayItem.day}
+                                    </div>
+                                    <div className="min-w-0">
+                                      <h3 className="font-bold text-xs text-[var(--color-text)]">
+                                        Dia {dayItem.day}
+                                      </h3>
+                                      <p className="text-[9px] text-[var(--color-text-muted)] truncate max-w-[220px] sm:max-w-xs">
+                                        {dayItem.destinations.map(d => d.nome).join(' ➔ ')}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className="text-[var(--color-text-muted)] shrink-0">
+                                    {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                                  </div>
+                                </button>
+
+                                {/* Body (collapsible) */}
+                                {isExpanded && (
+                                  <div className="p-3.5 border-t border-[var(--color-border-light)] space-y-3.5 text-xs animate-fade-in-up">
+                                    {/* Description */}
+                                    <p className="text-[var(--color-text-secondary)] leading-relaxed bg-[var(--color-surface-alt)]/50 p-3 rounded-lg border border-[var(--color-border-light)]/60">
+                                      {dayItem.description}
+                                    </p>
+
+                                    {/* Legs / Travel distances */}
+                                    {legs.length > 0 ? (
+                                      <div className="space-y-2">
+                                        <p className="font-semibold text-[9px] uppercase text-[var(--color-text-muted)] tracking-wider">
+                                          🚗 Trajeto & Locomoção
+                                        </p>
+                                        <div className="space-y-2 pl-1">
+                                          {legs.map((leg, idx) => (
+                                            <div key={idx} className="flex flex-col gap-1 bg-[var(--color-surface-alt)] p-2.5 rounded-lg border border-[var(--color-border-light)]">
+                                              <div className="flex items-center gap-2 text-[10px]">
+                                                <Navigation className="h-3 w-3 text-[var(--color-primary)] rotate-45 shrink-0" />
+                                                <span className="text-[var(--color-text-secondary)]">
+                                                  De <strong className="text-[var(--color-text)]">{leg.from}</strong> para <strong className="text-[var(--color-text)]">{leg.to}</strong>
+                                                </span>
+                                              </div>
+                                              <div className="flex items-center gap-3 text-[9px] text-[var(--color-text-muted)] pl-5">
+                                                <span className="flex items-center gap-1 font-[var(--font-mono)]">
+                                                  📍 {leg.distance} km
+                                                </span>
+                                                <span className="h-1 w-1 bg-[var(--color-border)] rounded-full" />
+                                                <span className="flex items-center gap-1">
+                                                  <Clock className="h-3 w-3" /> {leg.timeText}
+                                                </span>
+                                              </div>
+                                              {leg.isTooLongForWalking && (
+                                                <div className="mt-1 p-2 rounded bg-amber-500/10 border border-amber-500/20 text-[9px] text-amber-600 flex items-start gap-1.5 leading-relaxed">
+                                                  <ShieldAlert className="h-3.5 w-3.5 text-amber-600 shrink-0 mt-0.5" />
+                                                  <span>
+                                                    <strong>Aviso de Caminhada:</strong> A distância é de {leg.distance} km, o que é muito longo para ir a pé. Considere alugar um buggy ou contratar um translado credenciado.
+                                                  </span>
+                                                </div>
+                                              )}
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="p-2.5 rounded-lg bg-[var(--color-primary-soft)]/20 border border-[var(--color-primary)]/20 text-[9px] text-[var(--color-text-secondary)] flex items-center gap-2">
+                                        <Info className="h-3.5 w-3.5 text-[var(--color-primary)] shrink-0" />
+                                        <span>Roteiro local. Não exige deslocamento rodoviário entre destinos neste dia.</span>
+                                      </div>
+                                    )}
+
+                                    {/* Destinations & Attractions */}
+                                    <div className="space-y-2">
+                                      <p className="font-semibold text-[9px] uppercase text-[var(--color-text-muted)] tracking-wider">
+                                        🚩 Programação detalhada
+                                      </p>
+                                      
+                                      <div className="space-y-2.5">
+                                        {dayItem.destinations.map((dest) => (
+                                          <div key={dest.nome} className="border border-[var(--color-border-light)] rounded-lg overflow-hidden bg-[var(--color-surface)]">
+                                            {/* Destination mini header */}
+                                            <div className="bg-[var(--color-surface-alt)]/80 p-2 flex items-center justify-between border-b border-[var(--color-border-light)]">
+                                              <span className="font-bold text-[10px] text-[var(--color-text)] flex items-center gap-1">
+                                                📍 {dest.nome}
+                                              </span>
+                                              <Link href={`/destino/${slugify(dest.nome)}`}>
+                                                <span className="text-[9px] text-[var(--color-primary)] hover:underline flex items-center gap-0.5 font-semibold">
+                                                  Ver destino <ArrowRight className="h-2.5 w-2.5" />
+                                                </span>
+                                              </Link>
+                                            </div>
+
+                                            {/* Attractions in this destination */}
+                                            {dest.atracoes && dest.atracoes.length > 0 ? (
+                                              <div className="divide-y divide-[var(--color-border-light)]/60">
+                                                {dest.atracoes.map((act) => {
+                                                  const partner = cadasturData.find(c => c.id === act.parceiroId);
+                                                  return (
+                                                    <div key={act.id} className="p-2.5 flex gap-2.5 items-start">
+                                                      {act.imagem && (
+                                                        <div className="relative h-12 w-16 rounded overflow-hidden shrink-0 border border-[var(--color-border-light)]/50">
+                                                          <Image 
+                                                            src={act.imagem} 
+                                                            alt={act.nome} 
+                                                            fill
+                                                            className="object-cover"
+                                                            sizes="64px"
+                                                          />
+                                                        </div>
+                                                      )}
+                                                      <div className="space-y-0.5 flex-1 min-w-0">
+                                                        <h4 className="font-bold text-[10px] text-[var(--color-text)] truncate">
+                                                          {act.nome}
+                                                        </h4>
+                                                        <p className="text-[9px] text-[var(--color-text-secondary)] leading-relaxed">
+                                                          {act.descricao}
+                                                        </p>
+                                                        {partner && (
+                                                          <div className="flex items-center gap-1.5 pt-0.5">
+                                                            <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] font-semibold bg-[var(--color-success)]/10 text-[var(--color-success)] border border-[var(--color-success)]/20">
+                                                              🛡️ Cadastur: {partner.nome} ({partner.tipo})
+                                                            </span>
+                                                          </div>
+                                                        )}
+                                                      </div>
+                                                    </div>
+                                                  );
+                                                })}
+                                              </div>
+                                            ) : (
+                                              <div className="p-3 text-[9px] text-[var(--color-text-muted)] italic text-center">
+                                                Nenhuma atração específica listada. Aproveite para explorar o local livremente!
+                                              </div>
+                                            )}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
 
