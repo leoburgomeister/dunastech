@@ -94,6 +94,59 @@ export function subscribeFeedbacks(
     }
   }
 
+  // Initial mock data if empty
+  if (typeof window !== "undefined" && !localStorage.getItem("dunastech_feedbacks")) {
+    const now = Date.now();
+    const initialMockFeedbacks = [
+      {
+        id: "mock-1",
+        destino: "Ponta Negra e Morro do Careca",
+        nota_geral: 2,
+        limpo: false,
+        sinalizado: true,
+        preservado: false,
+        acessibilidade: true,
+        seguranca: false,
+        custo_beneficio: true,
+        conservacao: false,
+        superlotado: true,
+        comentario: "Local com muito acúmulo de resíduos na areia e superlotação no acesso. A segurança precisa ser reforçada no fim da tarde.",
+        timestamp: now - 3600000 * 2,
+      },
+      {
+        id: "mock-2",
+        destino: "Praia da Pipa",
+        nota_geral: 5,
+        limpo: true,
+        sinalizado: true,
+        preservado: true,
+        acessibilidade: true,
+        seguranca: true,
+        custo_beneficio: true,
+        conservacao: true,
+        superlotado: false,
+        comentario: "Excelente passeio! Baía dos Golfinhos é maravilhosa e muito limpa. O acesso às falésias tem boa sinalização.",
+        timestamp: now - 3600000 * 4,
+      },
+      {
+        id: "mock-3",
+        destino: "São Miguel do Gostoso",
+        nota_geral: 4,
+        limpo: true,
+        sinalizado: false,
+        preservado: true,
+        acessibilidade: true,
+        seguranca: true,
+        custo_beneficio: true,
+        conservacao: true,
+        superlotado: false,
+        comentario: "Muito tranquilo, praia preservada e com excelente vento para velejar. Apenas falta um pouco mais de sinalização urbana.",
+        timestamp: now - 3600000 * 12,
+      }
+    ];
+    localStorage.setItem("dunastech_feedbacks", JSON.stringify(initialMockFeedbacks));
+  }
+
   // Fallback: poll localStorage every 2s
   const interval = setInterval(() => {
     const stored = localStorage.getItem("dunastech_feedbacks");
