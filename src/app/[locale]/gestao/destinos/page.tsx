@@ -1,15 +1,23 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { destinosInfo, fluxoData, ibgeData } from "@/data/mockData";
 import { Badge } from "@/components/ui/Badge";
 import { MapPin, Users, Activity } from "lucide-react";
+import { slugify } from "@/lib/utils";
+
+const DestinosMap = dynamic(
+  () => import("@/components/admin/DestinosMap"),
+  { ssr: false }
+);
 
 export default function DestinosGestaoPage() {
   return (
     <AdminLayout>
       <div className="space-y-6 animate-fade-in-up">
+        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold">Destinos Turísticos Monitorados</h1>
@@ -20,13 +28,18 @@ export default function DestinosGestaoPage() {
           <Badge variant="primary" size="md">15 Destinos Ativos</Badge>
         </div>
 
+        {/* Map Container */}
+        <DestinosMap destinations={destinosInfo} />
+
+        {/* Destinations Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {destinosInfo.map((d) => {
             const fluxo = fluxoData.find((f) => f.destino === d.nome);
             const ibge = ibgeData.find((i) => i.destino === d.nome);
             
             return (
-              <Card key={d.nome} className="overflow-hidden flex flex-col justify-between hover:border-[var(--color-primary)] transition-all">
+              <Card key={d.nome} id={slugify(d.nome)} className="overflow-hidden flex flex-col justify-between hover:border-[var(--color-primary)] transition-all scroll-mt-20">
+
                 <div>
                   <div className="relative">
                     <img src={d.imagem} alt={d.nome} className="w-full h-44 object-cover rounded-t-xl" />

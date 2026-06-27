@@ -8,12 +8,166 @@ import { Button } from "@/components/ui/Button";
 import { destinosInfo, fluxoData, transporteData, investimentosData, calcularISA } from "@/data/mockData";
 import type { Feedback } from "@/data/mockData";
 import { subscribeFeedbacks } from "@/lib/firebase";
-import { Brain, Sparkles, Loader2, Send, MessageSquare, ShieldAlert } from "lucide-react";
+import { 
+  Brain, Sparkles, Loader2, Send, MessageSquare, ShieldAlert,
+  TrendingUp, Trash2, Bus, ShieldCheck, Wrench, Activity, AlertCircle
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ChatMessage {
   sender: "user" | "ai";
   text: string;
+}
+
+interface StructuredReport {
+  isaScore: number;
+  isaLabel: string;
+  saturation: number;
+  saturationLabel: string;
+  flowTrend: string;
+  predictiveDiagnostic: string;
+  proposals: Array<{
+    num: number;
+    title: string;
+    description: string;
+    budget?: string;
+  }>;
+}
+
+function parseDiagnosticReport(text: string): StructuredReport | null {
+  if (!text) return null;
+  
+  // Support for Mock Gemini V2 format
+  if (text.includes("## 🤖 Diagnóstico IA") || text.includes("Ações Recomendadas:")) {
+    try {
+      const isaMatch = text.match(/(?:ISA:\s*|ISA de\s*\*\*)(\d+)/i);
+      const isaScore = isaMatch ? parseInt(isaMatch[1]) : 65;
+      
+      const levelMatch = text.match(/Nível de Alerta:\s*([^\s|*]+)/i) || text.match(/score de alerta\s*"([^"]+)"/i);
+      const isaLabel = levelMatch ? levelMatch[1].trim() : (isaScore >= 80 ? "Excelente" : isaScore >= 60 ? "Moderado" : "Crítico");
+      
+      const actionsSection = text.split(/(?:### Ações Recomendadas:|Ações Recomendadas:)/i)[1] || "";
+      const actionLines = actionsSection.match(/^\d+\.\s*.*$/gm) || [];
+      
+      const proposals = actionLines.map((line, idx) => {
+        const match = line.match(/^\d+\.\s*\*\*([^*]+)\*\*:\s*(.*)$/) || line.match(/^\d+\.\s*([^:]+):\s*(.*)$/);
+        return {
+          num: idx + 1,
+          title: match ? match[1].trim() : "Ação Recomendada",
+          description: match ? match[2].trim() : line.replace(/^\d+\.\s*/, "").trim(),
+        };
+      });
+
+      const paragraphs = text.split("\n").map(p => p.trim()).filter(p => p && !p.startsWith("#") && !p.startsWith("-"));
+      const diagnosticText = paragraphs.slice(0, 2).join("\n\n");
+
+      return {
+        isaScore,
+        isaLabel,
+        saturation: isaScore < 60 ? 88 : isaScore < 80 ? 76 : 48,
+        saturationLabel: isaScore < 60 ? "Sobrecarga" : isaScore < 80 ? "Atenção" : "Sustentável",
+        flowTrend: isaScore < 60 ? "Pressão Extrema" : isaScore < 80 ? "Alta Pressão" : "Crescimento Estável",
+        predictiveDiagnostic: diagnosticText,
+        proposals,
+      };
+    } catch (e) {
+      console.error("Mock report parse error:", e);
+    }
+  }
+
+  // Support for Health Report format
+  if (!text.includes("Índice ISA") && !text.includes("DIAGNÓSTICO PREDITIVO")) return null;
+
+  try {
+    const isaMatch = text.match(/Índice ISA:\s*(\d+)\/100(?:\s*\((.*?)\))?/i);
+    const satMatch = text.match(/Saturação(?: de Visitantes)?:\s*(\d+)%(?:\s*\((.*?)\))?/i);
+    const trendMatch = text.match(/Tendência de Fluxo:\s*(.*?)(?:\r?\n|$)/i);
+    const diagMatch = text.match(/DIAGNÓSTICO PREDITIVO:\s*([\s\S]*?)(?=PROPOSTAS DE INVESTIMENTO|Ações Recomendadas|$)/i);
+    
+    const proposalsSection = text.split(/PROPOSTAS DE INVESTIMENTO DE ZELADORIA:|Ações Recomendadas:/i)[1] || "";
+    const proposalLines = proposalsSection.match(/^\d+\.\s*.*$/gm) || [];
+    
+    const proposals = proposalLines.map((line, idx) => {
+      const match = line.match(/^(\d+)\.\s*([^:]+):\s*(.*)$/);
+      const budgetMatch = line.match(/(?:R\$\s*\d+(?:\.\d+)?\s*[M|K|milhões|mil]*)/i);
+      
+      if (match) {
+        return {
+          num: parseInt(match[1]),
+          title: match[2].trim(),
+          description: match[3].trim(),
+          budget: budgetMatch ? budgetMatch[0].trim() : undefined,
+        };
+      }
+      return {
+        num: idx + 1,
+        title: "Ação de Zeladoria",
+        description: line.replace(/^\d+\.\s*/, "").trim(),
+        budget: budgetMatch ? budgetMatch[0].trim() : undefined,
+      };
+    });
+
+    return {
+      isaScore: isaMatch ? parseInt(isaMatch[1]) : 65,
+      isaLabel: isaMatch && isaMatch[2] ? isaMatch[2].trim() : "Moderado",
+      saturation: satMatch ? parseInt(satMatch[1]) : 50,
+      saturationLabel: satMatch && satMatch[2] ? satMatch[2].trim() : "Normal",
+      flowTrend: trendMatch ? trendMatch[1].trim() : "Estável",
+      predictiveDiagnostic: diagMatch ? diagMatch[1].trim() : "",
+      proposals,
+    };
+  } catch (e) {
+    console.error("Report parse error:", e);
+    return null;
+  }
+}
+
+function renderMarkdownBeautifully(text: string) {
+  const lines = text.split("\n");
+  return (
+    <div className="space-y-4 text-left leading-relaxed text-xs text-[var(--color-text-secondary)] bg-[var(--color-surface-alt)] p-4 rounded-xl border border-[var(--color-border-light)] shadow-sm">
+      {lines.map((line, idx) => {
+        const trimmed = line.trim();
+        if (!trimmed) return <div key={idx} className="h-1.5" />;
+        
+        if (trimmed.startsWith("###")) {
+          return (
+            <h4 key={idx} className="text-xs font-bold text-[var(--color-text)] border-b border-[var(--color-border-light)] pb-1 pt-1.5 mt-2 flex items-center gap-1">
+              <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+              {trimmed.replace(/^###\s*/, "")}
+            </h4>
+          );
+        }
+        if (trimmed.startsWith("##")) {
+          return (
+            <h3 key={idx} className="text-sm font-extrabold text-[var(--color-primary)] pt-2 pb-0.5 border-b border-[var(--color-border-light)]">
+              {trimmed.replace(/^##\s*/, "")}
+            </h3>
+          );
+        }
+        if (trimmed.startsWith("-") || trimmed.startsWith("•")) {
+          return (
+            <div key={idx} className="flex items-start gap-1.5 pl-1.5 text-[11px]">
+              <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[var(--color-primary)] flex-shrink-0" />
+              <span>{trimmed.replace(/^[-•]\s*/, "")}</span>
+            </div>
+          );
+        }
+        
+        const parts = trimmed.split(/(\*\*[^*]+\*\*)/g);
+        return (
+          <p key={idx} className="text-[11px] leading-relaxed text-[var(--color-text-secondary)]">
+            {parts.map((part, pIdx) => {
+              if (part.startsWith("**") && part.endsWith("**")) {
+                return <strong key={pIdx} className="font-extrabold text-[var(--color-text)]">{part.slice(2, -2)}</strong>;
+              }
+              return part;
+            })}
+          </p>
+        );
+      })}
+    </div>
+  );
 }
 
 // Local high-fidelity mock reports so that the UI is instantly populated and never empty!
@@ -220,10 +374,173 @@ export default function IAGestaoPage() {
                   <Badge variant="info" size="sm">Gemini 1.5 Pro</Badge>
                 </div>
 
-                <div className="flex-1 pt-4 text-left leading-relaxed text-xs text-[var(--color-text-secondary)]">
-                  <div className="whitespace-pre-line bg-[var(--color-surface-alt)] p-4 rounded-xl border border-[var(--color-border-light)] font-mono text-[11px] leading-relaxed text-slate-300">
-                    {aiInsight}
-                  </div>
+                <div className="flex-1 pt-4">
+                  {(() => {
+                    const parsed = parseDiagnosticReport(aiInsight);
+                    if (parsed) {
+                      return (
+                        <div className="space-y-4">
+                          {/* 3 Indicators Row */}
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            {/* ISA Gauge */}
+                            <div className="bg-[var(--color-surface-alt)] border border-[var(--color-border-light)] rounded-xl p-3 flex flex-col items-center text-center justify-between shadow-sm relative overflow-hidden">
+                              <span className="text-[9px] text-[var(--color-text-muted)] uppercase tracking-wider font-bold">Índice ISA</span>
+                              
+                              <div className="relative flex items-center justify-center my-2.5 h-16 w-16">
+                                <svg className="w-full h-full transform -rotate-90">
+                                  <circle
+                                    cx="32"
+                                    cy="32"
+                                    r="26"
+                                    stroke="var(--color-border-light)"
+                                    strokeWidth="4"
+                                    fill="transparent"
+                                  />
+                                  <circle
+                                    cx="32"
+                                    cy="32"
+                                    r="26"
+                                    stroke={parsed.isaScore >= 80 ? "var(--color-success)" : parsed.isaScore >= 60 ? "var(--color-warning)" : "var(--color-danger)"}
+                                    strokeWidth="4"
+                                    fill="transparent"
+                                    strokeDasharray={2 * Math.PI * 26}
+                                    strokeDashoffset={2 * Math.PI * 26 * (1 - parsed.isaScore / 100)}
+                                    className="transition-all duration-1000 ease-out"
+                                    strokeLinecap="round"
+                                  />
+                                </svg>
+                                <div className="absolute flex flex-col items-center">
+                                  <span className="text-sm font-black text-[var(--color-text)] leading-none">{parsed.isaScore}</span>
+                                  <span className="text-[8px] text-[var(--color-text-muted)]">/100</span>
+                                </div>
+                              </div>
+
+                              <Badge variant={parsed.isaScore >= 80 ? "success" : parsed.isaScore >= 60 ? "warning" : "danger"} size="sm">
+                                {parsed.isaLabel}
+                              </Badge>
+                            </div>
+
+                            {/* Saturation */}
+                            <div className="bg-[var(--color-surface-alt)] border border-[var(--color-border-light)] rounded-xl p-3 flex flex-col justify-between shadow-sm text-left">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[9px] text-[var(--color-text-muted)] uppercase tracking-wider font-bold">Saturação Carga</span>
+                                <Activity className="h-3.5 w-3.5 text-[var(--color-accent)] animate-pulse" />
+                              </div>
+                              
+                              <div className="my-1.5 space-y-1">
+                                <div className="flex justify-between items-end">
+                                  <span className="text-base font-black text-[var(--color-text)]">{parsed.saturation}%</span>
+                                  <span className="text-[8px] text-[var(--color-text-muted)]">{parsed.saturationLabel}</span>
+                                </div>
+                                <div className="h-1.5 w-full bg-[var(--color-border-light)] rounded-full overflow-hidden">
+                                  <div
+                                    className={cn(
+                                      "h-full rounded-full transition-all duration-1000",
+                                      parsed.saturation > 85 ? "bg-[var(--color-danger)]" : parsed.saturation > 70 ? "bg-[var(--color-warning)]" : "bg-[var(--color-success)]"
+                                    )}
+                                    style={{ width: `${parsed.saturation}%` }}
+                                  />
+                                </div>
+                              </div>
+                              <span className="text-[8px] text-[var(--color-text-muted)] leading-none">Capacidade do ponto</span>
+                            </div>
+
+                            {/* Flow Trend */}
+                            <div className="bg-[var(--color-surface-alt)] border border-[var(--color-border-light)] rounded-xl p-3 flex flex-col justify-between shadow-sm text-left">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[9px] text-[var(--color-text-muted)] uppercase tracking-wider font-bold">Fluxo Previsto</span>
+                                <TrendingUp className="h-3.5 w-3.5 text-[var(--color-primary)]" />
+                              </div>
+
+                              <div className="my-2">
+                                <span className="text-[11px] font-extrabold text-[var(--color-text)] leading-tight block">
+                                  {parsed.flowTrend}
+                                </span>
+                              </div>
+
+                              <span className="text-[8px] text-[var(--color-text-muted)] leading-none">Status de transporte</span>
+                            </div>
+                          </div>
+
+                          {/* Predictive Diagnostic paragraph */}
+                          {parsed.predictiveDiagnostic && (
+                            <div className="p-3.5 rounded-xl border-l-4 border-l-[var(--color-primary)] bg-[var(--color-surface-alt)] shadow-sm text-left">
+                              <h4 className="text-[10px] font-bold text-[var(--color-text)] flex items-center gap-1 mb-1 uppercase tracking-wider">
+                                <Brain className="w-3.5 h-3.5 text-[var(--color-primary)]" />
+                                Auditoria de Risco IA
+                              </h4>
+                              <p className="text-[11px] text-[var(--color-text-secondary)] leading-relaxed whitespace-pre-line">
+                                {parsed.predictiveDiagnostic}
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Proposals list */}
+                          {parsed.proposals && parsed.proposals.length > 0 && (
+                            <div className="space-y-2 text-left">
+                              <h4 className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider pl-1">
+                                Recomendações de Investimento & Zeladoria
+                              </h4>
+                              <div className="space-y-2 max-h-[190px] overflow-y-auto pr-1">
+                                {parsed.proposals.map((prop) => {
+                                  const titleLower = prop.title.toLowerCase();
+                                  const isCleaning = titleLower.includes("limpeza") || titleLower.includes("saneamento");
+                                  const isMobility = titleLower.includes("fluxo") || titleLower.includes("tráfego") || titleLower.includes("mobilidade") || titleLower.includes("carga") || titleLower.includes("estacionamento");
+                                  const isCadastur = titleLower.includes("cadastro") || titleLower.includes("cadastur") || titleLower.includes("certificação") || titleLower.includes("fiscalização") || titleLower.includes("selo") || titleLower.includes("edital");
+
+                                  let IconItem = Wrench;
+                                  let iconColor = "text-[var(--color-warning)]";
+                                  let iconBg = "bg-[var(--color-warning-soft)]";
+
+                                  if (isCleaning) {
+                                    IconItem = Trash2;
+                                    iconColor = "text-emerald-500";
+                                    iconBg = "bg-emerald-500/10";
+                                  } else if (isMobility) {
+                                    IconItem = Bus;
+                                    iconColor = "text-[var(--color-primary)]";
+                                    iconBg = "bg-[var(--color-primary-soft)]";
+                                  } else if (isCadastur) {
+                                    IconItem = ShieldCheck;
+                                    iconColor = "text-indigo-500";
+                                    iconBg = "bg-indigo-500/10";
+                                  }
+
+                                  return (
+                                    <div
+                                      key={prop.num}
+                                      className="flex items-start gap-2.5 p-2.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface)] hover:border-[var(--color-border)] transition-colors shadow-sm"
+                                    >
+                                      <div className={cn("h-7 w-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5", iconBg)}>
+                                        <IconItem className={cn("h-3.5 w-3.5", iconColor)} />
+                                      </div>
+                                      
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 justify-between">
+                                          <span className="text-[11px] font-bold text-[var(--color-text)]">
+                                            {prop.num}. {prop.title}
+                                          </span>
+                                          {prop.budget && (
+                                            <span className="text-[8px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                                              {prop.budget}
+                                            </span>
+                                          )}
+                                        </div>
+                                        <p className="text-[10px] text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">
+                                          {prop.description}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+                    return renderMarkdownBeautifully(aiInsight);
+                  })()}
                 </div>
               </div>
 

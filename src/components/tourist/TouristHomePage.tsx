@@ -739,37 +739,89 @@ export default function TouristHomePage() {
         </Link>
       </section>
 
-      {/* ═══ All Destinations Grid ═══ */}
+      {/* ═══ All Destinations List ═══ */}
       <section className="max-w-7xl mx-auto px-4 pb-12">
         <h2 className="text-2xl font-bold text-[var(--color-text)] mb-6">Todos os Destinos</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="space-y-4">
           {destinations.map((dest) => {
             const badge = getISABadge(dest.isa);
             return (
               <Link
                 key={dest.nome}
                 href={`/destino/${slugify(dest.nome)}`}
-                className="group"
+                className="block group"
               >
-                <div className="surface-card-interactive p-4 text-center flex flex-col items-center">
-                  <div className="relative h-24 w-24 rounded-2xl overflow-hidden mb-3">
+                <div className="surface-card-interactive p-4 flex flex-col sm:flex-row items-center gap-4 text-left">
+                  {/* Left: Image */}
+                  <div className="relative h-20 w-20 sm:h-24 sm:w-24 rounded-2xl overflow-hidden flex-shrink-0">
                     <Image
                       src={dest.imagem || '/images/destinations/hero_ponta_negra.png'}
                       alt={dest.nome}
                       fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-110"
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
                       sizes="96px"
                     />
                   </div>
-                  <p className="text-xs font-bold text-[var(--color-text)] truncate max-w-full">{dest.nome}</p>
-                  <div className="flex items-center justify-center gap-1 mt-1.5">
-                    <span className={cn(
-                      'h-1.5 w-1.5 rounded-full',
-                      badge.variant === 'success' && 'bg-[var(--color-success)]',
-                      badge.variant === 'warning' && 'bg-[var(--color-warning)]',
-                      badge.variant === 'danger' && 'bg-[var(--color-danger)]',
-                    )} />
-                    <span className="text-[10px] text-[var(--color-text-muted)] font-[var(--font-mono)]">{dest.isa}</span>
+
+                  {/* Middle: Content */}
+                  <div className="flex-1 min-w-0 space-y-1.5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-base font-bold text-[var(--color-text)] group-hover:text-[var(--color-primary)] transition-colors">
+                        {dest.nome}
+                      </h3>
+                      <span className="text-[10px] text-[var(--color-text-secondary)] font-semibold flex items-center gap-0.5 bg-[var(--color-surface-alt)] px-2 py-0.5 rounded-lg border border-[var(--color-border-light)]">
+                        <MapPin className="h-3 w-3 text-[var(--color-primary)] animate-bounce" />
+                        {dest.municipio}
+                      </span>
+                    </div>
+                    
+                    <p className="text-xs text-[var(--color-text-secondary)] line-clamp-1 leading-relaxed">
+                      {dest.descricao}
+                    </p>
+
+                    {/* Stats & Metadata */}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-1 text-[10px] font-medium text-[var(--color-text-muted)]">
+                      <span className="flex items-center gap-1">
+                        <Users className="h-3.5 w-3.5 text-[var(--color-primary)]" />
+                        Fluxo: <strong className="text-[var(--color-text)]">{dest.fluxo ? (dest.fluxo.fluxo_visitantes_mes / 1000).toFixed(0) + 'k' : '0'}</strong>/mês
+                      </span>
+                      <div className="hidden sm:block h-3 w-px bg-[var(--color-border-light)]" />
+                      <span className="flex items-center gap-1">
+                        <Shield className="h-3.5 w-3.5 text-[var(--color-success)]" />
+                        Cadastur: <strong className="text-[var(--color-text)]">{dest.partners.length}</strong> parceiros
+                      </span>
+                      <div className="hidden sm:block h-3 w-px bg-[var(--color-border-light)]" />
+                      <span className="flex items-center gap-1">
+                        <span className="text-[var(--color-accent)] font-bold">#</span>
+                        Hashtag: <strong className="text-[var(--color-text)]">#{dest.hashtag}</strong>
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Right: ISA score ring & button */}
+                  <div className="flex flex-row sm:flex-col items-center gap-3 sm:gap-2 sm:self-center flex-shrink-0 w-full sm:w-auto justify-between sm:justify-center border-t sm:border-t-0 border-[var(--color-border-light)] pt-3 sm:pt-0 mt-2 sm:mt-0">
+                    <div className="flex items-center gap-2">
+                      <div className="text-right">
+                        <span className="text-[9px] text-[var(--color-text-muted)] uppercase tracking-wider block font-bold leading-none mb-0.5">Índice ISA</span>
+                        <div className="flex items-center gap-1 justify-end">
+                          <span className={cn(
+                            'h-1.5 w-1.5 rounded-full animate-pulse',
+                            badge.variant === 'success' && 'bg-[var(--color-success)]',
+                            badge.variant === 'warning' && 'bg-[var(--color-warning)]',
+                            badge.variant === 'danger' && 'bg-[var(--color-danger)]',
+                          )} />
+                          <span className="text-xs font-black text-[var(--color-text)] font-[var(--font-mono)]">{dest.isa}</span>
+                        </div>
+                      </div>
+                      <Badge variant={badge.variant} size="sm">
+                        {badge.label}
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center gap-1 text-xs font-bold text-[var(--color-primary)] group-hover:translate-x-1 transition-transform duration-200">
+                      <span>Ver Destino</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </div>
                   </div>
                 </div>
               </Link>

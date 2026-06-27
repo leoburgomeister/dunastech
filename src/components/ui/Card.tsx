@@ -24,11 +24,13 @@ interface CardProps {
   className?: string;
   children?: ReactNode;
   onClick?: () => void;
+  id?: string;
 }
 
-export function Card({ variant = 'default', padding = 'md', className, children, onClick }: CardProps) {
+export function Card({ variant = 'default', padding = 'md', className, children, onClick, id }: CardProps) {
   return (
     <div
+      id={id}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}

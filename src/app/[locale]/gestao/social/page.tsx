@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { destinosInfo, fluxoData } from "@/data/mockData";
-import { Share2, Heart, MessageCircle, Camera, Loader2 } from "lucide-react";
+import { Share2, Heart, MessageCircle, Camera, Loader2, Settings, Key, Check } from "lucide-react";
 
 interface InstagramPost {
   id: string;
@@ -31,8 +31,24 @@ export default function SocialGestaoPage() {
   const [instagramData, setInstagramData] = useState<InstagramResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [forceRefresh, setForceRefresh] = useState(false);
+  
+  // Apify Token local state
+  const [apiToken, setApiToken] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("dunastech_apify_token") || "";
+    }
+    return "";
+  });
+  const [showTokenInput, setShowTokenInput] = useState(false);
+  const [tokenSaved, setTokenSaved] = useState(false);
 
   const currentFluxo = fluxoData.find((f) => f.destino === selectedDestino);
+
+  const saveToken = () => {
+    localStorage.setItem("dunastech_apify_token", apiToken);
+    setTokenSaved(true);
+    setTimeout(() => setTokenSaved(false), 3000);
+  };
 
   const fetchInstagramData = async () => {
     setLoading(true);
@@ -41,7 +57,7 @@ export default function SocialGestaoPage() {
       const res = await fetch("/api/scraper", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ hashtag, forceRefresh }),
+        body: JSON.stringify({ hashtag, forceRefresh, apiToken }),
       });
       const data = await res.json();
       setInstagramData(data);
@@ -65,6 +81,15 @@ export default function SocialGestaoPage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            {/* Settings button */}
+            <button
+              onClick={() => setShowTokenInput(!showTokenInput)}
+              className="p-2 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors cursor-pointer"
+              title="Configurações de API"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+
             {/* Force Refresh toggle checkbox */}
             <label className="flex items-center gap-2 text-xs text-[var(--color-text-secondary)] font-semibold cursor-pointer select-none">
               <input
@@ -107,6 +132,60 @@ export default function SocialGestaoPage() {
             </Button>
           </div>
         </div>
+
+        {/* API Settings Collapsible Card */}
+        {showTokenInput && (
+          <Card className="p-4 border-[var(--color-primary)]/20 bg-[var(--color-primary-soft)]/5 space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold text-[var(--color-text)] flex items-center gap-1.5">
+                <Key className="w-4 h-4 text-[var(--color-primary)]" />
+                Configuração do Token do Apify Scraper
+              </h3>
+              <span className="text-[10px] text-[var(--color-text-muted)]">Salvo localmente no navegador</span>
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="password"
+                value={apiToken}
+                onChange={(e) => setApiToken(e.target.value)}
+                placeholder="Insira seu API Token do Apify (apify_api_...)"
+                className="flex-1 px-3 py-2 text-xs rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text)] focus:outline-none focus:border-[var(--color-primary)]"
+              />
+              <Button
+                onClick={saveToken}
+                size="sm"
+                variant={tokenSaved ? "accent" : "primary"}
+              >
+                {tokenSaved ? (
+                  <span className="flex items-center gap-1">
+                    <Check className="w-3.5 h-3.5" /> Salvo!
+                  </span>
+                ) : (
+                  "Salvar Chave"
+                )}
+              </Button>
+            </div>
+            <p className="text-[10px] text-[var(--color-text-muted)] leading-relaxed">
+              Você pode encontrar o seu token de API em seu perfil do Apify sob a aba <strong>Settings &gt; Integrations</strong>. O token é necessário para buscar dados orgânicos em tempo real do Instagram.
+            </p>
+          </Card>
+        )}
+
+        {/* Warning Banner if Token is missing */}
+        {!apiToken && (
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-[var(--color-warning-soft)] border border-[var(--color-warning)]/20 text-left">
+            <Key className="h-5 w-5 text-[var(--color-warning)] flex-shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <p className="text-xs text-[var(--color-warning)] font-bold">
+                Integração do Instagram rodando em modo Simulado
+              </p>
+              <p className="text-[10px] text-[var(--color-warning)] leading-relaxed opacity-90">
+                Como nenhum token do Apify foi configurado ainda, o sistema exibirá dados históricos mockados. Para utilizar a API real e buscar posts ao vivo, clique no ícone de engrenagem <Settings className="inline w-3 h-3 mx-0.5" /> no canto superior direito e insira o seu token pessoal.
+              </p>
+            </div>
+          </div>
+        )}
+
 
         {/* Scraped Output */}
         {!instagramData && !loading ? (

@@ -1,7 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { TrendingUp, TrendingDown, type LucideIcon } from 'lucide-react';
+import { TrendingUp, TrendingDown, Info, type LucideIcon } from 'lucide-react';
 
 interface KPICardProps {
   title: string;
@@ -10,6 +11,7 @@ interface KPICardProps {
   icon: LucideIcon;
   accentColor?: 'primary' | 'accent' | 'success' | 'warning' | 'danger' | 'info';
   className?: string;
+  formula?: { expressao: string; explicacao: string };
 }
 
 const accentColors = {
@@ -45,16 +47,53 @@ const accentColors = {
   },
 };
 
-export function KPICard({ title, value, trend, icon: Icon, accentColor = 'primary', className }: KPICardProps) {
+export function KPICard({ title, value, trend, icon: Icon, accentColor = 'primary', className, formula }: KPICardProps) {
   const colors = accentColors[accentColor];
+  const [showTooltip, setShowTooltip] = useState(false);
 
   return (
-    <div className={cn('surface-card p-5 flex items-start gap-4', className)}>
+    <div className={cn('surface-card p-5 flex items-start gap-4 relative overflow-visible', className)}>
       <div className={cn('flex-shrink-0 h-11 w-11 rounded-xl flex items-center justify-center ring-1', colors.bg, colors.ring)}>
         <Icon className={cn('h-5 w-5', colors.icon)} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wider mb-1">{title}</p>
+        <div className="flex items-center gap-1.5 mb-1">
+          <p className="text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wider">{title}</p>
+          
+          {formula && (
+            <div 
+              className="relative flex items-center"
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+            >
+              <button
+                type="button"
+                onClick={() => setShowTooltip(!showTooltip)}
+                className="p-0.5 rounded text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors focus:outline-none cursor-pointer"
+              >
+                <Info className="h-3.5 w-3.5" />
+              </button>
+
+              {showTooltip && (
+                <div className="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 w-64 p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-2xl z-50 text-left animate-fade-in text-xs space-y-1.5 pointer-events-none">
+                  <div className="flex items-center justify-between border-b border-[var(--color-border-light)] pb-1 mb-1">
+                    <span className="font-bold text-[var(--color-text)]">Fórmula de Cálculo</span>
+                    <Info className="h-3 w-3 text-[var(--color-primary)]" />
+                  </div>
+                  <div className="font-mono text-[var(--color-primary)] bg-[var(--color-surface-alt)] px-2 py-1 rounded border border-[var(--color-border-light)] break-words text-center text-[10px]">
+                    {formula.expressao}
+                  </div>
+                  <p className="text-[10px] text-[var(--color-text-secondary)] leading-relaxed">
+                    {formula.explicacao}
+                  </p>
+                  {/* Arrow tooltip */}
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-[var(--color-surface)] border-r border-b border-[var(--color-border)]" />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         <div className="flex items-end gap-2">
           <p className="text-2xl font-bold text-[var(--color-text)] font-[var(--font-heading)] tracking-tight">{value}</p>
           {trend && (

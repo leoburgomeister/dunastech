@@ -35,7 +35,7 @@ const CACHE_TTL = 3600 * 1000 * 6; // 6 hours cache time-to-live
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { hashtag, forceRefresh } = body;
+    const { hashtag, forceRefresh, apiToken: clientApiToken } = body;
 
     if (!hashtag) {
       return NextResponse.json(
@@ -44,8 +44,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const apiToken = process.env.APIFY_API_TOKEN || clientApiToken;
     const now = Date.now();
-    if (!forceRefresh && instagramCache[hashtag] && (now - instagramCache[hashtag].timestamp < CACHE_TTL)) {
+    const hasCache = instagramCache[hashtag];
+    const isMockCache = hasCache && instagramCache[hashtag].data.source === "mock";
+
+    if (!forceRefresh && hasCache && (now - instagramCache[hashtag].timestamp < CACHE_TTL) && !(apiToken && isMockCache)) {
       console.log(`Returning cached Instagram results for hashtag: #${hashtag}`);
       return NextResponse.json({
         ...instagramCache[hashtag].data,
@@ -53,7 +57,6 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const apiToken = process.env.APIFY_API_TOKEN;
 
     if (!apiToken) {
       // Return mock data when no API token is configured

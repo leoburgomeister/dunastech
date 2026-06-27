@@ -680,6 +680,67 @@ export default function PitchPage() {
                             <h4 className="text-xs font-black text-slate-800 leading-snug">
                               Roteiro Personalizado: {simulatedDest.split(" e ")[0]}
                             </h4>
+
+                            {/* Mini Interactive Vector Map */}
+                            <div className="w-full h-24 bg-sky-50/60 border border-slate-200 rounded-xl relative overflow-hidden flex items-center justify-center">
+                              {/* Background ocean & beach curves */}
+                              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 200 100" preserveAspectRatio="none">
+                                {/* Coastline shape */}
+                                <path
+                                  d="M 0,90 Q 60,85 100,50 T 200,30 L 200,100 L 0,100 Z"
+                                  fill="#FEFBF0"
+                                  stroke="#FFE4A3"
+                                  strokeWidth="1.5"
+                                />
+                                {/* Ocean waves details */}
+                                <path d="M 30,30 Q 50,25 70,30" stroke="#bae6fd" strokeWidth="1" fill="none" opacity="0.6" />
+                                <path d="M 120,20 Q 140,15 160,20" stroke="#bae6fd" strokeWidth="1" fill="none" opacity="0.6" />
+
+                                {/* Route path connection line */}
+                                <path
+                                  d="M 50,65 Q 90,55 130,45"
+                                  stroke="var(--color-primary)"
+                                  strokeWidth="1.5"
+                                  strokeDasharray="3,3"
+                                  fill="none"
+                                  className="animate-pulse"
+                                />
+                              </svg>
+
+                              {/* Stop Pin 1 */}
+                              <div className="absolute" style={{ left: "22%", top: "60%" }}>
+                                <span className="absolute -left-1 -top-1 h-4.5 w-4.5 rounded-full bg-cyan-400/30 animate-ping" />
+                                <div className="h-2.5 w-2.5 rounded-full bg-cyan-600 border border-white shadow-sm flex items-center justify-center relative group">
+                                  <span className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded bg-slate-900 text-[6px] font-bold text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                                    Stop 1
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Stop Pin 2 */}
+                              <div className="absolute" style={{ left: "45%", top: "50%" }}>
+                                <span className="absolute -left-1 -top-1 h-4.5 w-4.5 rounded-full bg-amber-400/30 animate-ping" />
+                                <div className="h-2.5 w-2.5 rounded-full bg-amber-500 border border-white shadow-sm flex items-center justify-center relative group">
+                                  <span className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded bg-slate-900 text-[6px] font-bold text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                                    Stop 2
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Stop Pin 3 */}
+                              <div className="absolute" style={{ left: "72%", top: "38%" }}>
+                                <span className="absolute -left-1 -top-1 h-4.5 w-4.5 rounded-full bg-green-400/30 animate-ping" />
+                                <div className="h-2.5 w-2.5 rounded-full bg-green-600 border border-white shadow-sm flex items-center justify-center relative group">
+                                  <span className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded bg-slate-900 text-[6px] font-bold text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                                    Stop 3
+                                  </span>
+                                </div>
+                              </div>
+
+                              <span className="absolute bottom-1 right-2 text-[7px] font-bold text-amber-800 uppercase tracking-widest bg-amber-100/60 px-1 rounded">
+                                Mapa da Rota IA
+                              </span>
+                            </div>
                             
                             {/* Dynamic Stops */}
                             <div className="space-y-3 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-[2px] before:bg-cyan-100">

@@ -219,6 +219,10 @@ export default function AdminDashboardPage() {
           trend={{ value: 12, direction: 'up' }}
           icon={Users}
           accentColor="primary"
+          formula={{
+            expressao: "∑ (Fluxo Mensal dos Destinos)",
+            explicacao: "Soma do fluxo de visitantes estimado para o mês nos destinos ativos no filtro."
+          }}
         />
         <KPICard
           title="Receita Gerada"
@@ -226,6 +230,10 @@ export default function AdminDashboardPage() {
           trend={{ value: 8, direction: 'up' }}
           icon={DollarSign}
           accentColor="success"
+          formula={{
+            expressao: "∑ (Receita Mensal em Milhões)",
+            explicacao: "Soma do impacto financeiro direto estimado em milhões de reais nos destinos ativos no filtro."
+          }}
         />
         <KPICard
           title="ISA do Filtro"
@@ -233,6 +241,10 @@ export default function AdminDashboardPage() {
           trend={{ value: 3, direction: kpis.avgISA >= 70 ? 'up' : 'down' }}
           icon={Activity}
           accentColor={kpis.avgISA >= 70 ? 'accent' : 'warning'}
+          formula={{
+            expressao: "Média (ISA dos Destinos)",
+            explicacao: "Média aritmética do Índice de Saúde do Atrativo (ISA) ponderado por critérios de zeladoria e superlotação dos pontos sob o filtro."
+          }}
         />
         <KPICard
           title="Variação de Fluxo"
@@ -240,6 +252,10 @@ export default function AdminDashboardPage() {
           trend={{ value: Math.abs(kpis.avgVariation), direction: kpis.avgVariation >= 0 ? 'up' : 'down' }}
           icon={TrendingUp}
           accentColor="info"
+          formula={{
+            expressao: "Média (Variação de Transporte)",
+            explicacao: "Média percentual de crescimento ou queda no fluxo de ônibus, veículos e voos terrestres/aéreos contra o mesmo período anterior."
+          }}
         />
       </div>
 
