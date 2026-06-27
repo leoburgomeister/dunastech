@@ -44,6 +44,7 @@ export interface CadasturBusiness {
   longitude: number;
   descricao: string;
   imagem: string;
+  experiencias?: { titulo: string; descricao: string }[];
 }
 
 export interface TransporteData {
@@ -384,7 +385,7 @@ export const destinosInfo: DestinoInfo[] = [
 ];
 
 // --- REAL CADASTUR BUSINESSES & VITRINE DATA ---
-export const cadasturData: CadasturBusiness[] = [
+const staticCadasturData: CadasturBusiness[] = [
   // Ponta Negra
   {
     id: "cad-pn-1",
@@ -709,6 +710,215 @@ export const cadasturData: CadasturBusiness[] = [
     imagem: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=500&h=350&fit=crop"
   }
 ];
+
+// Pools of descriptive, realistic experiences per category
+const experiencesPool: Record<CadasturBusiness['tipo'], { titulo: string; descricao: string }[]> = {
+  Hotel: [
+    { titulo: "Café da Manhã Regional", descricao: "Banquete completo com tapiocas feitas na hora, cuscuz quente, frutas tropicais e bolos artesanais." },
+    { titulo: "Piscina Panorâmica", descricao: "Acesso livre à área de lazer com piscina de borda infinita e vista para as belezas naturais." },
+    { titulo: "Serviço de Concierge", descricao: "Agendamento personalizado de passeios, transfers e reservas de restaurantes locais." },
+    { titulo: "Spa & Massagem", descricao: "Terapias relaxantes corporais e faciais utilizando óleos de coco e essências locais." },
+    { titulo: "Rooftop Sunset Lounge", descricao: "Drinks exclusivos e música ambiente de frente para o pôr do sol." },
+    { titulo: "Jantar Temático", descricao: "Noites dedicadas à culinária internacional e pratos típicos potiguares." }
+  ],
+  Pousada: [
+    { titulo: "Chá da Tarde Cortesia", descricao: "Deliciosa pausa no final da tarde com café fresco, chás e bolos caseiros locais." },
+    { titulo: "Espaço Zen & Redário", descricao: "Área sombreada sob coqueiros e árvores nativas para leitura, descanso e relaxamento." },
+    { titulo: "Aluguel de Bicicletas", descricao: "Explore a vila, o centrinho e as praias próximas de forma ecológica e no seu próprio ritmo." },
+    { titulo: "Aulas de Yoga Matinais", descricao: "Sessões guiadas de meditação e alongamento sob o deck com vista para o mar." },
+    { titulo: "Lounge de Areia Privativo", descricao: "Espreguiçadeiras confortáveis, guarda-sóis e serviço de bar diretamente na praia." },
+    { titulo: "Transfer sob Demanda", descricao: "Serviço de transporte exclusivo para os principais pontos de embarque e atrativos." }
+  ],
+  Restaurante: [
+    { titulo: "Menu Degustação Potiguar", descricao: "Experiência gastronômica completa guiada pelo chef, destacando ingredientes típicos da terra." },
+    { titulo: "Degustação de Cachaças", descricao: "Seleção harmonizada de cachaças artesanais produzidas no Rio Grande do Norte." },
+    { titulo: "Música Potiguar ao Vivo", descricao: "Apresentações acústicas de MPB, forró pé-de-serra clássico e bossa nova nas noites." },
+    { titulo: "Jantar Romântico à Luz de Velas", descricao: "Decoração especial com pétalas, iluminação suave e menu exclusivo de 3 tempos para casais." },
+    { titulo: "Oficina Ginga com Tapioca", descricao: "Aprenda com cozinheiras tradicionais a preparar e rechear a famosa receita potiguar." },
+    { titulo: "Espaço Kids Recreativo", descricao: "Área de recreação climatizada e segura para as crianças se divertirem com monitor." }
+  ],
+  Guia: [
+    { titulo: "Tour Fotográfico Potiguar", descricao: "Acompanhamento profissional registrando os melhores ângulos e luzes da sua jornada pelas dunas." },
+    { titulo: "Trilha Ecológica Interpretativa", descricao: "Explicação sobre a rica fauna, flora endêmica e formações geológicas das dunas e falésias." },
+    { titulo: "Kit Hidratação & Frutas", descricao: "Fornecimento de água fresca mineral, isotônicos e frutas da estação selecionadas." },
+    { titulo: "Itinerário Personalizado", descricao: "Roteiro montado sob medida, adaptando horários e paradas conforme o ritmo do turista." },
+    { titulo: "Suporte de Aventura Seguro", descricao: "Condutor qualificado nas normas ABNT de turismo de aventura com kit completo de salvamento." },
+    { titulo: "Guiamento Astronômico", descricao: "Observação noturna guiada do céu estrelado em regiões com baixa poluição luminosa." }
+  ],
+  Agência: [
+    { titulo: "Buggy Tour Credenciado", descricao: "Aventura pelas dunas móveis conduzida por pilotos certificados da associação local." },
+    { titulo: "Flutuação nos Parrachos", descricao: "Navegação rápida de catamarã ou lancha até os corais com snorkel e óculos inclusos." },
+    { titulo: "Transfer Conforto", descricao: "Veículos modernos de turismo com ar-condicionado buscando e deixando você no hotel." },
+    { titulo: "Roteiro Quadriciclo Falésias", descricao: "Expedição emocionante em caravana guiada por caminhos de falésias e lagoas de água doce." },
+    { titulo: "Passeio de Jangada Tradicional", descricao: "Navegação silenciosa pelo ecossistema de manguezais com jangadeiro nativo da região." },
+    { titulo: "Seguro Aventura Integrado", descricao: "Seguro viagem e aventura completo ativo para todos os passageiros durante as atividades." }
+  ]
+};
+
+const namePrefixes = [
+  "Mar", "Sol", "Vento", "Duna", "Costa", "Ouro", "Terra", "Brisa", "Porto", "Recanto",
+  "Mirante", "Estrela", "Sertão", "Caminho", "Horizonte", "Farol", "Falésia", "Coqueiro",
+  "Veleiro", "Maresia", "Amanhecer", "Ondas", "Pontal", "Enseada", "Atalaia"
+];
+
+const nameSuffixes = [
+  "do RN", "Potiguar", "do Sol", "do Nordeste", "da Praia", "das Falésias", "do Careca",
+  "de Pipa", "de Gostoso", "dos Reis Magos", "do Sertão", "da Duna", "da Lagoa",
+  "Tropical", "Imperial", "do Mar", "dos Ventos", "Atlântico", "Eco", "Paradisíaco",
+  "do Jacaré", "da Guarita", "das Marés", "do Cabo", "das Areias"
+];
+
+const hotelClassifiers = ["Hotel", "Resort", "Palace", "Plaza", "Marina"];
+const pousadaClassifiers = ["Pousada", "Hostel", "Chalés", "Eco-Lodge", "Estalagem"];
+const restauranteClassifiers = ["Restaurante", "Bistrô", "Grill", "Cantina", "Taberna", "Gourmet"];
+const guiaClassifiers = ["Guia", "Condutor", "Roteiro", "Aventura", "Explora"];
+const agenciaClassifiers = ["Agência", "Turismo", "Viagens", "Expedições", "Ecotur"];
+
+const businessTypes: CadasturBusiness['tipo'][] = ["Hotel", "Restaurante", "Guia", "Pousada", "Agência"];
+
+const hotelImages = [
+  "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&h=350&fit=crop",
+  "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=500&h=350&fit=crop",
+  "https://images.unsplash.com/photo-1540541338287-41700207dee6?w=500&h=350&fit=crop"
+];
+const restauranteImages = [
+  "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500&h=350&fit=crop",
+  "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=500&h=350&fit=crop",
+  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&h=350&fit=crop"
+];
+const pousadaImages = [
+  "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=500&h=350&fit=crop",
+  "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=500&h=350&fit=crop",
+  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=500&h=350&fit=crop"
+];
+const guiaImages = [
+  "https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=500&h=350&fit=crop",
+  "https://images.unsplash.com/photo-1527631746610-bca00a040d60?w=500&h=350&fit=crop",
+  "https://images.unsplash.com/photo-1486916856992-e4db22c8df33?w=500&h=350&fit=crop"
+];
+const agenciaImages = [
+  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&h=350&fit=crop",
+  "https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=500&h=350&fit=crop",
+  "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=500&h=350&fit=crop"
+];
+
+function generateMockBusinesses(): CadasturBusiness[] {
+  const list: CadasturBusiness[] = [];
+  const targetCount = 800;
+
+  // 1. Process static businesses first, adding experiences to them
+  staticCadasturData.forEach((b, idx) => {
+    const seed = idx + 1;
+    const pool = experiencesPool[b.tipo];
+    const experiences = [
+      pool[seed % pool.length],
+      pool[(seed + 1) % pool.length],
+      pool[(seed + 2) % pool.length]
+    ];
+    list.push({
+      ...b,
+      experiencias: experiences
+    });
+  });
+
+  const currentCount = list.length;
+
+  // 2. Generate remaining businesses deterministically
+  for (let i = 0; i < targetCount - currentCount; i++) {
+    const seed = i + 1;
+
+    // Pick destination deterministically
+    const destinoInfo = destinosInfo[seed % destinosInfo.length];
+    const destino = destinoInfo.nome;
+
+    // Pick type deterministically
+    const tipo = businessTypes[seed % businessTypes.length];
+
+    // Generate name deterministically
+    const prefix = namePrefixes[seed % namePrefixes.length];
+    const suffix = nameSuffixes[(seed * 7) % nameSuffixes.length];
+    let nome = "";
+    if (tipo === "Hotel") {
+      nome = `${hotelClassifiers[seed % hotelClassifiers.length]} ${prefix} ${suffix}`;
+    } else if (tipo === "Pousada") {
+      nome = `${pousadaClassifiers[seed % pousadaClassifiers.length]} ${prefix} ${suffix}`;
+    } else if (tipo === "Restaurante") {
+      nome = `${restauranteClassifiers[seed % restauranteClassifiers.length]} ${prefix} ${suffix}`;
+    } else if (tipo === "Guia") {
+      nome = `${guiaClassifiers[seed % guiaClassifiers.length]} ${prefix} ${suffix}`;
+    } else if (tipo === "Agência") {
+      nome = `${agenciaClassifiers[seed % agenciaClassifiers.length]} ${prefix} ${suffix}`;
+    }
+
+    // Generate CNPJ deterministically
+    const cnpjPart1 = (10 + (seed % 89)).toString().padStart(2, "0");
+    const cnpjPart2 = ((seed * 17) % 900 + 100).toString().padStart(3, "0");
+    const cnpjPart3 = ((seed * 31) % 900 + 100).toString().padStart(3, "0");
+    const cnpjPart4 = ((seed * 43) % 90 + 10).toString().padStart(2, "0");
+    const cnpj = `${cnpjPart1}.${cnpjPart2}.${cnpjPart3}/0001-${cnpjPart4}`;
+
+    // Regularized: 90% regularized, 10% not
+    const regularizado = (seed % 10) !== 0;
+
+    // Rating: 3.5 to 5.0
+    const nota = parseFloat((3.5 + ((seed * 13) % 16) * 0.1).toFixed(1));
+
+    // Phone: (84) 9XXXX-XXXX
+    const phonePart1 = ((seed * 19) % 9000 + 1000).toString();
+    const phonePart2 = ((seed * 23) % 9000 + 1000).toString();
+    const telefone = `(84) 9${phonePart1}-${phonePart2}`;
+
+    // Coordinates: offset from destination center in a spiral distribution
+    const latOffset = Math.sin(seed) * 0.015;
+    const lngOffset = Math.cos(seed) * 0.015;
+    const latitude = parseFloat((destinoInfo.latitude + latOffset).toFixed(6));
+    const longitude = parseFloat((destinoInfo.longitude + lngOffset).toFixed(6));
+
+    // Description
+    const descTemplates = [
+      `Destaque regional pela excelência e comprometimento com o turista. Este ${tipo.toLowerCase()} localizado em ${destino} oferece excelente atendimento e qualidade em todos os detalhes.`,
+      `Ideal para quem busca curtir o melhor de ${destino} com total segurança. Com selo de homologação do Cadastur, nosso ${tipo.toLowerCase()} garante uma estadia tranquila e prazerosa.`,
+      `Localizado no coração de ${destino}, este ${tipo.toLowerCase()} destaca-se pela receptividade e atendimento qualificado, sendo muito recomendado por viajantes do Brasil e do exterior.`
+    ];
+    const descricao = descTemplates[seed % descTemplates.length];
+
+    // Image
+    let imageList = hotelImages;
+    if (tipo === "Restaurante") imageList = restauranteImages;
+    else if (tipo === "Pousada") imageList = pousadaImages;
+    else if (tipo === "Guia") imageList = guiaImages;
+    else if (tipo === "Agência") imageList = agenciaImages;
+    const imagem = imageList[seed % imageList.length];
+
+    // Pick 3 experiences deterministically
+    const pool = experiencesPool[tipo];
+    const experiences = [
+      pool[seed % pool.length],
+      pool[(seed + 1) % pool.length],
+      pool[(seed + 2) % pool.length]
+    ];
+
+    list.push({
+      id: `cad-auto-${seed}`,
+      cnpj,
+      nome,
+      tipo,
+      destino,
+      regularizado,
+      nota,
+      telefone,
+      latitude,
+      longitude,
+      descricao,
+      imagem,
+      experiencias: experiences
+    });
+  }
+
+  return list;
+}
+
+export const cadasturData: CadasturBusiness[] = generateMockBusinesses();
 
 // --- REAL STATISTICAL DATA LAYERS FOR B2G DASHBOARD ---
 export const ibgeData: IBGEData[] = [

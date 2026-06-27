@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 
 // Simple sentiment analysis
@@ -23,10 +24,18 @@ function analyzeSentiment(caption: string): "Positivo" | "Neutro" | "Crítica" {
   return "Neutro";
 }
 
+interface CachedResult {
+  timestamp: number;
+  data: any;
+}
+
+const instagramCache: Record<string, CachedResult> = {};
+const CACHE_TTL = 3600 * 1000 * 6; // 6 hours cache time-to-live
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { hashtag } = body;
+    const { hashtag, forceRefresh } = body;
 
     if (!hashtag) {
       return NextResponse.json(
@@ -35,11 +44,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const now = Date.now();
+    if (!forceRefresh && instagramCache[hashtag] && (now - instagramCache[hashtag].timestamp < CACHE_TTL)) {
+      console.log(`Returning cached Instagram results for hashtag: #${hashtag}`);
+      return NextResponse.json({
+        ...instagramCache[hashtag].data,
+        source: instagramCache[hashtag].data.source === "mock" ? "mock-cache" : "apify-cache",
+      });
+    }
+
     const apiToken = process.env.APIFY_API_TOKEN;
 
     if (!apiToken) {
       // Return mock data when no API token is configured
-      return NextResponse.json({
+      const mockResult = {
         source: "mock",
         hashtag,
         posts: [
@@ -70,7 +88,15 @@ export async function POST(request: NextRequest) {
         ],
         totalLikes: 626,
         totalComments: 50,
-      });
+        cachedAt: now,
+      };
+
+      instagramCache[hashtag] = {
+        timestamp: now,
+        data: mockResult,
+      };
+
+      return NextResponse.json(mockResult);
     }
 
     // Real Apify call
@@ -103,13 +129,21 @@ export async function POST(request: NextRequest) {
       0
     );
 
-    return NextResponse.json({
+    const result = {
       source: "apify",
       hashtag,
       posts,
       totalLikes,
       totalComments,
-    });
+      cachedAt: now,
+    };
+
+    instagramCache[hashtag] = {
+      timestamp: now,
+      data: result,
+    };
+
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Scraper API error:", error);
     return NextResponse.json(
