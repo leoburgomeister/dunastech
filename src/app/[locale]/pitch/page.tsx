@@ -1251,7 +1251,7 @@ export default function PitchPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-[#FFFDF6] via-transparent to-transparent z-0 opacity-80" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-gradient-to-r from-amber-400/20 to-orange-400/10 blur-3xl z-0 pointer-events-none" />
 
-          <div className="max-w-4xl w-full text-center space-y-7 z-10 bg-white/70 backdrop-blur-md p-8 sm:p-12 rounded-3xl border border-amber-200/50 shadow-lg">
+          <div className="max-w-4xl w-full text-center space-y-7 z-10 bg-white/70 backdrop-blur-md p-8 sm:p-12 rounded-3xl border border-amber-200/50 shadow-lg relative">
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={currentSlide === 5 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
@@ -1308,6 +1308,23 @@ export default function PitchPage() {
             >
               <span>DunasTech — Hackathon do Sol 2026</span>
               <span>Eixo: Observatório Potiguar Inteligente</span>
+            </motion.div>
+
+            {/* QR Code Container at Bottom Right of the Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={currentSlide === 5 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+              transition={{ delay: 0.6, type: "spring" }}
+              className="absolute bottom-6 right-6 hidden md:flex flex-col items-center p-2.5 bg-white border border-amber-200 rounded-2xl shadow-md z-20 hover:scale-105 transition-transform"
+            >
+              <img
+                src="/images/qrcode-pitch.png"
+                alt="QR Code Acesse o Sistema"
+                className="w-20 h-20 object-contain rounded-lg"
+              />
+              <span className="text-[7.5px] font-black text-amber-800 uppercase tracking-widest mt-1.5 leading-none">
+                Acesse o Sistema
+              </span>
             </motion.div>
           </div>
         </section>
