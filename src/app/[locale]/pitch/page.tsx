@@ -16,7 +16,6 @@ import {
   RotateCcw,
   Sparkles,
   CheckCircle2,
-  AlertTriangle,
   Smartphone,
   BarChart3,
   Check,
@@ -43,7 +42,7 @@ const cn = (...classes: (string | undefined | null | boolean)[]) =>
   classes.filter(Boolean).join(" ");
 
 export default function PitchPage() {
-  // Navigation State
+  // Navigation State (6 slides now)
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showPrompter, setShowPrompter] = useState(true);
@@ -63,6 +62,12 @@ export default function PitchPage() {
   const [simulatedComment, setSimulatedComment] = useState("");
   const [simulatedConformity, setSimulatedConformity] = useState<"yes" | "no">("yes");
   const [simulatedSubmitted, setSimulatedSubmitted] = useState(false);
+
+  // B2C Route Generator Simulator State
+  const [simulatorTab, setSimulatorTab] = useState<"route" | "evaluate">("route");
+  const [routeCategory, setRouteCategory] = useState<"sol" | "aventura" | "gastronomia">("sol");
+  const [routeGenerated, setRouteGenerated] = useState(false);
+  const [generatingRoute, setGeneratingRoute] = useState(false);
 
   // B2G Simulator State
   const [dashboardDest, setDashboardDest] = useState("Ponta Negra");
@@ -91,13 +96,13 @@ export default function PitchPage() {
 
   // Navigate to slide
   function navigateToSlide(index: number) {
-    if (index >= 0 && index < 5) {
+    if (index >= 0 && index < 6) {
       sectionRefs.current[index]?.scrollIntoView({ behavior: "smooth" });
       setCurrentSlide(index);
     }
   }
 
-  // Keyboard navigation
+  // Keyboard navigation (6 slides modulo check)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeEl = document.activeElement;
@@ -110,10 +115,10 @@ export default function PitchPage() {
 
       if (e.key === "ArrowRight" || e.key === " ") {
         e.preventDefault();
-        navigateToSlide((currentSlide + 1) % 5);
+        navigateToSlide((currentSlide + 1) % 6);
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
-        navigateToSlide((currentSlide - 1 + 5) % 5);
+        navigateToSlide((currentSlide - 1 + 6) % 6);
       }
     };
 
@@ -202,8 +207,9 @@ export default function PitchPage() {
     }
   };
 
-  // Exact speech script matches requested copy
+  // exact copy of prompter scripts matching cover page + user pitch
   const prompterScripts = [
+    "Olá, banca avaliadora! Nós somos a DunasTech, e este é o primeiro Observatório Inteligente do Turismo do Rio Grande do Norte. Vamos mostrar como transformamos o turismo de nosso estado no Hackathon do Sol.",
     "O turismo não é apenas uma atividade no Rio Grande do Norte. Ele é o nosso motor. Hoje, os segmentos de Comércio, Serviços e Turismo representam 76% do PIB estadual, 75% da arrecadação de ICMS e 73% dos empregos formais. Mas esse motor está operando no escuro. Atualmente, os dados estão espalhados em dezenas de fontes e painéis que só mostram o passado. Nós sabemos exatamente onde o turista está, mas o poder público não sabe como o destino está sendo cuidado.",
     "Para mudar esse cenário, criamos o primeiro Observatório Inteligente do Turismo. Nós desenvolvemos um guia turístico inteligente que transforma o turista e o morador local em verdadeiros sensores distribuídos pelo território. Com apenas três cliques, nós coletamos o sentimento real da ponta. Ou seja, nós não apenas guiamos o turista, nós ouvimos o destino.",
     "Essas avaliações feitas em tempo real são enviadas diretamente para o nosso painel de gestão governamental, voltado para o B2G. Mas nós fomos além. Integrada à API do Instagram, nossa Inteligência Artificial varre fotos e hashtags públicas para medir o fluxo real e identificar problemas. Tudo isso alimenta o nosso KPI exclusivo: o Índice de Saúde do Atrativo, o ISA. Cruzando informações de fluxo, infraestrutura e sustentabilidade, a nossa IA Generativa não mostra apenas gráficos frios. Ela gera novos dados e permite identificar problemas que antes não eram mensurados, emitindo alertas automáticos na tela do gestor como: 'Atenção: Aumento de 42% no fluxo turístico, mas as avaliações indicam necessidade urgente de limpeza e manutenção'.",
@@ -231,7 +237,6 @@ export default function PitchPage() {
     }));
   };
 
-  // Custom tooltip style for light charts
   const tooltipStyle = {
     backgroundColor: '#ffffff',
     border: '1px solid #e2e8f0',
@@ -244,7 +249,7 @@ export default function PitchPage() {
   return (
     <div className="bg-[#FFFDF6] text-[#1E293B] min-h-screen font-sans overflow-hidden select-none">
       
-      {/* 1. Timer Pacer Bar (Top border edge) */}
+      {/* 1. Timer Pacer Bar */}
       <div className="fixed top-0 left-0 w-full h-1.5 bg-[#FFF2CC] z-50">
         <div
           className={cn(
@@ -257,7 +262,7 @@ export default function PitchPage() {
         />
       </div>
 
-      {/* 2. Top Header Controls - Bright and Clear */}
+      {/* 2. Top Header Controls */}
       <header className="fixed top-3 left-0 w-full z-45 px-6 py-3 flex items-center justify-between pointer-events-none">
         <div className="flex items-center gap-2.5 bg-white/90 border border-amber-200/80 backdrop-blur-md px-4 py-2 rounded-full pointer-events-auto shadow-sm">
           <Link href="/" className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors">
@@ -271,7 +276,7 @@ export default function PitchPage() {
           </span>
         </div>
 
-        {/* Presenter controls */}
+        {/* Presenter widgets */}
         <div className="flex items-center gap-2 pointer-events-auto bg-white/90 border border-amber-200/80 backdrop-blur-md px-4 py-1.5 rounded-full shadow-sm">
           {/* Timer Display */}
           <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-800">
@@ -301,7 +306,7 @@ export default function PitchPage() {
 
           <span className="text-amber-200">|</span>
 
-          {/* Toggle Script and Screen */}
+          {/* Toggle Script */}
           <button
             onClick={() => setShowPrompter(!showPrompter)}
             className={cn(
@@ -322,34 +327,113 @@ export default function PitchPage() {
         </div>
       </header>
 
-      {/* 3. Main Slide Deck - Snapping scroll */}
+      {/* 3. Main Slide Deck (100vh snap scroll) */}
       <main className="h-screen w-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth bg-[#FFFDF6]">
         
-        {/* SLIDE 1: O GANCHO */}
+        {/* SLIDE 0: PÁGINA DE ROSTO (COVER PAGE) */}
         <section
           ref={(el) => { sectionRefs.current[0] = el; }}
           data-slide-index="0"
           className="h-screen w-full snap-start relative flex flex-col justify-center items-center overflow-hidden p-6 sm:p-12"
           style={{
+            background: "linear-gradient(135deg, #FFFDF6 0%, #FFF3CE 40%, #FFE5A3 100%)",
+          }}
+        >
+          {/* Sunny background glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[750px] h-[750px] rounded-full bg-gradient-to-r from-amber-400/20 to-orange-400/10 blur-[140px] pointer-events-none" />
+          
+          <div className="max-w-5xl w-full text-center space-y-8 z-10">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={currentSlide === 0 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-xs font-black uppercase tracking-widest shadow-sm"
+            >
+              <Sun className="w-4 h-4 text-amber-500 animate-spin-slow" />
+              <span>HACKATHON DO SOL 2026 — NATAL/RN</span>
+            </motion.div>
+
+            <div className="space-y-4">
+              <motion.h1
+                initial={{ opacity: 0, y: 35 }}
+                animate={currentSlide === 0 ? { opacity: 1, y: 0 } : { opacity: 0, y: 35 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="text-5xl sm:text-8xl font-black tracking-tighter text-slate-900 leading-none"
+              >
+                DUNAS<span className="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 bg-clip-text text-transparent">TECH</span>
+              </motion.h1>
+              
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={currentSlide === 0 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="text-lg sm:text-2xl text-slate-700 font-extrabold uppercase tracking-wider max-w-2xl mx-auto border-y border-amber-300/40 py-3"
+              >
+                Observatório Inteligente do Turismo
+              </motion.p>
+            </div>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={currentSlide === 0 ? { opacity: 1 } : { opacity: 0 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="text-slate-500 text-sm sm:text-base max-w-xl mx-auto font-medium"
+            >
+              Conectando a voz do turista, dados do governo e Inteligência Artificial para planejar a sustentabilidade dos atrativos do Rio Grande do Norte.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={currentSlide === 0 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="pt-6"
+            >
+              <button
+                onClick={() => navigateToSlide(1)}
+                className="px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 mx-auto shadow-md hover:from-amber-600 hover:to-red-600 active:scale-[0.98] transition-all cursor-pointer pointer-events-auto"
+              >
+                <span>Iniciar Apresentação</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={currentSlide === 0 ? { opacity: 1 } : { opacity: 0 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+              className="flex justify-center pt-16 text-slate-400 animate-bounce"
+            >
+              <div className="flex flex-col items-center gap-1 text-[10px] uppercase tracking-wider font-extrabold">
+                <span>Role para baixo para avançar</span>
+                <ChevronDown className="w-4 h-4 text-amber-500" />
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* SLIDE 1: O GANCHO */}
+        <section
+          ref={(el) => { sectionRefs.current[1] = el; }}
+          data-slide-index="1"
+          className="h-screen w-full snap-start relative flex flex-col justify-center items-center overflow-hidden p-6 sm:p-12"
+          style={{
             background: "linear-gradient(135deg, #FFFDF6 0%, #FFF4D1 50%, #FFE9B3 100%)",
           }}
         >
-          {/* Glowing Sun Aura */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-gradient-to-r from-amber-400/20 to-orange-400/10 blur-[130px] pointer-events-none" />
           
           <div className="max-w-5xl w-full text-center space-y-7 z-10">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
-              animate={currentSlide === 0 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
+              animate={currentSlide === 1 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
               className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-800 text-xs font-bold uppercase tracking-widest shadow-sm"
             >
               <Sun className="w-4 h-4 text-amber-500 animate-spin-slow" />
-              <span>DUNAS TECH — OBSERVATÓRIO INTELIGENTE DO TURISMO</span>
+              <span>01. O GANCHO: ECONOMIA DO TURISMO</span>
             </motion.div>
 
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
-              animate={currentSlide === 0 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              animate={currentSlide === 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
               transition={{ duration: 0.5, delay: 0.1 }}
               className="text-4xl sm:text-6xl font-black tracking-tight text-slate-900 leading-tight"
             >
@@ -361,7 +445,7 @@ export default function PitchPage() {
 
             <motion.p
               initial={{ opacity: 0 }}
-              animate={currentSlide === 0 ? { opacity: 1 } : { opacity: 0 }}
+              animate={currentSlide === 1 ? { opacity: 1 } : { opacity: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-slate-600 text-lg sm:text-xl max-w-3xl mx-auto font-medium leading-relaxed"
             >
@@ -378,7 +462,7 @@ export default function PitchPage() {
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, y: 30 }}
-                  animate={currentSlide === 0 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                  animate={currentSlide === 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                   transition={{ duration: 0.5, delay: 0.3 + i * 0.1 }}
                   className="bg-white/80 border border-amber-200/50 backdrop-blur-md rounded-2xl p-6 flex flex-col items-center shadow-md relative overflow-hidden"
                 >
@@ -395,36 +479,23 @@ export default function PitchPage() {
                 </motion.div>
               ))}
             </div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={currentSlide === 0 ? { opacity: 1 } : { opacity: 0 }}
-              transition={{ duration: 0.6, delay: 0.7 }}
-              className="flex justify-center pt-8 text-slate-400 animate-bounce"
-            >
-              <div className="flex flex-col items-center gap-1 text-[10px] uppercase tracking-wider font-extrabold">
-                <span>Role ou use as setas</span>
-                <ChevronDown className="w-4 h-4 text-amber-500" />
-              </div>
-            </motion.div>
           </div>
         </section>
 
-        {/* SLIDE 2: A SOLUÇÃO (B2C Guia & Sensores) */}
+        {/* SLIDE 2: A SOLUÇÃO */}
         <section
-          ref={(el) => { sectionRefs.current[1] = el; }}
-          data-slide-index="1"
+          ref={(el) => { sectionRefs.current[2] = el; }}
+          data-slide-index="2"
           className="h-screen w-full snap-start relative flex items-center justify-center overflow-hidden p-6 sm:p-12"
           style={{
             background: "linear-gradient(135deg, #FFFDF6 0%, #FFF1C5 50%, #FFE5A3 100%)",
           }}
         >
           <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center z-10">
-            {/* Lado Esquerdo: Roteiro e Detalhes */}
             <div className="lg:col-span-6 space-y-6 text-left">
               <motion.div
                 initial={{ opacity: 0, x: -30 }}
-                animate={currentSlide === 1 ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
+                animate={currentSlide === 2 ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
                 className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-100 border border-cyan-200 text-cyan-800 text-xs font-bold uppercase tracking-wider"
               >
                 <Smartphone className="w-3.5 h-3.5 text-cyan-600" />
@@ -433,7 +504,7 @@ export default function PitchPage() {
 
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
-                animate={currentSlide === 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                animate={currentSlide === 2 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                 transition={{ delay: 0.1 }}
                 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight"
               >
@@ -445,7 +516,7 @@ export default function PitchPage() {
 
               <motion.p
                 initial={{ opacity: 0 }}
-                animate={currentSlide === 1 ? { opacity: 1 } : { opacity: 0 }}
+                animate={currentSlide === 2 ? { opacity: 1 } : { opacity: 0 }}
                 transition={{ delay: 0.2 }}
                 className="text-slate-600 text-base sm:text-lg leading-relaxed font-medium"
               >
@@ -461,7 +532,7 @@ export default function PitchPage() {
                   <motion.div
                     key={i}
                     initial={{ opacity: 0, x: -20 }}
-                    animate={currentSlide === 1 ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                    animate={currentSlide === 2 ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
                     transition={{ delay: 0.3 + i * 0.1 }}
                     className="flex gap-3"
                   >
@@ -477,194 +548,364 @@ export default function PitchPage() {
               </div>
             </div>
 
-            {/* Lado Direito: Simulador de Smartphone B2C Interativo */}
             <div className="lg:col-span-6 flex justify-center items-center">
               <motion.div
                 initial={{ opacity: 0, scale: 0.9, rotateY: 15 }}
-                animate={currentSlide === 1 ? { opacity: 1, scale: 1, rotateY: 0 } : { opacity: 0, scale: 0.9, rotateY: 15 }}
+                animate={currentSlide === 2 ? { opacity: 1, scale: 1, rotateY: 0 } : { opacity: 0, scale: 0.9, rotateY: 15 }}
                 transition={{ type: "spring", stiffness: 60, delay: 0.2 }}
                 className="w-[285px] h-[550px] rounded-[40px] border-4 border-slate-200 bg-white shadow-xl relative flex flex-col p-3.5 overflow-hidden"
               >
-                {/* Notch */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-4.5 bg-slate-200 rounded-b-2xl z-20" />
 
-                {/* Smartphone App Header */}
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 pt-3 px-1">
-                  <div className="flex items-center gap-1.5 text-slate-800">
-                    <Sun className="w-4 h-4 text-amber-500 animate-spin-slow" />
-                    <span className="text-[11px] font-black tracking-wider">DUNAS<span className="text-amber-500">TECH</span></span>
-                  </div>
-                  <Badge variant="info" size="sm">B2C Simulator</Badge>
+                {/* B2C Simulator Tabs */}
+                <div className="flex bg-slate-50 p-1 rounded-xl border border-slate-100 mb-3 z-10 shrink-0">
+                  <button
+                    onClick={() => {
+                      setSimulatorTab("route");
+                      setSimulatedSubmitted(false);
+                    }}
+                    className={cn(
+                      "flex-1 py-1 rounded-lg text-[10px] font-black transition-colors cursor-pointer",
+                      simulatorTab === "route" ? "bg-white text-cyan-600 shadow-sm" : "text-slate-400"
+                    )}
+                  >
+                    🗺️ Rotas IA
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSimulatorTab("evaluate");
+                    }}
+                    className={cn(
+                      "flex-1 py-1 rounded-lg text-[10px] font-black transition-colors cursor-pointer",
+                      simulatorTab === "evaluate" ? "bg-white text-cyan-600 shadow-sm" : "text-slate-400"
+                    )}
+                  >
+                    ✍️ Avaliar
+                  </button>
                 </div>
 
                 {/* Smartphone Scrollable Screen Content */}
-                <div className="flex-1 overflow-y-auto px-1 pt-3 pb-2 text-left space-y-3.5 scrollbar-thin select-none">
-                  {!simulatedSubmitted ? (
-                    <form onSubmit={handleB2CSubmit} className="space-y-4">
-                      {/* Destination Selector */}
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Selecione o Destino</label>
-                        <select
-                          value={simulatedDest}
-                          onChange={(e) => setSimulatedDest(e.target.value)}
-                          className="w-full text-xs p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-bold focus:outline-none focus:border-cyan-500 transition-colors"
-                        >
-                          <option value="Praia da Pipa">Praia da Pipa (Tibau do Sul)</option>
-                          <option value="Ponta Negra">Ponta Negra e Morro (Natal)</option>
-                          <option value="Dunas de Genipabu">Dunas de Genipabu (Extremoz)</option>
-                          <option value="São Miguel do Gostoso">São Miguel do Gostoso</option>
-                        </select>
-                      </div>
-
-                      {/* Ratings */}
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Nota Geral</label>
-                        <div className="flex gap-1.5">
-                          {[1, 2, 3, 4, 5].map((s) => (
-                            <button
-                              key={s}
-                              type="button"
-                              onClick={() => setSimulatedRating(s)}
-                              className="cursor-pointer focus:outline-none transform hover:scale-110 active:scale-95 transition-transform"
+                <div className="flex-1 overflow-y-auto px-1 pt-1 pb-2 text-left space-y-3.5 scrollbar-thin select-none">
+                  
+                  {/* TAB 1: ROUTE GENERATOR */}
+                  {simulatorTab === "route" && (
+                    <div className="space-y-4">
+                      {!routeGenerated ? (
+                        <div className="space-y-4">
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Destino Principal</label>
+                            <select
+                              value={simulatedDest}
+                              onChange={(e) => setSimulatedDest(e.target.value)}
+                              className="w-full text-xs p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-bold focus:outline-none focus:border-cyan-500 transition-colors"
                             >
-                              <Star
-                                className={cn(
-                                  "w-5 h-5",
-                                  s <= simulatedRating ? "fill-amber-400 text-amber-400" : "text-slate-200"
-                                )}
-                              />
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                              <option value="Praia da Pipa">Praia da Pipa (Tibau do Sul)</option>
+                              <option value="Ponta Negra">Ponta Negra e Morro (Natal)</option>
+                              <option value="Dunas de Genipabu">Dunas de Genipabu (Extremoz)</option>
+                              <option value="São Miguel do Gostoso">São Miguel do Gostoso</option>
+                            </select>
+                          </div>
 
-                      {/* Auditory checklist criteria */}
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">O que você observou?</label>
-                        <div className="grid grid-cols-2 gap-1.5">
-                          {[
-                            { key: "limpo", label: "Local Limpo", emoji: "🧹" },
-                            { key: "preservado", label: "Preservado", emoji: "🌿" },
-                            { key: "seguranca", label: "Seguro", emoji: "🔒" },
-                            { key: "superlotado", label: "Lotado", emoji: "⚠️", negative: true }
-                          ].map((c) => {
-                            const active = !!simulatedCriteria[c.key];
-                            return (
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Estilo de Viagem</label>
+                            <div className="flex flex-col gap-1.5">
+                              {[
+                                { id: "sol", label: "☀️ Sol e Praia", desc: "Orlas, jangadas e relaxamento" },
+                                { id: "aventura", label: "🏄 Aventura e Vento", desc: "Dunas, buggy e kitesurf" },
+                                { id: "gastronomia", label: "🍽️ Rota Gastronômica", desc: "Melhores pratos potiguares" }
+                              ].map((cat) => (
+                                <button
+                                  key={cat.id}
+                                  type="button"
+                                  onClick={() => setRouteCategory(cat.id as any)}
+                                  className={cn(
+                                    "w-full p-2 rounded-xl text-left border transition-all cursor-pointer flex justify-between items-center",
+                                    routeCategory === cat.id
+                                      ? "bg-cyan-50 border-cyan-300 text-cyan-800"
+                                      : "bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-350"
+                                  )}
+                                >
+                                  <div>
+                                    <span className="text-[11px] font-extrabold block">{cat.label}</span>
+                                    <span className="text-[9px] text-slate-400 font-medium block mt-0.5">{cat.desc}</span>
+                                  </div>
+                                  {routeCategory === cat.id && (
+                                    <Check className="w-3.5 h-3.5 text-cyan-600" />
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            disabled={generatingRoute}
+                            onClick={() => {
+                              setGeneratingRoute(true);
+                              setTimeout(() => {
+                                setGeneratingRoute(false);
+                                setRouteGenerated(true);
+                              }, 1500);
+                            }}
+                            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md hover:from-cyan-600 hover:to-teal-600 active:scale-[0.97] transition-all cursor-pointer disabled:opacity-50"
+                          >
+                            {generatingRoute ? (
+                              <>
+                                <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                <span>Criando Rota IA...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="w-3.5 h-3.5 text-white" />
+                                <span>Gerar Rota Inteligente</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="space-y-3.5 animate-scale-in">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-black text-green-600 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                              🛡️ 100% Cadastur
+                            </span>
+                            <button
+                              onClick={() => setRouteGenerated(false)}
+                              className="text-[9px] text-cyan-600 underline font-bold cursor-pointer"
+                            >
+                              Nova Rota
+                            </button>
+                          </div>
+
+                          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3 text-left space-y-3">
+                            <h4 className="text-xs font-black text-slate-800 leading-snug">
+                              Roteiro Personalizado: {simulatedDest.split(" e ")[0]}
+                            </h4>
+                            
+                            {/* Dynamic Stops */}
+                            <div className="space-y-3 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-[2px] before:bg-cyan-100">
+                              
+                              {/* Stop 1: Hotel */}
+                              <div className="flex gap-2.5 relative z-10 items-start">
+                                <div className="w-6 h-6 rounded-full bg-cyan-100 text-cyan-600 flex items-center justify-center text-[10px] font-black shrink-0 border border-cyan-200">1</div>
+                                <div className="space-y-0.5 text-left">
+                                  <span className="text-[10px] font-extrabold text-slate-800 block">Hospedagem Recomendada</span>
+                                  <p className="text-[9px] text-slate-500 font-medium leading-relaxed">
+                                    Pousada Regularizada Cadastur
+                                  </p>
+                                  <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded text-[7px] font-semibold bg-green-50 border border-green-150 text-green-700">
+                                    🛡️ Cadastur Ativo
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Stop 2: Activity */}
+                              <div className="flex gap-2.5 relative z-10 items-start">
+                                <div className="w-6 h-6 rounded-full bg-cyan-100 text-cyan-600 flex items-center justify-center text-[10px] font-black shrink-0 border border-cyan-200">2</div>
+                                <div className="space-y-0.5 text-left">
+                                  <span className="text-[10px] font-extrabold text-slate-800 block">Atração & Guias Locais</span>
+                                  <p className="text-[9px] text-slate-500 font-medium leading-relaxed">
+                                    {routeCategory === "sol" && "Passeio de Jangada Tradicional"}
+                                    {routeCategory === "aventura" && "Passeio de Buggy Credenciado"}
+                                    {routeCategory === "gastronomia" && "Passeio Cultural Potiguar"}
+                                  </p>
+                                  <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded text-[7px] font-semibold bg-green-50 border border-green-150 text-green-700">
+                                    🛡️ Cadastur Ativo
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Stop 3: Restaurant */}
+                              <div className="flex gap-2.5 relative z-10 items-start">
+                                <div className="w-6 h-6 rounded-full bg-cyan-100 text-cyan-600 flex items-center justify-center text-[10px] font-black shrink-0 border border-cyan-200">3</div>
+                                <div className="space-y-0.5 text-left">
+                                  <span className="text-[10px] font-extrabold text-slate-800 block">Ponto Gastronômico</span>
+                                  <p className="text-[9px] text-slate-500 font-medium leading-relaxed">
+                                    Restaurante Regional Parceiro
+                                  </p>
+                                  <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded text-[7px] font-semibold bg-green-50 border border-green-150 text-green-700">
+                                    🛡️ Cadastur Ativo
+                                  </span>
+                                </div>
+                              </div>
+
+                            </div>
+                          </div>
+
+                          <div className="bg-green-500/5 border border-green-500/10 rounded-xl p-2.5 text-left">
+                            <p className="text-[8.5px] leading-relaxed text-slate-500 font-medium">
+                              💡 As rotas inteligentes priorizam apenas operadores com Cadastur ativo, reduzindo o mercado informal e aumentando a segurança do turista.
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* TAB 2: EVALUATIONS */}
+                  {simulatorTab === "evaluate" && (
+                    <div className="space-y-4">
+                      {!simulatedSubmitted ? (
+                        <form onSubmit={handleB2CSubmit} className="space-y-4">
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Selecione o Destino</label>
+                            <select
+                              value={simulatedDest}
+                              onChange={(e) => setSimulatedDest(e.target.value)}
+                              className="w-full text-xs p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-bold focus:outline-none focus:border-cyan-500 transition-colors"
+                            >
+                              <option value="Praia da Pipa">Praia da Pipa (Tibau do Sul)</option>
+                              <option value="Ponta Negra">Ponta Negra e Morro (Natal)</option>
+                              <option value="Dunas de Genipabu">Dunas de Genipabu (Extremoz)</option>
+                              <option value="São Miguel do Gostoso">São Miguel do Gostoso</option>
+                            </select>
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Nota Geral</label>
+                            <div className="flex gap-1.5">
+                              {[1, 2, 3, 4, 5].map((s) => (
+                                <button
+                                  key={s}
+                                  type="button"
+                                  onClick={() => setSimulatedRating(s)}
+                                  className="cursor-pointer focus:outline-none transform hover:scale-110 active:scale-95 transition-transform"
+                                >
+                                  <Star
+                                    className={cn(
+                                      "w-5 h-5",
+                                      s <= simulatedRating ? "fill-amber-400 text-amber-400" : "text-slate-200"
+                                    )}
+                                  />
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">O que você observou?</label>
+                            <div className="grid grid-cols-2 gap-1.5">
+                              {[
+                                { key: "limpo", label: "Local Limpo", emoji: "🧹" },
+                                { key: "preservado", label: "Preservado", emoji: "🌿" },
+                                { key: "seguranca", label: "Seguro", emoji: "🔒" },
+                                { key: "superlotado", label: "Lotado", emoji: "⚠️", negative: true }
+                              ].map((c) => {
+                                const active = !!simulatedCriteria[c.key];
+                                return (
+                                  <button
+                                    key={c.key}
+                                    type="button"
+                                    onClick={() => toggleCriterion(c.key)}
+                                    className={cn(
+                                      "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[10px] font-bold border transition-all cursor-pointer",
+                                      active
+                                        ? c.negative
+                                          ? "bg-red-50 border-red-200 text-red-700"
+                                          : "bg-cyan-50 border-cyan-200 text-cyan-700"
+                                        : "bg-slate-50 border-slate-200 text-slate-400 hover:border-slate-300"
+                                    )}
+                                  >
+                                    <span>{c.emoji}</span>
+                                    <span>{c.label}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 space-y-1.5">
+                            <label className="text-[9px] font-extrabold text-slate-600 leading-tight block">
+                              🔎 Auditoria: A infraestrutura condiz com as fotos anunciadas?
+                            </label>
+                            <div className="flex gap-1.5">
                               <button
-                                key={c.key}
                                 type="button"
-                                onClick={() => toggleCriterion(c.key)}
+                                onClick={() => setSimulatedConformity("yes")}
                                 className={cn(
-                                  "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[10px] font-bold border transition-all cursor-pointer",
-                                  active
-                                    ? c.negative
-                                      ? "bg-red-50 border-red-200 text-red-700"
-                                      : "bg-cyan-50 border-cyan-200 text-cyan-700"
-                                    : "bg-slate-50 border-slate-200 text-slate-400 hover:border-slate-300"
+                                  "flex-1 py-1 rounded-md text-[9px] font-bold border transition-colors cursor-pointer",
+                                  simulatedConformity === "yes"
+                                    ? "bg-green-50 border-green-200 text-green-700"
+                                    : "bg-white border-slate-200 text-slate-400"
                                 )}
                               >
-                                <span>{c.emoji}</span>
-                                <span>{c.label}</span>
+                                Sim
                               </button>
-                            );
-                          })}
-                        </div>
-                      </div>
+                              <button
+                                type="button"
+                                onClick={() => setSimulatedConformity("no")}
+                                className={cn(
+                                  "flex-1 py-1 rounded-md text-[9px] font-bold border transition-colors cursor-pointer",
+                                  simulatedConformity === "no"
+                                    ? "bg-red-50 border-red-200 text-red-700"
+                                    : "bg-white border-slate-200 text-slate-400"
+                                )}
+                              >
+                                Divergente
+                              </button>
+                            </div>
+                          </div>
 
-                      {/* Conformity test block */}
-                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 space-y-1.5">
-                        <label className="text-[9px] font-extrabold text-slate-600 leading-tight block">
-                          🔎 Auditoria: A infraestrutura condiz com as fotos anunciadas?
-                        </label>
-                        <div className="flex gap-1.5">
                           <button
-                            type="button"
-                            onClick={() => setSimulatedConformity("yes")}
-                            className={cn(
-                              "flex-1 py-1 rounded-md text-[9px] font-bold border transition-colors cursor-pointer",
-                              simulatedConformity === "yes"
-                                ? "bg-green-50 border-green-200 text-green-700"
-                                : "bg-white border-slate-200 text-slate-400"
-                            )}
+                            type="submit"
+                            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1 shadow-md hover:from-cyan-600 hover:to-teal-600 active:scale-[0.97] transition-all cursor-pointer"
                           >
-                            Sim
+                            Enviar Avaliação
                           </button>
+                        </form>
+                      ) : (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="h-full flex flex-col justify-center items-center text-center space-y-4 pt-16"
+                        >
+                          <div className="w-14 h-14 rounded-full bg-cyan-50 border border-cyan-200 flex items-center justify-center text-cyan-600">
+                            <CheckCircle2 className="w-8 h-8" />
+                          </div>
+                          <div className="space-y-1">
+                            <h3 className="text-sm font-extrabold text-slate-900">Avaliação Enviada!</h3>
+                            <p className="text-[10px] text-slate-500 max-w-[200px] font-medium">
+                              Dados de zeladoria integrados ao painel do gestor municipal.
+                            </p>
+                          </div>
+                          <div className="bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full text-[9px] text-amber-800 font-bold tracking-wide uppercase">
+                            +10 Pontos Acumulados
+                          </div>
                           <button
-                            type="button"
-                            onClick={() => setSimulatedConformity("no")}
-                            className={cn(
-                              "flex-1 py-1 rounded-md text-[9px] font-bold border transition-colors cursor-pointer",
-                              simulatedConformity === "no"
-                                ? "bg-red-50 border-red-200 text-red-700"
-                                : "bg-white border-slate-200 text-slate-400"
-                            )}
+                            onClick={resetB2CSimulator}
+                            className="text-[10px] text-slate-400 underline hover:text-slate-600 pt-6 cursor-pointer"
                           >
-                            Divergente
+                            Avaliar Outro Destino
                           </button>
-                        </div>
-                      </div>
-
-                      <button
-                        type="submit"
-                        className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1 shadow-md hover:from-cyan-600 hover:to-teal-600 active:scale-[0.97] transition-all cursor-pointer"
-                      >
-                        Enviar Avaliação
-                      </button>
-                    </form>
-                  ) : (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="h-full flex flex-col justify-center items-center text-center space-y-4 pt-16"
-                    >
-                      <div className="w-14 h-14 rounded-full bg-cyan-50 border border-cyan-200 flex items-center justify-center text-cyan-600">
-                        <CheckCircle2 className="w-8 h-8" />
-                      </div>
-                      <div className="space-y-1">
-                        <h3 className="text-sm font-extrabold text-slate-900">Avaliação Enviada!</h3>
-                        <p className="text-[10px] text-slate-500 max-w-[200px] font-medium">
-                          Dados de zeladoria integrados ao painel do gestor municipal.
-                        </p>
-                      </div>
-                      <div className="bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full text-[9px] text-amber-800 font-bold tracking-wide uppercase">
-                        +10 Pontos Acumulados
-                      </div>
-                      <button
-                        onClick={resetB2CSimulator}
-                        className="text-[10px] text-slate-400 underline hover:text-slate-600 pt-6 cursor-pointer"
-                      >
-                        Avaliar Outro Destino
-                      </button>
-                    </motion.div>
+                        </motion.div>
+                      )}
+                    </div>
                   )}
+
                 </div>
 
-                {/* Smartphone bar */}
                 <div className="w-24 h-1 bg-slate-200 rounded-full mx-auto mb-1 flex-shrink-0" />
               </motion.div>
             </div>
           </div>
         </section>
 
-        {/* SLIDE 3: O DIFERENCIAL (B2G Dashboard & Recharts) */}
+        {/* SLIDE 3: O DIFERENCIAL */}
         <section
-          ref={(el) => { sectionRefs.current[2] = el; }}
-          data-slide-index="2"
+          ref={(el) => { sectionRefs.current[3] = el; }}
+          data-slide-index="3"
           className="h-screen w-full snap-start relative flex items-center justify-center overflow-hidden p-6 sm:p-12"
           style={{
             background: "linear-gradient(135deg, #FFFDF6 0%, #FFEFC0 50%, #FFE193 100%)",
           }}
         >
           <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center z-10">
-            {/* Lado Esquerdo: Dashboard B2G Interativo */}
             <div className="lg:col-span-7 flex flex-col items-center">
               <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                animate={currentSlide === 2 ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.95, y: 20 }}
+                animate={currentSlide === 3 ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.95, y: 20 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className="w-full bg-white border border-amber-200 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4"
               >
-                {/* Header dashboard block */}
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div className="flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
@@ -691,9 +932,7 @@ export default function PitchPage() {
                   </div>
                 </div>
 
-                {/* Dashboard dynamic grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {/* KPI ISA */}
                   <div className="bg-slate-50 border border-slate-150 rounded-xl p-3 flex flex-col justify-between relative overflow-hidden text-left">
                     <span className="text-[10px] text-slate-400 uppercase tracking-wider font-extrabold">Índice ISA</span>
                     <span className={cn("text-2xl sm:text-3xl font-black block my-1.5", aiInsightsMap[dashboardDest].isa < 60 ? "text-red-500" : "text-amber-600")}>
@@ -705,7 +944,6 @@ export default function PitchPage() {
                     </div>
                   </div>
 
-                  {/* KPI Saturation */}
                   <div className="bg-slate-50 border border-slate-150 rounded-xl p-3 flex flex-col justify-between relative overflow-hidden text-left">
                     <span className="text-[10px] text-slate-400 uppercase tracking-wider font-extrabold font-bold">Fluxo Local</span>
                     <span className="text-2xl sm:text-3xl font-black block my-1.5 text-cyan-600">
@@ -717,7 +955,6 @@ export default function PitchPage() {
                     </div>
                   </div>
 
-                  {/* KPI Cadastur percentage */}
                   <div className="bg-slate-50 border border-slate-150 rounded-xl p-3 flex flex-col justify-between relative overflow-hidden text-left">
                     <span className="text-[10px] text-slate-400 uppercase tracking-wider font-extrabold font-bold">Cadastur</span>
                     <span className="text-2xl sm:text-3xl font-black block my-1.5 text-green-600">
@@ -730,7 +967,6 @@ export default function PitchPage() {
                   </div>
                 </div>
 
-                {/* Recharts graphic representation */}
                 <div className="h-40 bg-slate-50 border border-slate-150 rounded-xl p-2.5">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
@@ -754,7 +990,6 @@ export default function PitchPage() {
                   </ResponsiveContainer>
                 </div>
 
-                {/* Automated Alertas Console */}
                 <div className="p-3 bg-gradient-to-r from-amber-500/5 to-orange-500/5 border border-amber-200 rounded-xl space-y-1 text-left relative overflow-hidden">
                   <div className="flex items-center gap-1 text-[10px] font-black text-amber-700 uppercase tracking-wider">
                     <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
@@ -767,11 +1002,10 @@ export default function PitchPage() {
               </motion.div>
             </div>
 
-            {/* Lado Direito: Storytelling text */}
             <div className="lg:col-span-5 space-y-6 text-left">
               <motion.div
                 initial={{ opacity: 0, x: 30 }}
-                animate={currentSlide === 2 ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 }}
+                animate={currentSlide === 3 ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 }}
                 className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 border border-amber-250 text-amber-800 text-xs font-bold uppercase tracking-wider"
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-600" />
@@ -780,7 +1014,7 @@ export default function PitchPage() {
 
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
-                animate={currentSlide === 2 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                animate={currentSlide === 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                 transition={{ delay: 0.1 }}
                 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight"
               >
@@ -792,7 +1026,7 @@ export default function PitchPage() {
 
               <motion.p
                 initial={{ opacity: 0 }}
-                animate={currentSlide === 2 ? { opacity: 1 } : { opacity: 0 }}
+                animate={currentSlide === 3 ? { opacity: 1 } : { opacity: 0 }}
                 transition={{ delay: 0.2 }}
                 className="text-slate-600 text-base sm:text-lg leading-relaxed font-medium"
               >
@@ -808,7 +1042,7 @@ export default function PitchPage() {
                   <motion.div
                     key={i}
                     initial={{ opacity: 0, x: 20 }}
-                    animate={currentSlide === 2 ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
+                    animate={currentSlide === 3 ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
                     transition={{ delay: 0.3 + i * 0.1 }}
                     className="flex gap-3"
                   >
@@ -828,8 +1062,8 @@ export default function PitchPage() {
 
         {/* SLIDE 4: MODELO DE NEGÓCIOS & CADASTUR */}
         <section
-          ref={(el) => { sectionRefs.current[3] = el; }}
-          data-slide-index="3"
+          ref={(el) => { sectionRefs.current[4] = el; }}
+          data-slide-index="4"
           className="h-screen w-full snap-start relative flex items-center justify-center overflow-hidden p-6 sm:p-12"
           style={{
             background: "linear-gradient(135deg, #FFFDF6 0%, #FFEBBF 50%, #FFDF9B 100%)",
@@ -838,7 +1072,7 @@ export default function PitchPage() {
           <div className="max-w-5xl w-full text-center space-y-7 z-10">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
-              animate={currentSlide === 3 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
+              animate={currentSlide === 4 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
               className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 border border-green-200 text-green-800 text-xs font-bold uppercase tracking-wider"
             >
               <Building2 className="w-3.5 h-3.5 text-green-600" />
@@ -847,7 +1081,7 @@ export default function PitchPage() {
 
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
-              animate={currentSlide === 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              animate={currentSlide === 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.1 }}
               className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight"
             >
@@ -859,20 +1093,19 @@ export default function PitchPage() {
 
             <motion.p
               initial={{ opacity: 0 }}
-              animate={currentSlide === 3 ? { opacity: 1 } : { opacity: 0 }}
+              animate={currentSlide === 4 ? { opacity: 1 } : { opacity: 0 }}
               transition={{ delay: 0.2 }}
               className="text-slate-600 text-base sm:text-lg max-w-3xl mx-auto font-medium"
             >
               Unimos o incentivo regulatório do Ministério do Turismo com a sustentabilidade do ecossistema local do RN, gerando renda e segurança jurídica.
             </motion.p>
 
-            {/* Model grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-6 max-w-4xl mx-auto items-stretch">
               
               {/* Cadastur Banner Card */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
-                animate={currentSlide === 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                animate={currentSlide === 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className="bg-white/90 border border-green-200 rounded-2xl p-6 text-left flex flex-col justify-between shadow-sm relative overflow-hidden"
               >
@@ -887,19 +1120,19 @@ export default function PitchPage() {
                   </p>
                 </div>
                 <div className="mt-6 pt-4 border-t border-slate-100 text-[10px] text-green-600 font-bold uppercase tracking-wider">
-                  Estímulo à Formalização
+                  Incentivo Regulatório
                 </div>
               </motion.div>
 
               {/* Private B2B Model */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
-                animate={currentSlide === 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                animate={currentSlide === 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
                 className="bg-white/90 border border-slate-200 rounded-2xl p-6 text-left flex flex-col justify-between shadow-sm"
               >
                 <div className="space-y-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
+                  <div className="w-10 h-10 rounded-xl bg-amber-550/10 flex items-center justify-center text-amber-600 bg-amber-50">
                     <Building2 className="w-5.5 h-5.5" />
                   </div>
                   <h3 className="text-base font-extrabold text-slate-900">B2B Freemium</h3>
@@ -916,7 +1149,7 @@ export default function PitchPage() {
               {/* Public B2G SaaS */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
-                animate={currentSlide === 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                animate={currentSlide === 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
                 className="bg-white/90 border border-slate-200 rounded-2xl p-6 text-left flex flex-col justify-between shadow-sm relative overflow-hidden"
               >
@@ -942,11 +1175,10 @@ export default function PitchPage() {
 
         {/* SLIDE 5: CONCLUSÃO */}
         <section
-          ref={(el) => { sectionRefs.current[4] = el; }}
-          data-slide-index="4"
+          ref={(el) => { sectionRefs.current[5] = el; }}
+          data-slide-index="5"
           className="h-screen w-full snap-start relative flex flex-col justify-center items-center overflow-hidden p-6 sm:p-12"
         >
-          {/* Sunny background beach image with bright overlay */}
           <div
             className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 scale-105"
             style={{
@@ -955,14 +1187,13 @@ export default function PitchPage() {
             }}
           />
 
-          {/* Warm overlay sand gradient */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#FFFDF6] via-transparent to-transparent z-0 opacity-80" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-gradient-to-r from-amber-400/20 to-orange-400/10 blur-3xl z-0 pointer-events-none" />
 
           <div className="max-w-4xl w-full text-center space-y-7 z-10 bg-white/70 backdrop-blur-md p-8 sm:p-12 rounded-3xl border border-amber-200/50 shadow-lg">
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
-              animate={currentSlide === 4 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+              animate={currentSlide === 5 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
               transition={{ duration: 0.5 }}
               className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mx-auto shadow-md"
             >
@@ -971,7 +1202,7 @@ export default function PitchPage() {
 
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
-              animate={currentSlide === 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              animate={currentSlide === 5 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.1 }}
               className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight"
             >
@@ -980,7 +1211,7 @@ export default function PitchPage() {
 
             <motion.p
               initial={{ opacity: 0 }}
-              animate={currentSlide === 4 ? { opacity: 1 } : { opacity: 0 }}
+              animate={currentSlide === 5 ? { opacity: 1 } : { opacity: 0 }}
               transition={{ delay: 0.2 }}
               className="text-base sm:text-lg text-slate-800 max-w-3xl mx-auto font-bold leading-relaxed tracking-wide"
             >
@@ -989,7 +1220,7 @@ export default function PitchPage() {
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={currentSlide === 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              animate={currentSlide === 5 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.3 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6"
             >
@@ -1010,7 +1241,7 @@ export default function PitchPage() {
 
             <motion.div
               initial={{ opacity: 0 }}
-              animate={currentSlide === 4 ? { opacity: 1 } : { opacity: 0 }}
+              animate={currentSlide === 5 ? { opacity: 1 } : { opacity: 0 }}
               transition={{ delay: 0.5 }}
               className="text-xs text-slate-500 pt-8 flex flex-col items-center gap-1 font-bold uppercase tracking-wider"
             >
@@ -1022,12 +1253,13 @@ export default function PitchPage() {
 
       </main>
 
-      {/* 4. Floating Slide Navigation Dock (Bottom) */}
+      {/* 4. Floating Slide Navigation Dock (Bottom - 6 buttons now) */}
       <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-white/90 border border-amber-200/80 backdrop-blur-md px-5 py-3 rounded-full flex items-center gap-4 shadow-sm">
         <div className="flex gap-2">
           {[
-            { label: "Introdução" },
-            { label: "B2C Sensores" },
+            { label: "Capa" },
+            { label: "O Gancho" },
+            { label: "B2C Turista" },
             { label: "B2G Gestão" },
             { label: "Sustentabilidade" },
             { label: "Fechamento" }
@@ -1038,7 +1270,7 @@ export default function PitchPage() {
               className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black border transition-all cursor-pointer",
                 currentSlide === i
-                  ? "bg-amber-500 border-amber-500 text-white shadow-sm"
+                  ? "bg-amber-50 border-amber-50 text-white shadow-sm"
                   : "bg-slate-50 border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-700"
               )}
               title={item.label}
