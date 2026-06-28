@@ -208,6 +208,14 @@
       "gastronomy": {
         "label": "Gastronomia 🦐",
         "desc": "Restaurantes de frutos do mar, culinária sertaneja e drinks regionais."
+      },
+      "ecotourism": {
+        "label": "Ecoturismo 🌿",
+        "desc": "Trilhas ecológicas, observação da vida selvagem e áreas de preservação."
+      },
+      "family": {
+        "label": "Família & Lazer 👨‍👩‍👧‍👦",
+        "desc": "Hotéis com recreação, resorts e praias de águas calmas para crianças."
       }
     },
     "durations": {

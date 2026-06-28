@@ -61,14 +61,10 @@ export default function TouristHomePage() {
   const styles = useMemo(() => [
     { id: 'adventure', label: t('styles.adventure.label'), desc: t('styles.adventure.desc') },
     { id: 'relax', label: t('styles.relax.label'), desc: t('styles.relax.desc') },
+    { id: 'ecotourism', label: t('styles.ecotourism.label'), desc: t('styles.ecotourism.desc') },
     { id: 'culture', label: t('styles.culture.label'), desc: t('styles.culture.desc') },
     { id: 'gastronomy', label: t('styles.gastronomy.label'), desc: t('styles.gastronomy.desc') },
-  ], [t]);
-
-  const durations = useMemo(() => [
-    { id: '1day', label: t('durations.1day.label') },
-    { id: 'weekend', label: t('durations.weekend.label') },
-    { id: '1week', label: t('durations.1week.label') },
+    { id: 'family', label: t('styles.family.label'), desc: t('styles.family.desc') },
   ], [t]);
 
   const transports = useMemo(() => [
@@ -80,9 +76,14 @@ export default function TouristHomePage() {
   // Questionnaire States
   const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [selectedStyle, setSelectedStyle] = useState('adventure');
-  const [selectedDuration, setSelectedDuration] = useState('1day');
+  const [durationDays, setDurationDays] = useState(3);
+  const [expandedPartners, setExpandedPartners] = useState<Record<string, boolean>>({});
   const [selectedTransport, setSelectedTransport] = useState('buggy');
   const [expandedDay, setExpandedDay] = useState<number | null>(1);
+
+  const togglePartner = (id: string) => {
+    setExpandedPartners(prev => ({ ...prev, [id]: !prev[id] }));
+  };
   const [searchQuery, setSearchQuery] = useState('');
 
   // Detailed Questionnaire States
@@ -189,41 +190,29 @@ export default function TouristHomePage() {
       .map(name => destinosInfo.find(d => d.nome === name))
       .filter(Boolean) as typeof destinosInfo;
     
-    // Create day-by-day itineraries based on duration selected
+    // Create day-by-day itineraries dynamically based on durationDays selected
     const routeDays: RouteDay[] = [];
-    if (selectedDuration === '1day') {
+    const numDays = durationDays;
+    
+    // Distribute matchedDestinations into numDays
+    for (let dayIndex = 1; dayIndex <= numDays; dayIndex++) {
+      let dayDests: typeof destinosInfo = [];
+      if (numDays === 1) {
+        dayDests = matchedDestinations.slice(0, 3); // 1-day trip gets up to 3 destinations
+      } else {
+        if (dayIndex === numDays) {
+          // Last day gets the remainder
+          dayDests = matchedDestinations.slice(dayIndex - 1);
+        } else {
+          // Other days get one destination each
+          dayDests = [matchedDestinations[dayIndex - 1]].filter(Boolean);
+        }
+      }
+      
       routeDays.push({
-        day: 1,
-        destinations: matchedDestinations.slice(0, 2),
-        description: t('durations.1day.description'),
-      });
-    } else if (selectedDuration === 'weekend') {
-      routeDays.push({
-        day: 1,
-        destinations: [matchedDestinations[0]].filter(Boolean),
-        description: t('durations.weekend.day1'),
-      });
-      routeDays.push({
-        day: 2,
-        destinations: matchedDestinations.slice(1),
-        description: t('durations.weekend.day2'),
-      });
-    } else {
-      // 1 week - 3 distinct days of schedules
-      routeDays.push({
-        day: 1,
-        destinations: [matchedDestinations[0]].filter(Boolean),
-        description: t('durations.1week.day1'),
-      });
-      routeDays.push({
-        day: 2,
-        destinations: [matchedDestinations[1]].filter(Boolean),
-        description: t('durations.1week.day2'),
-      });
-      routeDays.push({
-        day: 3,
-        destinations: matchedDestinations.slice(2),
-        description: t('durations.1week.day3'),
+        day: dayIndex,
+        destinations: dayDests,
+        description: `Exploração do itinerário para o Dia ${dayIndex}. Aproveite as principais atividades locais.`,
       });
     }
 
@@ -254,7 +243,7 @@ export default function TouristHomePage() {
         id: `route-${Date.now()}`,
         title,
         style: selectedStyle,
-        duration: selectedDuration,
+        duration: `${durationDays} ${durationDays === 1 ? 'dia' : 'dias'}`,
         transport: selectedTransport,
         date: new Date().toLocaleDateString('pt-BR'),
         destinations: matchedDestinations.map(d => d.nome),
@@ -297,6 +286,10 @@ export default function TouristHomePage() {
       filtered = filtered.filter(d => 
         d.nome.includes('Pipa') || d.nome.includes('Madeiro') || d.nome.includes('Gostoso') || d.nome.includes('Galinhos') || d.nome.includes('Maracajaú')
       );
+    } else if (selectedStyle === 'ecotourism') {
+      filtered = filtered.filter(d => 
+        d.nome.includes('Lagoa') || d.nome.includes('Parrachos') || d.nome.includes('Galinhos') || d.nome.includes('Maracajaú')
+      );
     } else if (selectedStyle === 'culture') {
       filtered = filtered.filter(d => 
         d.nome.includes('Forte') || d.nome.includes('Mossoró') || d.nome.includes('Lajedo') || d.nome.includes('Barreira') || d.nome.includes('Santa Rita')
@@ -304,6 +297,10 @@ export default function TouristHomePage() {
     } else if (selectedStyle === 'gastronomy') {
       filtered = filtered.filter(d => 
         d.nome.includes('Pipa') || d.nome.includes('Cunhaú') || d.nome.includes('Ponta Negra')
+      );
+    } else if (selectedStyle === 'family') {
+      filtered = filtered.filter(d => 
+        d.nome.includes('Pipa') || d.nome.includes('Lagoa') || d.nome.includes('Forte') || d.nome.includes('Ponta Negra')
       );
     }
 
@@ -336,13 +333,31 @@ export default function TouristHomePage() {
       <section className="relative w-full border-b border-[var(--color-border)] bg-[var(--color-bg)] overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[600px] lg:h-[720px] w-full">
           
-          {/* Left Column: Flat, unblurred, 100% visible active Map */}
-          <div className="lg:col-span-7 relative h-[380px] lg:h-full w-full bg-[var(--color-surface-alt)] order-2 lg:order-1 border-b lg:border-b-0 lg:border-r border-[var(--color-border)]">
-            <HomeRouteMap 
-              destinations={mapDestinations} 
-              activeDay={expandedDay} 
-              isInteractive={true}
-            />
+          {/* Left Column: Blurred Map initially, clear on route generation */}
+          <div className="lg:col-span-7 relative h-[380px] lg:h-full w-full bg-[var(--color-surface-alt)] order-2 lg:order-1 border-b lg:border-b-0 lg:border-r border-[var(--color-border)] overflow-hidden">
+            <div className={cn(
+              "w-full h-full transition-all duration-1000",
+              (step === 1 || step === 2) ? "blur-[6px] scale-105" : "blur-0 scale-100"
+            )}>
+              <HomeRouteMap 
+                destinations={mapDestinations} 
+                activeDay={expandedDay} 
+                isInteractive={true}
+              />
+            </div>
+            
+            {/* Overlay Logo/Name on Map initially */}
+            {(step === 1 || step === 2) && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/10 transition-all duration-700 animate-fade-in pointer-events-none z-20">
+                <div className="bg-[var(--color-surface)]/90 backdrop-blur-sm border border-[var(--color-border)]/50 px-6 py-4 rounded-3xl shadow-2xl flex flex-col items-center gap-2">
+                  <div className="h-12 w-12 rounded-2xl bg-[var(--color-primary-soft)] flex items-center justify-center">
+                    <Sparkles className="h-6 w-6 text-[var(--color-primary)] animate-pulse" />
+                  </div>
+                  <span className="text-xl font-black tracking-wider text-[var(--color-text)]">DUNASTECH</span>
+                  <span className="text-[10px] uppercase font-bold text-[var(--color-text-muted)] tracking-widest">Observatório Potiguar</span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right Column: Title + Smart Unified Form OR Generated Itinerary */}
@@ -368,23 +383,6 @@ export default function TouristHomePage() {
                 {step === 1 ? (
                   /* STEP 1: Basic Route Options */
                   <div className="space-y-4">
-                    {/* Smart Search Bar */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
-                        {t('startPointLabel')}
-                      </label>
-                      <div className="relative group">
-                        <input
-                          type="text"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          placeholder={t('startPointPlaceholder')}
-                          className="w-full bg-[var(--color-surface-alt)] border border-[var(--color-border)] rounded-xl py-2 pl-9 pr-4 text-xs text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-4 focus:ring-[var(--color-primary)]/10 transition-all duration-300 hover:border-[var(--color-primary)]/30"
-                        />
-                        <MapPin className="absolute left-3 top-2.5 h-3.5 w-3.5 text-[var(--color-text-muted)] group-focus-within:text-[var(--color-primary)] transition-colors" />
-                      </div>
-                    </div>
-
                     {/* Travel Style Selection */}
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
@@ -416,30 +414,29 @@ export default function TouristHomePage() {
                       </div>
                     </div>
 
-                    {/* Duration Selection */}
+                    {/* Duration Selection (Plus/Minus Counter) */}
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
-                        {t('durationLabel')}
+                        Duração do Roteiro
                       </label>
-                      <div className="flex bg-[var(--color-surface-alt)] p-1 rounded-xl border border-[var(--color-border-light)] gap-1">
-                        {durations.map(d => {
-                          const isActive = selectedDuration === d.id;
-                          return (
-                            <button
-                              key={d.id}
-                              type="button"
-                              onClick={() => setSelectedDuration(d.id)}
-                              className={cn(
-                                "flex-1 py-1.5 text-center rounded-lg font-extrabold text-[10px] transition-all cursor-pointer truncate select-none border border-transparent",
-                                isActive
-                                  ? "bg-[var(--color-surface)] text-[var(--color-primary)] shadow-sm border-[var(--color-border)]/20"
-                                  : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
-                              )}
-                            >
-                              {d.label}
-                            </button>
-                          );
-                        })}
+                      <div className="flex items-center justify-between bg-[var(--color-surface-alt)] p-1.5 rounded-xl border border-[var(--color-border-light)] max-w-[220px]">
+                        <button 
+                          type="button"
+                          onClick={() => setDurationDays(prev => Math.max(1, prev - 1))}
+                          className="h-8 w-10 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-black flex items-center justify-center cursor-pointer select-none transition-all"
+                        >
+                          -
+                        </button>
+                        <span className="font-black text-xs text-[var(--color-text)]">
+                          {durationDays} {durationDays === 1 ? 'Dia' : 'Dias'}
+                        </span>
+                        <button 
+                          type="button"
+                          onClick={() => setDurationDays(prev => Math.min(15, prev + 1))}
+                          className="h-8 w-10 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-black flex items-center justify-center cursor-pointer select-none transition-all"
+                        >
+                          +
+                        </button>
                       </div>
                     </div>
 
@@ -952,34 +949,49 @@ export default function TouristHomePage() {
                                             <span className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
                                               Experiências Cadastur Credenciadas
                                             </span>
-                                            <div className="space-y-2.5 pl-0.5">
-                                              {partnersWithExps.map((partner) => (
-                                                <div key={partner.id} className="space-y-1.5 border-l-2 border-[var(--color-primary)]/20 pl-2 ml-0.5">
-                                                  <span className="text-[8.5px] font-extrabold text-[var(--color-text-secondary)] block">
-                                                    🛡️ {partner.nome} ({partner.tipo})
-                                                  </span>
-                                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                                                    {partner.experiencias?.map((exp, idx) => {
-                                                      const expKey = `${partner.id}-exp-${idx}`;
-                                                      return (
-                                                        <label key={expKey} className="flex items-center gap-2 p-2 rounded-xl hover:bg-[var(--color-surface-hover)]/35 cursor-pointer text-xs select-none group border border-[var(--color-border-light)]/30 bg-[var(--color-surface)]/30 hover:border-[var(--color-primary)]/20 transition-all" title={exp.descricao}>
-                                                          <input 
-                                                            type="checkbox" 
-                                                            checked={!!selectedExperiences[expKey]} 
-                                                            onChange={(e) => {
-                                                              setSelectedExperiences(prev => ({ ...prev, [expKey]: e.target.checked }));
-                                                            }}
-                                                            className="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]/20 h-3.5 w-3.5 shrink-0"
-                                                          />
-                                                          <span className="font-bold text-[9.5px] text-[var(--color-text)] truncate flex-1 leading-tight">{exp.titulo}</span>
-                                                          <span className="text-[9px] text-[var(--color-text-muted)] opacity-35 group-hover:opacity-100 transition-opacity shrink-0">ℹ️</span>
-                                                        </label>
-                                                      );
-                                                    })}
+                                              {partnersWithExps.map((partner) => {
+                                                const isExpanded = !!expandedPartners[partner.id];
+                                                return (
+                                                  <div key={partner.id} className="space-y-2 border border-[var(--color-border-light)]/40 rounded-2xl overflow-hidden bg-[var(--color-surface)] shadow-sm">
+                                                    {/* Collapsible Accordion Header */}
+                                                    <button
+                                                      type="button"
+                                                      onClick={() => togglePartner(partner.id)}
+                                                      className="w-full text-left py-2.5 px-3.5 bg-[var(--color-surface-alt)]/65 hover:bg-[var(--color-surface-hover)]/80 flex items-center justify-between cursor-pointer transition-all select-none border-b border-[var(--color-border-light)]/20"
+                                                    >
+                                                      <span className="text-[9.5px] sm:text-xs font-black text-[var(--color-text-secondary)] flex items-center gap-1.5">
+                                                        🛡️ {partner.nome} ({partner.tipo})
+                                                      </span>
+                                                      <span className="text-[9px] text-[var(--color-primary)] font-bold">
+                                                        {isExpanded ? 'Ocultar ▲' : 'Ver Experiências ▼'}
+                                                      </span>
+                                                    </button>
+                                                    
+                                                    {/* Expandable list of checkboxes */}
+                                                    {isExpanded && (
+                                                      <div className="p-3.5 pt-1.5 grid grid-cols-1 sm:grid-cols-2 gap-2 animate-fade-in">
+                                                        {partner.experiencias?.map((exp, idx) => {
+                                                          const expKey = `${partner.id}-exp-${idx}`;
+                                                          return (
+                                                            <label key={expKey} className="flex items-center gap-2 p-2 rounded-xl hover:bg-[var(--color-surface-hover)]/35 cursor-pointer text-xs select-none group border border-[var(--color-border-light)]/30 bg-[var(--color-surface-alt)]/30 hover:border-[var(--color-primary)]/20 transition-all" title={exp.descricao}>
+                                                              <input 
+                                                                type="checkbox" 
+                                                                checked={!!selectedExperiences[expKey]} 
+                                                                onChange={(e) => {
+                                                                  setSelectedExperiences(prev => ({ ...prev, [expKey]: e.target.checked }));
+                                                                }}
+                                                                className="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]/20 h-3.5 w-3.5 shrink-0"
+                                                              />
+                                                              <span className="font-bold text-[9.5px] text-[var(--color-text)] truncate flex-1 leading-tight">{exp.titulo}</span>
+                                                              <span className="text-[9px] text-[var(--color-text-muted)] opacity-35 group-hover:opacity-100 transition-opacity shrink-0">ℹ️</span>
+                                                            </label>
+                                                          );
+                                                        })}
+                                                      </div>
+                                                    )}
                                                   </div>
-                                                </div>
-                                              ))}
-                                            </div>
+                                                );
+                                              })}
                                           </div>
                                         )}
                                       </div>

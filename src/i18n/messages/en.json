@@ -208,6 +208,14 @@
       "gastronomy": {
         "label": "Gastronomy 🦐",
         "desc": "Seafood restaurants, hinterland cuisine, and regional drinks."
+      },
+      "ecotourism": {
+        "label": "Ecotourism 🌿",
+        "desc": "Nature trails, wildlife watching, and environmental reserves."
+      },
+      "family": {
+        "label": "Family & Leisure 👨‍👩‍👧‍👦",
+        "desc": "Water parks, child-friendly resorts, and calm shallow beaches."
       }
     },
     "durations": {
