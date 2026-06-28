@@ -510,7 +510,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.8795,
     longitude: -35.1725,
     descricao: "Hotel de frente para o mar na orla de Ponta Negra com piscina panorâmica e serviços de alto padrão.",
-    imagem: "https://images.unsplash.com/photo-1598301257942-e6bde1d2149b?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/hero_ponta_negra.png"
   },
   {
     id: "cad-pn-2",
@@ -524,7 +524,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.8778,
     longitude: -35.1742,
     descricao: "Uma referência gastronômica internacional em Natal. Especialidade em pratos de camarão sofisticados.",
-    imagem: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/hero_ponta_negra.png"
   },
   {
     id: "cad-pn-3",
@@ -538,7 +538,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.8820,
     longitude: -35.1715,
     descricao: "Agência credenciada para passeios de barco, stand-up paddle e caiaques na enseada.",
-    imagem: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/hero_ponta_negra.png"
   },
   // Pipa
   {
@@ -553,7 +553,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -6.2325,
     longitude: -35.0450,
     descricao: "Hotel de luxo no alto das falésias da Praia do Amor com vistas espetaculares da Mata Atlântica.",
-    imagem: "https://images.unsplash.com/photo-1590012314607-cda9d9b699ae?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/pipa.png"
   },
   {
     id: "cad-pipa-2",
@@ -567,7 +567,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -6.2268,
     longitude: -35.0482,
     descricao: "Restaurante e bar à beira da praia com petiscos, drinques refinados e música ao vivo frente ao mar.",
-    imagem: "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/pipa.png"
   },
   {
     id: "cad-pipa-3",
@@ -581,7 +581,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -6.2272,
     longitude: -35.0490,
     descricao: "Agência certificada organizadora de barcos de golfinhos e passeios florestais no Santuário.",
-    imagem: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/pipa.png"
   },
   // Genipabu
   {
@@ -596,7 +596,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.7065,
     longitude: -35.1985,
     descricao: "Pousada acolhedora colada no Parque das Dunas e no mar de Genipabu.",
-    imagem: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/genipabu.png"
   },
   {
     id: "cad-gen-3",
@@ -610,7 +610,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.7090,
     longitude: -35.1955,
     descricao: "Associação oficial credenciada pelo governo com pilotos profissionais autorizados nas dunas móveis.",
-    imagem: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/genipabu.png"
   },
   // Maracajaú
   {
@@ -625,7 +625,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.4150,
     longitude: -35.3780,
     descricao: "Parque aquático e hotelaria integrados com saída direta para lanchas e catamarãs em direção aos corais.",
-    imagem: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/maracajau.png"
   },
   {
     id: "cad-mar-3",
@@ -639,7 +639,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.4100,
     longitude: -35.3740,
     descricao: "Operadora profissional de mergulho nos Parrachos, fornecendo snorkel, coletes e lanchas credenciadas.",
-    imagem: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/maracajau.png"
   },
   // Gostoso
   {
@@ -654,7 +654,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.1235,
     longitude: -35.6375,
     descricao: "Pousada boutique pé na areia na ponta de Gostoso, favorita de praticantes de Kitesurf.",
-    imagem: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/sao_miguel.png"
   },
   {
     id: "cad-gost-2",
@@ -668,7 +668,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.1245,
     longitude: -35.6385,
     descricao: "Escola internacional de vela fundada por campeões, certificada e credenciada pelo Cadastur.",
-    imagem: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/sao_miguel.png"
   },
   // Forte
   {
@@ -683,7 +683,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.7560,
     longitude: -35.1950,
     descricao: "Guias turísticos profissionais especializados em história colonial potiguar.",
-    imagem: "https://images.unsplash.com/photo-1599930113854-d6d7fd521f10?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/forte_dos_reis_magos.png"
   },
   // Galinhos
   {
@@ -698,7 +698,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.0910,
     longitude: -36.2735,
     descricao: "Navegações seguras pelo rio e dunas do capim em Galinhos com guias nativos.",
-    imagem: "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/galinhos.png"
   },
   // Cajueiro
   {
@@ -713,7 +713,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.9735,
     longitude: -35.1285,
     descricao: "Agência oficial que organiza visitas ao cajueiro gigante e passeios de barco nas marinas de Pirangi.",
-    imagem: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/maior_caju.png"
   },
   // Madeiro
   {
@@ -728,7 +728,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -6.2140,
     longitude: -35.0770,
     descricao: "Instrutor credenciado de surf e guia florestal para caminhadas em falésias.",
-    imagem: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/pipa.png"
   },
   // Pitangui
   {
@@ -743,7 +743,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.7245,
     longitude: -35.2095,
     descricao: "Complexo de lazer na lagoa, oferecendo pratos de peixes e tirolesa aquática segura.",
-    imagem: "https://images.unsplash.com/photo-1468413253725-0d5181091126?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/genipabu.png"
   },
   // CLBI Barreira do Inferno
   {
@@ -758,7 +758,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.8910,
     longitude: -35.1790,
     descricao: "Divisão de educação pública e turismo histórico da Aeronáutica brasileira.",
-    imagem: "https://images.unsplash.com/photo-1457364559154-aa2644600ebb?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/hero_ponta_negra.png"
   },
   // Cunhaú
   {
@@ -773,7 +773,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -6.3100,
     longitude: -35.0550,
     descricao: "Navegação turística pelos mangues com parada nas praias fluviais e caranguejadas.",
-    imagem: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/pipa.png"
   },
   // Bosque Namorados
   {
@@ -788,7 +788,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.8405,
     longitude: -35.1975,
     descricao: "Guias ambientais oficiais do IDEMA-RN para educação ecológica em trilhas.",
-    imagem: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/hero_ponta_negra.png"
   },
   // Mossoró
   {
@@ -803,7 +803,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.1870,
     longitude: -37.3440,
     descricao: "Agência que realiza city tours detalhados pelos memoriais de resistência ao cangaço.",
-    imagem: "https://images.unsplash.com/photo-1518639192441-8fce0a366e2e?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/mossoro_historico.png"
   },
   // Apodi
   {
@@ -818,7 +818,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.5830,
     longitude: -37.8010,
     descricao: "Associação local de guias protetores do Lajedo de Soledade treinados em geologia e pintura rupestre.",
-    imagem: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=500&h=350&fit=crop"
+    imagem: "/images/destinations/lajedo_soledade.png"
   }
 ];
 
@@ -909,29 +909,29 @@ const agenciaClassifiers = ["Agência", "Turismo", "Viagens", "Expedições", "E
 const businessTypes: CadasturBusiness['tipo'][] = ["Hotel", "Restaurante", "Guia", "Pousada", "Agência"];
 
 const hotelImages = [
-  "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&h=350&fit=crop",
-  "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=500&h=350&fit=crop",
-  "https://images.unsplash.com/photo-1540541338287-41700207dee6?w=500&h=350&fit=crop"
+  "/images/destinations/hero_ponta_negra.png",
+  "/images/destinations/pipa.png",
+  "/images/destinations/sao_miguel.png"
 ];
 const restauranteImages = [
-  "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500&h=350&fit=crop",
-  "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=500&h=350&fit=crop",
-  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&h=350&fit=crop"
+  "/images/destinations/maracajau.png",
+  "/images/destinations/galinhos.png",
+  "/images/destinations/forte_dos_reis_magos.png"
 ];
 const pousadaImages = [
-  "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=500&h=350&fit=crop",
-  "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=500&h=350&fit=crop",
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=500&h=350&fit=crop"
+  "/images/destinations/genipabu.png",
+  "/images/destinations/lajedo_soledade.png",
+  "/images/destinations/maior_caju.png"
 ];
 const guiaImages = [
-  "https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=500&h=350&fit=crop",
-  "https://images.unsplash.com/photo-1527631746610-bca00a040d60?w=500&h=350&fit=crop",
-  "https://images.unsplash.com/photo-1486916856992-e4db22c8df33?w=500&h=350&fit=crop"
+  "/images/destinations/mossoro_historico.png",
+  "/images/destinations/hero_ponta_negra.png",
+  "/images/destinations/pipa.png"
 ];
 const agenciaImages = [
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&h=350&fit=crop",
-  "https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=500&h=350&fit=crop",
-  "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=500&h=350&fit=crop"
+  "/images/destinations/sao_miguel.png",
+  "/images/destinations/genipabu.png",
+  "/images/destinations/maracajau.png"
 ];
 
 function generateMockBusinesses(): CadasturBusiness[] {

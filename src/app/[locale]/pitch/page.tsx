@@ -116,17 +116,22 @@ export default function PitchPage() {
 
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
 
-  // 180 seconds countdown
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (isTimerRunning && timeLeft > 0) {
       timer = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            setTimeout(() => setIsTimerRunning(false), 0);
+            return 0;
+          }
+          return prev - 1;
+        });
       }, 1000);
-    } else if (timeLeft === 0) {
-      setIsTimerRunning(false);
     }
-    return () => clearInterval(timer);
+    return () => {
+      if (timer) clearInterval(timer);
+    };
   }, [isTimerRunning, timeLeft]);
 
   // Format time
@@ -1505,7 +1510,7 @@ export default function PitchPage() {
           <div
             className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 scale-105"
             style={{
-              backgroundImage: "url('https://images.unsplash.com/photo-1590012314607-cda9d9b699ae?w=1600&h=900&fit=crop')",
+              backgroundImage: "url('/images/destinations/hero_ponta_negra.png')",
               filter: "brightness(0.6) contrast(1.05)"
             }}
           />

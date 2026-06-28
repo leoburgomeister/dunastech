@@ -39,6 +39,7 @@ export default function CadasturGestaoPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "expiring" | "expired">("all");
   const [notifiedId, setNotifiedId] = useState<string | null>(null);
+  const [expandedKPI, setExpandedKPI] = useState<'total' | 'active' | 'expiring' | 'expired' | null>(null);
 
   // Extend base mock data with expiration metrics
   const fullCadasturData = useMemo(() => {
@@ -103,7 +104,13 @@ export default function CadasturGestaoPage() {
         {/* KPIs row */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
           {/* Total */}
-          <div className="bg-[var(--color-surface)] border border-[var(--color-border)] p-4 rounded-xl flex items-center justify-between">
+          <div 
+            onClick={() => setExpandedKPI(expandedKPI === 'total' ? null : 'total')}
+            className={cn(
+              "bg-[var(--color-surface)] border p-4 rounded-xl flex items-center justify-between cursor-pointer hover:border-[var(--color-primary)] transition-all select-none",
+              expandedKPI === 'total' ? "border-[var(--color-primary)] bg-[var(--color-primary-soft)]/5" : "border-[var(--color-border)]"
+            )}
+          >
             <div>
               <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-extrabold">Total Mapeado</span>
               <span className="text-2xl font-black block mt-1 text-[var(--color-text)]">{kpis.total}</span>
@@ -114,9 +121,15 @@ export default function CadasturGestaoPage() {
           </div>
 
           {/* Active */}
-          <div className="bg-[var(--color-surface)] border border-[var(--color-border)] p-4 rounded-xl flex items-center justify-between">
+          <div 
+            onClick={() => setExpandedKPI(expandedKPI === 'active' ? null : 'active')}
+            className={cn(
+              "bg-[var(--color-surface)] border p-4 rounded-xl flex items-center justify-between cursor-pointer hover:border-green-500 transition-all select-none",
+              expandedKPI === 'active' ? "border-green-500 bg-green-500/5" : "border-[var(--color-border)]"
+            )}
+          >
             <div>
-              <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-extrabold font-bold">Certidão Ativa</span>
+              <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-extrabold">Certidão Ativa</span>
               <span className="text-2xl font-black block mt-1 text-green-400">{kpis.active}</span>
             </div>
             <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center text-green-400">
@@ -125,9 +138,15 @@ export default function CadasturGestaoPage() {
           </div>
 
           {/* Expiring */}
-          <div className="bg-[var(--color-surface)] border border-[var(--color-border)] p-4 rounded-xl flex items-center justify-between">
+          <div 
+            onClick={() => setExpandedKPI(expandedKPI === 'expiring' ? null : 'expiring')}
+            className={cn(
+              "bg-[var(--color-surface)] border p-4 rounded-xl flex items-center justify-between cursor-pointer hover:border-amber-500 transition-all select-none",
+              expandedKPI === 'expiring' ? "border-amber-500 bg-amber-500/5" : "border-[var(--color-border)]"
+            )}
+          >
             <div>
-              <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-extrabold font-bold">Para Vencer (30d)</span>
+              <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-extrabold">Para Vencer (30d)</span>
               <span className="text-2xl font-black block mt-1 text-amber-400">{kpis.expiring}</span>
             </div>
             <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
@@ -136,9 +155,15 @@ export default function CadasturGestaoPage() {
           </div>
 
           {/* Expired */}
-          <div className="bg-[var(--color-surface)] border border-[var(--color-border)] p-4 rounded-xl flex items-center justify-between">
+          <div 
+            onClick={() => setExpandedKPI(expandedKPI === 'expired' ? null : 'expired')}
+            className={cn(
+              "bg-[var(--color-surface)] border p-4 rounded-xl flex items-center justify-between cursor-pointer hover:border-red-500 transition-all select-none",
+              expandedKPI === 'expired' ? "border-red-500 bg-red-500/5" : "border-[var(--color-border)]"
+            )}
+          >
             <div>
-              <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-extrabold font-bold">Regularidade Pendente</span>
+              <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-extrabold">Regularidade Pendente</span>
               <span className="text-2xl font-black block mt-1 text-red-400">{kpis.expired}</span>
             </div>
             <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center text-red-400">
@@ -146,6 +171,88 @@ export default function CadasturGestaoPage() {
             </div>
           </div>
         </div>
+
+        {/* Expanded KPI Detail Block */}
+        {expandedKPI && (
+          <Card className="p-5 border border-[var(--color-border)] bg-[var(--color-surface-alt)]/40 animate-fade-in space-y-3 text-left">
+            <div className="flex items-center justify-between border-b border-[var(--color-border-light)] pb-2">
+              <h3 className="font-bold text-xs text-[var(--color-text)] flex items-center gap-2">
+                {expandedKPI === 'total' && <>🛡️ Operadores Cadastrados por Categoria</>}
+                {expandedKPI === 'active' && <>✅ Operadores com Certidão Ativa</>}
+                {expandedKPI === 'expiring' && <>⚠️ Certidões a Vencer nos Próximos 30 Dias</>}
+                {expandedKPI === 'expired' && <>🚨 Irregularidades e Regularidade Pendente</>}
+              </h3>
+              <button 
+                onClick={() => setExpandedKPI(null)}
+                className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
+              >
+                Fechar [x]
+              </button>
+            </div>
+
+            {expandedKPI === 'total' && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="p-3 bg-[var(--color-surface)] border border-[var(--color-border-light)] rounded-xl text-center space-y-1">
+                  <span className="text-[10px] font-bold text-[var(--color-text-muted)] block">Hospedagem</span>
+                  <span className="font-black text-lg text-[var(--color-text)]">
+                    {fullCadasturData.filter(b => b.tipo === "Hotel" || b.tipo === "Pousada").length} empresas
+                  </span>
+                </div>
+                <div className="p-3 bg-[var(--color-surface)] border border-[var(--color-border-light)] rounded-xl text-center space-y-1">
+                  <span className="text-[10px] font-bold text-[var(--color-text-muted)] block">Alimentação</span>
+                  <span className="font-black text-lg text-[var(--color-text)]">
+                    {fullCadasturData.filter(b => b.tipo === "Restaurante").length} empresas
+                  </span>
+                </div>
+                <div className="p-3 bg-[var(--color-surface)] border border-[var(--color-border-light)] rounded-xl text-center space-y-1">
+                  <span className="text-[10px] font-bold text-[var(--color-text-muted)] block">Guias & Agências</span>
+                  <span className="font-black text-lg text-[var(--color-text)]">
+                    {fullCadasturData.filter(b => b.tipo === "Guia" || b.tipo === "Agência").length} empresas
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {(expandedKPI === 'active' || expandedKPI === 'expiring' || expandedKPI === 'expired') && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                {fullCadasturData
+                  .filter(b => {
+                    if (expandedKPI === 'active') return b.statusCadastur === 'active';
+                    if (expandedKPI === 'expiring') return b.statusCadastur === 'expiring';
+                    return b.statusCadastur === 'expired';
+                  })
+                  .slice(0, 6)
+                  .map((b) => (
+                    <div key={b.id} className="p-3.5 bg-[var(--color-surface)] border border-[var(--color-border-light)] rounded-xl space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-black text-[var(--color-text)] truncate">{b.nome}</span>
+                        <Badge 
+                          variant={b.statusCadastur === 'active' ? 'success' : b.statusCadastur === 'expiring' ? 'warning' : 'danger'}
+                          size="sm"
+                        >
+                          {b.statusCadastur === 'active' ? 'Ativa' : b.statusCadastur === 'expiring' ? 'A Vencer' : 'Vencida'}
+                        </Badge>
+                      </div>
+                      <div className="text-[9px] text-[var(--color-text-secondary)] space-y-0.5">
+                        <p>CNPJ: {b.cnpj}</p>
+                        <p>Vencimento: {formatDate(b.vencimento)}</p>
+                        <p>Destino: {b.destino}</p>
+                      </div>
+                    </div>
+                  ))}
+                {fullCadasturData.filter(b => {
+                  if (expandedKPI === 'active') return b.statusCadastur === 'active';
+                  if (expandedKPI === 'expiring') return b.statusCadastur === 'expiring';
+                  return b.statusCadastur === 'expired';
+                }).length === 0 && (
+                  <p className="text-[11px] text-[var(--color-text-muted)] col-span-3 text-center py-2">
+                    Nenhuma empresa nesta classificação.
+                  </p>
+                )}
+              </div>
+            )}
+          </Card>
+        )}
 
         {/* Filter and Search Bar */}
         <Card className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
