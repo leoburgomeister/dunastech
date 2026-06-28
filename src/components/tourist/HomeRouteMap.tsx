@@ -131,13 +131,17 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
   const tileUrl = 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}';
 
   useEffect(() => {
-    setMounted(true);
+    setTimeout(() => {
+      setMounted(true);
+    }, 0);
   }, []);
 
   // Fetch real road route from OSRM
   useEffect(() => {
     if (destinations.length < 2) {
-      setRoutePoints([]);
+      setTimeout(() => {
+        setRoutePoints([]);
+      }, 0);
       return;
     }
 

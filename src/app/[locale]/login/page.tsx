@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, Mail, User, CreditCard, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
@@ -15,11 +15,30 @@ export default function LoginPage() {
   const [cpf, setCpf] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [redirectPath, setRedirectPath] = useState('/');
   const router = useRouter();
 
+  // Read search parameters safely on the client side after mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get('redirect');
+      if (redirect && redirect.startsWith('/')) {
+        setTimeout(() => {
+          setRedirectPath(redirect);
+        }, 0);
+      }
+    }
+  }, []);
+
   // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push(redirectPath);
+    }
+  }, [isAuthenticated, redirectPath, router]);
+
   if (isAuthenticated) {
-    router.push('/');
     return null;
   }
 
@@ -27,13 +46,13 @@ export default function LoginPage() {
     e.preventDefault();
     clearError();
     await signInWithCPF(cpf, name, email);
-    if (!error) router.push('/');
+    if (!error) router.push(redirectPath);
   };
 
   const handleGoogleLogin = async () => {
     clearError();
     await signInWithGoogle();
-    router.push('/');
+    router.push(redirectPath);
   };
 
   return (

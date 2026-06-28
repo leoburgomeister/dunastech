@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ClipboardCheck, Send, CheckCircle, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -10,6 +10,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import { addFeedback } from '@/lib/firebase';
 import { allDestinos, avaliacaoOptions } from '@/data/mockData';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const criteria = [
   { key: 'limpo', emoji: '🧹', label: 'Limpo e conservado' },
@@ -23,8 +24,16 @@ const criteria = [
 ];
 
 export default function EvaluationPage() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [selectedDest, setSelectedDest] = useState('');
+
+  // Automatic redirect if not logged in
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/login?redirect=/avaliar');
+    }
+  }, [authLoading, isAuthenticated, router]);
   const [rating, setRating] = useState(0);
   const [selectedCriteria, setSelectedCriteria] = useState<Record<string, boolean>>({});
   const [comment, setComment] = useState('');
@@ -67,19 +76,16 @@ export default function EvaluationPage() {
   };
 
   // Auth gate
-  if (!isAuthenticated) {
+  if (authLoading || !isAuthenticated) {
     return (
       <div className="max-w-md mx-auto px-4 py-20 text-center animate-scale-in">
         <div className="h-16 w-16 rounded-2xl bg-[var(--color-primary-soft)] mx-auto flex items-center justify-center mb-4">
-          <Lock className="h-8 w-8 text-[var(--color-primary)]" />
+          <Lock className="h-8 w-8 text-[var(--color-primary)] animate-pulse" />
         </div>
-        <h2 className="text-xl font-bold text-[var(--color-text)] mb-2">Login necessário</h2>
+        <h2 className="text-xl font-bold text-[var(--color-text)] mb-2">Redirecionando...</h2>
         <p className="text-sm text-[var(--color-text-muted)] mb-6">
-          Faça login para avaliar destinos e contribuir com o observatório do turismo.
+          Você precisa estar logado para avaliar destinos. Aguarde um instante.
         </p>
-        <Link href="/login">
-          <Button size="lg">Entrar</Button>
-        </Link>
       </div>
     );
   }

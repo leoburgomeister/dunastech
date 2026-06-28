@@ -1024,7 +1024,7 @@ function generateMockBusinesses(): CadasturBusiness[] {
 
     // Coordinates: random scatter with varying radii and angles around center coordinates (no perfect circle)
     const angle = pseudoRandom(seed * 14.2) * 2 * Math.PI;
-    let radius = 0.003 + (pseudoRandom(seed * 15.6) * 0.022); // radius spread between 0.003 and 0.025 degrees
+    const radius = 0.003 + (pseudoRandom(seed * 15.6) * 0.022); // radius spread between 0.003 and 0.025 degrees
     
     let latOffset = Math.sin(angle) * radius;
     let lngOffset = Math.cos(angle) * radius;

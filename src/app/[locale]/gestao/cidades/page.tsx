@@ -50,10 +50,14 @@ export default function CidadesGestaoPage() {
   useEffect(() => {
     const saved = localStorage.getItem("dunastech_monitored_spots");
     if (saved) {
-      setMonitoredSpots(JSON.parse(saved));
+      setTimeout(() => {
+        setMonitoredSpots(JSON.parse(saved));
+      }, 0);
     } else {
       const defaults = destinosInfo.filter(d => d.monitorado !== false).map(d => d.nome);
-      setMonitoredSpots(defaults);
+      setTimeout(() => {
+        setMonitoredSpots(defaults);
+      }, 0);
       localStorage.setItem("dunastech_monitored_spots", JSON.stringify(defaults));
     }
   }, []);
@@ -125,13 +129,13 @@ export default function CidadesGestaoPage() {
     return municipiosList
       .filter(m => m.nome.toLowerCase().includes(searchTerm.toLowerCase()))
       .sort((a, b) => {
-        let valA: any = a[sortBy === "area" ? "area_km2" : sortBy === "receita" ? "receita_milhoes" : sortBy === "investimento" ? "investimento_mil" : sortBy];
-        let valB: any = b[sortBy === "area" ? "area_km2" : sortBy === "receita" ? "receita_milhoes" : sortBy === "investimento" ? "investimento_mil" : sortBy];
+        const valA = a[sortBy === "area" ? "area_km2" : sortBy === "receita" ? "receita_milhoes" : sortBy === "investimento" ? "investimento_mil" : sortBy] as string | number;
+        const valB = b[sortBy === "area" ? "area_km2" : sortBy === "receita" ? "receita_milhoes" : sortBy === "investimento" ? "investimento_mil" : sortBy] as string | number;
         
         if (typeof valA === "string") {
-          return sortOrder === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA);
+          return sortOrder === "asc" ? valA.localeCompare(valB as string) : (valB as string).localeCompare(valA);
         }
-        return sortOrder === "asc" ? valA - valB : valB - valA;
+        return sortOrder === "asc" ? (valA as number) - (valB as number) : (valB as number) - (valA as number);
       });
   }, [municipiosList, searchTerm, sortBy, sortOrder]);
 

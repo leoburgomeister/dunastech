@@ -47,6 +47,13 @@ export default function PerfilPage() {
   const [history, setHistory] = useState<RouteHistoryItem[]>([]);
   const router = useRouter();
 
+  // Automatic redirect if not logged in
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.push('/login?redirect=/perfil');
+    }
+  }, [loading, isAuthenticated, router]);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('dunastech_route_history');
@@ -70,34 +77,16 @@ export default function PerfilPage() {
     router.push('/');
   };
 
-  if (loading) {
+  if (loading || !isAuthenticated) {
     return (
       <TouristLayout>
-        <div className="max-w-4xl mx-auto px-4 py-12 text-center text-sm text-[var(--color-text-muted)]">
+        <div className="max-w-4xl mx-auto px-4 py-12 text-center text-sm text-[var(--color-text-muted)] animate-pulse">
           Carregando perfil...
         </div>
       </TouristLayout>
     );
   }
 
-  if (!isAuthenticated) {
-    return (
-      <TouristLayout>
-        <div className="max-w-md mx-auto px-4 py-20 text-center animate-scale-in">
-          <div className="h-16 w-16 rounded-2xl bg-[var(--color-primary-soft)] mx-auto flex items-center justify-center mb-4">
-            <User className="h-8 w-8 text-[var(--color-primary)]" />
-          </div>
-          <h2 className="text-xl font-bold text-[var(--color-text)] mb-2">Acesso restrito</h2>
-          <p className="text-sm text-[var(--color-text-muted)] mb-6">
-            Faça login para gerenciar seu perfil e acessar o histórico de pesquisas e rotas planejadas.
-          </p>
-          <Link href="/login">
-            <Button size="lg">Entrar / Fazer Login</Button>
-          </Link>
-        </div>
-      </TouristLayout>
-    );
-  }
 
   return (
     <TouristLayout>

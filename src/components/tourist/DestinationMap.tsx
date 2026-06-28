@@ -104,7 +104,9 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
   const tileUrl = 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}';
 
   useEffect(() => {
-    setMounted(true);
+    setTimeout(() => {
+      setMounted(true);
+    }, 0);
   }, []);
 
   const partners = cadasturData.filter(
@@ -123,7 +125,9 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
   // Fetch real road route from OSRM
   useEffect(() => {
     if (pointsToRoute.length < 2) {
-      setRoutePoints([]);
+      setTimeout(() => {
+        setRoutePoints([]);
+      }, 0);
       return;
     }
 

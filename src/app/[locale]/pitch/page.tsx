@@ -81,8 +81,10 @@ export default function PitchPage() {
       timer = setInterval(() => {
         setTimeLeft((prev) => prev - 1);
       }, 1000);
-    } else if (timeLeft === 0) {
-      setIsTimerRunning(false);
+    } else if (timeLeft === 0 && isTimerRunning) {
+      setTimeout(() => {
+        setIsTimerRunning(false);
+      }, 0);
     }
     return () => clearInterval(timer);
   }, [isTimerRunning, timeLeft]);
@@ -609,15 +611,15 @@ export default function PitchPage() {
                           <div className="space-y-1.5">
                             <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Estilo de Viagem</label>
                             <div className="flex flex-col gap-1.5">
-                              {[
+                              {([
                                 { id: "sol", label: "☀️ Sol e Praia", desc: "Orlas, jangadas e relaxamento" },
                                 { id: "aventura", label: "🏄 Aventura e Vento", desc: "Dunas, buggy e kitesurf" },
                                 { id: "gastronomia", label: "🍽️ Rota Gastronômica", desc: "Melhores pratos potiguares" }
-                              ].map((cat) => (
+                              ] as const).map((cat) => (
                                 <button
                                   key={cat.id}
                                   type="button"
-                                  onClick={() => setRouteCategory(cat.id as any)}
+                                  onClick={() => setRouteCategory(cat.id)}
                                   className={cn(
                                     "w-full p-2 rounded-xl text-left border transition-all cursor-pointer flex justify-between items-center",
                                     routeCategory === cat.id

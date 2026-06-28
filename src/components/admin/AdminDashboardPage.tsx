@@ -15,6 +15,7 @@ import { subscribeFeedbacks } from '@/lib/firebase';
 
 export default function AdminDashboardPage() {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [mounted, setMounted] = useState(false);
 
   // Filtering State
   const [filterMode, setFilterMode] = useState<'all' | 'spot' | 'region'>('all');
@@ -26,6 +27,9 @@ export default function AdminDashboardPage() {
   const spots = useMemo(() => destinosInfo.map(d => d.nome), []);
 
   useEffect(() => {
+    setTimeout(() => {
+      setMounted(true);
+    }, 0);
     const unsub = subscribeFeedbacks(setFeedbacks);
     return () => unsub();
   }, []);
@@ -268,25 +272,31 @@ export default function AdminDashboardPage() {
             <Badge variant="primary" size="sm" dot>Ao vivo</Badge>
           </CardHeader>
           <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartISA} margin={{ top: 5, right: 5, bottom: 40, left: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                <XAxis
-                  dataKey="name"
-                  tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }}
-                  angle={-45}
-                  textAnchor="end"
-                  height={60}
-                />
-                <YAxis tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} domain={[0, 100]} />
-                <Tooltip contentStyle={tooltipStyle} />
-                <Bar dataKey="isa" fill="var(--color-primary)" radius={[4, 4, 0, 0]} name="ISA" />
-                <Bar dataKey="saturacao" fill="var(--color-accent)" radius={[4, 4, 0, 0]} name="Saturação" opacity={0.6} />
-              </BarChart>
-            </ResponsiveContainer>
+            {mounted ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartISA} margin={{ top: 5, right: 5, bottom: 40, left: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }}
+                    angle={-45}
+                    textAnchor="end"
+                    height={60}
+                  />
+                  <YAxis tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} domain={[0, 100]} />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Bar dataKey="isa" fill="var(--color-primary)" radius={[4, 4, 0, 0]} name="ISA" />
+                  <Bar dataKey="saturacao" fill="var(--color-accent)" radius={[4, 4, 0, 0]} name="Saturação" opacity={0.6} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="w-full h-full bg-[var(--color-surface-alt)] animate-pulse rounded-xl flex items-center justify-center text-xs text-[var(--color-text-muted)]">
+                Carregando gráficos...
+              </div>
+            )}
           </div>
         </Card>
-
+ 
         {/* Transport Pressure */}
         <Card>
           <CardHeader>
@@ -294,23 +304,29 @@ export default function AdminDashboardPage() {
             <Badge variant="info" size="sm">Mensal</Badge>
           </CardHeader>
           <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartTransport} margin={{ top: 5, right: 5, bottom: 40, left: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                <XAxis
-                  dataKey="name"
-                  tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }}
-                  angle={-45}
-                  textAnchor="end"
-                  height={60}
-                />
-                <YAxis tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} />
-                <Tooltip contentStyle={tooltipStyle} />
-                <Line type="monotone" dataKey="voos" stroke="var(--color-primary)" strokeWidth={2} dot={{ r: 3 }} name="Voos" />
-                <Line type="monotone" dataKey="onibus" stroke="var(--color-success)" strokeWidth={2} dot={{ r: 3 }} name="Ônibus" />
-                <Line type="monotone" dataKey="veiculos" stroke="var(--color-accent)" strokeWidth={2} dot={{ r: 3 }} name="Veículos (×100)" />
-              </LineChart>
-            </ResponsiveContainer>
+            {mounted ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartTransport} margin={{ top: 5, right: 5, bottom: 40, left: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }}
+                    angle={-45}
+                    textAnchor="end"
+                    height={60}
+                  />
+                  <YAxis tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Line type="monotone" dataKey="voos" stroke="var(--color-primary)" strokeWidth={2} dot={{ r: 3 }} name="Voos" />
+                  <Line type="monotone" dataKey="onibus" stroke="var(--color-success)" strokeWidth={2} dot={{ r: 3 }} name="Ônibus" />
+                  <Line type="monotone" dataKey="veiculos" stroke="var(--color-accent)" strokeWidth={2} dot={{ r: 3 }} name="Veículos (×100)" />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="w-full h-full bg-[var(--color-surface-alt)] animate-pulse rounded-xl flex items-center justify-center text-xs text-[var(--color-text-muted)]">
+                Carregando gráficos...
+              </div>
+            )}
           </div>
         </Card>
       </div>

@@ -20,10 +20,14 @@ export default function DestinosGestaoPage() {
   useEffect(() => {
     const saved = localStorage.getItem("dunastech_monitored_spots");
     if (saved) {
-      setMonitoredSpots(JSON.parse(saved));
+      setTimeout(() => {
+        setMonitoredSpots(JSON.parse(saved));
+      }, 0);
     } else {
       const defaults = destinosInfo.filter(d => d.monitorado !== false).map(d => d.nome);
-      setMonitoredSpots(defaults);
+      setTimeout(() => {
+        setMonitoredSpots(defaults);
+      }, 0);
     }
   }, []);
 
