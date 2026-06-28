@@ -8,8 +8,11 @@ import { useTranslations } from 'next-intl';
 import { 
   MapPin, Star, Users, TrendingUp, ArrowRight, Shield, Sparkles, 
   Map, Award, Calendar, Compass, ShieldAlert, CheckCircle, Navigation, Eye,
-  ChevronDown, ChevronUp, Clock, Info, Printer, Share2
+  ChevronDown, ChevronUp, Clock, Info, Printer, Share2,
+  ClipboardCheck, Send, ThumbsUp, ThumbsDown
 } from 'lucide-react';
+import { StarRating } from '@/components/ui/StarRating';
+import { addFeedback } from '@/lib/firebase';
 import { cn, slugify } from '@/lib/utils';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -74,7 +77,7 @@ export default function TouristHomePage() {
   ], [t]);
 
   // Questionnaire States
-  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5 | 6>(1);
   const [selectedStyle, setSelectedStyle] = useState('adventure');
   const [durationDays, setDurationDays] = useState(3);
   const [expandedPartners, setExpandedPartners] = useState<Record<string, boolean>>({});
@@ -97,6 +100,54 @@ export default function TouristHomePage() {
   const [travelerNames, setTravelerNames] = useState('');
   const [specialRequirements, setSpecialRequirements] = useState('');
   const [selectedExperiences, setSelectedExperiences] = useState<Record<string, boolean>>({});
+
+  // Evaluation (Step 6) States
+  const evalCriteria = [
+    { key: 'limpo', emoji: '🧹', label: 'Limpo e conservado' },
+    { key: 'sinalizado', emoji: '🪧', label: 'Boa sinalização' },
+    { key: 'preservado', emoji: '🌿', label: 'Bem preservado' },
+    { key: 'acessibilidade', emoji: '♿', label: 'Acessível' },
+    { key: 'seguranca', emoji: '🔒', label: 'Seguro' },
+    { key: 'custo_beneficio', emoji: '💰', label: 'Bom custo-benefício' },
+    { key: 'conservacao', emoji: '🏗️', label: 'Bem conservado' },
+    { key: 'superlotado', emoji: '🚫', label: 'Superlotado', negative: true },
+  ];
+  const [evalRatings, setEvalRatings] = useState<Record<string, number>>({});
+  const [evalCriteriaByDest, setEvalCriteriaByDest] = useState<Record<string, Record<string, boolean>>>({});
+  const [evalConformityByDest, setEvalConformityByDest] = useState<Record<string, 'yes' | 'no'>>({});
+  const [evalComments, setEvalComments] = useState<Record<string, string>>({});
+  const [evalSubmittedDests, setEvalSubmittedDests] = useState<Record<string, boolean>>({});
+  const [evalLoadingDest, setEvalLoadingDest] = useState<string | null>(null);
+
+  const handleEvalSubmitDest = async (destNome: string) => {
+    const rating = evalRatings[destNome] || 0;
+    if (rating === 0) return;
+    setEvalLoadingDest(destNome);
+    try {
+      const criteria = evalCriteriaByDest[destNome] || {};
+      const conformity = evalConformityByDest[destNome] || 'yes';
+      const comment = evalComments[destNome] || '';
+      const conformityTag = `[Conformidade: ${conformity === 'yes' ? 'Sim' : 'Não'}]`;
+      await addFeedback({
+        destino: destNome,
+        nota_geral: rating,
+        limpo: !!criteria.limpo,
+        sinalizado: !!criteria.sinalizado,
+        preservado: !!criteria.preservado,
+        acessibilidade: !!criteria.acessibilidade,
+        seguranca: !!criteria.seguranca,
+        custo_beneficio: !!criteria.custo_beneficio,
+        conservacao: !!criteria.conservacao,
+        superlotado: !!criteria.superlotado,
+        comentario: comment.trim() ? `${conformityTag} ${comment}` : conformityTag,
+      });
+      setEvalSubmittedDests(prev => ({ ...prev, [destNome]: true }));
+    } catch (err) {
+      console.error('Error submitting evaluation:', err);
+    } finally {
+      setEvalLoadingDest(null);
+    }
+  };
 
   // Suggested Route States
   const [suggestedRoute, setSuggestedRoute] = useState<{
@@ -424,7 +475,7 @@ export default function TouristHomePage() {
                       <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
                         {t('travelStyleLabel')}
                       </label>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="flex flex-wrap gap-1.5">
                         {styles.map(s => {
                           const isActive = selectedStyle === s.id;
                           return (
@@ -432,18 +483,15 @@ export default function TouristHomePage() {
                               key={s.id}
                               type="button"
                               onClick={() => setSelectedStyle(s.id)}
+                              title={s.desc}
                               className={cn(
-                                "p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer flex flex-col justify-between h-[68px] relative overflow-hidden group select-none",
+                                "px-3 py-1.5 rounded-full border text-left transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-[10.5px] font-bold",
                                 isActive
-                                  ? "bg-[var(--color-primary-soft)] border-[var(--color-primary)] text-[var(--color-primary)] shadow-sm shadow-[var(--color-primary)]/5"
-                                  : "bg-[var(--color-surface-alt)]/40 border-[var(--color-border-light)] hover:border-[var(--color-primary)]/30 hover:bg-[var(--color-surface-hover)]/30"
+                                  ? "bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-sm"
+                                  : "bg-[var(--color-surface-alt)]/40 border-[var(--color-border-light)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text)]"
                               )}
                             >
-                              <span className="font-extrabold text-[11px] leading-tight block">{s.label}</span>
-                              <span className="text-[9px] text-[var(--color-text-secondary)] line-clamp-1 block mt-0.5 leading-normal">{s.desc}</span>
-                              {isActive && (
-                                <div className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-[var(--color-primary)]" />
-                              )}
+                              {s.label}
                             </button>
                           );
                         })}
@@ -507,10 +555,10 @@ export default function TouristHomePage() {
                     <button
                       type="button"
                       onClick={() => setStep(2)}
-                      className="w-full mt-4 py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg hover:shadow-[var(--color-primary)]/10 active:scale-[0.98] transform flex items-center justify-center gap-2 cursor-pointer text-xs"
+                      className="w-full mt-3 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg hover:shadow-[var(--color-primary)]/10 active:scale-[0.98] transform flex items-center justify-center gap-2 cursor-pointer text-[10.5px]"
                     >
                       <span>{t('nextStep')}</span>
-                      <ArrowRight className="h-4 w-4 shrink-0" />
+                      <ArrowRight className="h-3.5 w-3.5 shrink-0" />
                     </button>
                   </div>
                 ) : (
@@ -521,8 +569,8 @@ export default function TouristHomePage() {
                       <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
                         {t('groupProfileLabel')}
                       </label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {['solo', 'couple', 'family', 'friends'].map(profileId => {
+                      <div className="flex flex-wrap gap-1.5">
+                        {(['solo', 'couple', 'family', 'friends'] as const).map(profileId => {
                           const isActive = selectedGroupProfile === profileId;
                           const iconMap: Record<string, string> = {
                             solo: '👤',
@@ -536,18 +584,13 @@ export default function TouristHomePage() {
                               type="button"
                               onClick={() => setSelectedGroupProfile(profileId)}
                               className={cn(
-                                "p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer flex flex-col justify-center h-[56px] relative overflow-hidden group select-none",
+                                "px-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-[10.5px] font-bold",
                                 isActive
-                                  ? "bg-[var(--color-primary-soft)] border-[var(--color-primary)] text-[var(--color-primary)] shadow-sm"
-                                  : "bg-[var(--color-surface-alt)]/40 border-[var(--color-border-light)] hover:border-[var(--color-primary)]/30 hover:bg-[var(--color-surface-hover)]/30"
+                                  ? "bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-sm"
+                                  : "bg-[var(--color-surface-alt)]/40 border-[var(--color-border-light)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text)]"
                               )}
                             >
-                              <span className="font-extrabold text-[11px] leading-tight block">
-                                {iconMap[profileId]} {t(`groupProfiles.${profileId}`)}
-                              </span>
-                              {isActive && (
-                                <div className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-[var(--color-primary)]" />
-                              )}
+                              <span>{iconMap[profileId]}</span> {t(`groupProfiles.${profileId}`)}
                             </button>
                           );
                         })}
@@ -586,27 +629,23 @@ export default function TouristHomePage() {
                       <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
                         {t('stayPreferenceLabel')}
                       </label>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="flex flex-wrap gap-1.5">
                         {['inn', 'hotel', 'hostel', 'none'].map(stayId => {
                           const isActive = selectedStayPreference === stayId;
+                          const iconMap: Record<string, string> = { inn: '🏡', hotel: '🏨', hostel: '🛏️', none: '🔓' };
                           return (
                             <button
                               key={stayId}
                               type="button"
                               onClick={() => setSelectedStayPreference(stayId)}
                               className={cn(
-                                "p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer flex flex-col justify-center h-[56px] relative overflow-hidden group select-none",
+                                "px-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-[10.5px] font-bold",
                                 isActive
-                                  ? "bg-[var(--color-primary-soft)] border-[var(--color-primary)] text-[var(--color-primary)] shadow-sm"
-                                  : "bg-[var(--color-surface-alt)]/40 border-[var(--color-border-light)] hover:border-[var(--color-primary)]/30"
+                                  ? "bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-sm"
+                                  : "bg-[var(--color-surface-alt)]/40 border-[var(--color-border-light)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text)]"
                               )}
                             >
-                              <span className="font-extrabold text-[10px] leading-tight block">
-                                {t(`stayPreferences.${stayId}`)}
-                              </span>
-                              {isActive && (
-                                <div className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-[var(--color-primary)]" />
-                              )}
+                              {iconMap[stayId]} {t(`stayPreferences.${stayId}`)}
                             </button>
                           );
                         })}
@@ -614,20 +653,20 @@ export default function TouristHomePage() {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-2.5 mt-4 pt-1">
+                    <div className="flex gap-2 mt-3 pt-1">
                       <button
                         type="button"
                         onClick={() => setStep(1)}
-                        className="flex-1 py-3 border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] rounded-xl font-bold text-xs transition-all text-[var(--color-text)] cursor-pointer"
+                        className="flex-1 py-2 border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] rounded-xl font-bold text-[10.5px] transition-all text-[var(--color-text)] cursor-pointer"
                       >
                         {t('prevStep')}
                       </button>
                       <button
                         type="button"
                         onClick={handleGenerateRoute}
-                        className="flex-[2] py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer text-xs"
+                        className="flex-[2] py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer text-[10.5px]"
                       >
-                        <Sparkles className="h-4 w-4 shrink-0" />
+                        <Sparkles className="h-3.5 w-3.5 shrink-0" />
                         {t('generateButton')}
                       </button>
                     </div>
@@ -890,26 +929,22 @@ export default function TouristHomePage() {
                       </div>
 
                       {/* Accept & Plan Sticky CTA */}
-                      <div className="mt-2 space-y-2 shrink-0">
+                      <div className="mt-2 flex items-center gap-2 shrink-0">
+                        <button 
+                          type="button"
+                          onClick={() => { setStep(1); setSuggestedRoute(null); }}
+                          className="px-3 py-2 text-[10px] font-bold text-[var(--color-text-muted)] hover:text-[var(--color-text)] border border-[var(--color-border-light)] rounded-lg cursor-pointer bg-transparent transition-all shrink-0"
+                        >
+                          ↺ {t('redo')}
+                        </button>
                         <button 
                           type="button"
                           onClick={() => setStep(4)}
-                          className="w-full py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg active:scale-[0.98] transform flex items-center justify-center gap-2 cursor-pointer text-xs"
+                          className="flex-1 py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg active:scale-[0.98] transform flex items-center justify-center gap-2 cursor-pointer text-[10.5px]"
                         >
+                          <CheckCircle className="h-3.5 w-3.5 shrink-0" />
                           {t('acceptAndPlan')}
                         </button>
-                        <div className="flex items-center justify-between text-[9px] text-[var(--color-text-muted)] px-1">
-                          <button 
-                            type="button"
-                            onClick={() => { setStep(1); setSuggestedRoute(null); }}
-                            className="hover:underline text-[var(--color-primary)] font-bold cursor-pointer bg-transparent border-0"
-                          >
-                            ↺ {t('redo')}
-                          </button>
-                          <Link href="/avaliar" className="hover:underline text-[var(--color-text-secondary)]">
-                            {t('doneThisRoute')} <span className="text-[var(--color-primary)] font-bold">{t('rateRouteButton')}</span>
-                          </Link>
-                        </div>
                       </div>
                     </div>
                   )}
@@ -1102,19 +1137,20 @@ export default function TouristHomePage() {
                       </div>
 
                       {/* Actions */}
-                      <div className="flex gap-2.5 mt-2 pt-1 border-t border-[var(--color-border-light)] shrink-0">
+                      <div className="flex gap-2 mt-2 pt-1 border-t border-[var(--color-border-light)] shrink-0">
                         <button
                           type="button"
                           onClick={() => setStep(3)}
-                          className="flex-1 py-3 border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] rounded-xl font-bold text-xs transition-all text-[var(--color-text)] cursor-pointer bg-transparent"
+                          className="flex-1 py-2 border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] rounded-xl font-bold text-[10.5px] transition-all text-[var(--color-text)] cursor-pointer bg-transparent"
                         >
                           {t('prevStep')}
                         </button>
                         <button
                           type="button"
                           onClick={() => setStep(5)}
-                          className="flex-[2] py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer text-xs"
+                          className="flex-[2] py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer text-[10.5px]"
                         >
+                          <Sparkles className="h-3.5 w-3.5 shrink-0" />
                           {t('generateSummaryButton')}
                         </button>
                       </div>
@@ -1180,26 +1216,26 @@ export default function TouristHomePage() {
                       <div className="space-y-5 flex-1 overflow-y-auto pr-1.5 custom-scrollbar py-2">
                         
                         {/* Resumo do Planejamento */}
-                        <div className="p-4 sm:p-5 rounded-2xl border border-[var(--color-border-light)] bg-[var(--color-surface-alt)]/25 space-y-3.5 text-xs sm:text-sm">
-                          <h3 className="font-extrabold text-xs sm:text-sm text-[var(--color-text)] uppercase tracking-wider border-b border-[var(--color-border-light)] pb-1.5 flex items-center gap-1.5">
+                        <div className="p-3 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-alt)]/25 space-y-2">
+                          <h3 className="font-extrabold text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider flex items-center gap-1.5">
                             📋 {t('routeSummary')}
                           </h3>
-                          <div className="grid grid-cols-2 gap-3 text-xs sm:text-sm">
-                            <div>
-                              <span className="text-[var(--color-text-muted)]">{t('groupProfile')}:</span>{' '}
-                              <strong className="text-[var(--color-text)] font-semibold">{t(`groupProfiles.${selectedGroupProfile}`)}</strong>
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[10.5px]">
+                            <div className="flex items-center gap-1">
+                              <span className="text-[var(--color-text-muted)] shrink-0">{t('groupProfile')}:</span>{' '}
+                              <strong className="text-[var(--color-text)] font-semibold truncate">{t(`groupProfiles.${selectedGroupProfile}`)}</strong>
                             </div>
-                            <div>
-                              <span className="text-[var(--color-text-muted)]">{t('budgetLevel')}:</span>{' '}
-                              <strong className="text-[var(--color-text)] font-semibold">{t(`budgets.${selectedBudget}`)}</strong>
+                            <div className="flex items-center gap-1">
+                              <span className="text-[var(--color-text-muted)] shrink-0">{t('budgetLevel')}:</span>{' '}
+                              <strong className="text-[var(--color-text)] font-semibold truncate">{t(`budgets.${selectedBudget}`)}</strong>
                             </div>
-                            <div>
-                              <span className="text-[var(--color-text-muted)]">{t('transportLabel')}:</span>{' '}
-                              <strong className="text-[var(--color-text)] font-semibold">{t(`transports.${selectedTransport}.label`)}</strong>
+                            <div className="flex items-center gap-1">
+                              <span className="text-[var(--color-text-muted)] shrink-0">{t('transportLabel')}:</span>{' '}
+                              <strong className="text-[var(--color-text)] font-semibold truncate">{t(`transports.${selectedTransport}.label`)}</strong>
                             </div>
-                            <div>
-                              <span className="text-[var(--color-text-muted)]">{t('stayPreference')}:</span>{' '}
-                              <strong className="text-[var(--color-text)] font-semibold">{t(`stayPreferences.${selectedStayPreference}`)}</strong>
+                            <div className="flex items-center gap-1">
+                              <span className="text-[var(--color-text-muted)] shrink-0">{t('stayPreference')}:</span>{' '}
+                              <strong className="text-[var(--color-text)] font-semibold truncate">{t(`stayPreferences.${selectedStayPreference}`)}</strong>
                             </div>
                           </div>
 
@@ -1289,16 +1325,23 @@ export default function TouristHomePage() {
                               });
 
                               return (
-                                <div key={dayItem.day} className="p-4 rounded-2xl border border-[var(--color-border-light)] bg-[var(--color-surface)] space-y-3.5">
-                                  <span className="text-xs sm:text-sm font-black text-[var(--color-primary)] block">
-                                    {t('day', { day: dayItem.day })}
-                                  </span>
+                                <div key={dayItem.day} className="p-3 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface)] space-y-2.5">
+                                  <div className="flex items-center gap-2">
+                                    <div className="h-5 w-5 rounded-md bg-[var(--color-primary)] text-white flex items-center justify-center text-[9px] font-black shrink-0">{dayItem.day}</div>
+                                    <span className="text-[10.5px] font-black text-[var(--color-text)]">
+                                      {t('day', { day: dayItem.day })}
+                                    </span>
+                                  </div>
 
                                   {legs.length > 0 && (
-                                    <div className="bg-[var(--color-surface-alt)]/40 p-3 rounded-xl border border-[var(--color-border-light)]/60 text-xs text-[var(--color-text-secondary)] space-y-1.5">
+                                    <div className="bg-[var(--color-surface-alt)]/40 px-2.5 py-1.5 rounded-lg border border-[var(--color-border-light)]/60 space-y-1">
                                       {legs.map((leg, idx) => (
-                                        <div key={idx} className="flex items-center gap-1.5 font-semibold">
-                                          🚗 <span className="text-[var(--color-text)] font-extrabold">{leg.from}</span> ➔ <span className="text-[var(--color-text)] font-extrabold">{leg.to}</span> ({leg.distance} km • {leg.timeText})
+                                        <div key={idx} className="flex items-center gap-1 text-[9.5px] text-[var(--color-text-secondary)]">
+                                          <span className="shrink-0">🚗</span>
+                                          <span className="font-bold text-[var(--color-text)] truncate">{leg.from}</span>
+                                          <span className="shrink-0 text-[var(--color-text-muted)]]">➔</span>
+                                          <span className="font-bold text-[var(--color-text)] truncate">{leg.to}</span>
+                                          <span className="ml-auto shrink-0 text-[9px] font-[var(--font-mono)] text-[var(--color-text-muted)]">{leg.distance}km • {leg.timeText}</span>
                                         </div>
                                       ))}
                                     </div>
@@ -1390,55 +1433,335 @@ export default function TouristHomePage() {
                         </div>
                       </div>
 
+                      {/* ═══ AVALIAÇÃO CTA BANNER ═══ */}
+                      <div className="shrink-0 no-print">
+                        <button
+                          type="button"
+                          onClick={() => setStep(6)}
+                          className="w-full group relative overflow-hidden rounded-2xl border-2 border-[var(--color-accent)]/50 bg-gradient-to-r from-[var(--color-accent-soft)] via-[var(--color-primary-soft)] to-[var(--color-accent-soft)] p-4 text-left transition-all duration-300 hover:border-[var(--color-accent)] hover:shadow-lg hover:shadow-[var(--color-accent)]/10 cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="relative shrink-0">
+                              <div className="h-11 w-11 rounded-xl bg-[var(--color-accent)]/20 flex items-center justify-center">
+                                <ClipboardCheck className="h-5 w-5 text-[var(--color-accent)]" />
+                              </div>
+                              <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-accent)] opacity-75" />
+                                <span className="relative inline-flex rounded-full h-3 w-3 bg-[var(--color-accent)]" />
+                              </span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[11px] font-black text-[var(--color-text)] uppercase tracking-wider">
+                                ⭐ Já visitou os pontos do roteiro?
+                              </p>
+                              <p className="text-[9.5px] text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">
+                                Avalie agora e ajude o Observatório a monitorar a qualidade do turismo no RN.
+                              </p>
+                            </div>
+                            <ArrowRight className="h-4 w-4 text-[var(--color-accent)] shrink-0 group-hover:translate-x-1 transition-transform" />
+                          </div>
+                        </button>
+                      </div>
+
                       {/* Print/Share Actions */}
-                      <div className="space-y-3 pt-3 border-t border-[var(--color-border-light)] shrink-0 no-print">
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs sm:text-sm">
-                          <button
-                            type="button"
-                            onClick={() => window.print()}
-                            className="py-3 bg-[var(--color-surface-alt)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-[var(--color-text)] rounded-xl font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer bg-transparent"
-                          >
-                            <Printer className="h-4 w-4" />
-                            {t('printItinerary')}
-                          </button>
+                      <div className="space-y-2 pt-2.5 border-t border-[var(--color-border-light)] shrink-0 no-print">
+                        {/* Primary action row */}
+                        <div className="flex gap-2">
                           <button
                             type="button"
                             onClick={() => handleShareWhatsApp(false)}
-                            className="py-3 bg-[#25D366] hover:bg-[#20ba59] text-white rounded-xl font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border-0"
+                            className="flex-1 py-2 bg-[#25D366] hover:bg-[#20ba59] text-white rounded-xl font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border-0 text-[10.5px]"
                           >
-                            <Share2 className="h-4 w-4" />
-                            Enviar Texto (WhatsApp)
+                            <Share2 className="h-3.5 w-3.5" />
+                            WhatsApp
                           </button>
                           <button
                             type="button"
                             onClick={() => handleShareWhatsApp(true)}
-                            className="py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border-0"
+                            className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border-0 text-[10.5px]"
                           >
-                            <Share2 className="h-4 w-4" />
-                            Enviar PDF (WhatsApp)
+                            <Share2 className="h-3.5 w-3.5" />
+                            PDF + WhatsApp
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => window.print()}
+                            className="px-3 py-2 bg-[var(--color-surface-alt)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-[var(--color-text-secondary)] rounded-xl font-bold transition-all flex items-center justify-center gap-1 cursor-pointer text-[10px]"
+                            title={t('printItinerary')}
+                          >
+                            <Printer className="h-3.5 w-3.5" />
                           </button>
                         </div>
-                        <div className="text-[10px] text-center text-[var(--color-text-muted)] bg-[var(--color-surface-alt)]/30 py-1.5 px-3 rounded-lg border border-[var(--color-border-light)]/40 mt-1">
-                          💡 <strong>Dica do PDF:</strong> Salve o roteiro como PDF na janela de impressão que se abrirá, e depois anexe o arquivo no WhatsApp!
+                        {/* Secondary row */}
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setStep(4)}
+                            className="flex-1 py-1.5 text-[9.5px] border border-[var(--color-border-light)] hover:bg-[var(--color-surface-hover)] rounded-lg font-bold text-[var(--color-text-muted)] cursor-pointer bg-transparent transition-all"
+                          >
+                            ← Editar Detalhes
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setStep(1);
+                              setSuggestedRoute(null);
+                              setStartDate('');
+                              setEndDate('');
+                              setTravelerNames('');
+                              setSpecialRequirements('');
+                              setSelectedExperiences({});
+                            }}
+                            className="flex-1 py-1.5 text-[9.5px] bg-[var(--color-primary-soft)] hover:bg-[var(--color-primary-soft)]/85 text-[var(--color-primary)] border border-[var(--color-primary)]/15 rounded-lg font-bold transition-all text-center cursor-pointer"
+                          >
+                            ✦ {t('newPlanning')}
+                          </button>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setStep(1);
-                            setSuggestedRoute(null);
-                            setStartDate('');
-                            setEndDate('');
-                            setTravelerNames('');
-                            setSpecialRequirements('');
-                            setSelectedExperiences({});
-                          }}
-                          className="w-full py-3 bg-[var(--color-primary-soft)] hover:bg-[var(--color-primary-soft)]/85 text-[var(--color-primary)] border border-[var(--color-primary)]/15 rounded-xl font-bold transition-all text-center cursor-pointer text-xs sm:text-sm"
-                        >
-                          {t('newPlanning')}
-                        </button>
+                        <p className="text-[9px] text-center text-[var(--color-text-muted)] opacity-70">
+                          💡 No PDF: salve o roteiro como arquivo PDF e annexe no WhatsApp
+                        </p>
                       </div>
                     </div>
                   )}
+
+                  {/* STEP 6: Post-Visit Evaluation */}
+                  {step === 6 && suggestedRoute && (() => {
+                    const allDests = suggestedRoute.days.flatMap(d => d.destinations);
+                    const uniqueDests = allDests.filter((d, i, arr) => arr.findIndex(x => x.nome === d.nome) === i);
+                    const allSubmitted = uniqueDests.every(d => evalSubmittedDests[d.nome]);
+
+                    return (
+                      <div className="space-y-4 animate-fade-in h-full flex flex-col justify-between">
+                        {/* Header */}
+                        <div className="border-b border-[var(--color-border)] pb-3 shrink-0">
+                          <Badge variant="accent" size="sm" className="px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider">
+                            <ClipboardCheck className="h-3 w-3" />
+                            Avaliação Pós-Visita
+                          </Badge>
+                          <h2 className="text-base font-black text-[var(--color-text)] mt-1 leading-tight">Conte como foi sua experiência</h2>
+                          <p className="text-[9.5px] text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">
+                            Suas avaliações alimentam o Observatório e protegem o turismo sustentável do RN.
+                          </p>
+                        </div>
+
+                        {allSubmitted ? (
+                          /* All Submitted State */
+                          <div className="flex-1 flex flex-col items-center justify-center text-center gap-4 py-8 animate-scale-in">
+                            <div className="h-16 w-16 rounded-2xl bg-[var(--color-success)]/10 flex items-center justify-center">
+                              <CheckCircle className="h-8 w-8 text-[var(--color-success)]" />
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-black text-[var(--color-text)]">Obrigado pela contribuição!</h3>
+                              <p className="text-xs text-[var(--color-text-muted)] mt-1 max-w-xs">
+                                Suas avaliações estão ajudando a manter o turismo sustentável e de qualidade no Rio Grande do Norte.
+                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setStep(5)}
+                                className="px-4 py-2 border border-[var(--color-border-light)] rounded-xl text-[10.5px] font-bold text-[var(--color-text-muted)] cursor-pointer bg-transparent hover:bg-[var(--color-surface-hover)] transition-all"
+                              >
+                                ← Ver Dossier
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setStep(1);
+                                  setSuggestedRoute(null);
+                                  setEvalRatings({});
+                                  setEvalCriteriaByDest({});
+                                  setEvalConformityByDest({});
+                                  setEvalComments({});
+                                  setEvalSubmittedDests({});
+                                }}
+                                className="px-4 py-2 bg-[var(--color-primary)] text-white rounded-xl text-[10.5px] font-bold cursor-pointer hover:bg-[var(--color-primary-hover)] transition-all"
+                              >
+                                ✦ Novo Roteiro
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          /* Evaluation Cards */
+                          <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar space-y-3 py-1">
+                            {uniqueDests.map((dest) => {
+                              const submitted = evalSubmittedDests[dest.nome];
+                              const rating = evalRatings[dest.nome] || 0;
+                              const criteria = evalCriteriaByDest[dest.nome] || {};
+                              const conformity = evalConformityByDest[dest.nome] || 'yes';
+                              const comment = evalComments[dest.nome] || '';
+                              const isLoading = evalLoadingDest === dest.nome;
+
+                              return (
+                                <div
+                                  key={dest.nome}
+                                  className={cn(
+                                    "rounded-xl border overflow-hidden transition-all duration-300",
+                                    submitted
+                                      ? "border-[var(--color-success)]/40 bg-[var(--color-success)]/5"
+                                      : "border-[var(--color-border-light)] bg-[var(--color-surface)]"
+                                  )}
+                                >
+                                  {/* Dest Header */}
+                                  <div className={cn(
+                                    "px-3.5 py-2.5 flex items-center justify-between border-b border-[var(--color-border-light)]",
+                                    submitted ? "bg-[var(--color-success)]/8" : "bg-[var(--color-surface-alt)]/40"
+                                  )}>
+                                    <span className="font-extrabold text-[10.5px] text-[var(--color-text)] flex items-center gap-1.5">
+                                      📍 {dest.nome}
+                                    </span>
+                                    {submitted && (
+                                      <span className="flex items-center gap-1 text-[9px] font-bold text-[var(--color-success)]">
+                                        <CheckCircle className="h-3 w-3" /> Avaliado
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {submitted ? (
+                                    /* Submitted Summary */
+                                    <div className="px-3.5 py-2.5 flex items-center gap-3">
+                                      <div className="flex gap-0.5">
+                                        {[1,2,3,4,5].map(s => (
+                                          <Star
+                                            key={s}
+                                            className={cn("h-3.5 w-3.5", s <= rating ? "text-amber-400 fill-amber-400" : "text-[var(--color-border)] fill-[var(--color-border)]")}
+                                          />
+                                        ))}
+                                      </div>
+                                      <span className="text-[9.5px] text-[var(--color-text-muted)]">
+                                        {rating}/5 — Obrigado!
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    /* Evaluation Form */
+                                    <div className="p-3.5 space-y-3">
+                                      {/* Star Rating */}
+                                      <div className="space-y-1.5">
+                                        <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">Nota geral</label>
+                                        <StarRating
+                                          value={rating}
+                                          onChange={(val) => setEvalRatings(prev => ({ ...prev, [dest.nome]: val }))}
+                                          size="md"
+                                        />
+                                      </div>
+
+                                      {/* Criteria chips */}
+                                      <div className="space-y-1.5">
+                                        <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">O que você observou?</label>
+                                        <div className="flex flex-wrap gap-1">
+                                          {evalCriteria.map(c => {
+                                            const active = !!criteria[c.key];
+                                            return (
+                                              <button
+                                                key={c.key}
+                                                type="button"
+                                                onClick={() => setEvalCriteriaByDest(prev => ({
+                                                  ...prev,
+                                                  [dest.nome]: { ...(prev[dest.nome] || {}), [c.key]: !prev[dest.nome]?.[c.key] }
+                                                }))}
+                                                className={cn(
+                                                  "inline-flex items-center gap-1 px-2 py-1 rounded-full text-[9px] font-bold border cursor-pointer transition-all",
+                                                  active
+                                                    ? c.negative
+                                                      ? "bg-red-500/10 border-red-500/30 text-red-600"
+                                                      : "bg-[var(--color-success)]/10 border-[var(--color-success)]/30 text-[var(--color-success)]"
+                                                    : "bg-[var(--color-surface-alt)] border-[var(--color-border-light)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]/40"
+                                                )}
+                                              >
+                                                {c.emoji} {c.label}
+                                              </button>
+                                            );
+                                          })}
+                                        </div>
+                                      </div>
+
+                                      {/* Conformity */}
+                                      <div className="space-y-1.5">
+                                        <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
+                                          🔍 A realidade condiz com o anunciado?
+                                        </label>
+                                        <div className="flex gap-1.5">
+                                          <button
+                                            type="button"
+                                            onClick={() => setEvalConformityByDest(prev => ({ ...prev, [dest.nome]: 'yes' }))}
+                                            className={cn(
+                                              "flex-1 py-1.5 rounded-lg text-[9.5px] font-bold border flex items-center justify-center gap-1 cursor-pointer transition-colors",
+                                              conformity === 'yes'
+                                                ? "bg-[var(--color-success)]/10 border-[var(--color-success)]/40 text-[var(--color-success)]"
+                                                : "bg-[var(--color-surface)] border-[var(--color-border-light)] text-[var(--color-text-secondary)]"
+                                            )}
+                                          >
+                                            <ThumbsUp className="h-3 w-3" /> Sim, condiz
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => setEvalConformityByDest(prev => ({ ...prev, [dest.nome]: 'no' }))}
+                                            className={cn(
+                                              "flex-1 py-1.5 rounded-lg text-[9.5px] font-bold border flex items-center justify-center gap-1 cursor-pointer transition-colors",
+                                              conformity === 'no'
+                                                ? "bg-red-500/10 border-red-500/40 text-red-600"
+                                                : "bg-[var(--color-surface)] border-[var(--color-border-light)] text-[var(--color-text-secondary)]"
+                                            )}
+                                          >
+                                            <ThumbsDown className="h-3 w-3" /> Há divergências
+                                          </button>
+                                        </div>
+                                      </div>
+
+                                      {/* Comment */}
+                                      <div className="space-y-1">
+                                        <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">Comentário (opcional)</label>
+                                        <textarea
+                                          rows={2}
+                                          value={comment}
+                                          onChange={(e) => setEvalComments(prev => ({ ...prev, [dest.nome]: e.target.value }))}
+                                          placeholder="Conte como foi sua experiência..."
+                                          className="w-full bg-[var(--color-surface-alt)] border border-[var(--color-border-light)] rounded-lg py-1.5 px-2.5 text-[10px] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-primary)] resize-none custom-scrollbar"
+                                        />
+                                      </div>
+
+                                      {/* Submit */}
+                                      <button
+                                        type="button"
+                                        disabled={rating === 0 || isLoading}
+                                        onClick={() => handleEvalSubmitDest(dest.nome)}
+                                        className={cn(
+                                          "w-full py-2 rounded-xl font-bold text-[10.5px] flex items-center justify-center gap-1.5 transition-all",
+                                          rating === 0
+                                            ? "bg-[var(--color-surface-alt)] text-[var(--color-text-muted)] border border-[var(--color-border-light)] cursor-not-allowed"
+                                            : "bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] cursor-pointer shadow-sm hover:shadow-md active:scale-[0.98]"
+                                        )}
+                                      >
+                                        {isLoading ? (
+                                          <span className="animate-spin h-3.5 w-3.5 border-2 border-white/30 border-t-white rounded-full" />
+                                        ) : (
+                                          <Send className="h-3.5 w-3.5" />
+                                        )}
+                                        {isLoading ? 'Enviando...' : 'Enviar Avaliação'}
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {/* Back to dossier */}
+                        {!allSubmitted && (
+                          <div className="shrink-0 pt-2 border-t border-[var(--color-border-light)]">
+                            <button
+                              type="button"
+                              onClick={() => setStep(5)}
+                              className="w-full py-1.5 text-[9.5px] border border-[var(--color-border-light)] hover:bg-[var(--color-surface-hover)] rounded-lg font-bold text-[var(--color-text-muted)] cursor-pointer bg-transparent transition-all"
+                            >
+                              ← Voltar ao Dossier de Viagem
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </>
               )
             )}

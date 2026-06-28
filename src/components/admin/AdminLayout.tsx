@@ -10,6 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { LanguageSelector } from '@/components/ui/LanguageSelector';
+import { PanelSwitcher } from '@/components/ui/PanelSwitcher';
 import { useAuth } from '@/providers/AuthProvider';
 
 const navItems = [
@@ -132,9 +133,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
 
           {/* Mobile controls */}
-          <div className="flex items-center gap-2 lg:hidden">
-            <ThemeToggle size="sm" />
-            <LanguageSelector size="sm" />
+          <div className="flex items-center gap-2">
+            <PanelSwitcher />
+            <div className="h-4 w-px bg-[var(--color-border)] hidden lg:block" />
+            <div className="flex items-center gap-2 lg:hidden">
+              <ThemeToggle size="sm" />
+              <LanguageSelector size="sm" />
+            </div>
           </div>
         </header>
 
