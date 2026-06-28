@@ -276,418 +276,409 @@ export default function TouristHomePage() {
             : "bg-gradient-to-br from-[var(--color-primary-soft)]/20 via-[var(--color-bg)]/85 to-[var(--color-bg)]"
         )} />
 
-        {/* Content Container */}
-        <div className="relative max-w-7xl mx-auto px-4 w-full z-20 py-8 lg:py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            
-            {/* Left Header info (only visible on steps 1-3) */}
-            <div className={cn(
-              "space-y-5 transition-all duration-500 transform lg:col-span-5",
-              step === 4 
-                ? "opacity-0 -translate-x-12 pointer-events-none hidden lg:block" 
-                : "opacity-100 translate-x-0"
-            )}>
-              <Badge variant="accent" size="md">
-                <Sparkles className="h-3 w-3" />
-                DunasTech Roteador IA
-              </Badge>
-              <h1 className="text-3xl sm:text-5xl font-extrabold text-[var(--color-text)] leading-tight tracking-tight">
-                Planeje Sua Rota <br />
-                <span className="gradient-ocean gradient-text">Segura e Sustentável</span>
-              </h1>
-              <p className="text-sm sm:text-base text-[var(--color-text-secondary)] leading-relaxed">
-                Responda a 3 perguntas rápidas para receber um roteiro personalizado com atrativos descritos e parceiros recomendados com selo Cadastur.
-              </p>
+        {/* Content Container (Title & Steps 1-3 Questionnaire Wizard) */}
+        {step !== 4 && (
+          <div className="relative max-w-7xl mx-auto px-4 w-full z-20 py-8 lg:py-12 pointer-events-none">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               
-              <div className="flex items-center gap-4 text-xs text-[var(--color-text-muted)] pt-2">
-                <span className="flex items-center gap-1"><Shield className="h-3.5 w-3.5 text-[var(--color-success)]" /> 100% Cadastur</span>
-                <span className="flex items-center gap-1"><Navigation className="h-3.5 w-3.5 text-[var(--color-primary)]" /> GPS Ativo</span>
-              </div>
-            </div>
-
-            {/* Right Questionnaire wizard / Floating Panel */}
-            <div className={cn(
-              "transition-all duration-700 transform w-full",
-              step === 4 
-                ? "lg:col-span-5 max-w-[480px] lg:ml-auto" 
-                : "lg:col-span-7"
-            )}>
-              <Card className={cn(
-                "border shadow-xl overflow-hidden relative flex flex-col justify-between transition-all duration-500",
-                step === 4 
-                  ? "bg-[var(--color-surface-glass)] backdrop-blur-lg border-[var(--color-border)] shadow-2xl h-[560px] overflow-y-auto custom-scrollbar" 
-                  : "min-h-[380px] bg-[var(--color-surface)] border-[var(--color-primary)]/10"
-              )}>
+              {/* Left Header info */}
+              <div className="space-y-5 transition-all duration-500 transform lg:col-span-5 pointer-events-auto">
+                <Badge variant="accent" size="md">
+                  <Sparkles className="h-3 w-3" />
+                  DunasTech Roteador IA
+                </Badge>
+                <h1 className="text-3xl sm:text-5xl font-extrabold text-[var(--color-text)] leading-tight tracking-tight">
+                  Planeje Sua Rota <br />
+                  <span className="gradient-ocean gradient-text">Segura e Sustentável</span>
+                </h1>
+                <p className="text-sm sm:text-base text-[var(--color-text-secondary)] leading-relaxed">
+                  Responda a 3 perguntas rápidas para receber um roteiro personalizado com atrativos descritos e parceiros recomendados com selo Cadastur.
+                </p>
                 
-                {/* Step 1: Travel Style */}
-                {step === 1 && (
-                  <div className="p-6 space-y-4 animate-fade-in-up flex-1 flex flex-col justify-between">
-                    <div>
-                      <span className="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider">Passo 1 de 3</span>
-                      <h2 className="text-lg font-bold text-[var(--color-text)] mt-1">Qual é o seu estilo preferido de viagem?</h2>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-                        {styles.map(s => (
-                          <button
-                            key={s.id}
-                            type="button"
-                            onClick={() => setSelectedStyle(s.id)}
-                            className={cn(
-                              "p-3 rounded-xl border text-left transition-all cursor-pointer",
-                              selectedStyle === s.id
-                                ? "bg-[var(--color-primary-soft)] border-[var(--color-primary)] text-[var(--color-primary)] ring-2 ring-[var(--color-primary)]/20"
-                                : "bg-[var(--color-surface)] border-[var(--color-border)] hover:border-[var(--color-primary)]/50"
-                            )}
-                          >
-                            <p className="font-bold text-sm">{s.label}</p>
-                            <p className="text-[10px] text-[var(--color-text-muted)] mt-1">{s.desc}</p>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <Button 
-                      className="self-end mt-4" 
-                      onClick={() => setStep(2)}
-                      iconRight={ArrowRight}
-                    >
-                      Avançar
-                    </Button>
-                  </div>
-                )}
+                <div className="flex items-center gap-4 text-xs text-[var(--color-text-muted)] pt-2">
+                  <span className="flex items-center gap-1"><Shield className="h-3.5 w-3.5 text-[var(--color-success)]" /> 100% Cadastur</span>
+                  <span className="flex items-center gap-1"><Navigation className="h-3.5 w-3.5 text-[var(--color-primary)]" /> GPS Ativo</span>
+                </div>
+              </div>
 
-                {/* Step 2: Duration */}
-                {step === 2 && (
-                  <div className="p-6 space-y-4 animate-fade-in-up flex-1 flex flex-col justify-between">
-                    <div>
-                      <span className="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider">Passo 2 de 3</span>
-                      <h2 className="text-lg font-bold text-[var(--color-text)] mt-1">Quanto tempo você tem disponível?</h2>
-                      <div className="space-y-3 mt-4">
-                        {durations.map(d => (
-                          <button
-                            key={d.id}
-                            type="button"
-                            onClick={() => setSelectedDuration(d.id)}
-                            className={cn(
-                              "w-full p-4 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between",
-                              selectedDuration === d.id
-                                ? "bg-[var(--color-primary-soft)] border-[var(--color-primary)] text-[var(--color-primary)]"
-                                : "bg-[var(--color-surface)] border-[var(--color-border)] hover:border-[var(--color-primary)]/50"
-                            )}
-                          >
-                            <span className="font-bold text-sm">{d.label}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex justify-between mt-4">
-                      <Button variant="secondary" onClick={() => setStep(1)}>Voltar</Button>
-                      <Button onClick={() => setStep(3)} iconRight={ArrowRight}>Avançar</Button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 3: Transport */}
-                {step === 3 && (
-                  <div className="p-6 space-y-4 animate-fade-in-up flex-1 flex flex-col justify-between">
-                    <div>
-                      <span className="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider">Passo 3 de 3</span>
-                      <h2 className="text-lg font-bold text-[var(--color-text)] mt-1">Como você pretende se deslocar?</h2>
-                      <div className="space-y-3 mt-4">
-                        {transports.map(t => (
-                          <button
-                            key={t.id}
-                            type="button"
-                            onClick={() => setSelectedTransport(t.id)}
-                            className={cn(
-                              "w-full p-4 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between",
-                              selectedTransport === t.id
-                                ? "bg-[var(--color-primary-soft)] border-[var(--color-primary)] text-[var(--color-primary)]"
-                                : "bg-[var(--color-surface)] border-[var(--color-border)] hover:border-[var(--color-primary)]/50"
-                            )}
-                          >
-                            <span className="font-bold text-sm">{t.label}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex justify-between mt-4">
-                      <Button variant="secondary" onClick={() => setStep(2)}>Voltar</Button>
-                      <Button onClick={handleGenerateRoute} icon={Navigation}>Gerar Minha Rota</Button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 4: Suggested Route & Floating Panel view */}
-                {step === 4 && suggestedRoute && (
-                  <div className="p-5 space-y-4 animate-fade-in-up flex-1 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
-                        <div>
-                          <Badge variant="accent" size="sm">Rota Sugerida</Badge>
-                          <h2 className="text-base font-extrabold text-[var(--color-text)] mt-1">{suggestedRoute.title}</h2>
-                        </div>
-                        <Button variant="ghost" size="sm" onClick={() => { setStep(1); setSuggestedRoute(null); }}>
-                          Refazer
-                        </Button>
-                      </div>
-
-                      <p className="text-xs text-[var(--color-text-secondary)] mt-2 leading-relaxed bg-[var(--color-surface)]/60 p-2.5 rounded-lg border border-[var(--color-border)]/40">
-                        {suggestedRoute.description}
-                      </p>
-
-                      {/* Daily breakdowns for longer stays */}
-                      <div className="mt-4 space-y-3 animate-fade-in">
-                        <p className="text-[10px] uppercase font-bold text-[var(--color-text-muted)] tracking-wider">Cronograma do Roteiro</p>
-                        
-                        <div className="space-y-2.5 max-h-[290px] overflow-y-auto pr-0.5 custom-scrollbar">
-                          {suggestedRoute.days.map((dayItem, dayIndex) => {
-                            const isExpanded = expandedDay === dayItem.day;
-                            
-                            // Calculate legs/mobility details for this day
-                            const legs: {
-                              from: string;
-                              to: string;
-                              distance: number;
-                              timeText: string;
-                              isTooLongForWalking: boolean;
-                            }[] = [];
-
-                            // Find previous destination if any
-                            let prevDest: typeof destinosInfo[0] | null = null;
-                            if (dayIndex > 0) {
-                              const prevDay = suggestedRoute.days[dayIndex - 1];
-                              if (prevDay.destinations.length > 0) {
-                                prevDest = prevDay.destinations[prevDay.destinations.length - 1];
-                              }
-                            }
-
-                            // Build legs
-                            let currentPrev = prevDest;
-                            dayItem.destinations.forEach((dest) => {
-                              if (currentPrev && currentPrev.nome !== dest.nome) {
-                                const dist = getHaversineDistance(
-                                  currentPrev.latitude,
-                                  currentPrev.longitude,
-                                  dest.latitude,
-                                  dest.longitude
-                                );
-                                
-                                // Calculate travel time
-                                let speed = 60; // default shuttle
-                                  let transportLabel = 'van/carro';
-                                if (selectedTransport === 'hike') {
-                                  speed = 4.5;
-                                  transportLabel = 'caminhada';
-                                } else if (selectedTransport === 'buggy') {
-                                  speed = 30;
-                                  transportLabel = 'buggy';
-                                }
-
-                                const timeHrs = dist / speed;
-                                const timeMins = Math.round(timeHrs * 60);
-                                let timeText = '';
-                                if (timeMins < 60) {
-                                  timeText = `${timeMins} min de ${transportLabel}`;
-                                } else {
-                                  const hrs = Math.floor(timeMins / 60);
-                                  const mins = timeMins % 60;
-                                  timeText = `${hrs}h${mins > 0 ? ` ${mins}min` : ''} de ${transportLabel}`;
-                                }
-
-                                legs.push({
-                                  from: currentPrev.nome,
-                                  to: dest.nome,
-                                  distance: Number(dist.toFixed(1)),
-                                  timeText,
-                                  isTooLongForWalking: selectedTransport === 'hike' && dist > 5,
-                                });
-                              }
-                              currentPrev = dest;
-                            });
-
-                            return (
-                              <div 
-                                key={dayItem.day} 
-                                className={cn(
-                                  "rounded-xl border transition-all overflow-hidden",
-                                  isExpanded 
-                                    ? "bg-[var(--color-surface)] border-[var(--color-primary)] shadow-md"
-                                    : "bg-[var(--color-surface-alt)]/60 border-[var(--color-border-light)] hover:border-[var(--color-primary)]/40"
-                                )}
-                              >
-                                {/* Header (always visible, clickable) */}
-                                <button
-                                  type="button"
-                                  onClick={() => setExpandedDay(isExpanded ? null : dayItem.day)}
-                                  className="w-full p-3 flex items-center justify-between text-left cursor-pointer focus:outline-none"
-                                >
-                                  <div className="flex items-center gap-3">
-                                    <div className={cn(
-                                      "h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0",
-                                      isExpanded 
-                                        ? "bg-[var(--color-primary)] text-white" 
-                                        : "bg-[var(--color-primary-soft)] text-[var(--color-primary)]"
-                                    )}>
-                                      {dayItem.day}
-                                    </div>
-                                    <div className="min-w-0">
-                                      <h3 className="font-bold text-xs text-[var(--color-text)]">
-                                        Dia {dayItem.day}
-                                      </h3>
-                                      <p className="text-[9px] text-[var(--color-text-muted)] truncate max-w-[220px] sm:max-w-xs">
-                                        {dayItem.destinations.map(d => d.nome).join(' ➔ ')}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <div className="text-[var(--color-text-muted)] shrink-0">
-                                    {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-                                  </div>
-                                </button>
-
-                                {/* Body (collapsible) */}
-                                {isExpanded && (
-                                  <div className="p-3.5 border-t border-[var(--color-border-light)] space-y-3.5 text-xs bg-[var(--color-surface)] animate-fade-in-up">
-                                    {/* Description */}
-                                    <p className="text-[var(--color-text-secondary)] leading-relaxed bg-[var(--color-surface-alt)]/50 p-3 rounded-lg border border-[var(--color-border-light)]/60">
-                                      {dayItem.description}
-                                    </p>
-
-                                    {/* Legs / Travel distances */}
-                                    {legs.length > 0 ? (
-                                      <div className="space-y-2">
-                                        <p className="font-semibold text-[9px] uppercase text-[var(--color-text-muted)] tracking-wider">
-                                          🚗 Trajeto & Locomoção
-                                        </p>
-                                        <div className="space-y-2 pl-1">
-                                          {legs.map((leg, idx) => (
-                                            <div key={idx} className="flex flex-col gap-1 bg-[var(--color-surface-alt)] p-2.5 rounded-lg border border-[var(--color-border-light)]">
-                                              <div className="flex items-center gap-2 text-[10px]">
-                                                <Navigation className="h-3 w-3 text-[var(--color-primary)] rotate-45 shrink-0" />
-                                                <span className="text-[var(--color-text-secondary)]">
-                                                  De <strong className="text-[var(--color-text)]">{leg.from}</strong> para <strong className="text-[var(--color-text)]">{leg.to}</strong>
-                                                </span>
-                                              </div>
-                                              <div className="flex items-center gap-3 text-[9px] text-[var(--color-text-muted)] pl-5">
-                                                <span className="flex items-center gap-1 font-[var(--font-mono)]">
-                                                  📍 {leg.distance} km
-                                                </span>
-                                                <span className="h-1 w-1 bg-[var(--color-border)] rounded-full" />
-                                                <span className="flex items-center gap-1">
-                                                  <Clock className="h-3 w-3" /> {leg.timeText}
-                                                </span>
-                                              </div>
-                                              {leg.isTooLongForWalking && (
-                                                <div className="mt-1 p-2 rounded bg-amber-500/10 border border-amber-500/20 text-[9px] text-amber-600 flex items-start gap-1.5 leading-relaxed">
-                                                  <ShieldAlert className="h-3.5 w-3.5 text-amber-600 shrink-0 mt-0.5" />
-                                                  <span>
-                                                    <strong>Aviso de Caminhada:</strong> A distância é de {leg.distance} km, o que é muito longo para ir a pé. Considere alugar um buggy ou contratar um translado credenciado.
-                                                  </span>
-                                                </div>
-                                              )}
-                                            </div>
-                                          ))}
-                                        </div>
-                                      </div>
-                                    ) : (
-                                      <div className="p-2.5 rounded-lg bg-[var(--color-primary-soft)]/20 border border-[var(--color-primary)]/20 text-[9px] text-[var(--color-text-secondary)] flex items-center gap-2">
-                                        <Info className="h-3.5 w-3.5 text-[var(--color-primary)] shrink-0" />
-                                        <span>Roteiro local. Não exige deslocamento rodoviário entre destinos neste dia.</span>
-                                      </div>
-                                    )}
-
-                                    {/* Destinations & Attractions */}
-                                    <div className="space-y-2">
-                                      <p className="font-semibold text-[9px] uppercase text-[var(--color-text-muted)] tracking-wider">
-                                        🚩 Programação detalhada
-                                      </p>
-                                      
-                                      <div className="space-y-2.5">
-                                        {dayItem.destinations.map((dest) => (
-                                          <div key={dest.nome} className="border border-[var(--color-border-light)] rounded-lg overflow-hidden bg-[var(--color-surface)]">
-                                            {/* Destination mini header */}
-                                            <div className="bg-[var(--color-surface-alt)]/80 p-2 flex items-center justify-between border-b border-[var(--color-border-light)]">
-                                              <span className="font-bold text-[10px] text-[var(--color-text)] flex items-center gap-1">
-                                                📍 {dest.nome}
-                                              </span>
-                                              <Link href={`/destino/${slugify(dest.nome)}`}>
-                                                <span className="text-[9px] text-[var(--color-primary)] hover:underline flex items-center gap-0.5 font-semibold">
-                                                  Ver destino <ArrowRight className="h-2.5 w-2.5" />
-                                                </span>
-                                              </Link>
-                                            </div>
-
-                                            {/* Attractions in this destination */}
-                                            {dest.atracoes && dest.atracoes.length > 0 ? (
-                                              <div className="divide-y divide-[var(--color-border-light)]/60">
-                                                {dest.atracoes.map((act) => {
-                                                  const partner = cadasturData.find(c => c.id === act.parceiroId);
-                                                  return (
-                                                    <div key={act.id} className="p-2.5 flex gap-2.5 items-start">
-                                                      {act.imagem && (
-                                                        <div className="relative h-12 w-16 rounded overflow-hidden shrink-0 border border-[var(--color-border-light)]/50">
-                                                          <Image 
-                                                            src={act.imagem} 
-                                                            alt={act.nome} 
-                                                            fill
-                                                            className="object-cover"
-                                                            sizes="64px"
-                                                          />
-                                                        </div>
-                                                      )}
-                                                      <div className="space-y-0.5 flex-1 min-w-0">
-                                                        <h4 className="font-bold text-[10px] text-[var(--color-text)] truncate">
-                                                          {act.nome}
-                                                        </h4>
-                                                        <p className="text-[9px] text-[var(--color-text-secondary)] leading-relaxed">
-                                                          {act.descricao}
-                                                        </p>
-                                                        {partner && (
-                                                          <div className="flex items-center gap-1.5 pt-0.5">
-                                                            <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] font-semibold bg-[var(--color-success)]/10 text-[var(--color-success)] border border-[var(--color-success)]/20">
-                                                              🛡️ Cadastur: {partner.nome} ({partner.tipo})
-                                                            </span>
-                                                          </div>
-                                                        )}
-                                                      </div>
-                                                    </div>
-                                                  );
-                                                })}
-                                              </div>
-                                            ) : (
-                                              <div className="p-3 text-[9px] text-[var(--color-text-muted)] italic text-center">
-                                                Nenhuma atração específica listada. Aproveite para explorar o local livremente!
-                                              </div>
-                                            )}
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
+              {/* Right Questionnaire wizard */}
+              <div className="lg:col-span-7 w-full pointer-events-auto">
+                <Card className="border shadow-xl overflow-hidden relative flex flex-col justify-between min-h-[380px] bg-[var(--color-surface)] border-[var(--color-primary)]/10 rounded-2xl">
+                  
+                  {/* Step 1: Travel Style */}
+                  {step === 1 && (
+                    <div className="p-6 space-y-4 animate-fade-in-up flex-1 flex flex-col justify-between">
+                      <div>
+                        <span className="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider">Passo 1 de 3</span>
+                        <h2 className="text-lg font-bold text-[var(--color-text)] mt-1">Qual é o seu estilo preferido de viagem?</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                          {styles.map(s => (
+                            <button
+                              key={s.id}
+                              type="button"
+                              onClick={() => setSelectedStyle(s.id)}
+                              className={cn(
+                                "p-3 rounded-xl border text-left transition-all cursor-pointer",
+                                selectedStyle === s.id
+                                  ? "bg-[var(--color-primary-soft)] border-[var(--color-primary)] text-[var(--color-primary)] ring-2 ring-[var(--color-primary)]/20"
+                                  : "bg-[var(--color-surface)] border-[var(--color-border)] hover:border-[var(--color-primary)]/50"
+                              )}
+                            >
+                              <p className="font-bold text-sm">{s.label}</p>
+                              <p className="text-[10px] text-[var(--color-text-muted)] mt-1">{s.desc}</p>
+                            </button>
+                          ))}
                         </div>
                       </div>
+                      <Button 
+                        className="self-end mt-4" 
+                        onClick={() => setStep(2)}
+                        iconRight={ArrowRight}
+                      >
+                        Avançar
+                      </Button>
+                    </div>
+                  )}
 
-                      {/* Link to satisfaction survey instead of loading the form directly */}
-                      <div className="mt-4 p-3 rounded-xl bg-[var(--color-primary-soft)]/20 border border-[var(--color-primary)]/20 text-xs text-[var(--color-text-secondary)] flex items-center justify-between gap-3">
-                        <div>
-                          <p className="font-bold text-[var(--color-text)]">Já realizou este roteiro?</p>
-                          <p className="text-[10px] text-[var(--color-text-muted)]">Faça a avaliação de satisfação e auditoria de conformidade.</p>
+                  {/* Step 2: Duration */}
+                  {step === 2 && (
+                    <div className="p-6 space-y-4 animate-fade-in-up flex-1 flex flex-col justify-between">
+                      <div>
+                        <span className="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider">Passo 2 de 3</span>
+                        <h2 className="text-lg font-bold text-[var(--color-text)] mt-1">Quanto tempo você tem disponível?</h2>
+                        <div className="space-y-3 mt-4">
+                          {durations.map(d => (
+                            <button
+                              key={d.id}
+                              type="button"
+                              onClick={() => setSelectedDuration(d.id)}
+                              className={cn(
+                                "w-full p-4 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between",
+                                selectedDuration === d.id
+                                  ? "bg-[var(--color-primary-soft)] border-[var(--color-primary)] text-[var(--color-primary)]"
+                                  : "bg-[var(--color-surface)] border-[var(--color-border)] hover:border-[var(--color-primary)]/50"
+                              )}
+                            >
+                              <span className="font-bold text-sm">{d.label}</span>
+                            </button>
+                          ))}
                         </div>
-                        <Link href="/avaliar">
-                          <Button size="sm">Avaliar Rota</Button>
-                        </Link>
+                      </div>
+                      <div className="flex justify-between mt-4">
+                        <Button variant="secondary" onClick={() => setStep(1)}>Voltar</Button>
+                        <Button onClick={() => setStep(3)} iconRight={ArrowRight}>Avançar</Button>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-              </Card>
+                  {/* Step 3: Transport */}
+                  {step === 3 && (
+                    <div className="p-6 space-y-4 animate-fade-in-up flex-1 flex flex-col justify-between">
+                      <div>
+                        <span className="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider">Passo 3 de 3</span>
+                        <h2 className="text-lg font-bold text-[var(--color-text)] mt-1">Como você pretende se deslocar?</h2>
+                        <div className="space-y-3 mt-4">
+                          {transports.map(t => (
+                            <button
+                              key={t.id}
+                              type="button"
+                              onClick={() => setSelectedTransport(t.id)}
+                              className={cn(
+                                "w-full p-4 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between",
+                                selectedTransport === t.id
+                                  ? "bg-[var(--color-primary-soft)] border-[var(--color-primary)] text-[var(--color-primary)]"
+                                  : "bg-[var(--color-surface)] border-[var(--color-border)] hover:border-[var(--color-primary)]/50"
+                              )}
+                            >
+                              <span className="font-bold text-sm">{t.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex justify-between mt-4">
+                        <Button variant="secondary" onClick={() => setStep(2)}>Voltar</Button>
+                        <Button onClick={handleGenerateRoute} icon={Navigation}>Gerar Minha Rota</Button>
+                      </div>
+                    </div>
+                  )}
+
+                </Card>
+              </div>
+
             </div>
-
           </div>
-        </div>
+        )}
+
+        {/* Sidebar Route Panel (only visible on step 4) - Glued flush to the right edge, full height */}
+        {step === 4 && suggestedRoute && (
+          <div className="absolute top-0 right-0 bottom-0 h-full w-full sm:w-[460px] z-30 pointer-events-auto animate-slide-in-right">
+            <Card className="bg-[var(--color-surface-glass)] backdrop-blur-lg border-l border-y-0 border-r-0 border-[var(--color-border)] shadow-2xl h-full rounded-none overflow-y-auto custom-scrollbar flex flex-col justify-between p-5">
+              
+              <div className="space-y-4 flex-1">
+                <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+                  <div>
+                    <Badge variant="accent" size="sm">Rota Sugerida</Badge>
+                    <h2 className="text-base font-extrabold text-[var(--color-text)] mt-1 leading-snug">{suggestedRoute.title}</h2>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => { setStep(1); setSuggestedRoute(null); }}>
+                    Refazer
+                  </Button>
+                </div>
+
+                <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed bg-[var(--color-surface)]/60 p-2.5 rounded-lg border border-[var(--color-border)]/40">
+                  {suggestedRoute.description}
+                </p>
+
+                {/* Daily breakdowns for longer stays */}
+                <div className="space-y-3 animate-fade-in">
+                  <p className="text-[10px] uppercase font-bold text-[var(--color-text-muted)] tracking-wider">Cronograma do Roteiro</p>
+                  
+                  <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-0.5 custom-scrollbar">
+                    {suggestedRoute.days.map((dayItem, dayIndex) => {
+                      const isExpanded = expandedDay === dayItem.day;
+                      
+                      // Calculate legs/mobility details for this day
+                      const legs: {
+                        from: string;
+                        to: string;
+                        distance: number;
+                        timeText: string;
+                        isTooLongForWalking: boolean;
+                      }[] = [];
+
+                      // Find previous destination if any
+                      let prevDest: typeof destinosInfo[0] | null = null;
+                      if (dayIndex > 0) {
+                        const prevDay = suggestedRoute.days[dayIndex - 1];
+                        if (prevDay.destinations.length > 0) {
+                          prevDest = prevDay.destinations[prevDay.destinations.length - 1];
+                        }
+                      }
+
+                      // Build legs
+                      let currentPrev = prevDest;
+                      dayItem.destinations.forEach((dest) => {
+                        if (currentPrev && currentPrev.nome !== dest.nome) {
+                          const dist = getHaversineDistance(
+                            currentPrev.latitude,
+                            currentPrev.longitude,
+                            dest.latitude,
+                            dest.longitude
+                          );
+                          
+                          // Calculate travel time
+                          let speed = 60; // default shuttle
+                          let transportLabel = 'van/carro';
+                          if (selectedTransport === 'hike') {
+                            speed = 4.5;
+                            transportLabel = 'caminhada';
+                          } else if (selectedTransport === 'buggy') {
+                            speed = 30;
+                            transportLabel = 'buggy';
+                          }
+
+                          const timeHrs = dist / speed;
+                          const timeMins = Math.round(timeHrs * 60);
+                          let timeText = '';
+                          if (timeMins < 60) {
+                            timeText = `${timeMins} min de ${transportLabel}`;
+                          } else {
+                            const hrs = Math.floor(timeMins / 60);
+                            const mins = timeMins % 60;
+                            timeText = `${hrs}h${mins > 0 ? ` ${mins}min` : ''} de ${transportLabel}`;
+                          }
+
+                          legs.push({
+                            from: currentPrev.nome,
+                            to: dest.nome,
+                            distance: Number(dist.toFixed(1)),
+                            timeText,
+                            isTooLongForWalking: selectedTransport === 'hike' && dist > 5,
+                          });
+                        }
+                        currentPrev = dest;
+                      });
+
+                      return (
+                        <div 
+                          key={dayItem.day} 
+                          className={cn(
+                            "rounded-xl border transition-all overflow-hidden",
+                            isExpanded 
+                              ? "bg-[var(--color-surface)] border-[var(--color-primary)] shadow-md"
+                              : "bg-[var(--color-surface-alt)]/60 border-[var(--color-border-light)] hover:border-[var(--color-primary)]/40"
+                          )}
+                        >
+                          {/* Header (always visible, clickable) */}
+                          <button
+                            type="button"
+                            onClick={() => setExpandedDay(isExpanded ? null : dayItem.day)}
+                            className="w-full p-3 flex items-center justify-between text-left cursor-pointer focus:outline-none"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={cn(
+                                "h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0",
+                                isExpanded 
+                                  ? "bg-[var(--color-primary)] text-white" 
+                                  : "bg-[var(--color-primary-soft)] text-[var(--color-primary)]"
+                              )}>
+                                {dayItem.day}
+                              </div>
+                              <div className="min-w-0">
+                                <h3 className="font-bold text-xs text-[var(--color-text)]">
+                                  Dia {dayItem.day}
+                                </h3>
+                                <p className="text-[9px] text-[var(--color-text-muted)] truncate max-w-[220px] sm:max-w-xs">
+                                  {dayItem.destinations.map(d => d.nome).join(' ➔ ')}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-[var(--color-text-muted)] shrink-0">
+                              {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                            </div>
+                          </button>
+
+                          {/* Body (collapsible) */}
+                          {isExpanded && (
+                            <div className="p-3.5 border-t border-[var(--color-border-light)] space-y-3.5 text-xs bg-[var(--color-surface)] animate-fade-in-up">
+                              {/* Description */}
+                              <p className="text-[var(--color-text-secondary)] leading-relaxed bg-[var(--color-surface-alt)]/50 p-3 rounded-lg border border-[var(--color-border-light)]/60">
+                                {dayItem.description}
+                              </p>
+
+                              {/* Legs / Travel distances */}
+                              {legs.length > 0 ? (
+                                <div className="space-y-2">
+                                  <p className="font-semibold text-[9px] uppercase text-[var(--color-text-muted)] tracking-wider">
+                                    🚗 Trajeto & Locomoção
+                                  </p>
+                                  <div className="space-y-2 pl-1">
+                                    {legs.map((leg, idx) => (
+                                      <div key={idx} className="flex flex-col gap-1 bg-[var(--color-surface-alt)] p-2.5 rounded-lg border border-[var(--color-border-light)]">
+                                        <div className="flex items-center gap-2 text-[10px]">
+                                          <Navigation className="h-3 w-3 text-[var(--color-primary)] rotate-45 shrink-0" />
+                                          <span className="text-[var(--color-text-secondary)]">
+                                            De <strong className="text-[var(--color-text)]">{leg.from}</strong> para <strong className="text-[var(--color-text)]">{leg.to}</strong>
+                                          </span>
+                                        </div>
+                                        <div className="flex items-center gap-3 text-[9px] text-[var(--color-text-muted)] pl-5">
+                                          <span className="flex items-center gap-1 font-[var(--font-mono)]">
+                                            📍 {leg.distance} km
+                                          </span>
+                                          <span className="h-1 w-1 bg-[var(--color-border)] rounded-full" />
+                                          <span className="flex items-center gap-1">
+                                            <Clock className="h-3 w-3" /> {leg.timeText}
+                                          </span>
+                                        </div>
+                                        {leg.isTooLongForWalking && (
+                                          <div className="mt-1 p-2 rounded bg-amber-500/10 border border-amber-500/20 text-[9px] text-amber-600 flex items-start gap-1.5 leading-relaxed">
+                                            <ShieldAlert className="h-3.5 w-3.5 text-amber-600 shrink-0 mt-0.5" />
+                                            <span>
+                                              <strong>Aviso de Caminhada:</strong> A distância é de {leg.distance} km, o que é muito longo para ir a pé. Considere alugar um buggy ou contratar um translado credenciado.
+                                            </span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="p-2.5 rounded-lg bg-[var(--color-primary-soft)]/20 border border-[var(--color-primary)]/20 text-[9px] text-[var(--color-text-secondary)] flex items-center gap-2">
+                                  <Info className="h-3.5 w-3.5 text-[var(--color-primary)] shrink-0" />
+                                  <span>Roteiro local. Não exige deslocamento rodoviário entre destinos neste dia.</span>
+                                </div>
+                              )}
+
+                              {/* Destinations & Attractions */}
+                              <div className="space-y-2">
+                                <p className="font-semibold text-[9px] uppercase text-[var(--color-text-muted)] tracking-wider">
+                                  🚩 Programação detalhada
+                                </p>
+                                
+                                <div className="space-y-2.5">
+                                  {dayItem.destinations.map((dest) => (
+                                    <div key={dest.nome} className="border border-[var(--color-border-light)] rounded-lg overflow-hidden bg-[var(--color-surface)]">
+                                      {/* Destination mini header */}
+                                      <div className="bg-[var(--color-surface-alt)]/80 p-2 flex items-center justify-between border-b border-[var(--color-border-light)]">
+                                        <span className="font-bold text-[10px] text-[var(--color-text)] flex items-center gap-1">
+                                          📍 {dest.nome}
+                                        </span>
+                                        <Link href={`/destino/${slugify(dest.nome)}`}>
+                                          <span className="text-[9px] text-[var(--color-primary)] hover:underline flex items-center gap-0.5 font-semibold">
+                                            Ver destino <ArrowRight className="h-2.5 w-2.5" />
+                                          </span>
+                                        </Link>
+                                      </div>
+
+                                      {/* Attractions in this destination */}
+                                      {dest.atracoes && dest.atracoes.length > 0 ? (
+                                        <div className="divide-y divide-[var(--color-border-light)]/60">
+                                          {dest.atracoes.map((act) => {
+                                            const partner = cadasturData.find(c => c.id === act.parceiroId);
+                                            return (
+                                              <div key={act.id} className="p-2.5 flex gap-2.5 items-start">
+                                                {act.imagem && (
+                                                  <div className="relative h-12 w-16 rounded overflow-hidden shrink-0 border border-[var(--color-border-light)]/50">
+                                                    <Image 
+                                                      src={act.imagem} 
+                                                      alt={act.nome} 
+                                                      fill
+                                                      className="object-cover"
+                                                      sizes="64px"
+                                                    />
+                                                  </div>
+                                                )}
+                                                <div className="space-y-0.5 flex-1 min-w-0">
+                                                  <h4 className="font-bold text-[10px] text-[var(--color-text)] truncate">
+                                                    {act.nome}
+                                                  </h4>
+                                                  <p className="text-[9px] text-[var(--color-text-secondary)] leading-relaxed">
+                                                    {act.descricao}
+                                                  </p>
+                                                  {partner && (
+                                                    <div className="flex items-center gap-1.5 pt-0.5">
+                                                      <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] font-semibold bg-[var(--color-success)]/10 text-[var(--color-success)] border border-[var(--color-success)]/20">
+                                                        🛡️ Cadastur: {partner.nome} ({partner.tipo})
+                                                      </span>
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      ) : (
+                                        <div className="p-3 text-[9px] text-[var(--color-text-muted)] italic text-center">
+                                          Nenhuma atração específica listada. Aproveite para explorar o local livremente!
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Link to satisfaction survey instead of loading the form directly */}
+              <div className="mt-4 p-3 rounded-xl bg-[var(--color-primary-soft)]/20 border border-[var(--color-primary)]/20 text-xs text-[var(--color-text-secondary)] flex items-center justify-between gap-3 shrink-0">
+                <div>
+                  <p className="font-bold text-[var(--color-text)]">Já realizou este roteiro?</p>
+                  <p className="text-[10px] text-[var(--color-text-muted)]">Faça a avaliação de satisfação e auditoria de conformidade.</p>
+                </div>
+                <Link href="/avaliar">
+                  <Button size="sm">Avaliar Rota</Button>
+                </Link>
+              </div>
+
+            </Card>
+          </div>
+        )}
       </section>
 
       {/* ═══ Popular Destinations (Larger Clickable Cards) ═══ */}

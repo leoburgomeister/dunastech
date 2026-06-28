@@ -424,8 +424,24 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .route-polyline-flow {
+  stroke: #4285F4 !important;
+  stroke-width: 4px !important;
   stroke-dasharray: 12, 12;
   animation: routeFlow 1s linear infinite;
+}
+
+/* ── Sidebar Slide-in from Right ── */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* ── Leaflet Popup Style Corrections for Google Style ── */
