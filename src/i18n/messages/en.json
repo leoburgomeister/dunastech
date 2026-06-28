@@ -295,6 +295,55 @@
           "description": "Enjoy the rich beach cuisine of Ponta Negra, Pipa, and the gastronomic mangroves of Cunhaú."
         }
       }
-    }
+    },
+    "groupProfileLabel": "👥 Traveler Profile",
+    "budgetLabel": "💰 Estimated Daily Budget",
+    "stayPreferenceLabel": "🏨 Accommodation Preference",
+    "groupProfiles": {
+      "solo": "Solo",
+      "couple": "Couple",
+      "family": "Family with Kids",
+      "friends": "Group of Friends"
+    },
+    "budgets": {
+      "budget": "Budget (Backpacker)",
+      "moderate": "Moderate (Standard)",
+      "luxury": "Luxury (Premium)"
+    },
+    "stayPreferences": {
+      "inn": "Charming Inn",
+      "hotel": "Hotel or Resort",
+      "hostel": "Hostel / Shared Room",
+      "none": "Already booked / Other"
+    },
+    "nextStep": "Next",
+    "prevStep": "Back",
+    "acceptAndPlan": "Accept & Plan Trip ✈️",
+    "planTripTitle": "Personalize your Trip",
+    "planTripDesc": "Choose experiences and insert the required details to generate your complete travel dossier.",
+    "selectExperiences": "Choose your Experiences",
+    "experienciasTitle": "Recommended Attractions and Experiences",
+    "cadasturBadge": "🛡️ Cadastur Certified",
+    "rating": "Rating: {nota}",
+    "tripDetails": "Trip Information",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "travelersPlaceholder": "Enter traveler names (one per line)",
+    "specialReqsPlaceholder": "e.g., Accessibility needs, dietary restrictions, etc.",
+    "generateSummaryButton": "Generate Full Dossier 📋",
+    "travelDossier": "Complete Travel Dossier",
+    "bookingCode": "Locator / Booking Code",
+    "sustainabilityShield": "Environmental Conformity & Security Shield",
+    "sustainabilityText": "This trip respects local visitor limits and exclusively features local partners certified by Cadastur, promoting safe and sustainable tourism in RN.",
+    "printItinerary": "Print Itinerary",
+    "shareWhatsApp": "Share on WhatsApp",
+    "newPlanning": "Plan New Trip",
+    "travelers": "Travelers",
+    "specialRequirements": "Special Requirements",
+    "routeSummary": "Planning Summary",
+    "budgetLevel": "Budget Level",
+    "groupProfile": "Group Profile",
+    "stayPreference": "Preferred Accommodation"
   }
 }
+

@@ -295,6 +295,55 @@
           "description": "Disfrute de la rica gastronomía playera de Ponta Negra, Pipa y los manglares gastronómicos de Cunhaú."
         }
       }
-    }
+    },
+    "groupProfileLabel": "👥 Perfil de Viajeros",
+    "budgetLabel": "💰 Presupuesto Estimado (Diario)",
+    "stayPreferenceLabel": "🏨 Preferencia de Alojamiento",
+    "groupProfiles": {
+      "solo": "Solo",
+      "couple": "Pareja",
+      "family": "Familia con Niños",
+      "friends": "Grupo de Amigos"
+    },
+    "budgets": {
+      "budget": "Económico (Mochileiro)",
+      "moderate": "Moderado (Estándar)",
+      "luxury": "Lujo (Premium)"
+    },
+    "stayPreferences": {
+      "inn": "Posada con Encanto",
+      "hotel": "Hotel o Resort",
+      "hostel": "Albergue / Hostel",
+      "none": "Ya tengo alojamiento / Otro"
+    },
+    "nextStep": "Avanzar",
+    "prevStep": "Voltar",
+    "acceptAndPlan": "Aceptar y Planificar Viaje ✈️",
+    "planTripTitle": "Personalice su Viaje",
+    "planTripDesc": "Elija las experiencias e ingrese los datos necesarios para generar el detalle completo de su viaje.",
+    "selectExperiences": "Elija sus Experiências",
+    "experienciasTitle": "Atracciones y Experiencias recomendadas",
+    "cadasturBadge": "🛡️ Certificado Cadastur",
+    "rating": "Nota: {nota}",
+    "tripDetails": "Información del Viaje",
+    "startDate": "Fecha de Inicio",
+    "endDate": "Fecha de Fin",
+    "travelersPlaceholder": "Ingrese los nombres de los viajeros (uno por línea)",
+    "specialReqsPlaceholder": "Ej: Requiere accesibilidad, restricciones alimentarias, etc.",
+    "generateSummaryButton": "Generar Detalle Completo 📋",
+    "travelDossier": "Detalle Completo del Viaje",
+    "bookingCode": "Código de Reserva / Localizador",
+    "sustainabilityShield": "Sello de Conformidad Ambiental y Seguridad",
+    "sustainabilityText": "Este viaje respeta los límites de carga local y utiliza exclusivamente socios locales certificados por Cadastur, promoviendo el turismo sostenible y seguro en el RN.",
+    "printItinerary": "Imprimir Itinerario",
+    "shareWhatsApp": "Compartir en WhatsApp",
+    "newPlanning": "Planificar Nuevo Viaje",
+    "travelers": "Viajeros",
+    "specialRequirements": "Requisitos Especiales",
+    "routeSummary": "Resumen de la Planificación",
+    "budgetLevel": "Nivel de Presupuesto",
+    "groupProfile": "Perfil del Grupo",
+    "stayPreference": "Alojamiento Preferido"
   }
 }
+

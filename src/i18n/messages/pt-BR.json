@@ -295,6 +295,55 @@
           "description": "Aproveite a rica culinária praiana de Ponta Negra, Pipa e os manguezais gastronômicos de Cunhaú."
         }
       }
-    }
+    },
+    "groupProfileLabel": "👥 Perfil dos Viajantes",
+    "budgetLabel": "💰 Orçamento Estimado (Diário)",
+    "stayPreferenceLabel": "🏨 Preferência de Hospedagem",
+    "groupProfiles": {
+      "solo": "Solo",
+      "couple": "Casal",
+      "family": "Família com Crianças",
+      "friends": "Grupo de Amigos"
+    },
+    "budgets": {
+      "budget": "Econômico (Mochileiro)",
+      "moderate": "Moderado (Padrão)",
+      "luxury": "Luxo (Premium)"
+    },
+    "stayPreferences": {
+      "inn": "Pousada Charmosa",
+      "hotel": "Hotel ou Resort",
+      "hostel": "Albergue / Hostel",
+      "none": "Já tenho hospedagem / Outro"
+    },
+    "nextStep": "Avançar",
+    "prevStep": "Voltar",
+    "acceptAndPlan": "Aceitar e Planejar Viagem ✈️",
+    "planTripTitle": "Personalize sua Viagem",
+    "planTripDesc": "Escolha as experiências e insira os dados necessários para gerar o detalhamento completo de sua viagem.",
+    "selectExperiences": "Escolha suas Experiências",
+    "experienciasTitle": "Atrações e Experiências recomendadas",
+    "cadasturBadge": "🛡️ Cadastur Certificado",
+    "rating": "Nota: {nota}",
+    "tripDetails": "Informações da Viagem",
+    "startDate": "Data de Início",
+    "endDate": "Data de Término",
+    "travelersPlaceholder": "Digite os nomes dos viajantes (um por linha)",
+    "specialReqsPlaceholder": "Ex: Precisa de acessibilidade, restrição alimentar, etc.",
+    "generateSummaryButton": "Gerar Detalhamento Completo 📋",
+    "travelDossier": "Detalhamento Completo da Viagem",
+    "bookingCode": "Código de Reserva / Localizador",
+    "sustainabilityShield": "Selo de Conformidade Ambiental & Segurança",
+    "sustainabilityText": "Esta viagem respeita os limites de carga local e utiliza exclusivamente parceiros locais certificados pelo Cadastur, promovendo o turismo sustentável e seguro no RN.",
+    "printItinerary": "Imprimir Roteiro",
+    "shareWhatsApp": "Compartilhar no WhatsApp",
+    "newPlanning": "Planejar Nova Viagem",
+    "travelers": "Viajantes",
+    "specialRequirements": "Requisitos Especiais",
+    "routeSummary": "Resumo do Planejamento",
+    "budgetLevel": "Nível de Orçamento",
+    "groupProfile": "Perfil do Grupo",
+    "stayPreference": "Hospedagem Preferencial"
   }
 }
+
