@@ -1054,13 +1054,15 @@ function generateMockBusinesses(): CadasturBusiness[] {
     const experiences: { titulo: string; descricao: string }[] = [];
     const usedIndices = new Set<number>();
     
-    while (experiences.length < 5 && usedIndices.size < pool.length) {
-      const offsetSeed = seed * (18.1 + experiences.length * 3.4);
+    let attempt = 0;
+    while (experiences.length < 5 && usedIndices.size < pool.length && attempt < 100) {
+      const offsetSeed = seed * (18.1 + attempt * 3.4);
       const expIdx = Math.floor(pseudoRandom(offsetSeed) * pool.length);
       if (!usedIndices.has(expIdx)) {
         usedIndices.add(expIdx);
         experiences.push(pool[expIdx]);
       }
+      attempt++;
     }
 
     list.push({
