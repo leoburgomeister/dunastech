@@ -814,43 +814,33 @@ export default function TouristHomePage() {
                                             </div>
 
                                             {dest.atracoes && dest.atracoes.length > 0 ? (
-                                              <div className="divide-y divide-[var(--color-border-light)]/40">
+                                              <div className="p-2 space-y-1.5 bg-[var(--color-surface)]">
                                                 {dest.atracoes.map((act) => {
                                                   const partner = cadasturData.find(c => c.id === act.parceiroId);
                                                   return (
-                                                    <div key={act.id} className="p-2.5 flex gap-2.5 items-start hover:bg-[var(--color-surface-hover)]/30 transition-colors">
-                                                      {act.imagem && (
-                                                        <div className="relative h-11 w-15 rounded-lg overflow-hidden shrink-0 border border-[var(--color-border-light)]/60 shadow-sm">
-                                                          <Image 
-                                                            src={act.imagem} 
-                                                            alt={act.nome} 
-                                                            fill
-                                                            className="object-cover"
-                                                            sizes="64px"
-                                                          />
-                                                        </div>
-                                                      )}
-                                                      <div className="space-y-0.5 flex-1 min-w-0">
-                                                        <h4 className="font-extrabold text-[10px] text-[var(--color-text)] truncate">
-                                                          {act.nome}
-                                                        </h4>
-                                                        <p className="text-[9px] text-[var(--color-text-secondary)] leading-normal">
-                                                          {act.descricao}
-                                                        </p>
-                                                        {partner && (
-                                                          <div className="flex items-center gap-1.5 pt-0.5">
-                                                            <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] font-bold bg-[var(--color-success)]/10 text-[var(--color-success)] border border-[var(--color-success)]/20">
-                                                              🛡️ Cadastur: {partner.nome} ({partner.tipo})
+                                                    <div 
+                                                      key={act.id} 
+                                                      className="flex items-center justify-between py-1.5 px-2 border-b border-[var(--color-border-light)]/20 last:border-0 hover:bg-[var(--color-surface-hover)]/25 transition-all rounded-lg cursor-help group" 
+                                                      title={act.descricao}
+                                                    >
+                                                      <div className="flex items-center gap-2 min-w-0">
+                                                        <span className="text-[var(--color-primary)] font-bold text-xs shrink-0">✨</span>
+                                                        <div className="min-w-0">
+                                                          <span className="font-bold text-[11px] text-[var(--color-text)] block truncate">{act.nome}</span>
+                                                          {partner && (
+                                                            <span className="inline-flex items-center gap-0.5 mt-0.5 text-[7.5px] font-bold text-[var(--color-success)] bg-[var(--color-success)]/10 px-1 py-0.5 rounded border border-[var(--color-success)]/20">
+                                                              🛡️ {partner.nome} ({partner.tipo})
                                                             </span>
-                                                          </div>
-                                                        )}
+                                                          )}
+                                                        </div>
                                                       </div>
+                                                      <span className="text-[9px] text-[var(--color-text-muted)] opacity-30 group-hover:opacity-100 transition-opacity shrink-0">ℹ️</span>
                                                     </div>
                                                   );
                                                 })}
                                               </div>
                                             ) : (
-                                              <div className="p-2 text-[9px] text-[var(--color-text-muted)] italic text-center">
+                                              <div className="p-2 text-[9px] text-[var(--color-text-muted)] italic text-center bg-[var(--color-surface)]">
                                                 {t('noAttractions')}
                                               </div>
                                             )}
@@ -937,21 +927,19 @@ export default function TouristHomePage() {
                                             <span className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
                                               Atrações Locais
                                             </span>
-                                            <div className="space-y-1 pl-1">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pl-0.5">
                                               {dest.atracoes.map((act) => (
-                                                <label key={act.id} className="flex items-start gap-2 p-1.5 rounded-lg hover:bg-[var(--color-surface-hover)]/30 cursor-pointer text-xs select-none">
+                                                <label key={act.id} className="flex items-center gap-2 p-2 rounded-xl hover:bg-[var(--color-surface-hover)]/30 cursor-pointer text-xs select-none group border border-[var(--color-border-light)]/40 bg-[var(--color-surface)]/40 hover:border-[var(--color-primary)]/20 transition-all" title={act.descricao}>
                                                   <input 
                                                     type="checkbox" 
                                                     checked={!!selectedExperiences[act.id]} 
                                                     onChange={(e) => {
                                                       setSelectedExperiences(prev => ({ ...prev, [act.id]: e.target.checked }));
                                                     }}
-                                                    className="mt-0.5 rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]/20 h-3.5 w-3.5"
+                                                    className="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]/20 h-3.5 w-3.5 shrink-0"
                                                   />
-                                                  <div className="min-w-0">
-                                                    <span className="font-extrabold text-[10px] text-[var(--color-text)] block leading-tight">{act.nome}</span>
-                                                    <span className="text-[8.5px] text-[var(--color-text-secondary)] leading-normal block">{act.descricao}</span>
-                                                  </div>
+                                                  <span className="font-extrabold text-[10px] text-[var(--color-text)] truncate flex-1 leading-tight">{act.nome}</span>
+                                                  <span className="text-[9px] text-[var(--color-text-muted)] opacity-35 group-hover:opacity-100 transition-opacity shrink-0">ℹ️</span>
                                                 </label>
                                               ))}
                                             </div>
@@ -960,35 +948,35 @@ export default function TouristHomePage() {
 
                                         {/* Cadastur Certified Partner Experiences Checklist */}
                                         {partnersWithExps.length > 0 && (
-                                          <div className="space-y-2 pt-1 border-t border-[var(--color-border-light)]/60">
+                                          <div className="space-y-2 pt-2 border-t border-[var(--color-border-light)]/60">
                                             <span className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
                                               Experiências Cadastur Credenciadas
                                             </span>
-                                            <div className="space-y-2 pl-1">
+                                            <div className="space-y-2.5 pl-0.5">
                                               {partnersWithExps.map((partner) => (
-                                                <div key={partner.id} className="space-y-1 border-l-2 border-[var(--color-primary)]/20 pl-2 ml-1">
-                                                  <span className="text-[8.5px] font-bold text-[var(--color-text-secondary)] block">
+                                                <div key={partner.id} className="space-y-1.5 border-l-2 border-[var(--color-primary)]/20 pl-2 ml-0.5">
+                                                  <span className="text-[8.5px] font-extrabold text-[var(--color-text-secondary)] block">
                                                     🛡️ {partner.nome} ({partner.tipo})
                                                   </span>
-                                                  {partner.experiencias?.map((exp, idx) => {
-                                                    const expKey = `${partner.id}-exp-${idx}`;
-                                                    return (
-                                                      <label key={expKey} className="flex items-start gap-2 p-1 rounded hover:bg-[var(--color-surface-hover)]/35 cursor-pointer text-xs select-none">
-                                                        <input 
-                                                          type="checkbox" 
-                                                          checked={!!selectedExperiences[expKey]} 
-                                                          onChange={(e) => {
-                                                            setSelectedExperiences(prev => ({ ...prev, [expKey]: e.target.checked }));
-                                                          }}
-                                                          className="mt-0.5 rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]/20 h-3.5 w-3.5"
-                                                        />
-                                                        <div className="min-w-0">
-                                                          <span className="font-bold text-[9.5px] text-[var(--color-text)] block leading-tight">{exp.titulo}</span>
-                                                          <span className="text-[8.5px] text-[var(--color-text-muted)] leading-normal block">{exp.descricao}</span>
-                                                        </div>
-                                                      </label>
-                                                    );
-                                                  })}
+                                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                                    {partner.experiencias?.map((exp, idx) => {
+                                                      const expKey = `${partner.id}-exp-${idx}`;
+                                                      return (
+                                                        <label key={expKey} className="flex items-center gap-2 p-2 rounded-xl hover:bg-[var(--color-surface-hover)]/35 cursor-pointer text-xs select-none group border border-[var(--color-border-light)]/30 bg-[var(--color-surface)]/30 hover:border-[var(--color-primary)]/20 transition-all" title={exp.descricao}>
+                                                          <input 
+                                                            type="checkbox" 
+                                                            checked={!!selectedExperiences[expKey]} 
+                                                            onChange={(e) => {
+                                                              setSelectedExperiences(prev => ({ ...prev, [expKey]: e.target.checked }));
+                                                            }}
+                                                            className="rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]/20 h-3.5 w-3.5 shrink-0"
+                                                          />
+                                                          <span className="font-bold text-[9.5px] text-[var(--color-text)] truncate flex-1 leading-tight">{exp.titulo}</span>
+                                                          <span className="text-[9px] text-[var(--color-text-muted)] opacity-35 group-hover:opacity-100 transition-opacity shrink-0">ℹ️</span>
+                                                        </label>
+                                                      );
+                                                    })}
+                                                  </div>
                                                 </div>
                                               ))}
                                             </div>
