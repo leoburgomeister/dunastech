@@ -41,7 +41,7 @@ function getDestinationIcon(nome: string): { icon: string; color: string } {
 }
 
 interface HomeRouteMapProps {
-  destinations: DestinoInfo[];
+  destinations: (DestinoInfo & { dia?: number; emoji?: string })[];
   activeDay?: number | null;
   isInteractive?: boolean;
 }
