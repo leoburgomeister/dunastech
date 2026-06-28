@@ -467,3 +467,100 @@ input[type="number"]::-webkit-outer-spin-button {
   color: var(--color-text) !important;
   background: transparent !important;
 }
+
+/* ── MapLibre Custom Markers & Popups ── */
+.marker-wrapper {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  transform: translate(-50%, -100%); /* Center pin tip on coordinates */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.marker-custom {
+  width: 44px;
+  height: 44px;
+  border-radius: 50% 50% 50% 0;
+  background: #E8B86D;
+  border: 3px solid white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  transform: rotate(-45deg);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.marker-custom:hover {
+  transform: rotate(-45deg) scale(1.18);
+}
+
+.marker-emoji {
+  transform: rotate(45deg);
+  font-size: 20px;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.marker-pulse {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border-radius: 50% 50% 50% 0;
+  background: rgba(232, 184, 109, 0.5);
+  transform: rotate(-45deg) scale(1);
+  animation: markerPulse 2s infinite ease-out;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes markerPulse {
+  0% {
+    transform: rotate(-45deg) scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: rotate(-45deg) scale(1.8);
+    opacity: 0;
+  }
+}
+
+/* MapLibre Popup Styling */
+.maplibregl-popup-content {
+  background: #0f172a !important; /* Dark Slate to match Dark Theme */
+  color: #f8fafc !important;
+  border: 1px solid #334155 !important;
+  border-radius: 12px !important;
+  padding: 12px 16px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1) !important;
+}
+
+.maplibregl-popup-anchor-top .maplibregl-popup-tip {
+  border-bottom-color: #0f172a !important;
+}
+.maplibregl-popup-anchor-bottom .maplibregl-popup-tip {
+  border-top-color: #0f172a !important;
+}
+.maplibregl-popup-anchor-left .maplibregl-popup-tip {
+  border-right-color: #0f172a !important;
+}
+.maplibregl-popup-anchor-right .maplibregl-popup-tip {
+  border-left-color: #0f172a !important;
+}
+
+.maplibregl-popup-close-button {
+  color: #94a3b8 !important;
+  font-size: 16px !important;
+  right: 6px !important;
+  top: 4px !important;
+  padding: 2px 6px !important;
+}
+.maplibregl-popup-close-button:hover {
+  color: #f8fafc !important;
+  background: transparent !important;
+}

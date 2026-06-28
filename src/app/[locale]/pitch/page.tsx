@@ -42,7 +42,7 @@ const cn = (...classes: (string | undefined | null | boolean)[]) =>
   classes.filter(Boolean).join(" ");
 
 export default function PitchPage() {
-  // Navigation State (6 slides now)
+  // Navigation State (7 slides now)
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showPrompter, setShowPrompter] = useState(true);
@@ -72,6 +72,48 @@ export default function PitchPage() {
   // B2G Simulator State
   const [dashboardDest, setDashboardDest] = useState("Ponta Negra");
 
+  // Ecossistema Actor State
+  const [activeActorTab, setActiveActorTab] = useState("tourist");
+
+  // Path-based locale detection
+  const [locale, setLocale] = useState("pt-BR");
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const path = window.location.pathname;
+      if (path.includes("/en")) setLocale("en");
+      else if (path.includes("/es")) setLocale("es");
+    }
+  }, []);
+
+  const dict: Record<string, Record<string, string>> = {
+    "pt-BR": {
+      back: "Voltar ao App",
+      prompter: "Prompter",
+      fullscreen: "Tela Cheia",
+      timer: "Timer",
+      spaceToAdvance: "Aperte ESPAÇO para avançar",
+      presenterScript: "Roteiro do Apresentador (3 Minutos)"
+    },
+    "en": {
+      back: "Back to App",
+      prompter: "Script",
+      fullscreen: "Fullscreen",
+      timer: "Timer",
+      spaceToAdvance: "Press SPACE to advance",
+      presenterScript: "Presenter Script (3 Minutes)"
+    },
+    "es": {
+      back: "Volver a la App",
+      prompter: "Guión",
+      fullscreen: "Pantalla Completa",
+      timer: "Cronómetro",
+      spaceToAdvance: "Presiona ESPACIO para avanzar",
+      presenterScript: "Guión del Presentador (3 Minutos)"
+    }
+  };
+
+  const t = (key: string) => dict[locale]?.[key] || dict["pt-BR"][key];
+
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
 
   // 180 seconds countdown
@@ -96,13 +138,13 @@ export default function PitchPage() {
 
   // Navigate to slide
   function navigateToSlide(index: number) {
-    if (index >= 0 && index < 6) {
+    if (index >= 0 && index < 7) {
       sectionRefs.current[index]?.scrollIntoView({ behavior: "smooth" });
       setCurrentSlide(index);
     }
   }
 
-  // Keyboard navigation (6 slides modulo check)
+  // Keyboard navigation (7 slides modulo check)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeEl = document.activeElement;
@@ -115,10 +157,10 @@ export default function PitchPage() {
 
       if (e.key === "ArrowRight" || e.key === " ") {
         e.preventDefault();
-        navigateToSlide((currentSlide + 1) % 6);
+        navigateToSlide((currentSlide + 1) % 7);
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
-        navigateToSlide((currentSlide - 1 + 6) % 6);
+        navigateToSlide((currentSlide - 1 + 7) % 7);
       }
     };
 
@@ -207,12 +249,13 @@ export default function PitchPage() {
     }
   };
 
-  // exact copy of prompter scripts matching cover page + user pitch
+  // exact copy of prompter scripts
   const prompterScripts = [
     "Olá, banca avaliadora! Nós somos a DunasTech, e este é o primeiro Observatório Inteligente do Turismo do Rio Grande do Norte. Vamos mostrar como transformamos o turismo de nosso estado no Hackathon do Sol.",
     "O turismo não é apenas uma atividade no Rio Grande do Norte. Ele é o nosso motor. Hoje, os segmentos de Comércio, Serviços e Turismo representam 76% do PIB estadual, 75% da arrecadação de ICMS e 73% dos empregos formais. Mas esse motor está operando no escuro. Atualmente, os dados estão espalhados em dezenas de fontes e painéis que só mostram o passado. Nós sabemos exatamente onde o turista está, mas o poder público não sabe como o destino está sendo cuidado.",
-    "Para mudar esse cenário, criamos o primeiro Observatório Inteligente do Turismo. Nós desenvolvemos um guia turístico inteligente que transforma o turista e o morador local em verdadeiros sensores distribuídos pelo território. Com apenas três cliques, nós coletamos o sentimento real da ponta. Ou seja, nós não apenas guiamos o turista, nós ouvimos o destino.",
-    "Essas avaliações feitas em tempo real são enviadas diretamente para o nosso painel de gestão governamental, voltado para o B2G. Mas nós fomos além. Integrada à API do Instagram, nossa Inteligência Artificial varre fotos e hashtags públicas para medir o fluxo real e identificar problemas. Tudo isso alimenta o nosso KPI exclusivo: o Índice de Saúde do Atrativo, o ISA. Cruzando informações de fluxo, infraestrutura e sustentabilidade, a nossa IA Generativa não mostra apenas gráficos frios. Ela gera novos dados e permite identificar problemas que antes não eram mensurados, emitindo alertas automáticos na tela do gestor como: 'Atenção: Aumento de 42% no fluxo turístico, mas as avaliações indicam necessidade urgente de limpeza e manutenção'.",
+    "Para o Turista, oferecemos roteiros gerados sob medida por IA através de um formulário simples, cujo resultado consolidado é enviado em PDF direto para o seu WhatsApp. O cadastro é simples via Supabase usando CPF, RNE ou Passaporte Mercosul. Visando a transparência, fazemos uma varredura de fotos no Instagram por geolocalização, exibindo o real estado atual do local e desmistificando as fotos superproduzidas.",
+    "Essas avaliações são enviadas para a nossa IA e para o painel de diagnóstico da Gestão Governamental. Integrado à API do Instagram, nosso sistema emite alertas em tempo real de saturação (como Ponta Negra com 88% de capacidade ou alta pressão de voos). O sistema auxilia o governo a direcionar recursos de infraestrutura e saneamento com base em relatórios mensais de sustentabilidade, permitindo cruzar dados demográficos e exportar bases de dados para embasar políticas públicas.",
+    "No ecossistema de atores, o grande diferencial é transformar o turista em um sensor vivo de qualidade. Coletamos dados internos de insatisfação (saneamento, lixo, sinalização) para gerar inteligência e resolver os problemas antes de trazer mais pessoas. Do lado dos Microempreendedores, oferecemos uma vitrine comercial que também passa por uma auditoria cidadã: eles são avaliados pela qualidade do serviço (guia despreparado ou veículo inadequado), mantendo a qualidade do ecossistema.",
     "E como isso se sustenta e impacta o mercado? Nossas rotas inteligentes, feitas por IA, priorizam e recomendam exclusivamente negócios, guias e hotéis que possuam o registro regular no Cadastur do Ministério do Turismo. Com isso, nós incentivamos a formalização do pequeno e microempreendedor, gerando um mapa seguro e legalizado. Nós monetizamos a plataforma através de um SaaS Público B2G, onde as prefeituras pagam para ter acesso à inteligência e zeladoria em tempo real, e de um modelo B2B Freemium, que oferece destaque patrocinado para as empresas locais.",
     "A Dunas Tech une a voz do cidadão, os dados do governo e o poder da Inteligência Artificial em uma única plataforma. Nós não queremos apenas atrair turistas para o Rio Grande do Norte. Nós queremos garantir que os nossos destinos estejam saudáveis e preservados para recebê-los amanhã. Muito obrigado."
   ];
@@ -263,11 +306,11 @@ export default function PitchPage() {
       </div>
 
       {/* 2. Top Header Controls */}
-      <header className="fixed top-3 left-0 w-full z-45 px-6 py-3 flex items-center justify-between pointer-events-none">
+      <header className="fixed top-3 left-0 w-full z-50 px-6 py-3 flex items-center justify-between pointer-events-none">
         <div className="flex items-center gap-2.5 bg-white/90 border border-amber-200/80 backdrop-blur-md px-4 py-2 rounded-full pointer-events-auto shadow-sm">
-          <Link href="/" className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors">
+          <Link href="../" className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors">
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Voltar ao App</span>
+            <span>{t('back')}</span>
           </Link>
           <span className="text-amber-200">|</span>
           <span className="flex items-center gap-1 text-[11px] font-black text-amber-600 uppercase tracking-widest">
@@ -314,13 +357,13 @@ export default function PitchPage() {
               showPrompter ? "bg-amber-100 text-amber-700 border border-amber-300" : "text-slate-400 border border-slate-100 hover:bg-slate-50"
             )}
           >
-            Prompter
+            {t('prompter')}
           </button>
 
           <button
             onClick={toggleFullscreen}
             className="p-1.5 hover:text-slate-700 text-slate-400 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer"
-            title="Tela Cheia"
+            title={t('fullscreen')}
           >
             {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
           </button>
@@ -525,9 +568,9 @@ export default function PitchPage() {
 
               <div className="space-y-4 pt-2">
                 {[
-                  { title: "Engajamento Mobile em 3 Cliques", desc: "Checkboxes visuais e práticos eliminam digitação demorada." },
-                  { title: "Zeladoria e Auditoria Social", desc: "Mapeamento em tempo real de limpeza, conservação e segurança." },
-                  { title: "Guia Integrado ao Cadastur", desc: "Direciona fluxo exclusivamente para parceiros formalizados." }
+                  { title: "Roteiros IA & PDF no WhatsApp", desc: "Questionário rápido gera roteiros sob medida enviados por WhatsApp." },
+                  { title: "Transparência via Instagram Geophotos", desc: "Varredura de posts por geolocalização exibe a realidade atual do local." },
+                  { title: "Supabase & Multi-Documentos", desc: "Cadastro simplificado para moradores e turistas (CPF, RNE ou Passaporte)." }
                 ].map((item, i) => (
                   <motion.div
                     key={i}
@@ -622,7 +665,7 @@ export default function PitchPage() {
                                     "w-full p-2 rounded-xl text-left border transition-all cursor-pointer flex justify-between items-center",
                                     routeCategory === cat.id
                                       ? "bg-cyan-50 border-cyan-300 text-cyan-800"
-                                      : "bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-350"
+                                      : "bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-300"
                                   )}
                                 >
                                   <div>
@@ -753,7 +796,7 @@ export default function PitchPage() {
                                   <p className="text-[9px] text-slate-500 font-medium leading-relaxed">
                                     Pousada Regularizada Cadastur
                                   </p>
-                                  <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded text-[7px] font-semibold bg-green-50 border border-green-150 text-green-700">
+                                  <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] font-semibold bg-green-50 border border-green-200 text-green-700">
                                     🛡️ Cadastur Ativo
                                   </span>
                                 </div>
@@ -769,7 +812,7 @@ export default function PitchPage() {
                                     {routeCategory === "aventura" && "Passeio de Buggy Credenciado"}
                                     {routeCategory === "gastronomia" && "Passeio Cultural Potiguar"}
                                   </p>
-                                  <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded text-[7px] font-semibold bg-green-50 border border-green-150 text-green-700">
+                                  <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] font-semibold bg-green-50 border border-green-200 text-green-700">
                                     🛡️ Cadastur Ativo
                                   </span>
                                 </div>
@@ -783,7 +826,7 @@ export default function PitchPage() {
                                   <p className="text-[9px] text-slate-500 font-medium leading-relaxed">
                                     Restaurante Regional Parceiro
                                   </p>
-                                  <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded text-[7px] font-semibold bg-green-50 border border-green-150 text-green-700">
+                                  <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] font-semibold bg-green-50 border border-green-200 text-green-700">
                                     🛡️ Cadastur Ativo
                                   </span>
                                 </div>
@@ -994,7 +1037,7 @@ export default function PitchPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="bg-slate-50 border border-slate-150 rounded-xl p-3 flex flex-col justify-between relative overflow-hidden text-left">
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col justify-between relative overflow-hidden text-left">
                     <span className="text-[10px] text-slate-400 uppercase tracking-wider font-extrabold">Índice ISA</span>
                     <span className={cn("text-2xl sm:text-3xl font-black block my-1.5", aiInsightsMap[dashboardDest].isa < 60 ? "text-red-500" : "text-amber-600")}>
                       {aiInsightsMap[dashboardDest].isa} / 100
@@ -1005,8 +1048,8 @@ export default function PitchPage() {
                     </div>
                   </div>
 
-                  <div className="bg-slate-50 border border-slate-150 rounded-xl p-3 flex flex-col justify-between relative overflow-hidden text-left">
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-extrabold font-bold">Fluxo Local</span>
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col justify-between relative overflow-hidden text-left">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-extrabold">Fluxo Local</span>
                     <span className="text-2xl sm:text-3xl font-black block my-1.5 text-cyan-600">
                       {aiInsightsMap[dashboardDest].saturated}%
                     </span>
@@ -1016,8 +1059,8 @@ export default function PitchPage() {
                     </div>
                   </div>
 
-                  <div className="bg-slate-50 border border-slate-150 rounded-xl p-3 flex flex-col justify-between relative overflow-hidden text-left">
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-extrabold font-bold">Cadastur</span>
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col justify-between relative overflow-hidden text-left">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-extrabold">Cadastur</span>
                     <span className="text-2xl sm:text-3xl font-black block my-1.5 text-green-600">
                       94.2%
                     </span>
@@ -1028,7 +1071,7 @@ export default function PitchPage() {
                   </div>
                 </div>
 
-                <div className="h-40 bg-slate-50 border border-slate-150 rounded-xl p-2.5">
+                <div className="h-40 bg-slate-50 border border-slate-200 rounded-xl p-2.5">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -1067,7 +1110,7 @@ export default function PitchPage() {
               <motion.div
                 initial={{ opacity: 0, x: 30 }}
                 animate={currentSlide === 3 ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 }}
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 border border-amber-250 text-amber-800 text-xs font-bold uppercase tracking-wider"
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 border border-amber-200 text-amber-800 text-xs font-bold uppercase tracking-wider"
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-600" />
                 <span>03. O DIFERENCIAL: IA & INSTAGRAM SCRAPER</span>
@@ -1096,9 +1139,9 @@ export default function PitchPage() {
 
               <div className="space-y-4 pt-2">
                 {[
-                  { title: "Métrica Unificada: Índice ISA", desc: "Convergência de dados de sustentabilidade e infraestrutura." },
-                  { title: "Auditoria Social via Instagram", desc: "Varredura automatizada para medir o sentimento real." },
-                  { title: "Alertas Gerados em Tempo Real", desc: "Aviso de saturação, resíduos na areia ou acessibilidade crítica." }
+                  { title: "Painel de Diagnóstico em Tempo Real", desc: "Fornece alertas sobre a situação dos locais, como saturação de 88% da capacidade." },
+                  { title: "Direcionamento de Recursos Públicos", desc: "Investimentos baseados em relatórios mensais de auditoria e sustentabilidade." },
+                  { title: "Tomada de Decisão com Exportação", desc: "Cruzamento demográfico e exportação de bancos de dados para justificar políticas." }
                 ].map((item, i) => (
                   <motion.div
                     key={i}
@@ -1121,10 +1164,229 @@ export default function PitchPage() {
           </div>
         </section>
 
-        {/* SLIDE 4: MODELO DE NEGÓCIOS & CADASTUR */}
+        {/* SLIDE 4: ECOSSISTEMA DE ATORES */}
         <section
           ref={(el) => { sectionRefs.current[4] = el; }}
           data-slide-index="4"
+          className="h-screen w-full snap-start relative flex items-center justify-center overflow-hidden p-6 sm:p-12"
+          style={{
+            background: "linear-gradient(135deg, #FFFDF6 0%, #FFF2CC 50%, #FFEFC0 100%)",
+          }}
+        >
+          <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center z-10">
+            <div className="lg:col-span-5 space-y-6 text-left">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={currentSlide === 4 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-800 text-xs font-bold uppercase tracking-widest shadow-sm"
+              >
+                <Users className="w-4 h-4 text-amber-500 animate-pulse" />
+                <span>04. ECOSSISTEMA: ATORES DA PLATAFORMA</span>
+              </motion.div>
+
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                animate={currentSlide === 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                transition={{ delay: 0.1 }}
+                className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight"
+              >
+                Quatro atores. <br />
+                <span className="bg-gradient-to-r from-amber-600 via-orange-600 to-red-500 bg-clip-text text-transparent">
+                  Um único ecossistema.
+                </span>
+              </motion.h2>
+
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={currentSlide === 4 ? { opacity: 1 } : { opacity: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-slate-600 text-base sm:text-lg leading-relaxed font-medium"
+              >
+                A grande inovação é transformar o turista em um <strong>sensor vivo da qualidade</strong>. Coletamos dados de insatisfação interna (infraestrutura, resíduos, saneamento) para gerar inteligência de gestão pública antes de atrair mais fluxo.
+              </motion.p>
+
+              {/* Actors Tabs Selectors */}
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { id: "tourist", label: "👤 Turista & Local", desc: "Zeladoria e rotas IA" },
+                  { id: "prefeitura", label: "🏛️ Prefeitura/Gestão", desc: "Observatório e ISA" },
+                  { id: "entrepreneur", label: "💼 Empreendedor", desc: "Vitrine e Cadastur" },
+                  { id: "admin", label: "🛠️ Admin / Dev", desc: "Segurança e APIs" }
+                ].map((actor) => (
+                  <button
+                    key={actor.id}
+                    onClick={() => setActiveActorTab(actor.id)}
+                    className={cn(
+                      "p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer flex flex-col justify-between h-[68px] relative overflow-hidden group select-none",
+                      activeActorTab === actor.id
+                        ? "bg-amber-100/80 border-amber-300 text-amber-900 shadow-sm"
+                        : "bg-white/80 border-slate-200 hover:border-amber-350 hover:bg-white"
+                    )}
+                  >
+                    <span className="font-extrabold text-[11px] leading-tight block">{actor.label}</span>
+                    <span className="text-[9px] text-slate-500 line-clamp-1 block mt-0.5 leading-normal">{actor.desc}</span>
+                    {activeActorTab === actor.id && (
+                      <div className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-amber-500" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Column: High Fidelity Mockups Container */}
+            <div className="lg:col-span-7 flex justify-center items-center">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={currentSlide === 4 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
+                className="w-full max-w-lg bg-white border border-amber-200 rounded-3xl p-5 shadow-xl min-h-[400px] flex flex-col justify-between"
+              >
+                <AnimatePresence mode="wait">
+                  {activeActorTab === "tourist" && (
+                    <motion.div
+                      key="tourist-mock"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="space-y-4 text-left flex-1 flex flex-col justify-between"
+                    >
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                          <span className="text-xs font-black text-slate-805 uppercase tracking-wider">Interface do Cidadão</span>
+                          <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">B2C</span>
+                        </div>
+                        <h4 className="text-base font-black text-slate-900">Guia de Roteiros, PDF e Supabase</h4>
+                        <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                          Roteiros IA baseados em questionário rápido enviados em PDF por WhatsApp. Cadastro via Supabase por CPF, RNE ou Passaporte. Varredura no Instagram por geolocalização exibe a realidade atual do local.
+                        </p>
+                        {/* Interactive UI Mockup element */}
+                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="font-extrabold text-slate-800">📍 Falésias de Pipa</span>
+                            <span className="text-amber-500 font-bold">⭐ 4.9</span>
+                          </div>
+                          <div className="flex gap-1.5 flex-wrap">
+                            <span className="text-[9px] bg-green-50 border border-green-200 text-green-700 px-2 py-0.5 rounded-full font-bold">🧹 Limpo</span>
+                            <span className="text-[9px] bg-green-50 border border-green-200 text-green-700 px-2 py-0.5 rounded-full font-bold">🌿 Preservado</span>
+                            <span className="text-[9px] bg-green-50 border border-green-200 text-green-700 px-2 py-0.5 rounded-full font-bold">🔒 Seguro</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-3 bg-amber-50 rounded-xl text-[10px] text-amber-800 font-bold leading-normal mt-4">
+                        💡 Recompensas Potiguares: O usuário acumula pontos a cada zeladoria enviada, podendo trocar por descontos em pousadas locais credenciadas.
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {activeActorTab === "prefeitura" && (
+                    <motion.div
+                      key="prefeitura-mock"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="space-y-4 text-left flex-1 flex flex-col justify-between"
+                    >
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                          <span className="text-xs font-black text-slate-805 uppercase tracking-wider">Painel do Gestor Público</span>
+                          <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">B2G</span>
+                        </div>
+                        <h4 className="text-base font-black text-slate-900">Observatório Inteligente & Alertas</h4>
+                        <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                          O painel de diagnóstico em tempo real fornece alertas de saturação (ex: 88%). Direciona recursos basando-se em relatórios de auditoria de sustentabilidade e exporta bancos de dados para embasar decisões.
+                        </p>
+                        {/* Interactive UI Mockup element */}
+                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-black text-slate-800">Alertas Ativos</span>
+                            <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+                          </div>
+                          <div className="p-2 bg-red-50 border border-red-200 rounded-xl text-[10px] text-red-700 font-bold">
+                            ⚠️ Alerta de Saturação — Praia de Ponta Negra excedeu limite ecológico recomendado em 18%.
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-3 bg-cyan-50 rounded-xl text-[10px] text-cyan-800 font-bold leading-normal mt-4">
+                        💡 Índice ISA: Indicador unificado de Saúde do Atrativo que orienta o planejamento urbano e as decisões de investimento turístico.
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {activeActorTab === "entrepreneur" && (
+                    <motion.div
+                      key="entrepreneur-mock"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="space-y-4 text-left flex-1 flex flex-col justify-between"
+                    >
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                          <span className="text-xs font-black text-slate-805 uppercase tracking-wider">Vitrine do Empreendedor</span>
+                          <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">B2B</span>
+                        </div>
+                        <h4 className="text-base font-black text-slate-900">Visibilidade e Destaque Cadastur</h4>
+                        <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                          Vitrine de serviços locais e destaque em rotas para negócios credenciados. Estão sujeitos a avaliações e auditoria de qualidade dos turistas (carros de passeio, guias, etc.), regulando o ecossistema.
+                        </p>
+                        {/* Interactive UI Mockup element */}
+                        <div className="bg-white border border-green-200 rounded-2xl p-4 space-y-2.5 shadow-sm relative overflow-hidden">
+                          <div className="absolute top-0 right-0 bg-green-500 text-white text-[8px] font-black uppercase px-2 py-0.5 rounded-bl-lg">
+                            Cadastur Ativo
+                          </div>
+                          <h5 className="text-xs font-black text-slate-850">Pousada Canto das Dunas</h5>
+                          <p className="text-[10px] text-slate-500">Pipa, Tibau do Sul/RN</p>
+                          <div className="flex items-center justify-between text-[10px] text-slate-400 font-medium">
+                            <span>⭐ 4.95 (140 avaliações)</span>
+                            <span className="text-green-600 font-bold">100% Regularizado</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-3 bg-green-50 rounded-xl text-[10px] text-green-800 font-bold leading-normal mt-4">
+                        💡 Redução da Informalidade: Incentivo financeiro e regulatório direto para formalizar o microempreendedor local no RN.
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {activeActorTab === "admin" && (
+                    <motion.div
+                      key="admin-mock"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="space-y-4 text-left flex-1 flex flex-col justify-between"
+                    >
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                          <span className="text-xs font-black text-slate-805 uppercase tracking-wider">Console do Administrador</span>
+                          <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">SYS</span>
+                        </div>
+                        <h4 className="text-base font-black text-slate-900">Monitoramento Técnico & Segurança</h4>
+                        <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                          O painel ADM monitora a integridade técnica, conexões com Supabase, OSRM API, Apify Scraper e banco de dados criptografado. Garante conformidade com LGPD e rastreabilidade total de dados.
+                        </p>
+                        {/* Interactive UI Mockup element */}
+                        <div className="bg-slate-950 font-mono text-[9px] text-emerald-400 rounded-2xl p-3.5 space-y-1">
+                          <p>LOG: [AUTH] Token JWT validado com sucesso.</p>
+                          <p>LOG: [OSRM] Rota gerada: 99.98% de uptime.</p>
+                          <p>LOG: [INSTAGRAM] Varredura executada em 320ms.</p>
+                          <p style={{ color: '#fff' }}>STATUS: Banco de dados criptografado e íntegro [SSL OK]</p>
+                        </div>
+                      </div>
+                      <div className="p-3 bg-slate-50 rounded-xl text-[10px] text-slate-800 font-bold leading-normal mt-4 border border-slate-200">
+                        💡 Conformidade & LGPD: Tratamento seguro dos dados dos turistas com controle total de logs e segurança na infraestrutura.
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* SLIDE 5: MODELO DE NEGÓCIOS & CADASTUR */}
+        <section
+          ref={(el) => { sectionRefs.current[5] = el; }}
+          data-slide-index="5"
           className="h-screen w-full snap-start relative flex items-center justify-center overflow-hidden p-6 sm:p-12"
           style={{
             background: "linear-gradient(135deg, #FFFDF6 0%, #FFEBBF 50%, #FFDF9B 100%)",
@@ -1133,16 +1395,16 @@ export default function PitchPage() {
           <div className="max-w-5xl w-full text-center space-y-7 z-10">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
-              animate={currentSlide === 4 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
+              animate={currentSlide === 5 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
               className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 border border-green-200 text-green-800 text-xs font-bold uppercase tracking-wider"
             >
               <Building2 className="w-3.5 h-3.5 text-green-600" />
-              <span>04. SUSTENTABILIDADE FINANCEIRA E CADASTUR</span>
+              <span>05. SUSTENTABILIDADE FINANCEIRA E CADASTUR</span>
             </motion.div>
 
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
-              animate={currentSlide === 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              animate={currentSlide === 5 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.1 }}
               className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight"
             >
@@ -1154,7 +1416,7 @@ export default function PitchPage() {
 
             <motion.p
               initial={{ opacity: 0 }}
-              animate={currentSlide === 4 ? { opacity: 1 } : { opacity: 0 }}
+              animate={currentSlide === 5 ? { opacity: 1 } : { opacity: 0 }}
               transition={{ delay: 0.2 }}
               className="text-slate-600 text-base sm:text-lg max-w-3xl mx-auto font-medium"
             >
@@ -1166,13 +1428,13 @@ export default function PitchPage() {
               {/* Cadastur Banner Card */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
-                animate={currentSlide === 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                animate={currentSlide === 5 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className="bg-white/90 border border-green-200 rounded-2xl p-6 text-left flex flex-col justify-between shadow-sm relative overflow-hidden"
               >
                 <div className="absolute top-0 right-0 w-24 h-24 bg-green-500/5 rounded-full blur-xl pointer-events-none" />
                 <div className="space-y-3">
-                  <div className="w-10 h-10 rounded-xl bg-green-550/10 flex items-center justify-center text-green-600 bg-green-50">
+                  <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-green-600">
                     <CheckCircle2 className="w-5.5 h-5.5" />
                   </div>
                   <h3 className="text-base font-extrabold text-slate-900">Força Cadastur</h3>
@@ -1188,12 +1450,12 @@ export default function PitchPage() {
               {/* Private B2B Model */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
-                animate={currentSlide === 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                animate={currentSlide === 5 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
                 className="bg-white/90 border border-slate-200 rounded-2xl p-6 text-left flex flex-col justify-between shadow-sm"
               >
                 <div className="space-y-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-550/10 flex items-center justify-center text-amber-600 bg-amber-50">
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
                     <Building2 className="w-5.5 h-5.5" />
                   </div>
                   <h3 className="text-base font-extrabold text-slate-900">B2B Freemium</h3>
@@ -1210,7 +1472,7 @@ export default function PitchPage() {
               {/* Public B2G SaaS */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
-                animate={currentSlide === 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                animate={currentSlide === 5 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
                 className="bg-white/90 border border-slate-200 rounded-2xl p-6 text-left flex flex-col justify-between shadow-sm relative overflow-hidden"
               >
@@ -1234,10 +1496,10 @@ export default function PitchPage() {
           </div>
         </section>
 
-        {/* SLIDE 5: CONCLUSÃO */}
+        {/* SLIDE 6: CONCLUSÃO */}
         <section
-          ref={(el) => { sectionRefs.current[5] = el; }}
-          data-slide-index="5"
+          ref={(el) => { sectionRefs.current[6] = el; }}
+          data-slide-index="6"
           className="h-screen w-full snap-start relative flex flex-col justify-center items-center overflow-hidden p-6 sm:p-12"
         >
           <div
@@ -1254,7 +1516,7 @@ export default function PitchPage() {
           <div className="max-w-4xl w-full text-center space-y-7 z-10 bg-white/70 backdrop-blur-md p-8 sm:p-12 rounded-3xl border border-amber-200/50 shadow-lg relative">
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
-              animate={currentSlide === 5 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+              animate={currentSlide === 6 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
               transition={{ duration: 0.5 }}
               className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mx-auto shadow-md"
             >
@@ -1263,7 +1525,7 @@ export default function PitchPage() {
 
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
-              animate={currentSlide === 5 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              animate={currentSlide === 6 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.1 }}
               className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight"
             >
@@ -1272,7 +1534,7 @@ export default function PitchPage() {
 
             <motion.p
               initial={{ opacity: 0 }}
-              animate={currentSlide === 5 ? { opacity: 1 } : { opacity: 0 }}
+              animate={currentSlide === 6 ? { opacity: 1 } : { opacity: 0 }}
               transition={{ delay: 0.2 }}
               className="text-base sm:text-lg text-slate-800 max-w-3xl mx-auto font-bold leading-relaxed tracking-wide"
             >
@@ -1281,19 +1543,19 @@ export default function PitchPage() {
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={currentSlide === 5 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              animate={currentSlide === 6 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.3 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6"
             >
               <Link
-                href="/"
+                href="../"
                 className="w-full sm:w-auto px-8 py-4.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:from-amber-600 hover:to-red-600 shadow-md active:scale-[0.98] transition-all cursor-pointer pointer-events-auto"
               >
                 <span>Experimentar Sistema</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                href="/gestao"
+                href="../gestao"
                 className="w-full sm:w-auto px-8 py-4.5 rounded-2xl bg-white border border-slate-200 text-slate-700 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-slate-50 transition-all cursor-pointer pointer-events-auto"
               >
                 <span>Painel Governamental</span>
@@ -1302,7 +1564,7 @@ export default function PitchPage() {
 
             <motion.div
               initial={{ opacity: 0 }}
-              animate={currentSlide === 5 ? { opacity: 1 } : { opacity: 0 }}
+              animate={currentSlide === 6 ? { opacity: 1 } : { opacity: 0 }}
               transition={{ delay: 0.5 }}
               className="text-xs text-slate-500 pt-8 flex flex-col items-center gap-1 font-bold uppercase tracking-wider"
             >
@@ -1313,7 +1575,7 @@ export default function PitchPage() {
             {/* QR Code Container at Bottom Right of the Card */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
-              animate={currentSlide === 5 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+              animate={currentSlide === 6 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
               transition={{ delay: 0.6, type: "spring" }}
               className="absolute bottom-6 right-6 hidden md:flex flex-col items-center p-2.5 bg-white border border-amber-200 rounded-2xl shadow-md z-20 hover:scale-105 transition-transform"
             >
@@ -1331,7 +1593,7 @@ export default function PitchPage() {
 
       </main>
 
-      {/* 4. Floating Slide Navigation Dock (Bottom - 6 buttons now) */}
+      {/* 4. Floating Slide Navigation Dock (Bottom - 7 buttons now) */}
       <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-white/90 border border-amber-200/80 backdrop-blur-md px-5 py-3 rounded-full flex items-center gap-4 shadow-sm">
         <div className="flex gap-2">
           {[
@@ -1339,6 +1601,7 @@ export default function PitchPage() {
             { label: "O Gancho" },
             { label: "B2C Turista" },
             { label: "B2G Gestão" },
+            { label: "Ecossistema" },
             { label: "Sustentabilidade" },
             { label: "Fechamento" }
           ].map((item, i) => (
@@ -1348,7 +1611,7 @@ export default function PitchPage() {
               className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black border transition-all cursor-pointer",
                 currentSlide === i
-                  ? "bg-amber-50 border-amber-50 text-white shadow-sm"
+                  ? "bg-amber-500 border-amber-500 text-white shadow-sm"
                   : "bg-slate-50 border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-700"
               )}
               title={item.label}
@@ -1374,8 +1637,8 @@ export default function PitchPage() {
             </div>
             <div className="flex-1 space-y-1">
               <div className="flex justify-between items-center">
-                <span className="text-[10px] font-black text-amber-700 uppercase tracking-widest">Roteiro do Apresentador (3 Minutos)</span>
-                <span className="text-[9px] text-slate-400 font-bold uppercase">Aperte ESPAÇO para avançar</span>
+                <span className="text-[10px] font-black text-amber-700 uppercase tracking-widest">{t('presenterScript')}</span>
+                <span className="text-[9px] text-slate-400 font-bold uppercase">{t('spaceToAdvance')}</span>
               </div>
               <p className="text-[11px] leading-relaxed text-slate-700 font-bold">
                 {prompterScripts[currentSlide]}

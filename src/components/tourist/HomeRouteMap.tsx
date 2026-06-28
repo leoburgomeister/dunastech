@@ -1,121 +1,43 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
-import L from 'leaflet';
-import { useTheme } from 'next-themes';
+import { useEffect, useRef, useState } from 'react';
+import maplibregl from 'maplibre-gl';
 import { type DestinoInfo } from '@/data/mockData';
 
 // Helper to determine emoji and color based on destination
 function getDestinationIcon(nome: string): { icon: string; color: string } {
   const n = nome.toLowerCase();
   if (n.includes("ponta negra") || n.includes("madeiro") || n.includes("pipa")) {
-    return { icon: "🏖️", color: "#4285F4" }; // Google Blue for beaches
+    return { icon: "🏖️", color: "#38BDF8" }; // Ocean blue
   }
   if (n.includes("genipabu") || n.includes("dunas")) {
-    return { icon: "🐪", color: "#E28743" }; // Sandy Orange
+    return { icon: "🐪", color: "#F59E0B" }; // Sandy Amber
   }
   if (n.includes("maracajaú") || n.includes("lagoa")) {
-    return { icon: "🏊", color: "#00A8CC" }; // Cyan for swimming
+    return { icon: "🏊", color: "#06B6D4" }; // Cyan
   }
   if (n.includes("gostoso") || n.includes("cunhaú") || n.includes("galinhos")) {
-    return { icon: "⛵", color: "#00B4D8" }; // Ocean Teal
+    return { icon: "⛵", color: "#0EA5E9" }; // Sky
   }
   if (n.includes("forte") || n.includes("castelo") || n.includes("mossoró")) {
-    return { icon: "🏰", color: "#A855F7" }; // Purple for historical landmarks
+    return { icon: "🏰", color: "#A855F7" }; // Purple
   }
   if (n.includes("cajueiro") || n.includes("parque")) {
-    return { icon: "🌳", color: "#22C55E" }; // Green for nature
+    return { icon: "🌳", color: "#22C55E" }; // Green
   }
   if (n.includes("inferno")) {
-    return { icon: "🚀", color: "#EF4444" }; // Red for rocket
+    return { icon: "🚀", color: "#EF4444" }; // Red
   }
   if (n.includes("soledade") || n.includes("apertados")) {
-    return { icon: "⛰️", color: "#78350F" }; // Brown for geological sites
+    return { icon: "⛰️", color: "#78350F" }; // Brown
   }
   if (n.includes("salinas") || n.includes("sal")) {
-    return { icon: "🧂", color: "#94A3B8" }; // Grey/White for salt
+    return { icon: "🧂", color: "#64748B" }; // Slate
   }
   if (n.includes("santa rita") || n.includes("monumento")) {
-    return { icon: "⛪", color: "#F59E0B" }; // Golden Yellow for religious tourism
+    return { icon: "⛪", color: "#F59E0B" }; // Gold
   }
-  return { icon: "📍", color: "#EF4444" }; // Default Red
-}
-
-// Custom Marker design in Google Maps style
-const createGoogleMarker = (name: string, active: boolean) => {
-  const { icon, color } = getDestinationIcon(name);
-  const activeScale = active ? 'scale(1.25)' : 'scale(1)';
-  const filterId = `shadow-${name.replace(/[^a-zA-Z]/g, '')}`;
-
-  return L.divIcon({
-    html: `
-      <div style="
-        transform: ${activeScale};
-        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-        width: 36px;
-        height: 42px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      ">
-        <svg width="36" height="42" viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <filter id="${filterId}">
-              <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="${color}" flood-opacity="0.5"/>
-            </filter>
-          </defs>
-          <path d="M20 2C11.16 2 4 9.16 4 18C4 29 20 46 20 46C20 46 36 29 36 18C36 9.16 28.84 2 20 2Z"
-            fill="${color}" stroke="#FFFFFF" stroke-width="1.8" style="filter: url(#${filterId});" />
-          <circle cx="20" cy="18" r="9.5" fill="rgba(255,255,255,0.22)"/>
-          <text x="20" y="22" text-anchor="middle" font-size="12" fill="#fff" font-family="system-ui, sans-serif" font-weight="bold">${icon}</text>
-        </svg>
-      </div>
-    `,
-    className: 'custom-leaflet-icon-google-style',
-    iconSize: [36, 42],
-    iconAnchor: [18, 42],
-    popupAnchor: [0, -40]
-  });
-};
-
-// Map controller to handle panning/zooming transitions
-function MapController({ destinations, activeDay }: { destinations: DestinoInfo[]; activeDay: number | null }) {
-  const map = useMap();
-
-  useEffect(() => {
-    if (destinations.length === 0) return;
-
-    // Trigger invalidation to force redraw inside changing containers
-    map.invalidateSize();
-
-    if (destinations.length === 1) {
-      map.flyTo([destinations[0].latitude, destinations[0].longitude], 12, {
-        animate: true,
-        duration: 1.5,
-      });
-    } else {
-      const bounds = L.latLngBounds(destinations.map((d) => [d.latitude, d.longitude]));
-      map.fitBounds(bounds, {
-        padding: [60, 60],
-        animate: true,
-        duration: 1.5,
-      });
-    }
-  }, [destinations, activeDay, map]);
-
-  return null;
-}
-
-function MapResize() {
-  const map = useMap();
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      map.invalidateSize();
-    }, 250);
-    return () => clearTimeout(timer);
-  }, [map]);
-  return null;
+  return { icon: "📍", color: "#EF4444" }; // Red
 }
 
 interface HomeRouteMapProps {
@@ -125,24 +47,148 @@ interface HomeRouteMapProps {
 }
 
 export default function HomeRouteMap({ destinations, activeDay = null, isInteractive = true }: HomeRouteMapProps) {
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<maplibregl.Map | null>(null);
+  const markersRef = useRef<maplibregl.Marker[]>([]);
+  const animationFrameRef = useRef<number | null>(null);
   const [mounted, setMounted] = useState(false);
-  const [routePoints, setRoutePoints] = useState<[number, number][]>([]);
-  const [isLoadingRoute, setIsLoadingRoute] = useState(false);
-  const tileUrl = 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}';
 
   useEffect(() => {
     setMounted(true);
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
   }, []);
 
-  // Fetch real road route from OSRM
+  // Initialize Map
   useEffect(() => {
-    if (destinations.length < 2) {
-      setRoutePoints([]);
+    if (!mounted || !mapContainerRef.current || mapRef.current) return;
+
+    const initialCenter: [number, number] = destinations.length > 0 
+      ? [destinations[0].longitude, destinations[0].latitude]
+      : [-35.2009, -5.7945]; // Natal Central
+
+    const map = new maplibregl.Map({
+      container: mapContainerRef.current,
+      style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+      center: initialCenter,
+      zoom: destinations.length > 1 ? 9 : 11,
+      interactive: isInteractive,
+      attributionControl: false
+    });
+
+    mapRef.current = map;
+
+    map.on('load', () => {
+      // Add route source and layer
+      map.addSource('route', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates: []
+          },
+          properties: {}
+        }
+      });
+
+      map.addLayer({
+        id: 'route-line',
+        type: 'line',
+        source: 'route',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        paint: {
+          'line-color': '#F59E0B',
+          'line-width': 5,
+          'line-opacity': 0.85
+        }
+      });
+    });
+  }, [mounted, isInteractive]);
+
+  // Update Markers and Fit Bounds when destinations change
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || destinations.length === 0) return;
+
+    // Clear existing markers
+    markersRef.current.forEach(m => m.remove());
+    markersRef.current = [];
+
+    // Add markers for all destinations
+    destinations.forEach((d) => {
+      const { icon, color } = getDestinationIcon(d.nome);
+      
+      // Create HTML element for custom styled marker
+      const el = document.createElement('div');
+      el.className = 'marker-wrapper';
+
+      const pulse = document.createElement('div');
+      pulse.className = 'marker-pulse';
+      pulse.style.backgroundColor = color;
+      el.appendChild(pulse);
+
+      const pin = document.createElement('div');
+      pin.className = 'marker-custom';
+      pin.style.backgroundColor = color;
+      el.appendChild(pin);
+
+      const emojiEl = document.createElement('span');
+      emojiEl.className = 'marker-emoji';
+      emojiEl.innerText = icon;
+      pin.appendChild(emojiEl);
+
+      const popup = new maplibregl.Popup({ offset: 25 }).setHTML(`
+        <div style="font-family: var(--font-jakarta), sans-serif; padding: 2px;">
+          <h4 style="font-weight: 800; font-size: 13px; margin: 0; color: #f8fafc;">${d.nome}</h4>
+          <p style="font-size: 10px; color: #94a3b8; margin: 4px 0 0 0;">📍 ${d.municipio}</p>
+        </div>
+      `);
+
+      const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
+        .setLngLat([d.longitude, d.latitude])
+        .setPopup(popup)
+        .addTo(map);
+
+      markersRef.current.push(marker);
+    });
+
+    // Fit bounds
+    const bounds = new maplibregl.LngLatBounds();
+    destinations.forEach(d => bounds.extend([d.longitude, d.latitude]));
+    map.fitBounds(bounds, {
+      padding: { top: 60, bottom: 60, left: 60, right: 60 },
+      maxZoom: 13,
+      duration: 1500
+    });
+  }, [destinations, activeDay]);
+
+  // Fetch and animate OSRM Route
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || destinations.length < 2) {
+      if (map && map.isStyleLoaded() && map.getSource('route')) {
+        const source = map.getSource('route') as maplibregl.GeoJSONSource;
+        source.setData({
+          type: 'Feature',
+          geometry: { type: 'LineString', coordinates: [] },
+          properties: {}
+        });
+      }
       return;
     }
 
-    const fetchOSRMRoute = async () => {
-      setIsLoadingRoute(true);
+    const fetchAndAnimateRoute = async () => {
       try {
         const coordsString = destinations
           .map((d) => `${d.longitude},${d.latitude}`)
@@ -152,83 +198,90 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
           `https://router.project-osrm.org/route/v1/driving/${coordsString}?overview=full&geometries=geojson`
         );
 
-        if (!response.ok) throw new Error('Routing API failed');
-
+        if (!response.ok) throw new Error('OSRM API failed');
         const data = await response.json();
+
         if (data.routes && data.routes.length > 0) {
           const routeCoords = data.routes[0].geometry.coordinates as [number, number][];
-          // Convert from [lng, lat] to [lat, lng]
-          const leafletCoords = routeCoords.map(([lng, lat]) => [lat, lng] as [number, number]);
-          setRoutePoints(leafletCoords);
+          animateRoute(routeCoords);
         } else {
           // Fallback to straight lines
-          setRoutePoints(destinations.map((d) => [d.latitude, d.longitude]));
+          const straightCoords = destinations.map((d) => [d.longitude, d.latitude] as [number, number]);
+          animateRoute(straightCoords);
         }
       } catch (e) {
         console.error('Failed to trace real-road route:', e);
         // Fallback to straight lines
-        setRoutePoints(destinations.map((d) => [d.latitude, d.longitude]));
-      } finally {
-        setIsLoadingRoute(false);
+        const straightCoords = destinations.map((d) => [d.longitude, d.latitude] as [number, number]);
+        animateRoute(straightCoords);
       }
     };
 
-    fetchOSRMRoute();
+    const animateRoute = (coordinates: [number, number][]) => {
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+
+      if (!map.getSource('route')) return;
+      const source = map.getSource('route') as maplibregl.GeoJSONSource;
+
+      let currentStep = 0;
+      const totalSteps = 60; // Animate over 60 frames (~1s)
+      const pointsPerStep = Math.max(1, Math.ceil(coordinates.length / totalSteps));
+
+      const step = () => {
+        if (!mapRef.current || !map.getSource('route')) return;
+
+        currentStep++;
+        const endIndex = Math.min(currentStep * pointsPerStep, coordinates.length);
+        const activeCoords = coordinates.slice(0, endIndex);
+
+        source.setData({
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates: activeCoords
+          },
+          properties: {}
+        });
+
+        if (endIndex < coordinates.length) {
+          animationFrameRef.current = requestAnimationFrame(step);
+        } else {
+          // Finished! Trigger confetti celebration
+          import('canvas-confetti').then((confettiModule) => {
+            confettiModule.default({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 },
+              colors: ['#F59E0B', '#38BDF8', '#10B981']
+            });
+          });
+        }
+      };
+
+      step();
+    };
+
+    if (map.isStyleLoaded()) {
+      fetchAndAnimateRoute();
+    } else {
+      map.on('style.load', fetchAndAnimateRoute);
+    }
+
+    return () => {
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
   }, [destinations]);
 
-  if (!mounted || destinations.length === 0) {
-    return (
-      <div className="w-full h-full bg-[var(--color-surface-alt)] flex items-center justify-center text-[var(--color-text-muted)] text-xs border border-[var(--color-border)]">
-        Carregando mapa da rota...
-      </div>
-    );
-  }
-
-  // Initial center
-  const initialCenter: [number, number] = [destinations[0].latitude, destinations[0].longitude];
-
   return (
-    <MapContainer
-      center={initialCenter}
-      zoom={10}
-      className="w-full h-full"
-      scrollWheelZoom={isInteractive}
-      zoomControl={false}
-      dragging={isInteractive}
-      doubleClickZoom={isInteractive}
-      touchZoom={isInteractive}
-    >
-      <MapController destinations={destinations} activeDay={activeDay} />
-      <MapResize />
-      <TileLayer
-        attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
-        url={tileUrl}
-      />
-
-      {routePoints.length > 0 && (
-        <Polyline
-          positions={routePoints}
-          color="var(--color-primary)"
-          weight={4}
-          opacity={0.85}
-          pathOptions={{ className: 'route-polyline-flow' }}
-        />
-      )}
-
-      {destinations.map((d, index) => (
-        <Marker
-          key={`${d.nome}-${index}`}
-          position={[d.latitude, d.longitude]}
-          icon={createGoogleMarker(d.nome, activeDay !== null)}
-        >
-          <Popup>
-            <div className="p-1 min-w-[140px] text-[var(--color-text)]">
-              <h4 className="font-bold text-xs leading-snug">{d.nome}</h4>
-              <p className="text-[10px] text-[var(--color-text-secondary)] mt-0.5">📍 {d.municipio}</p>
-            </div>
-          </Popup>
-        </Marker>
-      ))}
-    </MapContainer>
+    <div className="w-full h-full relative overflow-hidden">
+      <div ref={mapContainerRef} className="w-full h-full" />
+      {/* Dynamic Overlay styling for Dark Map theme */}
+      <div className="absolute inset-0 pointer-events-none border border-slate-800/10 rounded-2xl" />
+    </div>
   );
 }
