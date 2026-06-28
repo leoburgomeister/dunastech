@@ -2,7 +2,11 @@
 
 import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
+import { useTheme } from 'next-themes';
 import { type DestinoInfo, cadasturData } from '@/data/mockData';
+import { Badge } from '@/components/ui/Badge';
+import { Users, Activity, MapPin } from 'lucide-react';
+import { slugify } from '@/lib/utils';
 
 // Helper to determine marker styling based on partner type
 function getPartnerIconStyle(tipo: string): { icon: string; color: string } {
@@ -26,20 +30,17 @@ interface DestinationMapProps {
 
 export default function DestinationMap({ destination }: DestinationMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<maplibregl.Map | null>(null);
+  const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const animationFrameRef = useRef<number | null>(null);
   const [mounted, setMounted] = useState(false);
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     setTimeout(() => {
       setMounted(true);
     }, 0);
     return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
       if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current);
       }
@@ -57,18 +58,22 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
 
   // Initialize Map
   useEffect(() => {
-    if (!mounted || !mapContainerRef.current || mapRef.current) return;
+    if (!mounted || !mapContainerRef.current) return;
+
+    const styleUrl = resolvedTheme === 'dark'
+      ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
+      : 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json';
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
-      style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+      style: styleUrl,
       center: [destination.longitude, destination.latitude],
       zoom: 13,
       interactive: true,
       attributionControl: false
     });
 
-    mapRef.current = map;
+    setMapInstance(map);
 
     map.on('load', () => {
       // Add route source and layer for connecting partners
@@ -99,11 +104,16 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
         }
       });
     });
-  }, [mounted, destination.nome]);
 
-  // Update Markers and Fit Bounds when destination or partners change
+    return () => {
+      map.remove();
+      setMapInstance(null);
+    };
+  }, [mounted, destination.nome, resolvedTheme]);
+
+  // Update Markers and Fit Bounds when destination, partners, or mapInstance changes
   useEffect(() => {
-    const map = mapRef.current;
+    const map = mapInstance;
     if (!map) return;
 
     // Clear existing markers
@@ -132,8 +142,8 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
 
     const centerPopup = new maplibregl.Popup({ offset: 25 }).setHTML(`
       <div style="font-family: var(--font-jakarta), sans-serif; padding: 2px;">
-        <h4 style="font-weight: 850; font-size: 14px; margin: 0; color: #f8fafc;">${destination.nome}</h4>
-        <p style="font-size: 11px; color: #94a3b8; margin: 4px 0 0 0;">Centro do atrativo turístico</p>
+        <h4 style="font-weight: 850; font-size: 14px; margin: 0; color: var(--color-text);">${destination.nome}</h4>
+        <p style="font-size: 11px; color: var(--color-text-secondary); margin: 4px 0 0 0;">Centro do atrativo turístico</p>
       </div>
     `);
 
@@ -165,7 +175,7 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
       pin.appendChild(emojiEl);
 
       const popupHtml = `
-        <div style="font-family: var(--font-jakarta), sans-serif; padding: 4px; min-width: 180px; color: #f8fafc;">
+        <div style="font-family: var(--font-jakarta), sans-serif; padding: 4px; min-width: 180px; color: var(--color-text);">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
             <span style="font-size: 9px; font-weight: 850; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 6px; background: rgba(16, 185, 129, 0.15); color: #10B981; border-radius: 9999px;">
               ${partner.tipo}
@@ -179,11 +189,11 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
             🛡️ <span style="font-weight: 550;">Regularizado Cadastur</span>
           </div>
           ${partner.telefone ? `
-            <p style="font-size: 11px; color: #94a3b8; margin: 0 0 8px 0; display: flex; align-items: center; gap: 4px;">
+            <p style="font-size: 11px; color: var(--color-text-secondary); margin: 0 0 8px 0; display: flex; align-items: center; gap: 4px;">
               📞 ${partner.telefone}
             </p>
           ` : ''}
-          <div style="border-top: 1px solid #334155; padding-top: 8px; margin-top: 4px;">
+          <div style="border-top: 1px solid var(--color-border); padding-top: 8px; margin-top: 4px;">
             <a href="/vitrine/${partner.id}" style="display: block; text-align: center; font-size: 11px; font-weight: 700; padding: 6px 12px; background: #10b981; color: white; border-radius: 8px; text-decoration: none; transition: background 0.15s ease;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
               Ver Vitrine Comercial
             </a>
@@ -210,11 +220,11 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
       maxZoom: 14,
       duration: 1500
     });
-  }, [destination, partners]);
+  }, [destination, partners, mapInstance]);
 
   // Fetch and animate partner connection route
   useEffect(() => {
-    const map = mapRef.current;
+    const map = mapInstance;
     if (!map || routePartners.length < 2) {
       if (map && map.isStyleLoaded() && map.getSource('partner-route')) {
         const source = map.getSource('partner-route') as maplibregl.GeoJSONSource;
@@ -270,7 +280,7 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
       const pointsPerStep = Math.max(1, Math.ceil(coordinates.length / totalSteps));
 
       const step = () => {
-        if (!mapRef.current || !map.getSource('partner-route')) return;
+        if (!mapInstance || !map.getSource('partner-route')) return;
 
         currentStep++;
         const endIndex = Math.min(currentStep * pointsPerStep, coordinates.length);
@@ -304,7 +314,7 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [destination.nome]);
+  }, [destination.nome, mapInstance]);
 
   return (
     <div className="relative w-full h-96 rounded-2xl overflow-hidden border border-slate-200/10 shadow-md">

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
+import { useTheme } from 'next-themes';
 import { type DestinoInfo } from '@/data/mockData';
 
 // Helper to determine emoji and color based on destination
@@ -48,20 +49,17 @@ interface HomeRouteMapProps {
 
 export default function HomeRouteMap({ destinations, activeDay = null, isInteractive = true }: HomeRouteMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<maplibregl.Map | null>(null);
+  const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const animationFrameRef = useRef<number | null>(null);
   const [mounted, setMounted] = useState(false);
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     setTimeout(() => {
       setMounted(true);
     }, 0);
     return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
       if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current);
       }
@@ -70,22 +68,26 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
 
   // Initialize Map
   useEffect(() => {
-    if (!mounted || !mapContainerRef.current || mapRef.current) return;
+    if (!mounted || !mapContainerRef.current) return;
 
     const initialCenter: [number, number] = destinations.length > 0 
       ? [destinations[0].longitude, destinations[0].latitude]
       : [-35.2009, -5.7945]; // Natal Central
 
+    const styleUrl = resolvedTheme === 'dark'
+      ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
+      : 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json';
+
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
-      style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+      style: styleUrl,
       center: initialCenter,
       zoom: 9,
       interactive: isInteractive,
       attributionControl: false
     });
 
-    mapRef.current = map;
+    setMapInstance(map);
 
     map.on('load', () => {
       // Add route source and layer for animation
@@ -131,11 +133,16 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
         }
       });
     });
-  }, [mounted, isInteractive, destinations.length]);
 
-  // Update Markers and Fit Bounds when destinations change
+    return () => {
+      map.remove();
+      setMapInstance(null);
+    };
+  }, [mounted, isInteractive, destinations.length, resolvedTheme]);
+
+  // Update Markers and Fit Bounds when destinations change or mapInstance changes
   useEffect(() => {
-    const map = mapRef.current;
+    const map = mapInstance;
     if (!map || destinations.length === 0) return;
 
     // Clear existing markers
@@ -168,12 +175,12 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       pin.appendChild(emojiEl);
 
       const popupHtml = `
-        <div style="font-family: var(--font-jakarta), sans-serif; padding: 4px; min-width: 140px; color: #f8fafc;">
+        <div style="font-family: var(--font-heading), var(--font-body), sans-serif; padding: 4px; min-width: 140px; color: var(--color-text);">
           <span style="font-size: 8.5px; font-weight: 850; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 6px; background: ${markerColor}22; color: ${markerColor}; border-radius: 9999px;">
             ${markerLabel}
           </span>
           <h4 style="font-weight: 800; font-size: 13px; margin: 4px 0 2px 0; line-height: 1.3;">${dest.nome}</h4>
-          <p style="font-size: 10px; color: #94a3b8; margin: 0;">${dest.municipio}</p>
+          <p style="font-size: 10px; color: var(--color-text-secondary); margin: 0;">${dest.municipio}</p>
         </div>
       `;
 
@@ -194,11 +201,11 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       maxZoom: 13,
       duration: 1500
     });
-  }, [destinations, activeDay]);
+  }, [destinations, activeDay, mapInstance]);
 
   // Fetch and animate OSRM Route
   useEffect(() => {
-    const map = mapRef.current;
+    const map = mapInstance;
     if (!map || destinations.length < 2) {
       if (map && map.isStyleLoaded() && map.getSource('route')) {
         const source = map.getSource('route') as maplibregl.GeoJSONSource;
@@ -254,7 +261,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       const pointsPerStep = Math.max(1, Math.ceil(coordinates.length / totalSteps));
 
       const step = () => {
-        if (!mapRef.current || !map.getSource('route')) return;
+        if (!mapInstance || !map.getSource('route')) return;
 
         currentStep++;
         const endIndex = Math.min(currentStep * pointsPerStep, coordinates.length);
@@ -298,7 +305,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [destinations]);
+  }, [destinations, mapInstance]);
 
   return (
     <div className="w-full h-full relative overflow-hidden">

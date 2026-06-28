@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { useTheme } from 'next-themes';
 import L from 'leaflet';
 import { type DestinoInfo, fluxoData, calcularISA } from '@/data/mockData';
 import { Badge } from '@/components/ui/Badge';
@@ -63,6 +64,7 @@ interface DestinosMapProps {
 
 export default function DestinosMap({ destinations }: DestinosMapProps) {
   const [mounted, setMounted] = useState(false);
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     setTimeout(() => {
@@ -81,8 +83,12 @@ export default function DestinosMap({ destinations }: DestinosMapProps) {
   // Centering at Rio Grande do Norte geographical center
   const center: [number, number] = [-5.75, -36.2];
 
+  const tileUrl = resolvedTheme === 'dark'
+    ? 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png'
+    : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+
   return (
-    <div className="relative w-full h-[360px] rounded-2xl overflow-hidden border border-[var(--color-border)] shadow-xl z-10">
+    <div key={resolvedTheme} className="relative w-full h-[360px] rounded-2xl overflow-hidden border border-[var(--color-border)] shadow-xl z-10">
       <MapContainer
         center={center}
         zoom={8}
@@ -93,7 +99,7 @@ export default function DestinosMap({ destinations }: DestinosMapProps) {
         <MapResize />
         <TileLayer
           attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          url={tileUrl}
         />
 
         {destinations.map((d) => {
