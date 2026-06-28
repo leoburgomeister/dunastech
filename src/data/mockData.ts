@@ -270,8 +270,8 @@ export const destinosInfo: DestinoInfo[] = [
     municipio: "Tibau do Sul",
     descricao: "Um verdadeiro refúgio ecológico em Tibau do Sul, cercado por imensas falésias avermelhadas e Mata Atlântica. É muito procurado para caminhadas, aulas de surf para iniciantes e avistamento frequente de golfinhos bem próximos à orla.",
     imagem: "/images/destinations/pipa.png",
-    latitude: -6.2000,
-    longitude: -35.0500,
+    latitude: -6.2137,
+    longitude: -35.0774,
     hashtag: "praiadomadeiro",
     monitorado: true,
     atracoes: [
@@ -725,8 +725,8 @@ const staticCadasturData: CadasturBusiness[] = [
     regularizado: true,
     nota: 4.9,
     telefone: "(84) 99901-0003",
-    latitude: -6.2005,
-    longitude: -35.0505,
+    latitude: -6.2140,
+    longitude: -35.0770,
     descricao: "Instrutor credenciado de surf e guia florestal para caminhadas em falésias.",
     imagem: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&h=350&fit=crop"
   },

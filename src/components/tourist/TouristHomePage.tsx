@@ -319,41 +319,50 @@ export default function TouristHomePage() {
       <section className="relative w-full border-b border-[var(--color-border)] bg-[var(--color-bg)] overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[600px] lg:h-[720px] w-full">
           
-          {/* Left Column: Title + Smart Unified Form OR Generated Itinerary */}
-          <div className="lg:col-span-5 flex flex-col p-6 sm:p-8 lg:p-10 overflow-y-auto max-h-full custom-scrollbar z-10 justify-between bg-[var(--color-surface)]">
+          {/* Left Column: Flat, unblurred, 100% visible active Map */}
+          <div className="lg:col-span-7 relative h-[380px] lg:h-full w-full bg-[var(--color-surface-alt)] order-2 lg:order-1 border-b lg:border-b-0 lg:border-r border-[var(--color-border)]">
+            <HomeRouteMap 
+              destinations={mapDestinations} 
+              activeDay={expandedDay} 
+              isInteractive={true}
+            />
+          </div>
+
+          {/* Right Column: Title + Smart Unified Form OR Generated Itinerary */}
+          <div className="lg:col-span-5 flex flex-col p-6 sm:p-8 lg:p-10 overflow-y-auto max-h-full custom-scrollbar z-10 justify-between bg-[var(--color-surface)] order-1 lg:order-2">
             {step !== 4 ? (
               <div className="space-y-6 animate-fade-in my-auto">
                 {/* Header Info */}
-                <div className="space-y-3">
-                  <Badge variant="accent" size="sm">
-                    <Sparkles className="h-3 w-3 animate-pulse" />
+                <div className="space-y-2.5">
+                  <Badge variant="accent" size="sm" className="px-2.5 py-0.5 text-[9px] font-bold tracking-wider uppercase">
+                    <Sparkles className="h-3 w-3 animate-pulse text-[var(--color-accent)] shrink-0" />
                     DunasTech Roteador IA
                   </Badge>
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[var(--color-text)] leading-tight tracking-tight">
+                  <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-[var(--color-text)] leading-[1.15] tracking-tight">
                     Planeje Sua Rota <br />
                     <span className="gradient-ocean gradient-text">Segura e Sustentável</span>
                   </h1>
-                  <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] leading-relaxed">
-                    Configure suas preferências ou busque um destino para criar um roteiro otimizado com atrativos e parceiros certificados Cadastur.
+                  <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                    Descubra roteiros otimizados no Rio Grande do Norte com base no seu perfil, tempo disponível e meio de locomoção.
                   </p>
                 </div>
 
                 {/* Smart Form Panel */}
-                <Card className="border border-[var(--color-border)]/50 shadow-md p-5 bg-[var(--color-surface)] rounded-xl space-y-4">
+                <div className="space-y-4">
                   {/* Smart Search Bar */}
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
-                      📍 Buscar Destino Foco (Opcional)
+                      📍 Ponto de Partida ou Foco (Opcional)
                     </label>
-                    <div className="relative">
+                    <div className="relative group">
                       <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Buscar por local ou palavra-chave (ex: Pipa, dunas...)"
-                        className="w-full bg-[var(--color-surface-alt)] border border-[var(--color-border)] rounded-xl py-2 pl-9 pr-4 text-xs text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-all"
+                        placeholder="Ex: Pipa, Genipabu, Natal..."
+                        className="w-full bg-[var(--color-surface-alt)] border border-[var(--color-border)] rounded-xl py-2 pl-9 pr-4 text-xs text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-4 focus:ring-[var(--color-primary)]/10 transition-all duration-300 hover:border-[var(--color-primary)]/30"
                       />
-                      <MapPin className="absolute left-3 top-2.5 h-3.5 w-3.5 text-[var(--color-text-muted)]" />
+                      <MapPin className="absolute left-3 top-2.5 h-3.5 w-3.5 text-[var(--color-text-muted)] group-focus-within:text-[var(--color-primary)] transition-colors" />
                     </div>
                   </div>
 
@@ -363,46 +372,55 @@ export default function TouristHomePage() {
                       🎭 Estilo de Viagem
                     </label>
                     <div className="grid grid-cols-2 gap-2">
-                      {styles.map(s => (
-                        <button
-                          key={s.id}
-                          type="button"
-                          onClick={() => setSelectedStyle(s.id)}
-                          className={cn(
-                            "p-2.5 rounded-lg border text-left transition-all cursor-pointer flex flex-col justify-between h-[66px]",
-                            selectedStyle === s.id
-                              ? "bg-[var(--color-primary-soft)] border-[var(--color-primary)] text-[var(--color-primary)] ring-1 ring-[var(--color-primary)]/20"
-                              : "bg-[var(--color-surface-alt)]/50 border-[var(--color-border-light)] hover:border-[var(--color-primary)]/30"
-                          )}
-                        >
-                          <span className="font-bold text-[11px] leading-tight block">{s.label}</span>
-                          <span className="text-[9px] text-[var(--color-text-secondary)] line-clamp-1 block mt-0.5">{s.desc}</span>
-                        </button>
-                      ))}
+                      {styles.map(s => {
+                        const isActive = selectedStyle === s.id;
+                        return (
+                          <button
+                            key={s.id}
+                            type="button"
+                            onClick={() => setSelectedStyle(s.id)}
+                            className={cn(
+                              "p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer flex flex-col justify-between h-[68px] relative overflow-hidden group select-none",
+                              isActive
+                                ? "bg-[var(--color-primary-soft)] border-[var(--color-primary)] text-[var(--color-primary)] shadow-sm shadow-[var(--color-primary)]/5"
+                                : "bg-[var(--color-surface-alt)]/40 border-[var(--color-border-light)] hover:border-[var(--color-primary)]/30 hover:bg-[var(--color-surface-hover)]/30"
+                            )}
+                          >
+                            <span className="font-extrabold text-[11px] leading-tight block">{s.label}</span>
+                            <span className="text-[9px] text-[var(--color-text-secondary)] line-clamp-1 block mt-0.5 leading-normal">{s.desc}</span>
+                            {isActive && (
+                              <div className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-[var(--color-primary)]" />
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
                   {/* Duration Selection */}
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
-                      📅 Duração da Viagem
+                      📅 Duração da Rota
                     </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {durations.map(d => (
-                        <button
-                          key={d.id}
-                          type="button"
-                          onClick={() => setSelectedDuration(d.id)}
-                          className={cn(
-                            "py-2 px-1 rounded-lg border text-center transition-all cursor-pointer font-bold text-[10px] truncate",
-                            selectedDuration === d.id
-                              ? "bg-[var(--color-primary-soft)] border-[var(--color-primary)] text-[var(--color-primary)]"
-                              : "bg-[var(--color-surface-alt)]/50 border-[var(--color-border-light)] hover:border-[var(--color-primary)]/30"
-                          )}
-                        >
-                          {d.label}
-                        </button>
-                      ))}
+                    <div className="flex bg-[var(--color-surface-alt)] p-1 rounded-xl border border-[var(--color-border-light)] gap-1">
+                      {durations.map(d => {
+                        const isActive = selectedDuration === d.id;
+                        return (
+                          <button
+                            key={d.id}
+                            type="button"
+                            onClick={() => setSelectedDuration(d.id)}
+                            className={cn(
+                              "flex-1 py-1.5 text-center rounded-lg font-extrabold text-[10px] transition-all cursor-pointer truncate select-none border border-transparent",
+                              isActive
+                                ? "bg-[var(--color-surface)] text-[var(--color-primary)] shadow-sm border-[var(--color-border)]/20"
+                                : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
+                            )}
+                          >
+                            {d.label}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -411,34 +429,38 @@ export default function TouristHomePage() {
                     <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
                       🚗 Meio de Transporte
                     </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {transports.map(t => (
-                        <button
-                          key={t.id}
-                          type="button"
-                          onClick={() => setSelectedTransport(t.id)}
-                          className={cn(
-                            "py-2 px-1 rounded-lg border text-center transition-all cursor-pointer font-bold text-[10px] truncate",
-                            selectedTransport === t.id
-                              ? "bg-[var(--color-primary-soft)] border-[var(--color-primary)] text-[var(--color-primary)]"
-                              : "bg-[var(--color-surface-alt)]/50 border-[var(--color-border-light)] hover:border-[var(--color-primary)]/30"
-                          )}
-                        >
-                          {t.label}
-                        </button>
-                      ))}
+                    <div className="flex bg-[var(--color-surface-alt)] p-1 rounded-xl border border-[var(--color-border-light)] gap-1">
+                      {transports.map(t => {
+                        const isActive = selectedTransport === t.id;
+                        return (
+                          <button
+                            key={t.id}
+                            type="button"
+                            onClick={() => setSelectedTransport(t.id)}
+                            className={cn(
+                              "flex-1 py-1.5 text-center rounded-lg font-extrabold text-[10px] transition-all cursor-pointer truncate select-none border border-transparent",
+                              isActive
+                                ? "bg-[var(--color-surface)] text-[var(--color-primary)] shadow-sm border-[var(--color-border)]/20"
+                                : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
+                            )}
+                          >
+                            {t.label}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
                   {/* Submit CTA */}
-                  <Button 
-                    className="w-full mt-2" 
+                  <button 
+                    type="button"
                     onClick={handleGenerateRoute}
-                    icon={Sparkles}
+                    className="w-full mt-4 py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg hover:shadow-[var(--color-primary)]/10 active:scale-[0.98] transform flex items-center justify-center gap-2 cursor-pointer text-xs"
                   >
-                    Gerar Roteiro Personalizado ✨
-                  </Button>
-                </Card>
+                    <Sparkles className="h-4 w-4 shrink-0" />
+                    Gerar Roteiro Inteligente ✨
+                  </button>
+                </div>
 
                 {/* Footer Certifications */}
                 <div className="flex items-center gap-4 text-[10px] text-[var(--color-text-muted)] justify-center pt-2">
@@ -449,17 +471,23 @@ export default function TouristHomePage() {
             ) : (
               suggestedRoute && (
                 <div className="space-y-4 animate-fade-in h-full flex flex-col justify-between">
-                  <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-2 shrink-0">
-                    <div>
-                      <Badge variant="accent" size="sm">Rota Sugerida</Badge>
-                      <h2 className="text-base font-extrabold text-[var(--color-text)] mt-0.5 leading-snug">{suggestedRoute.title}</h2>
+                  <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3 shrink-0">
+                    <div className="min-w-0">
+                      <Badge variant="accent" size="sm" className="px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider">
+                        Roteiro Otimizado
+                      </Badge>
+                      <h2 className="text-base sm:text-lg font-black text-[var(--color-text)] mt-1 leading-tight truncate pr-2">{suggestedRoute.title}</h2>
                     </div>
-                    <Button variant="ghost" size="sm" onClick={() => { setStep(1); setSuggestedRoute(null); }}>
+                    <button 
+                      type="button"
+                      onClick={() => { setStep(1); setSuggestedRoute(null); }}
+                      className="shrink-0 flex items-center gap-1 text-[10px] font-bold text-[var(--color-primary)] hover:underline border border-[var(--color-primary)]/20 hover:border-[var(--color-primary)]/40 px-2.5 py-1.5 rounded-lg bg-[var(--color-primary-soft)] hover:bg-[var(--color-primary-soft)]/85 transition-all cursor-pointer shadow-sm"
+                    >
                       Refazer
-                    </Button>
+                    </button>
                   </div>
 
-                  <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed bg-[var(--color-surface-alt)] p-2.5 rounded-lg border border-[var(--color-border)]/40 shrink-0">
+                  <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed bg-[var(--color-surface-alt)]/65 p-3 rounded-xl border border-[var(--color-border-light)] shrink-0 mt-1">
                     {suggestedRoute.description}
                   </p>
 
@@ -537,23 +565,23 @@ export default function TouristHomePage() {
                           <div 
                             key={dayItem.day} 
                             className={cn(
-                              "rounded-xl border transition-all overflow-hidden",
+                              "rounded-xl border transition-all duration-200 overflow-hidden",
                               isExpanded 
-                                ? "bg-[var(--color-surface)] border-[var(--color-primary)] shadow-md"
-                                : "bg-[var(--color-surface-alt)]/60 border-[var(--color-border-light)] hover:border-[var(--color-primary)]/40"
+                                ? "bg-[var(--color-surface)] border-[var(--color-primary)]/60 shadow-md"
+                                : "bg-[var(--color-surface-alt)]/30 border-[var(--color-border-light)] hover:border-[var(--color-primary)]/20"
                             )}
                           >
                             {/* Header (always visible, clickable) */}
                             <button
                               type="button"
                               onClick={() => setExpandedDay(isExpanded ? null : dayItem.day)}
-                              className="w-full p-3 flex items-center justify-between text-left cursor-pointer focus:outline-none"
+                              className="w-full p-3.5 flex items-center justify-between text-left cursor-pointer focus:outline-none"
                             >
                               <div className="flex items-center gap-3">
                                 <div className={cn(
                                   "h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0",
                                   isExpanded 
-                                    ? "bg-[var(--color-primary)] text-white" 
+                                    ? "bg-[var(--color-primary)] text-white shadow-sm" 
                                     : "bg-[var(--color-primary-soft)] text-[var(--color-primary)]"
                                 )}>
                                   {dayItem.day}
@@ -574,80 +602,79 @@ export default function TouristHomePage() {
 
                             {/* Body (collapsible) */}
                             {isExpanded && (
-                              <div className="p-3 border-t border-[var(--color-border-light)] space-y-3 text-xs bg-[var(--color-surface)] animate-fade-in-up">
-                                <p className="text-[var(--color-text-secondary)] leading-relaxed bg-[var(--color-surface-alt)]/50 p-2.5 rounded-lg border border-[var(--color-border-light)]/60">
+                              <div className="p-3.5 border-t border-[var(--color-border-light)] space-y-3.5 text-xs bg-[var(--color-surface)] animate-fade-in-up">
+                                <p className="text-[11px] text-[var(--color-text-secondary)] leading-relaxed bg-[var(--color-surface-alt)]/40 p-2.5 rounded-lg border border-[var(--color-border-light)]/50">
                                   {dayItem.description}
                                 </p>
 
                                 {legs.length > 0 ? (
-                                  <div className="space-y-2">
-                                    <p className="font-semibold text-[9px] uppercase text-[var(--color-text-muted)] tracking-wider">
+                                  <div className="space-y-2.5">
+                                    <p className="font-bold text-[9px] uppercase text-[var(--color-text-muted)] tracking-wider flex items-center gap-1">
                                       🚗 Trajeto & Locomoção
                                     </p>
-                                    <div className="space-y-2 pl-1">
+                                    
+                                    <div className="relative border-l border-dashed border-[var(--color-primary)]/35 pl-4 ml-2.5 space-y-3.5 my-1.5">
                                       {legs.map((leg, idx) => (
-                                        <div key={idx} className="flex flex-col gap-1 bg-[var(--color-surface-alt)] p-2.5 rounded-lg border border-[var(--color-border-light)]">
-                                          <div className="flex items-center gap-2 text-[10px]">
-                                            <Navigation className="h-3 w-3 text-[var(--color-primary)] rotate-45 shrink-0" />
-                                            <span className="text-[var(--color-text-secondary)]">
+                                        <div key={idx} className="relative">
+                                          {/* Bullet point */}
+                                          <div className="absolute -left-[20.5px] top-1.5 h-2 w-2 rounded-full bg-[var(--color-primary)] border-2 border-[var(--color-surface)] shrink-0" />
+                                          
+                                          <div className="flex flex-col gap-0.5">
+                                            <span className="text-[10px] text-[var(--color-text-secondary)]">
                                               De <strong className="text-[var(--color-text)]">{leg.from}</strong> para <strong className="text-[var(--color-text)]">{leg.to}</strong>
                                             </span>
-                                          </div>
-                                          <div className="flex items-center gap-3 text-[9px] text-[var(--color-text-muted)] pl-5">
-                                            <span className="flex items-center gap-1 font-[var(--font-mono)]">
-                                              📍 {leg.distance} km
+                                            <span className="text-[9px] text-[var(--color-text-muted)] flex items-center gap-2">
+                                              <span className="font-[var(--font-mono)]">📍 {leg.distance} km</span>
+                                              <span className="h-1 w-1 bg-[var(--color-border)]/50 rounded-full" />
+                                              <span className="flex items-center gap-0.5"><Clock className="h-2.5 w-2.5" /> {leg.timeText}</span>
                                             </span>
-                                            <span className="h-1 w-1 bg-[var(--color-border)] rounded-full" />
-                                            <span className="flex items-center gap-1">
-                                              <Clock className="h-3 w-3" /> {leg.timeText}
-                                            </span>
+                                            {leg.isTooLongForWalking && (
+                                              <div className="mt-1 p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[9px] text-amber-600 flex items-start gap-1.5 leading-relaxed">
+                                                <ShieldAlert className="h-3.5 w-3.5 text-amber-600 shrink-0 mt-0.5" />
+                                                <span>
+                                                  <strong>Aviso:</strong> A distância é de {leg.distance} km, o que é muito longo para ir a pé. Considere alugar um buggy ou contratar um translado credenciado.
+                                                </span>
+                                              </div>
+                                            )}
                                           </div>
-                                          {leg.isTooLongForWalking && (
-                                            <div className="mt-1 p-2 rounded bg-amber-500/10 border border-amber-500/20 text-[9px] text-amber-600 flex items-start gap-1.5 leading-relaxed">
-                                              <ShieldAlert className="h-3.5 w-3.5 text-amber-600 shrink-0 mt-0.5" />
-                                              <span>
-                                                <strong>Aviso de Caminhada:</strong> A distância é de {leg.distance} km, o que é muito longo para ir a pé. Considere alugar um buggy ou contratar um translado credenciado.
-                                              </span>
-                                            </div>
-                                          )}
                                         </div>
                                       ))}
                                     </div>
                                   </div>
                                 ) : (
-                                  <div className="p-2 rounded-lg bg-[var(--color-primary-soft)]/20 border border-[var(--color-primary)]/20 text-[9px] text-[var(--color-text-secondary)] flex items-center gap-2">
+                                  <div className="p-2.5 rounded-lg bg-[var(--color-primary-soft)]/20 border border-[var(--color-primary)]/15 text-[9px] text-[var(--color-text-secondary)] flex items-center gap-2">
                                     <Info className="h-3.5 w-3.5 text-[var(--color-primary)] shrink-0" />
                                     <span>Roteiro local. Não exige deslocamento rodoviário entre destinos neste dia.</span>
                                   </div>
                                 )}
 
                                 <div className="space-y-2">
-                                  <p className="font-semibold text-[9px] uppercase text-[var(--color-text-muted)] tracking-wider">
+                                  <p className="font-bold text-[9px] uppercase text-[var(--color-text-muted)] tracking-wider">
                                     🚩 Programação detalhada
                                   </p>
                                   
                                   <div className="space-y-2.5">
                                     {dayItem.destinations.map((dest) => (
-                                      <div key={dest.nome} className="border border-[var(--color-border-light)] rounded-lg overflow-hidden bg-[var(--color-surface)]">
-                                        <div className="bg-[var(--color-surface-alt)]/80 p-2 flex items-center justify-between border-b border-[var(--color-border-light)]">
-                                          <span className="font-bold text-[10px] text-[var(--color-text)] flex items-center gap-1">
+                                      <div key={dest.nome} className="border border-[var(--color-border-light)] rounded-xl overflow-hidden bg-[var(--color-surface-alt)]/25">
+                                        <div className="bg-[var(--color-surface-alt)]/55 px-3 py-1.5 flex items-center justify-between border-b border-[var(--color-border-light)]">
+                                          <span className="font-extrabold text-[10px] text-[var(--color-text)] flex items-center gap-1">
                                             📍 {dest.nome}
                                           </span>
                                           <Link href={`/destino/${slugify(dest.nome)}`}>
-                                            <span className="text-[9px] text-[var(--color-primary)] hover:underline flex items-center gap-0.5 font-semibold">
+                                            <span className="text-[9px] text-[var(--color-primary)] hover:underline flex items-center gap-0.5 font-bold">
                                               Ver destino <ArrowRight className="h-2.5 w-2.5" />
                                             </span>
                                           </Link>
                                         </div>
 
                                         {dest.atracoes && dest.atracoes.length > 0 ? (
-                                          <div className="divide-y divide-[var(--color-border-light)]/60">
+                                          <div className="divide-y divide-[var(--color-border-light)]/40">
                                             {dest.atracoes.map((act) => {
                                               const partner = cadasturData.find(c => c.id === act.parceiroId);
                                               return (
-                                                <div key={act.id} className="p-2 flex gap-2 items-start">
+                                                <div key={act.id} className="p-2.5 flex gap-2.5 items-start hover:bg-[var(--color-surface-hover)]/30 transition-colors">
                                                   {act.imagem && (
-                                                    <div className="relative h-10 w-14 rounded overflow-hidden shrink-0 border border-[var(--color-border-light)]/50">
+                                                    <div className="relative h-11 w-15 rounded-lg overflow-hidden shrink-0 border border-[var(--color-border-light)]/60 shadow-sm">
                                                       <Image 
                                                         src={act.imagem} 
                                                         alt={act.nome} 
@@ -658,7 +685,7 @@ export default function TouristHomePage() {
                                                     </div>
                                                   )}
                                                   <div className="space-y-0.5 flex-1 min-w-0">
-                                                    <h4 className="font-bold text-[10px] text-[var(--color-text)] truncate">
+                                                    <h4 className="font-extrabold text-[10px] text-[var(--color-text)] truncate">
                                                       {act.nome}
                                                     </h4>
                                                     <p className="text-[9px] text-[var(--color-text-secondary)] leading-normal">
@@ -666,7 +693,7 @@ export default function TouristHomePage() {
                                                     </p>
                                                     {partner && (
                                                       <div className="flex items-center gap-1.5 pt-0.5">
-                                                        <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] font-semibold bg-[var(--color-success)]/10 text-[var(--color-success)] border border-[var(--color-success)]/20">
+                                                        <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] font-bold bg-[var(--color-success)]/10 text-[var(--color-success)] border border-[var(--color-success)]/20">
                                                           🛡️ Cadastur: {partner.nome} ({partner.tipo})
                                                         </span>
                                                       </div>
@@ -706,15 +733,6 @@ export default function TouristHomePage() {
                 </div>
               )
             )}
-          </div>
-
-          {/* Right Column: Flat, unblurred, 100% visible active Map */}
-          <div className="lg:col-span-7 relative h-[380px] lg:h-full w-full bg-[var(--color-surface-alt)] border-t lg:border-t-0 lg:border-l border-[var(--color-border)]">
-            <HomeRouteMap 
-              destinations={mapDestinations} 
-              activeDay={expandedDay} 
-              isInteractive={true}
-            />
           </div>
 
         </div>
