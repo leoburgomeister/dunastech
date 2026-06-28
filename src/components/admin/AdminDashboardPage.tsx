@@ -159,67 +159,128 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6 animate-fade-in-up">
-      {/* 1. Filter Control Box */}
-      <Card className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-2 text-xs font-bold text-[var(--color-text-secondary)]">
-          <Filter className="w-4 h-4 text-[var(--color-primary)] animate-pulse" />
-          <span>ESPECIFICIDADE DO PAINEL:</span>
+      {/* 0. Welcome Header Card (Brand Book Style) */}
+      <div className="bg-[var(--color-primary)] text-[var(--color-text-inverted)] rounded-2xl p-6 relative overflow-hidden shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        {/* Background decorative grid */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:3rem_3rem]" />
+        <div className="space-y-1 relative z-10 text-left">
+          <p className="text-[10px] font-black text-[var(--color-accent)] uppercase tracking-widest">Olá, Gestor(a)</p>
+          <h2 className="text-xl sm:text-2xl font-black tracking-tight text-[var(--color-text-inverted)] font-[var(--font-heading)]">Bem-vindo ao Poti RN Gestão</h2>
+          <p className="text-xs text-[var(--color-text-inverted)]/75 max-w-xl font-medium">
+            Acompanhe indicadores, analise dados e tome decisões que impulsionam o desenvolvimento turístico sustentável do Rio Grande do Norte.
+          </p>
         </div>
+        <div className="bg-white/10 backdrop-blur-md border border-white/15 px-3.5 py-1.5 rounded-xl text-center relative z-10 font-bold text-[10px] uppercase tracking-wider text-[var(--color-text-inverted)]">
+          Período: Junho / 2026
+        </div>
+      </div>
 
-        <div className="flex flex-wrap gap-3 items-center">
-          {/* Mode Selector */}
-          <div className="flex rounded-xl overflow-hidden border border-[var(--color-border)]">
+      {/* 1. Filter Control Box (Brand Book Style) */}
+      <Card className="p-4 space-y-4">
+        {/* Macro Regions selectors */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--color-border-light)] pb-3">
+          <div className="flex items-center gap-2 text-xs font-bold text-[var(--color-text-secondary)]">
+            <Globe className="w-4 h-4 text-[var(--color-primary)]" />
+            <span>MACRO REGIÕES DO RN:</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
             {[
-              { id: 'all', label: 'Todo o RN', icon: Globe },
-              { id: 'spot', label: 'Por Ponto', icon: MapPin },
-              { id: 'region', label: 'Por Município', icon: MapPin }
-            ].map(btn => {
-              const active = filterMode === btn.id;
+              { id: 'all', label: 'Todas as regiões' },
+              { id: 'Litoral', label: 'Litoral' },
+              { id: 'Serras', label: 'Serras' },
+              { id: 'Agreste', label: 'Agreste' }
+            ].map(reg => {
+              const active = selectedMacroRegion === reg.id;
               return (
                 <button
-                  key={btn.id}
-                  onClick={() => setFilterMode(btn.id as 'all' | 'spot' | 'region')}
+                  key={reg.id}
+                  onClick={() => {
+                    setSelectedMacroRegion(reg.id as any);
+                    setFilterMode('all'); // Reset specific filters on macro-region change
+                  }}
                   className={cn(
-                    "px-3 py-2 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer",
+                    "px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer",
                     active
-                      ? "bg-[var(--color-primary-soft)] text-[var(--color-primary)]"
-                      : "bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-alt)]"
+                      ? "bg-[var(--color-primary)] border-[var(--color-primary)] text-[var(--color-text-inverted)] font-bold shadow-sm"
+                      : "bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
                   )}
                 >
-                  <btn.icon className="w-3.5 h-3.5" />
-                  <span>{btn.label}</span>
+                  {reg.label}
                 </button>
               );
             })}
           </div>
+        </div>
 
-          {/* Conditional Selectors */}
-          {filterMode === 'spot' && (
-            <select
-              value={selectedSpot}
-              onChange={(e) => setSelectedSpot(e.target.value)}
-              className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs font-semibold text-[var(--color-text)] focus:outline-none cursor-pointer"
-            >
-              {spots.map(s => <option key={s} value={s}>📍 {s.split(" e ")[0]}</option>)}
-            </select>
-          )}
+        {/* Specific selectors */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs font-bold text-[var(--color-text-secondary)]">
+            <Filter className="w-4 h-4 text-[var(--color-primary)] animate-pulse" />
+            <span>ESPECIFICIDADE DO PAINEL:</span>
+          </div>
 
-          {filterMode === 'region' && (
-            <select
-              value={selectedRegion}
-              onChange={(e) => setSelectedRegion(e.target.value)}
-              className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs font-semibold text-[var(--color-text)] focus:outline-none cursor-pointer"
-            >
-              {regions.map(r => <option key={r} value={r}>🏙️ {r}</option>)}
-            </select>
-          )}
+          <div className="flex flex-wrap gap-3 items-center">
+            {/* Mode Selector */}
+            <div className="flex rounded-xl overflow-hidden border border-[var(--color-border)]">
+              {[
+                { id: 'all', label: 'Todo o RN', icon: Globe },
+                { id: 'spot', label: 'Por Ponto', icon: MapPin },
+                { id: 'region', label: 'Por Município', icon: MapPin }
+              ].map(btn => {
+                const active = filterMode === btn.id;
+                return (
+                  <button
+                    key={btn.id}
+                    onClick={() => setFilterMode(btn.id as 'all' | 'spot' | 'region')}
+                    className={cn(
+                      "px-3 py-2 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer",
+                      active
+                        ? "bg-[var(--color-primary-soft)] text-[var(--color-primary)]"
+                        : "bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-alt)]"
+                    )}
+                  >
+                    <btn.icon className="w-3.5 h-3.5" />
+                    <span>{btn.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Conditional Selectors */}
+            {filterMode === 'spot' && (
+              <select
+                value={selectedSpot}
+                onChange={(e) => setSelectedSpot(e.target.value)}
+                className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs font-semibold text-[var(--color-text)] focus:outline-none cursor-pointer"
+              >
+                {spots
+                  .filter(s => selectedMacroRegion === 'all' || getMacroRegion(s) === selectedMacroRegion)
+                  .map(s => <option key={s} value={s}>📍 {s.split(" e ")[0]}</option>)}
+              </select>
+            )}
+
+            {filterMode === 'region' && (
+              <select
+                value={selectedRegion}
+                onChange={(e) => setSelectedRegion(e.target.value)}
+                className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs font-semibold text-[var(--color-text)] focus:outline-none cursor-pointer"
+              >
+                {regions
+                  .filter(r => {
+                    const spotInRegion = destinosInfo.find(d => d.municipio === r);
+                    return selectedMacroRegion === 'all' || (spotInRegion && getMacroRegion(spotInRegion.nome) === selectedMacroRegion);
+                  })
+                  .map(r => <option key={r} value={r}>🏙️ {r}</option>)}
+              </select>
+            )}
+          </div>
         </div>
       </Card>
 
       {/* Critical Alert Banner */}
       {kpis.criticalCount > 0 && (
         <div 
-          className="rounded-xl border border-[var(--color-danger)]/20 bg-[var(--color-danger-soft)] overflow-hidden transition-all duration-300"
+          className="rounded-xl border border-[var(--color-danger)]/20 bg-[var(--color-danger-soft)] overflow-hidden transition-all duration-300 animate-pulse"
         >
           {/* Header/Banner clickable */}
           <div 
@@ -227,7 +288,7 @@ export default function AdminDashboardPage() {
             className="flex items-center justify-between p-4 cursor-pointer hover:bg-[var(--color-danger-soft)]/80 select-none"
           >
             <div className="flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-[var(--color-danger)] flex-shrink-0 animate-bounce" />
+              <AlertTriangle className="h-5 w-5 text-[var(--color-danger)] flex-shrink-0" />
               <p className="text-sm text-[var(--color-danger)] font-medium">
                 <span className="font-bold">{kpis.criticalCount}</span> destino{kpis.criticalCount > 1 ? 's' : ''} requer{kpis.criticalCount > 1 ? 'em' : ''} atenção urgente (ISA {'<'} 60)
               </p>
@@ -270,13 +331,13 @@ export default function AdminDashboardPage() {
                   }
 
                   return (
-                    <div key={dest.nome} className="p-3.5 rounded-lg border border-[var(--color-danger)]/15 bg-[var(--color-surface)] text-xs space-y-2">
+                    <div key={dest.nome} className="p-3.5 rounded-lg border border-[var(--color-danger)]/15 bg-[var(--color-surface)] text-xs space-y-2 text-left">
                       <div className="flex items-center justify-between border-b border-[var(--color-border-light)] pb-1.5">
                         <div>
                           <h4 className="font-bold text-[var(--color-text)]">{dest.nome}</h4>
                           <p className="text-[10px] text-[var(--color-text-muted)]">Município: {dest.municipio}</p>
                         </div>
-                        <Badge variant="danger" size="sm" className="font-mono font-bold">ISA {dest.isa}</Badge>
+                        <Badge variant="danger" size="sm" className="font-mono font-bold font-black">ISA {dest.isa}</Badge>
                       </div>
 
                       <div className="space-y-1">
@@ -294,12 +355,12 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* KPI Cards */}
+      {/* KPI Cards (Brand Book Rebranded Style) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 stagger-children">
         <KPICard
-          title="Visitantes no Perfil"
-          value={kpis.totalVisitors >= 1000 ? `${(kpis.totalVisitors / 1000).toFixed(0)}k` : kpis.totalVisitors.toString()}
-          trend={{ value: 12, direction: 'up' }}
+          title="Visitantes"
+          value={kpis.totalVisitors >= 1000 ? `${(kpis.totalVisitors).toLocaleString('pt-BR')}` : kpis.totalVisitors.toString()}
+          trend={{ value: 12.5, direction: 'up' }}
           icon={Users}
           accentColor="primary"
           formula={{
@@ -310,40 +371,40 @@ export default function AdminDashboardPage() {
           active={expandedKPI === 'visitors'}
         />
         <KPICard
-          title="Receita Gerada"
-          value={kpis.totalRevenue > 0 ? `R$ ${kpis.totalRevenue.toFixed(1)}M` : "R$ 0M"}
-          trend={{ value: 8, direction: 'up' }}
-          icon={DollarSign}
+          title="Ocupação Média"
+          value={`${kpis.avgOccupancy}%`}
+          trend={{ value: 8.1, direction: 'up' }}
+          icon={Activity}
           accentColor="success"
           formula={{
-            expressao: "∑ (Receita Mensal em Milhões)",
-            explicacao: "Soma do impacto financeiro direto estimado em milhões de reais nos destinos ativos no filtro."
-          }}
-          onClick={() => setExpandedKPI(expandedKPI === 'revenue' ? null : 'revenue')}
-          active={expandedKPI === 'revenue'}
-        />
-        <KPICard
-          title="ISA do Filtro"
-          value={`${kpis.avgISA}`}
-          trend={{ value: 3, direction: kpis.avgISA >= 70 ? 'up' : 'down' }}
-          icon={Activity}
-          accentColor={kpis.avgISA >= 70 ? 'accent' : 'warning'}
-          formula={{
-            expressao: "Média (ISA dos Destinos)",
-            explicacao: "Média aritmética do Índice de Saúde do Atrativo (ISA) ponderado por critérios de zeladoria e superlotação dos pontos sob o filtro."
+            expressao: "Média (Saturação Geográfica)",
+            explicacao: "Média aritmética da ocupação e saturação dos destinos com base na capacidade máxima de carga."
           }}
           onClick={() => setExpandedKPI(expandedKPI === 'isa' ? null : 'isa')}
           active={expandedKPI === 'isa'}
         />
         <KPICard
-          title="Variação de Fluxo"
-          value={`${kpis.avgVariation > 0 ? '+' : ''}${kpis.avgVariation}%`}
-          trend={{ value: Math.abs(kpis.avgVariation), direction: kpis.avgVariation >= 0 ? 'up' : 'down' }}
+          title="Gasto Médio"
+          value="R$ 312,40"
+          trend={{ value: 15.3, direction: 'up' }}
+          icon={DollarSign}
+          accentColor="accent"
+          formula={{
+            expressao: "Média Ponderada (Ticket Médio)",
+            explicacao: "Ticket médio diário gasto por turista em alimentação, passeios e hospedagem regularizada."
+          }}
+          onClick={() => setExpandedKPI(expandedKPI === 'revenue' ? null : 'revenue')}
+          active={expandedKPI === 'revenue'}
+        />
+        <KPICard
+          title="Arrecadação (ISS)"
+          value={kpis.totalRevenue > 0 ? `R$ ${(kpis.totalRevenue * 0.15).toFixed(1)}M` : "R$ 0M"}
+          trend={{ value: 10.7, direction: 'up' }}
           icon={TrendingUp}
           accentColor="info"
           formula={{
-            expressao: "Média (Variação de Transporte)",
-            explicacao: "Média percentual de crescimento ou queda no fluxo de ônibus, veículos e voos terrestres/aéreos contra o mesmo período anterior."
+            expressao: "Estimativa ISS (Receita * 15%)",
+            explicacao: "Impacto fiscal direto estimado para a arrecadação de tributos municipais dos destinos selecionados."
           }}
           onClick={() => setExpandedKPI(expandedKPI === 'variation' ? null : 'variation')}
           active={expandedKPI === 'variation'}
