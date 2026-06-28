@@ -15,6 +15,7 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { type DestinoInfo, cadasturData, fluxoData } from '@/data/mockData';
 import { useAuth } from '@/providers/AuthProvider';
 import { addFeedback } from '@/lib/firebase';
+import { cn } from '@/lib/utils';
 
 // Dynamically load Map component to prevent SSR window error
 const DestinationMap = dynamic(
@@ -43,6 +44,29 @@ export default function DestinationDetailPage({ destination }: DestinationDetail
 
   const stats = useMemo(() => {
     return fluxoData.find(f => f.destino === destination.nome);
+  }, [destination]);
+
+  const capacityLimit = useMemo(() => {
+    const name = destination.nome;
+    if (name.includes("Ponta Negra")) return "4.500 p/dia";
+    if (name.includes("Pipa")) return "2.000 p/dia";
+    if (name.includes("Cajueiro")) return "1.500 p/dia";
+    if (name.includes("Genipabu")) return "1.800 p/dia";
+    if (name.includes("Gostoso")) return "1.000 p/dia";
+    if (name.includes("Forte")) return "800 p/dia";
+    if (name.includes("Maracajaú")) return "600 p/dia";
+    if (name.includes("Galinhos")) return "500 p/dia";
+    if (name.includes("Soledade")) return "300 p/dia";
+    if (name.includes("Macau")) return "400 p/dia";
+    return "700 p/dia";
+  }, [destination]);
+
+  const recommendedPermanence = useMemo(() => {
+    const name = destination.nome;
+    if (name.includes("Ponta Negra") || name.includes("Pipa") || name.includes("Gostoso")) return "Dia Inteiro";
+    if (name.includes("Cajueiro") || name.includes("Forte") || name.includes("Soledade")) return "2 a 3 horas";
+    if (name.includes("Genipabu") || name.includes("Maracajaú")) return "4 a 5 horas";
+    return "Meio Dia (4h)";
   }, [destination]);
 
   const handleAuditSubmit = async (e: React.FormEvent) => {
@@ -91,7 +115,7 @@ export default function DestinationDetailPage({ destination }: DestinationDetail
       {/* Header Banner */}
       <div className="relative h-96 w-full rounded-3xl overflow-hidden shadow-xl">
         <Image
-          src={destination.imagem || 'https://images.unsplash.com/photo-1598301257942-e6bde1d2149b?w=800&h=500&fit=crop'}
+          src={destination.imagem || '/images/destinations/hero_ponta_negra.png'}
           alt={destination.nome}
           fill
           className="object-cover brightness-[0.85]"
@@ -99,7 +123,7 @@ export default function DestinationDetailPage({ destination }: DestinationDetail
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
         <div className="absolute bottom-6 left-6 right-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-          <div className="space-y-2">
+          <div className="space-y-2 text-left">
             <Badge variant="accent" size="md">
               <Award className="h-3 w-3" />
               Sustentabilidade Certificada
@@ -113,17 +137,43 @@ export default function DestinationDetailPage({ destination }: DestinationDetail
             </p>
           </div>
           {stats && (
-            <div className="flex gap-4 bg-black/40 backdrop-blur-md p-4 rounded-2xl border border-white/10 text-white self-start sm:self-auto">
-              <div className="text-center">
-                <p className="text-xl font-bold font-[var(--font-mono)]">{stats.saturacao_turistica}%</p>
-                <p className="text-[10px] text-white/60 uppercase">Saturação</p>
+            <div className="flex flex-wrap gap-4 bg-black/50 backdrop-blur-md p-4 rounded-2xl border border-white/10 text-white self-start sm:self-auto text-left">
+              <div className="text-left min-w-[70px]">
+                <p className="text-xs text-white/60 uppercase font-bold tracking-wider leading-none mb-1">Lotação</p>
+                <p className="text-sm font-black flex items-center gap-1.5 leading-tight">
+                  <span className={cn(
+                    'h-2 w-2 rounded-full animate-pulse',
+                    stats.saturacao_turistica <= 50 ? 'bg-emerald-400' : stats.saturacao_turistica <= 75 ? 'bg-amber-400' : 'bg-rose-500'
+                  )} />
+                  {stats.saturacao_turistica <= 50 ? 'Tranquilo' : stats.saturacao_turistica <= 75 ? 'Moderado' : 'Intenso'}
+                </p>
               </div>
-              <div className="w-px h-10 bg-white/20" />
-              <div className="text-center">
-                <p className="text-xl font-bold font-[var(--font-mono)]">
+              
+              <div className="w-px h-8 bg-white/20" />
+              
+              <div className="text-left min-w-[70px]">
+                <p className="text-xs text-white/60 uppercase font-bold tracking-wider leading-none mb-1">Fluxo/Mês</p>
+                <p className="text-sm font-black font-[var(--font-mono)] leading-tight">
                   {(stats.fluxo_visitantes_mes / 1000).toFixed(0)}k
                 </p>
-                <p className="text-[10px] text-white/60 uppercase">Fluxo/mês</p>
+              </div>
+
+              <div className="w-px h-8 bg-white/20" />
+
+              <div className="text-left min-w-[80px]">
+                <p className="text-xs text-white/60 uppercase font-bold tracking-wider leading-none mb-1">Permanência</p>
+                <p className="text-xs font-bold leading-tight">
+                  {recommendedPermanence}
+                </p>
+              </div>
+
+              <div className="w-px h-8 bg-white/20" />
+
+              <div className="text-left min-w-[90px]">
+                <p className="text-xs text-white/60 uppercase font-bold tracking-wider leading-none mb-1">Carga Ecológica</p>
+                <p className="text-xs font-bold leading-tight text-[var(--color-accent)]">
+                  {capacityLimit}
+                </p>
               </div>
             </div>
           )}

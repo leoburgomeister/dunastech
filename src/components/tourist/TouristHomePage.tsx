@@ -786,14 +786,32 @@ export default function TouristHomePage() {
                         Fluxo: <strong className="text-[var(--color-text)]">{dest.fluxo ? (dest.fluxo.fluxo_visitantes_mes / 1000).toFixed(0) + 'k' : '0'}</strong>/mês
                       </span>
                       <div className="hidden sm:block h-3 w-px bg-[var(--color-border-light)]" />
+                      
+                      {dest.fluxo && (
+                        <>
+                          <span className="flex items-center gap-1">
+                            <span className={cn(
+                              'h-1.5 w-1.5 rounded-full',
+                              dest.fluxo.saturacao_turistica <= 50 ? 'bg-emerald-500' : dest.fluxo.saturacao_turistica <= 75 ? 'bg-amber-500' : 'bg-rose-500'
+                            )} />
+                            Lotação: <strong className="text-[var(--color-text)]">
+                              {dest.fluxo.saturacao_turistica <= 50 ? 'Tranquilo' : dest.fluxo.saturacao_turistica <= 75 ? 'Moderado' : 'Intenso'}
+                            </strong>
+                          </span>
+                          <div className="hidden sm:block h-3 w-px bg-[var(--color-border-light)]" />
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3.5 w-3.5 text-indigo-400" />
+                            Melhor Horário: <strong className="text-[var(--color-text)]">
+                              {dest.fluxo.saturacao_turistica <= 50 ? 'Qualquer horário' : dest.fluxo.saturacao_turistica <= 75 ? 'Fora de pico (11h-14h)' : 'Início da manhã / fim de tarde'}
+                            </strong>
+                          </span>
+                          <div className="hidden sm:block h-3 w-px bg-[var(--color-border-light)]" />
+                        </>
+                      )}
+
                       <span className="flex items-center gap-1">
                         <Shield className="h-3.5 w-3.5 text-[var(--color-success)]" />
                         Cadastur: <strong className="text-[var(--color-text)]">{dest.partners.length}</strong> parceiros
-                      </span>
-                      <div className="hidden sm:block h-3 w-px bg-[var(--color-border-light)]" />
-                      <span className="flex items-center gap-1">
-                        <span className="text-[var(--color-accent)] font-bold">#</span>
-                        Hashtag: <strong className="text-[var(--color-text)]">#{dest.hashtag}</strong>
                       </span>
                     </div>
                   </div>

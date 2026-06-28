@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, MapPin, MessageSquare, Share2, Brain, FileText,
-  Sun, ChevronLeft, ChevronRight, LogOut, Settings, ShieldCheck,
+  Sun, ChevronLeft, ChevronRight, LogOut, Settings, ShieldCheck, Building,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
@@ -15,6 +15,7 @@ import { useAuth } from '@/providers/AuthProvider';
 const navItems = [
   { href: '/gestao', icon: LayoutDashboard, label: 'Visão Geral' },
   { href: '/gestao/destinos', icon: MapPin, label: 'Destinos' },
+  { href: '/gestao/cidades', icon: Building, label: 'Municípios' },
   { href: '/gestao/cadastur', icon: ShieldCheck, label: 'Cadastur' },
   { href: '/gestao/feedbacks', icon: MessageSquare, label: 'Feedbacks' },
   { href: '/gestao/social', icon: Share2, label: 'Social' },

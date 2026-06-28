@@ -19,6 +19,7 @@ export interface DestinoInfo {
   longitude: number;
   atracoes: AttractionActivity[];
   hashtag: string;
+  monitorado?: boolean;
 }
 
 export interface IBGEData {
@@ -89,29 +90,30 @@ export interface Feedback {
   timestamp: number;
 }
 
-// --- 15 DESTINOS REAIS DO RN ---
+// --- 20 DESTINOS REAIS DO RN (15 Originais + 5 Adicionados) ---
 export const destinosInfo: DestinoInfo[] = [
   {
     nome: "Ponta Negra e Morro do Careca",
     municipio: "Natal",
-    descricao: "Principal cartão-postal de Natal, famoso pela duna de 120 metros e excelente infraestrutura de lazer, gastronomia e hotelaria.",
-    imagem: "https://images.unsplash.com/photo-1598301257942-e6bde1d2149b?w=800&h=500&fit=crop",
+    descricao: "O principal cartão-postal de Natal, famoso pela icônica duna de 120 metros cercada por Mata Atlântica e uma enseada de águas calmas. O local possui excelente infraestrutura de lazer, gastronomia e hotelaria à beira-mar, atraindo milhares de banhistas e entusiastas de esportes aquáticos.",
+    imagem: "/images/destinations/hero_ponta_negra.png",
     latitude: -5.8811,
     longitude: -35.1711,
     hashtag: "pontanegranatal",
+    monitorado: true,
     atracoes: [
       {
         id: "act-pn-1",
         nome: "Passeio de Jangada no Morro",
         descricao: "Navegação tradicional contornando a enseada de Ponta Negra com vista do Morro do Careca.",
-        imagem: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&h=350&fit=crop",
+        imagem: "/images/destinations/hero_ponta_negra.png",
         parceiroId: "cad-pn-3"
       },
       {
         id: "act-pn-2",
         nome: "Stand Up Paddle na Enseada",
         descricao: "Prática esportiva em águas calmas perto do morro.",
-        imagem: "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?w=500&h=350&fit=crop",
+        imagem: "/images/destinations/hero_ponta_negra.png",
         parceiroId: "cad-pn-3"
       }
     ]
@@ -119,24 +121,25 @@ export const destinosInfo: DestinoInfo[] = [
   {
     nome: "Praia da Pipa",
     municipio: "Tibau do Sul",
-    descricao: "Destino cosmopolita mundialmente famoso por suas falésias imponentes, golfinhos na Baía dos Golfinhos e noite eletrizante.",
-    imagem: "https://images.unsplash.com/photo-1590012314607-cda9d9b699ae?w=800&h=500&fit=crop",
+    descricao: "Destino de renome internacional situado no município de Tibau do Sul. Famoso por suas imponentes falésias coloridas de arenito, mar calmo com águas cristalinas propícias ao surf e a frequente presença de golfinhos na Baía dos Golfinhos. À noite, a vila se transforma com um vibrante polo gastronômico e boêmio.",
+    imagem: "/images/destinations/pipa.png",
     latitude: -6.2275,
     longitude: -35.0475,
     hashtag: "praiadapipa",
+    monitorado: true,
     atracoes: [
       {
         id: "act-pipa-1",
         nome: "Observação de Golfinhos",
         descricao: "Passeio de barco para avistar golfinhos em seu habitat natural.",
-        imagem: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=500&h=350&fit=crop",
+        imagem: "/images/destinations/pipa.png",
         parceiroId: "cad-pipa-3"
       },
       {
         id: "act-pipa-2",
         nome: "Trilha no Santuário Ecológico",
         descricao: "Caminhadas sob a Mata Atlântica preservada com mirantes para as praias.",
-        imagem: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=500&h=350&fit=crop",
+        imagem: "/images/destinations/pipa.png",
         parceiroId: "cad-pipa-3"
       }
     ]
@@ -144,24 +147,25 @@ export const destinosInfo: DestinoInfo[] = [
   {
     nome: "Dunas de Genipabu",
     municipio: "Extremoz",
-    descricao: "Famoso complexo de dunas móveis e lagoas. O passeio de buggy clássico do estado com muita adrenalina.",
-    imagem: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&h=500&fit=crop",
+    descricao: "Complexo monumental de dunas móveis e lagoas cristalinas em Extremoz. É o berço dos clássicos passeios de buggy regados a 'emoção' no Rio Grande do Norte, onde turistas desfrutam de vistas panorâmicas espetaculares da costa potiguar.",
+    imagem: "/images/destinations/genipabu.png",
     latitude: -5.7089,
     longitude: -35.1967,
     hashtag: "genipabu",
+    monitorado: true,
     atracoes: [
       {
         id: "act-gen-1",
         nome: "Passeio de Buggy com Emoção",
         descricao: "Aventura pelas dunas móveis com paradas para fotos e lagoa.",
-        imagem: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=500&h=350&fit=crop",
+        imagem: "/images/destinations/genipabu.png",
         parceiroId: "cad-gen-3"
       },
       {
         id: "act-gen-2",
         nome: "Esquibunda nas Dunas",
         descricao: "Descida em prancha de madeira direto na lagoa de Genipabu.",
-        imagem: "https://images.unsplash.com/photo-1468413253725-0d5181091126?w=500&h=350&fit=crop",
+        imagem: "/images/destinations/genipabu.png",
         parceiroId: "cad-gen-3"
       }
     ]
@@ -169,17 +173,18 @@ export const destinosInfo: DestinoInfo[] = [
   {
     nome: "Parrachos de Maracajaú",
     municipio: "Maxaranguape",
-    descricao: "Piscinas naturais a 7km da costa, ideais para snorkeling entre corais e peixes coloridos.",
-    imagem: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&h=500&fit=crop",
+    descricao: "Famosas piscinas naturais a sete quilômetros da costa de Maxaranguape. Os corais formam um aquário natural de águas mornas e transparentes, ideal para a prática de snorkel e mergulho livre entre peixes coloridos.",
+    imagem: "/images/destinations/maracajau.png",
     latitude: -5.4092,
     longitude: -35.3131,
     hashtag: "maracajau",
+    monitorado: true,
     atracoes: [
       {
         id: "act-mar-1",
         nome: "Mergulho nos Parrachos",
         descricao: "Exploração dos corais em águas mornas e translúcidas guiada.",
-        imagem: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=500&h=350&fit=crop",
+        imagem: "/images/destinations/maracajau.png",
         parceiroId: "cad-mar-3"
       }
     ]
@@ -187,17 +192,18 @@ export const destinosInfo: DestinoInfo[] = [
   {
     nome: "São Miguel do Gostoso",
     municipio: "São Miguel do Gostoso",
-    descricao: "Charmosa vila de pescadores conhecida mundialmente pela prática de esportes à vela e ventos constantes.",
-    imagem: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&h=500&fit=crop",
+    descricao: "Uma das vilas de pescadores mais charmosas e preservadas do litoral norte potiguar. Conhecida mundialmente por seus ventos constantes que atraem velejadores de kitesurf e windsurf, além de pousadas aconchegantes e praias desertas propícias para descanso.",
+    imagem: "/images/destinations/sao_miguel.png",
     latitude: -5.1247,
     longitude: -35.6392,
     hashtag: "saomigueldogostoso",
+    monitorado: true,
     atracoes: [
       {
         id: "act-gost-1",
         nome: "Kitesurf e Windsurf",
         descricao: "Aprenda a velejar com campeões locais nos ventos mais constantes do país.",
-        imagem: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=500&h=350&fit=crop",
+        imagem: "/images/destinations/sao_miguel.png",
         parceiroId: "cad-gost-2"
       }
     ]
@@ -205,17 +211,18 @@ export const destinosInfo: DestinoInfo[] = [
   {
     nome: "Forte dos Reis Magos",
     municipio: "Natal",
-    descricao: "Fortaleza histórica de 1598 localizada no encontro do Rio Potengi com o mar.",
-    imagem: "https://images.unsplash.com/photo-1599930113854-d6d7fd521f10?w=800&h=500&fit=crop",
+    descricao: "Fortaleza histórica de pedra datada de 1598, em formato de estrela, localizada na foz do Rio Potengi. É o marco inicial da fundação de Natal, abrigando canhões e relíquias do período colonial sob preservação histórica.",
+    imagem: "/images/destinations/forte_dos_reis_magos.png",
     latitude: -5.7564,
     longitude: -35.1947,
     hashtag: "fortedosreismagos",
+    monitorado: true,
     atracoes: [
       {
         id: "act-forte-1",
         nome: "Visita Histórica",
         descricao: "Descubra marcos coloniais e canhões históricos da fundação de Natal.",
-        imagem: "https://images.unsplash.com/photo-1599930113854-d6d7fd521f10?w=500&h=350&fit=crop",
+        imagem: "/images/destinations/forte_dos_reis_magos.png",
         parceiroId: "cad-forte-2"
       }
     ]
@@ -223,17 +230,18 @@ export const destinosInfo: DestinoInfo[] = [
   {
     nome: "Galinhos",
     municipio: "Galinhos",
-    descricao: "Península isolada de sal com dunas gigantes, salinas naturais e passeios ecológicos de barco.",
-    imagem: "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=800&h=500&fit=crop",
+    descricao: "Uma deslumbrante península de pescadores isolada do turismo de massa, cercada de dunas gigantes, salinas naturais e manguezais intocados. O acesso é feito apenas de barco ou veículo tracionado 4x4.",
+    imagem: "/images/destinations/galinhos.png",
     latitude: -5.0917,
     longitude: -36.2742,
     hashtag: "galinhos",
+    monitorado: true,
     atracoes: [
       {
         id: "act-gal-1",
         nome: "Passeio de Barco pelo Rio",
         descricao: "Navegação por manguezais e salinas desfrutando do silêncio da península.",
-        imagem: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=500&h=350&fit=crop",
+        imagem: "/images/destinations/galinhos.png",
         parceiroId: "cad-gal-2"
       }
     ]
@@ -241,17 +249,18 @@ export const destinosInfo: DestinoInfo[] = [
   {
     nome: "Maior Cajueiro do Mundo",
     municipio: "Parnamirim",
-    descricao: "Cajueiro gigante que cobre mais de 8.500 metros quadrados, registrado no Guinness Book.",
-    imagem: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&h=500&fit=crop",
+    descricao: "Patrimônio natural situado em Pirangi, no município de Parnamirim. Registrado no Guinness Book por cobrir uma área colossal de mais de 8.500 metros quadrados, resultado de uma anomalia genética que faz seus galhos crescerem para os lados e criarem novas raízes.",
+    imagem: "/images/destinations/maior_caju.png",
     latitude: -5.9739,
     longitude: -35.1289,
     hashtag: "maiorcajueiro",
+    monitorado: true,
     atracoes: [
       {
         id: "act-caju-1",
         nome: "Trilha Suspensa do Cajueiro",
         descricao: "Caminhada sob a copa gigante do maior cajueiro do mundo.",
-        imagem: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=500&h=350&fit=crop",
+        imagem: "/images/destinations/maior_caju.png",
         parceiroId: "cad-caju-2"
       }
     ]
@@ -259,17 +268,18 @@ export const destinosInfo: DestinoInfo[] = [
   {
     nome: "Praia do Madeiro",
     municipio: "Tibau do Sul",
-    descricao: "Considerada uma das enseadas mais bonitas das Américas, com golfinhos frequentes.",
-    imagem: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=500&fit=crop",
+    descricao: "Um verdadeiro refúgio ecológico em Tibau do Sul, cercado por imensas falésias avermelhadas e Mata Atlântica. É muito procurado para caminhadas, aulas de surf para iniciantes e avistamento frequente de golfinhos bem próximos à orla.",
+    imagem: "/images/destinations/pipa.png",
     latitude: -6.2000,
     longitude: -35.0500,
     hashtag: "praiadomadeiro",
+    monitorado: true,
     atracoes: [
       {
         id: "act-mad-1",
         nome: "Escola de Surf do Madeiro",
         descricao: "Aulas práticas com instrutores nas ondas perfeitas do Madeiro.",
-        imagem: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&h=350&fit=crop",
+        imagem: "/images/destinations/pipa.png",
         parceiroId: "cad-mad-2"
       }
     ]
@@ -277,17 +287,18 @@ export const destinosInfo: DestinoInfo[] = [
   {
     nome: "Lagoa de Pitangui",
     municipio: "Extremoz",
-    descricao: "Lagoa de água doce calma e morna, ponto turístico da rota norte potiguar.",
-    imagem: "https://images.unsplash.com/photo-1468413253725-0d5181091126?w=800&h=500&fit=crop",
+    descricao: "Oásis de águas calmas, mornas e doce no coração de dunas em Extremoz. Equipada com estruturas de lazer como redários dentro da água e tirolesas, é um destino familiar imperdível para relaxamento completo.",
+    imagem: "/images/destinations/genipabu.png",
     latitude: -5.7250,
     longitude: -35.2100,
     hashtag: "lagoadepitangui",
+    monitorado: true,
     atracoes: [
       {
         id: "act-pit-1",
         nome: "Redário e Tirolesa na Lagoa",
         descricao: "Redes na água e diversão em tirolesas na lagoa cristalina.",
-        imagem: "https://images.unsplash.com/photo-1468413253725-0d5181091126?w=500&h=350&fit=crop",
+        imagem: "/images/destinations/genipabu.png",
         parceiroId: "cad-pit-2"
       }
     ]
@@ -295,17 +306,18 @@ export const destinosInfo: DestinoInfo[] = [
   {
     nome: "Barreira do Inferno",
     municipio: "Parnamirim",
-    descricao: "Centro de lançamento espacial histórico brasileiro rodeado por falésias avermelhadas.",
-    imagem: "https://images.unsplash.com/photo-1457364559154-aa2644600ebb?w=800&h=500&fit=crop",
+    descricao: "Primeira base de lançamento de foguetes da América do Sul, inaugurada em 1965 em Parnamirim. O local integra pesquisas aeroespaciais com um museu de aviação e exibe belíssimas falésias vermelhas à beira-mar.",
+    imagem: "/images/destinations/hero_ponta_negra.png",
     latitude: -5.8915,
     longitude: -35.1797,
     hashtag: "barreiradoinferno",
+    monitorado: true,
     atracoes: [
       {
         id: "act-clbi-1",
         nome: "Museu Aeroespacial Potiguar",
         descricao: "Exposição de foguetes reais, radares e aviões de combate.",
-        imagem: "https://images.unsplash.com/photo-1457364559154-aa2644600ebb?w=500&h=350&fit=crop",
+        imagem: "/images/destinations/hero_ponta_negra.png",
         parceiroId: "cad-clbi-1"
       }
     ]
@@ -313,17 +325,18 @@ export const destinosInfo: DestinoInfo[] = [
   {
     nome: "Barra de Cunhaú",
     municipio: "Canguaretama",
-    descricao: "Encontro do Rio Curimataú com o mar, famoso pelos manguezais e pratos de caranguejo.",
-    imagem: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&h=500&fit=crop",
+    descricao: "Onde o Rio Curimataú encontra as águas salgadas do oceano em Canguaretama. Um destino exuberante cercado por manguezais, ideal para saborear pratos típicos à base de caranguejos e curtir praias de águas calmas.",
+    imagem: "/images/destinations/galinhos.png",
     latitude: -6.3103,
     longitude: -35.0553,
     hashtag: "barradecunhau",
+    monitorado: true,
     atracoes: [
       {
         id: "act-cun-1",
         nome: "Passeio do Manguezal",
         descricao: "Pesquisa ecológica pelos rios, mangues e captura ecológica de caranguejos.",
-        imagem: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=500&h=350&fit=crop",
+        imagem: "/images/destinations/galinhos.png",
         parceiroId: "cad-cun-2"
       }
     ]
@@ -331,17 +344,18 @@ export const destinosInfo: DestinoInfo[] = [
   {
     nome: "Parque das Dunas",
     municipio: "Natal",
-    descricao: "Importante reserva de Mata Atlântica no coração da capital, com trilhas guiadas.",
-    imagem: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&h=500&fit=crop",
+    descricao: "Maior reserva de Mata Atlântica urbana do Rio Grande do Norte, localizada no centro de Natal. Oferece trilhas ecológicas monitoradas sob a copa de árvores nativas, além de áreas de lazer infantil e piqueniques.",
+    imagem: "/images/destinations/genipabu.png",
     latitude: -5.8400,
     longitude: -35.1970,
     hashtag: "parquedasdunas",
+    monitorado: true,
     atracoes: [
       {
         id: "act-dunas-1",
         nome: "Trilha Ecológica da Peroba",
         descricao: "Caminhada na mata densa das dunas com guias ambientais.",
-        imagem: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=500&h=350&fit=crop",
+        imagem: "/images/destinations/genipabu.png",
         parceiroId: "cad-dunas-2"
       }
     ]
@@ -349,17 +363,18 @@ export const destinosInfo: DestinoInfo[] = [
   {
     nome: "Cidade Histórica de Mossoró",
     municipio: "Mossoró",
-    descricao: "Terra da abolição precoce e da resistência ao bando do temido Lampião.",
-    imagem: "https://images.unsplash.com/photo-1518639192441-8fce0a366e2e?w=800&h=500&fit=crop",
+    descricao: "O coração cultural e histórico da segunda maior cidade do estado. Famosa por seu protagonismo na abolição precoce da escravidão em 1883 e pela heróica resistência popular que afugentou o bando de cangaço do temido Lampião em 1927.",
+    imagem: "/images/destinations/mossoro_historico.png",
     latitude: -5.1878,
     longitude: -37.3444,
     hashtag: "mossoro",
+    monitorado: true,
     atracoes: [
       {
         id: "act-mos-1",
         nome: "Memorial da Resistência ao Cangaço",
         descricao: "Roteiro histórico pelos murais e trincheiras da batalha contra Lampião.",
-        imagem: "https://images.unsplash.com/photo-1518639192441-8fce0a366e2e?w=500&h=350&fit=crop",
+        imagem: "/images/destinations/mossoro_historico.png",
         parceiroId: "cad-mos-2"
       }
     ]
@@ -367,18 +382,114 @@ export const destinosInfo: DestinoInfo[] = [
   {
     nome: "Lajedo de Soledade",
     municipio: "Apodi",
-    descricao: "Grandiosa formação calcária no sertão com impressionantes pinturas rupestres pré-históricas.",
-    imagem: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&h=500&fit=crop",
+    descricao: "Um impressionante sítio arqueológico em Apodi, composto por uma vasta planície de rocha calcária esculpida por rios subterrâneos pré-históricos. Abriga desfiladeiros repletos de fósseis de animais da megafauna e intrigantes pinturas rupestres.",
+    imagem: "/images/destinations/lajedo_soledade.png",
     latitude: -5.5833,
     longitude: -37.8000,
     hashtag: "lajedodesoledade",
+    monitorado: true,
     atracoes: [
       {
         id: "act-apo-1",
         nome: "Passeio Arqueológico Soledade",
         descricao: "Pesquisa arqueológica guiada por desfiladeiros de fósseis.",
-        imagem: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=500&h=350&fit=crop",
+        imagem: "/images/destinations/lajedo_soledade.png",
         parceiroId: "cad-apo-2"
+      }
+    ]
+  },
+  {
+    nome: "Salinas e Indústria Salineira de Macau",
+    municipio: "Macau",
+    descricao: "Principal polo salineiro do país. Oferece uma paisagem industrial e natural fascinante com imensas pirâmides de sal marinho branco que se assemelham a dunas de neve sob o sol forte do litoral norte potiguar.",
+    imagem: "/images/destinations/galinhos.png",
+    latitude: -5.1114,
+    longitude: -36.6344,
+    hashtag: "salinasmacau",
+    monitorado: true,
+    atracoes: [
+      {
+        id: "act-macau-1",
+        nome: "Visita às Salinas de Macau",
+        descricao: "Passeio guiado pelas montanhas de sal marinho e canais de maré.",
+        imagem: "/images/destinations/galinhos.png",
+        parceiroId: "cad-apo-2"
+      }
+    ]
+  },
+  {
+    nome: "Salinas de Galinhos e Fábrica de Sal",
+    municipio: "Galinhos",
+    descricao: "Uma incrível jornada pela extração artesanal do sal marinho. O atrativo conecta o ecossistema de manguezais potiguares à história da produção de sal tradicional, oferecendo passeios ecológicos de barco.",
+    imagem: "/images/destinations/galinhos.png",
+    latitude: -5.0990,
+    longitude: -36.2650,
+    hashtag: "salinasgalinhos",
+    monitorado: true,
+    atracoes: [
+      {
+        id: "act-sg-1",
+        nome: "Trilha Ecológica do Sal",
+        descricao: "Observação do processo de colheita manual do sal e vida selvagem local.",
+        imagem: "/images/destinations/galinhos.png",
+        parceiroId: "cad-gal-2"
+      }
+    ]
+  },
+  {
+    nome: "Canyon dos Apertados",
+    municipio: "Currais Novos",
+    descricao: "Uma das joias geológicas mais espetaculares do Geoparque Seridó. O cânion apresenta imponentes desfiladeiros de rocha quartzítica esculpidos pela força das águas no semiárido potiguar, cercados por vegetação intocada de caatinga.",
+    imagem: "/images/destinations/lajedo_soledade.png",
+    latitude: -6.2600,
+    longitude: -36.5160,
+    hashtag: "canyondosapertados",
+    monitorado: false,
+    atracoes: [
+      {
+        id: "act-apertados-1",
+        nome: "Trekking no Cânion",
+        descricao: "Caminhada guiada por dentro do desfiladeiro de rocha quartzítica.",
+        imagem: "/images/destinations/lajedo_soledade.png",
+        parceiroId: "cad-apo-2"
+      }
+    ]
+  },
+  {
+    nome: "Estátua de Santa Rita de Cássia",
+    municipio: "Santa Cruz",
+    descricao: "O maior monumento religioso católico do mundo, com 56 metros de altura, superando o Cristo Redentor. Situada no alto do Monte Carmelo, é o centro do turismo religioso potiguar e atrai milhares de romeiros todos os anos.",
+    imagem: "/images/destinations/forte_dos_reis_magos.png",
+    latitude: -6.2300,
+    longitude: -36.0200,
+    hashtag: "santaritadecassia",
+    monitorado: false,
+    atracoes: [
+      {
+        id: "act-srita-1",
+        nome: "Mirante do Monte Carmelo",
+        descricao: "Subida até a base da estátua com vista panorâmica do vale do Trairi.",
+        imagem: "/images/destinations/forte_dos_reis_magos.png",
+        parceiroId: "cad-forte-2"
+      }
+    ]
+  },
+  {
+    nome: "Castelo de Bivar",
+    municipio: "Carnaúba dos Dantas",
+    descricao: "Inspirado nos castelos medievais europeus da Renascença, esta imponente construção de pedra destaca-se na paisagem árida do Seridó. É um importante atrativo histórico que preserva a cultura e arquitetura local.",
+    imagem: "/images/destinations/forte_dos_reis_magos.png",
+    latitude: -6.5500,
+    longitude: -36.5800,
+    hashtag: "castelodebivar",
+    monitorado: false,
+    atracoes: [
+      {
+        id: "act-bivar-1",
+        nome: "Tour Histórico do Castelo",
+        descricao: "Visitação interna guiada pela arquitetura inspirada nos castelos europeus.",
+        imagem: "/images/destinations/forte_dos_reis_magos.png",
+        parceiroId: "cad-mos-2"
       }
     ]
   }
@@ -711,68 +822,89 @@ const staticCadasturData: CadasturBusiness[] = [
   }
 ];
 
-// Pools of descriptive, realistic experiences per category
+// Pools of descriptive, realistic experiences per category (Enriched)
 const experiencesPool: Record<CadasturBusiness['tipo'], { titulo: string; descricao: string }[]> = {
   Hotel: [
-    { titulo: "Café da Manhã Regional", descricao: "Banquete completo com tapiocas feitas na hora, cuscuz quente, frutas tropicais e bolos artesanais." },
-    { titulo: "Piscina Panorâmica", descricao: "Acesso livre à área de lazer com piscina de borda infinita e vista para as belezas naturais." },
-    { titulo: "Serviço de Concierge", descricao: "Agendamento personalizado de passeios, transfers e reservas de restaurantes locais." },
-    { titulo: "Spa & Massagem", descricao: "Terapias relaxantes corporais e faciais utilizando óleos de coco e essências locais." },
-    { titulo: "Rooftop Sunset Lounge", descricao: "Drinks exclusivos e música ambiente de frente para o pôr do sol." },
-    { titulo: "Jantar Temático", descricao: "Noites dedicadas à culinária internacional e pratos típicos potiguares." }
+    { titulo: "Café da Manhã Regional Prime", descricao: "Banquete potiguar com tapiocas salgadas e doces feitas na hora, cuscuz de milho com queijo coalho, sucos naturais de cajá e seriguela, frutas tropicais frescas e bolos artesanais." },
+    { titulo: "Piscina Panorâmica com Borda Infinita", descricao: "Acesso livre à área de lazer suspensa com bar molhado, espreguiçadeiras e vista espetacular das praias potiguares." },
+    { titulo: "Concierge & Roteiros Exclusivos", descricao: "Agendamento personalizado de passeios de buggy, transfers privados e reservas nos melhores restaurantes com descontos exclusivos." },
+    { titulo: "Spa e Terapias Naturais", descricao: "Massagens relaxantes corporais e rituais de bem-estar com óleos de coco e essências de plantas nativas da Mata Atlântica potiguar." },
+    { titulo: "Sunset Drinks no Rooftop", descricao: "Happy hour diário com drinks tropicais artesanais e música ao vivo instrumental no fim de tarde de frente para o mar." },
+    { titulo: "Jantar Gourmet Potiguar", descricao: "Noites dedicadas à culinária contemporânea com pratos exclusivos assinados por chefs de renome local." },
+    { titulo: "Workshop de Drinks Regionais", descricao: "Aprenda a preparar caipirinhas exóticas utilizando cachaças locais e frutas típicas da época." },
+    { titulo: "Yoga e Meditação no Deck", descricao: "Aulas matinais guiadas ao ar livre para começar o dia energizado e relaxado em sintonia com a natureza." },
+    { titulo: "Cinema sob as Estrelas", descricao: "Exibição de filmes clássicos e curtas de diretores locais na área de jardim com pipoca artesanal cortesia." },
+    { titulo: "Noite de Degustação de Vinhos", descricao: "Harmonização de queijos artesanais regionais com rótulos nacionais selecionados sob a luz de velas." }
   ],
   Pousada: [
-    { titulo: "Chá da Tarde Cortesia", descricao: "Deliciosa pausa no final da tarde com café fresco, chás e bolos caseiros locais." },
-    { titulo: "Espaço Zen & Redário", descricao: "Área sombreada sob coqueiros e árvores nativas para leitura, descanso e relaxamento." },
-    { titulo: "Aluguel de Bicicletas", descricao: "Explore a vila, o centrinho e as praias próximas de forma ecológica e no seu próprio ritmo." },
-    { titulo: "Aulas de Yoga Matinais", descricao: "Sessões guiadas de meditação e alongamento sob o deck com vista para o mar." },
-    { titulo: "Lounge de Areia Privativo", descricao: "Espreguiçadeiras confortáveis, guarda-sóis e serviço de bar diretamente na praia." },
-    { titulo: "Transfer sob Demanda", descricao: "Serviço de transporte exclusivo para os principais pontos de embarque e atrativos." }
+    { titulo: "Chá da Tarde com Bolo Caseiro", descricao: "Deliciosa pausa no final da tarde com café quentinho passado na hora, chás aromáticos e bolos caseiros preparados na pousada." },
+    { titulo: "Redário sob os Coqueiros", descricao: "Espaço de relaxamento total com redes de algodão artesanais à sombra de coqueirais e ventilação natural." },
+    { titulo: "Cicloturismo Autônomo", descricao: "Aluguel gratuito de bicicletas de praia para explorar a vila, o centrinho histórico e as enseadas locais." },
+    { titulo: "Aulas de Yoga ao Nascer do Sol", descricao: "Sessões guiadas de meditação e alongamento sob o deck de madeira de frente para a praia." },
+    { titulo: "Lounge Pé na Areia Privativo", descricao: "Espaço reservado na praia com espreguiçadeiras confortáveis, ombrelones e serviço de atendimento rápido." },
+    { titulo: "Transfer Exclusivo sob Demanda", descricao: "Serviço de traslado confortável conectando a pousada aos pontos de embarque e principais atrativos." },
+    { titulo: "Sarau Cultural no Jardim", descricao: "Encontros de música acústica e leitura de poesias com artistas locais ao redor da fogueira." },
+    { titulo: "Observação de Aves Nativas", descricao: "Caminhadas ecológicas matinais guiadas para fotografar e observar a diversificada avifauna local." },
+    { titulo: "Oficina de Jardinagem Orgânica", descricao: "Aprenda sobre o cultivo de ervas finas e plantas ornamentais tropicais com o jardineiro chefe." },
+    { titulo: "Luau Tropical com Fogueira", descricao: "Eventos noturnos na praia com música ao vivo, frutas da estação e petiscos regionais." }
   ],
   Restaurante: [
-    { titulo: "Menu Degustação Potiguar", descricao: "Experiência gastronômica completa guiada pelo chef, destacando ingredientes típicos da terra." },
-    { titulo: "Degustação de Cachaças", descricao: "Seleção harmonizada de cachaças artesanais produzidas no Rio Grande do Norte." },
-    { titulo: "Música Potiguar ao Vivo", descricao: "Apresentações acústicas de MPB, forró pé-de-serra clássico e bossa nova nas noites." },
-    { titulo: "Jantar Romântico à Luz de Velas", descricao: "Decoração especial com pétalas, iluminação suave e menu exclusivo de 3 tempos para casais." },
-    { titulo: "Oficina Ginga com Tapioca", descricao: "Aprenda com cozinheiras tradicionais a preparar e rechear a famosa receita potiguar." },
-    { titulo: "Espaço Kids Recreativo", descricao: "Área de recreação climatizada e segura para as crianças se divertirem com monitor." }
+    { titulo: "Menu Degustação Frutos do Mar", descricao: "Experiência gastronômica completa em vários tempos, destacando camarões premium, lagostas grelhadas e peixes do dia." },
+    { titulo: "Degustação de Cachaças do RN", descricao: "Seleção guiada de cachaças orgânicas e artesanais premiadas produzidas nos alambiques do estado." },
+    { titulo: "Música Potiguar Instrumental", descricao: "Apresentações ao vivo de chorinho, bossa nova e MPB acústica todas as noites para enriquecer o ambiente." },
+    { titulo: "Jantar Romântico com Menu de 3 Tempos", descricao: "Decoração especial na mesa, iluminação intimista e menu sofisticado para casais celebrarem momentos especiais." },
+    { titulo: "Oficina Prática de Tapioca", descricao: "Aprenda com cozinheiras tradicionais os segredos da tapioca perfeita com recheios gourmet e doces." },
+    { titulo: "Espaço Kids com Recreadores", descricao: "Área de recreação infantil equipada e climatizada com monitores dedicados nos finais de semana." },
+    { titulo: "Workshop de Gastronomia Potiguar", descricao: "Participe de uma aula prática com o chef e aprenda a preparar uma autêntica moqueca de peixe potiguar." },
+    { titulo: "Noite de Massas & Jazz", descricao: "Menu especial de massas frescas artesanais acompanhado por apresentações ao vivo de jazz clássico." },
+    { titulo: "Happy Hour de Chopp Artesanal", descricao: "Descontos exclusivos em chopps de cervejarias locais e petiscos selecionados no fim de tarde." },
+    { titulo: "Harmonização de Sobremesas", descricao: "Combinações surpreendentes de doces típicos com cafés gourmet e licores artesanais da casa." }
   ],
   Guia: [
-    { titulo: "Tour Fotográfico Potiguar", descricao: "Acompanhamento profissional registrando os melhores ângulos e luzes da sua jornada pelas dunas." },
-    { titulo: "Trilha Ecológica Interpretativa", descricao: "Explicação sobre a rica fauna, flora endêmica e formações geológicas das dunas e falésias." },
-    { titulo: "Kit Hidratação & Frutas", descricao: "Fornecimento de água fresca mineral, isotônicos e frutas da estação selecionadas." },
-    { titulo: "Itinerário Personalizado", descricao: "Roteiro montado sob medida, adaptando horários e paradas conforme o ritmo do turista." },
-    { titulo: "Suporte de Aventura Seguro", descricao: "Condutor qualificado nas normas ABNT de turismo de aventura com kit completo de salvamento." },
-    { titulo: "Guiamento Astronômico", descricao: "Observação noturna guiada do céu estrelado em regiões com baixa poluição luminosa." }
+    { titulo: "Tour Fotográfico nas Dunas", descricao: "Acompanhamento fotográfico profissional registrando seus melhores momentos com as luzes douradas do entardecer." },
+    { titulo: "Trilha Ecológica e Histórica", descricao: "Caminhada guiada interpretando a rica fauna, flora nativa e as impressionantes histórias coloniais da região." },
+    { titulo: "Kit Aventura Conforto", descricao: "Fornecimento de mochilas com água termal mineral, frutas selecionadas, repelente natural e protetor solar." },
+    { titulo: "Itinerário Personalizado Flexível", descricao: "Roteiro adaptado inteiramente aos seus interesses, ritmo de caminhada e paradas ideais para fotos." },
+    { titulo: "Segurança de Aventura Normas ABNT", descricao: "Condutor experiente certificado em resgate e primeiros socorros em áreas remotas com kit avançado." },
+    { titulo: "Guiamento Astronômico Noturno", descricao: "Palestra ao ar livre e observação de constelações com telescópio portátil em praias com pouca iluminação." },
+    { titulo: "Passeio Histórico no Centro da Cidade", descricao: "Visita cultural guiada aos monumentos, igrejas antigas e museus que contam a história da fundação da região." },
+    { titulo: "Trilha Fluvial Ecológica", descricao: "Caminhada guiada pelas margens dos rios e manguezais com explicações sobre a conservação costeira." },
+    { titulo: "Aventura Fotográfica Noturna", descricao: "Aprenda técnicas básicas de astrofotografia e registre o céu estrelado sob as dunas e falésias." },
+    { titulo: "Condutor de Trilhas de Longo Curso", descricao: "Expedições desafiadoras por trilhas costeiras e matas com suporte completo de navegação e acampamento." }
   ],
   Agência: [
-    { titulo: "Buggy Tour Credenciado", descricao: "Aventura pelas dunas móveis conduzida por pilotos certificados da associação local." },
-    { titulo: "Flutuação nos Parrachos", descricao: "Navegação rápida de catamarã ou lancha até os corais com snorkel e óculos inclusos." },
-    { titulo: "Transfer Conforto", descricao: "Veículos modernos de turismo com ar-condicionado buscando e deixando você no hotel." },
-    { titulo: "Roteiro Quadriciclo Falésias", descricao: "Expedição emocionante em caravana guiada por caminhos de falésias e lagoas de água doce." },
-    { titulo: "Passeio de Jangada Tradicional", descricao: "Navegação silenciosa pelo ecossistema de manguezais com jangadeiro nativo da região." },
-    { titulo: "Seguro Aventura Integrado", descricao: "Seguro viagem e aventura completo ativo para todos os passageiros durante as atividades." }
+    { titulo: "Buggy Tour Emocionante Credenciado", descricao: "Passeio clássico pelas dunas móveis e fixas com pilotos credenciados da associação estadual e seguro viagem ativo." },
+    { titulo: "Mergulho e Flutuação nos Corais", descricao: "Navegação rápida até as piscinas naturais com fornecimento de máscaras de mergulho, snorkel e coletes." },
+    { titulo: "Transfer Aeroporto/Hotel Vip", descricao: "Translados executivos climatizados com veículos modernos e motoristas profissionais de turismo." },
+    { titulo: "Expedição de Quadriciclo por Falésias", descricao: "Aventura guiada pilotando quadriciclos modernos por caminhos de falésias avermelhadas e lagoas." },
+    { titulo: "Passeio de Catamarã pelos Mangues", descricao: "Navegação ecológica tranquila com guia de bordo contando os segredos do ecossistema e paradas para banho." },
+    { titulo: "Seguro Aventura Individual Ecoturismo", descricao: "Seguro individual de acidentes e emergências ativo para todas as atividades reservadas com a operadora." },
+    { titulo: "Passeio de Jangada ao Pôr do Sol", descricao: "Navegação tradicional de jangada para assistir ao pôr do sol de uma perspectiva única e privilegiada." },
+    { titulo: "Tour Cultural de Dia Inteiro", descricao: "Roteiro completo de ônibus ou van visitando os principais pontos históricos, praias e centros de artesanato." },
+    { titulo: "Trilha de Buggy com Piquenique", descricao: "Passeio exclusivo de buggy finalizando com um sofisticado piquenique de frutas e frios montado na duna." },
+    { titulo: "Expedição de Caiaque nos Canais", descricao: "Passeio de caiaque pelos canais de maré e manguezais com instrutor qualificado e fotos inclusas." }
   ]
 };
 
 const namePrefixes = [
-  "Mar", "Sol", "Vento", "Duna", "Costa", "Ouro", "Terra", "Brisa", "Porto", "Recanto",
+  "Dunas", "Mar", "Sol", "Vento", "Litoral", "Costa", "Ouro", "Terra", "Brisa", "Porto", "Recanto",
   "Mirante", "Estrela", "Sertão", "Caminho", "Horizonte", "Farol", "Falésia", "Coqueiro",
-  "Veleiro", "Maresia", "Amanhecer", "Ondas", "Pontal", "Enseada", "Atalaia"
+  "Veleiro", "Maresia", "Amanhecer", "Ondas", "Pontal", "Enseada", "Atalaia", "Cabo", "Areias",
+  "Jangada", "Coral", "Maré", "Conchas", "Golfinho", "Seriguela", "Potengi", "Parrachos"
 ];
 
 const nameSuffixes = [
   "do RN", "Potiguar", "do Sol", "do Nordeste", "da Praia", "das Falésias", "do Careca",
   "de Pipa", "de Gostoso", "dos Reis Magos", "do Sertão", "da Duna", "da Lagoa",
   "Tropical", "Imperial", "do Mar", "dos Ventos", "Atlântico", "Eco", "Paradisíaco",
-  "do Jacaré", "da Guarita", "das Marés", "do Cabo", "das Areias"
+  "do Jacaré", "da Guarita", "das Marés", "do Cabo", "das Areias", "Estrela", "Nordestino"
 ];
 
-const hotelClassifiers = ["Hotel", "Resort", "Palace", "Plaza", "Marina"];
-const pousadaClassifiers = ["Pousada", "Hostel", "Chalés", "Eco-Lodge", "Estalagem"];
-const restauranteClassifiers = ["Restaurante", "Bistrô", "Grill", "Cantina", "Taberna", "Gourmet"];
-const guiaClassifiers = ["Guia", "Condutor", "Roteiro", "Aventura", "Explora"];
-const agenciaClassifiers = ["Agência", "Turismo", "Viagens", "Expedições", "Ecotur"];
+const hotelClassifiers = ["Hotel", "Resort", "Palace", "Plaza", "Marina", "Suítes", "Hotel Boutique"];
+const pousadaClassifiers = ["Pousada", "Hostel", "Chalés", "Eco-Lodge", "Estalagem", "Villas", "Recanto"];
+const restauranteClassifiers = ["Restaurante", "Bistrô", "Grill", "Cantina", "Taberna", "Gourmet", "Churrascaria", "Creperia"];
+const guiaClassifiers = ["Guia", "Condutor", "Roteiro", "Aventura", "Explora", "Ranger", "Trekking"];
+const agenciaClassifiers = ["Agência", "Turismo", "Viagens", "Expedições", "Ecotur", "Operadora", "Venture"];
 
 const businessTypes: CadasturBusiness['tipo'][] = ["Hotel", "Restaurante", "Guia", "Pousada", "Agência"];
 
@@ -806,6 +938,12 @@ function generateMockBusinesses(): CadasturBusiness[] {
   const list: CadasturBusiness[] = [];
   const targetCount = 800;
 
+  // Simple pseudo-random hash generator based on a seed number
+  const pseudoRandom = (seed: number): number => {
+    const x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+  };
+
   // 1. Process static businesses first, adding experiences to them
   staticCadasturData.forEach((b, idx) => {
     const seed = idx + 1;
@@ -813,7 +951,9 @@ function generateMockBusinesses(): CadasturBusiness[] {
     const experiences = [
       pool[seed % pool.length],
       pool[(seed + 1) % pool.length],
-      pool[(seed + 2) % pool.length]
+      pool[(seed + 2) % pool.length],
+      pool[(seed + 3) % pool.length],
+      pool[(seed + 4) % pool.length]
     ];
     list.push({
       ...b,
@@ -827,60 +967,78 @@ function generateMockBusinesses(): CadasturBusiness[] {
   for (let i = 0; i < targetCount - currentCount; i++) {
     const seed = i + 1;
 
-    // Pick destination deterministically
-    const destinoInfo = destinosInfo[seed % destinosInfo.length];
+    // Use pseudo-random selection to break modulo lock synchronization
+    const randDest = pseudoRandom(seed * 1.5);
+    const randType = pseudoRandom(seed * 2.3);
+    const randPrefix = pseudoRandom(seed * 3.7);
+    const randSuffix = pseudoRandom(seed * 4.9);
+    const randClassifier = pseudoRandom(seed * 5.1);
+
+    // Pick destination deterministically but shuffled
+    const destIdx = Math.floor(randDest * destinosInfo.length);
+    const destinoInfo = destinosInfo[destIdx];
     const destino = destinoInfo.nome;
 
-    // Pick type deterministically
-    const tipo = businessTypes[seed % businessTypes.length];
+    // Pick type deterministically but shuffled
+    const typeIdx = Math.floor(randType * businessTypes.length);
+    const tipo = businessTypes[typeIdx];
 
-    // Generate name deterministically
-    const prefix = namePrefixes[seed % namePrefixes.length];
-    const suffix = nameSuffixes[(seed * 7) % nameSuffixes.length];
+    // Generate name deterministically using decoupled indices
+    const prefix = namePrefixes[Math.floor(randPrefix * namePrefixes.length)];
+    const suffix = nameSuffixes[Math.floor(randSuffix * nameSuffixes.length)];
     let nome = "";
     if (tipo === "Hotel") {
-      nome = `${hotelClassifiers[seed % hotelClassifiers.length]} ${prefix} ${suffix}`;
+      const cls = hotelClassifiers[Math.floor(randClassifier * hotelClassifiers.length)];
+      nome = `${cls} ${prefix} ${suffix}`;
     } else if (tipo === "Pousada") {
-      nome = `${pousadaClassifiers[seed % pousadaClassifiers.length]} ${prefix} ${suffix}`;
+      const cls = pousadaClassifiers[Math.floor(randClassifier * pousadaClassifiers.length)];
+      nome = `${cls} ${prefix} ${suffix}`;
     } else if (tipo === "Restaurante") {
-      nome = `${restauranteClassifiers[seed % restauranteClassifiers.length]} ${prefix} ${suffix}`;
+      const cls = restauranteClassifiers[Math.floor(randClassifier * restauranteClassifiers.length)];
+      nome = `${cls} ${prefix} ${suffix}`;
     } else if (tipo === "Guia") {
-      nome = `${guiaClassifiers[seed % guiaClassifiers.length]} ${prefix} ${suffix}`;
+      const cls = guiaClassifiers[Math.floor(randClassifier * guiaClassifiers.length)];
+      nome = `${cls} ${prefix} ${suffix}`;
     } else if (tipo === "Agência") {
-      nome = `${agenciaClassifiers[seed % agenciaClassifiers.length]} ${prefix} ${suffix}`;
+      const cls = agenciaClassifiers[Math.floor(randClassifier * agenciaClassifiers.length)];
+      nome = `${cls} ${prefix} ${suffix}`;
     }
 
     // Generate CNPJ deterministically
-    const cnpjPart1 = (10 + (seed % 89)).toString().padStart(2, "0");
-    const cnpjPart2 = ((seed * 17) % 900 + 100).toString().padStart(3, "0");
-    const cnpjPart3 = ((seed * 31) % 900 + 100).toString().padStart(3, "0");
-    const cnpjPart4 = ((seed * 43) % 90 + 10).toString().padStart(2, "0");
+    const cnpjPart1 = (10 + (Math.floor(pseudoRandom(seed * 6.2) * 89))).toString().padStart(2, "0");
+    const cnpjPart2 = (100 + Math.floor(pseudoRandom(seed * 7.4) * 900)).toString().padStart(3, "0");
+    const cnpjPart3 = (100 + Math.floor(pseudoRandom(seed * 8.1) * 900)).toString().padStart(3, "0");
+    const cnpjPart4 = (10 + Math.floor(pseudoRandom(seed * 9.6) * 90)).toString().padStart(2, "0");
     const cnpj = `${cnpjPart1}.${cnpjPart2}.${cnpjPart3}/0001-${cnpjPart4}`;
 
-    // Regularized: 90% regularized, 10% not
-    const regularizado = (seed % 10) !== 0;
+    // Regularized: 92% regularized, 8% not
+    const regularizado = (Math.floor(pseudoRandom(seed * 10.3) * 100) % 12) !== 0;
 
-    // Rating: 3.5 to 5.0
-    const nota = parseFloat((3.5 + ((seed * 13) % 16) * 0.1).toFixed(1));
+    // Rating: 3.8 to 5.0 (highly qualified businesses)
+    const nota = parseFloat((3.8 + Math.floor(pseudoRandom(seed * 11.7) * 13) * 0.1).toFixed(1));
 
     // Phone: (84) 9XXXX-XXXX
-    const phonePart1 = ((seed * 19) % 9000 + 1000).toString();
-    const phonePart2 = ((seed * 23) % 9000 + 1000).toString();
+    const phonePart1 = (1000 + Math.floor(pseudoRandom(seed * 12.4) * 9000)).toString();
+    const phonePart2 = (1000 + Math.floor(pseudoRandom(seed * 13.9) * 9000)).toString();
     const telefone = `(84) 9${phonePart1}-${phonePart2}`;
 
-    // Coordinates: offset from destination center in a spiral distribution
-    const latOffset = Math.sin(seed) * 0.015;
-    const lngOffset = Math.cos(seed) * 0.015;
+    // Coordinates: random scatter with varying radii and angles around center coordinates (no perfect circle)
+    const angle = pseudoRandom(seed * 14.2) * 2 * Math.PI;
+    const radius = 0.003 + (pseudoRandom(seed * 15.6) * 0.022); // radius spread between 0.003 and 0.025 degrees
+    
+    const latOffset = Math.sin(angle) * radius;
+    const lngOffset = Math.cos(angle) * radius;
     const latitude = parseFloat((destinoInfo.latitude + latOffset).toFixed(6));
     const longitude = parseFloat((destinoInfo.longitude + lngOffset).toFixed(6));
 
-    // Description
+    // Enriched dynamic description
     const descTemplates = [
-      `Destaque regional pela excelência e comprometimento com o turista. Este ${tipo.toLowerCase()} localizado em ${destino} oferece excelente atendimento e qualidade em todos os detalhes.`,
-      `Ideal para quem busca curtir o melhor de ${destino} com total segurança. Com selo de homologação do Cadastur, nosso ${tipo.toLowerCase()} garante uma estadia tranquila e prazerosa.`,
-      `Localizado no coração de ${destino}, este ${tipo.toLowerCase()} destaca-se pela receptividade e atendimento qualificado, sendo muito recomendado por viajantes do Brasil e do exterior.`
+      `Excelente opção de ${tipo.toLowerCase()} em ${destino}. Oferece uma estrutura aconchegante com serviços de excelência homologados pelo Cadastur para você aproveitar ao máximo os atrativos da região de ${destinoInfo.municipio}.`,
+      `O estabelecimento ${nome} é sinônimo de hospitalidade e segurança em ${destino}. Totalmente regularizado junto ao Ministério do Turismo, conta com equipe local qualificada para proporcionar momentos inesquecíveis.`,
+      `Localização estratégica na área turística de ${destino}. Este ${tipo.toLowerCase()} destaca-se no mercado potiguar pelas ótimas recomendações, focando sempre em sustentabilidade e na valorização das belezas locais.`
     ];
-    const descricao = descTemplates[seed % descTemplates.length];
+    const descIdx = Math.floor(pseudoRandom(seed * 16.1) * descTemplates.length);
+    const descricao = descTemplates[descIdx];
 
     // Image
     let imageList = hotelImages;
@@ -888,15 +1046,22 @@ function generateMockBusinesses(): CadasturBusiness[] {
     else if (tipo === "Pousada") imageList = pousadaImages;
     else if (tipo === "Guia") imageList = guiaImages;
     else if (tipo === "Agência") imageList = agenciaImages;
-    const imagem = imageList[seed % imageList.length];
+    const imgIdx = Math.floor(pseudoRandom(seed * 17.5) * imageList.length);
+    const imagem = imageList[imgIdx];
 
-    // Pick 3 experiences deterministically
+    // Pick 5 unique experiences deterministically using pseudoRandom
     const pool = experiencesPool[tipo];
-    const experiences = [
-      pool[seed % pool.length],
-      pool[(seed + 1) % pool.length],
-      pool[(seed + 2) % pool.length]
-    ];
+    const experiences: { titulo: string; descricao: string }[] = [];
+    const usedIndices = new Set<number>();
+    
+    while (experiences.length < 5 && usedIndices.size < pool.length) {
+      const offsetSeed = seed * (18.1 + experiences.length * 3.4);
+      const expIdx = Math.floor(pseudoRandom(offsetSeed) * pool.length);
+      if (!usedIndices.has(expIdx)) {
+        usedIndices.add(expIdx);
+        experiences.push(pool[expIdx]);
+      }
+    }
 
     list.push({
       id: `cad-auto-${seed}`,
@@ -936,7 +1101,12 @@ export const ibgeData: IBGEData[] = [
   { destino: "Barra de Cunhaú", municipio: "Canguaretama", populacao: 31000, area_km2: 245.5, idh: 0.621, leitos_hospitalares: 14, escolas_publicas: 18 },
   { destino: "Parque das Dunas", municipio: "Natal", populacao: 784249, area_km2: 167.26, idh: 0.763, leitos_hospitalares: 3200, escolas_publicas: 450 },
   { destino: "Cidade Histórica de Mossoró", municipio: "Mossoró", populacao: 278000, area_km2: 2099.3, idh: 0.729, leitos_hospitalares: 850, escolas_publicas: 160 },
-  { destino: "Lajedo de Soledade", municipio: "Apodi", populacao: 36000, area_km2: 1602.4, idh: 0.642, leitos_hospitalares: 24, escolas_publicas: 32 }
+  { destino: "Lajedo de Soledade", municipio: "Apodi", populacao: 36000, area_km2: 1602.4, idh: 0.642, leitos_hospitalares: 24, escolas_publicas: 32 },
+  { destino: "Salinas e Indústria Salineira de Macau", municipio: "Macau", populacao: 32227, area_km2: 547.4, idh: 0.676, leitos_hospitalares: 45, escolas_publicas: 21 },
+  { destino: "Salinas de Galinhos e Fábrica de Sal", municipio: "Galinhos", populacao: 2004, area_km2: 342.4, idh: 0.589, leitos_hospitalares: 2, escolas_publicas: 3 },
+  { destino: "Canyon dos Apertados", municipio: "Currais Novos", populacao: 41325, area_km2: 617.1, idh: 0.710, leitos_hospitalares: 90, escolas_publicas: 28 },
+  { destino: "Estátua de Santa Rita de Cássia", municipio: "Santa Cruz", populacao: 37313, area_km2: 624.3, idh: 0.632, leitos_hospitalares: 62, escolas_publicas: 22 },
+  { destino: "Castelo de Bivar", municipio: "Carnaúba dos Dantas", populacao: 8232, area_km2: 245.6, idh: 0.652, leitos_hospitalares: 8, escolas_publicas: 5 }
 ];
 
 export const transporteData: TransporteData[] = [
@@ -954,7 +1124,12 @@ export const transporteData: TransporteData[] = [
   { destino: "Barra de Cunhaú", voos_mensais: 0, onibus_mensais: 80, veiculos_terrestres_mensais: 4500, modal_principal: "Terrestre", variacao_percentual: 5 },
   { destino: "Parque das Dunas", voos_mensais: 0, onibus_mensais: 1200, veiculos_terrestres_mensais: 60000, modal_principal: "Urbano", variacao_percentual: 2 },
   { destino: "Cidade Histórica de Mossoró", voos_mensais: 32, onibus_mensais: 1400, veiculos_terrestres_mensais: 72000, modal_principal: "Terrestre / Rodoviário", variacao_percentual: 10 },
-  { destino: "Lajedo de Soledade", voos_mensais: 0, onibus_mensais: 50, veiculos_terrestres_mensais: 2100, modal_principal: "Rodoviário", variacao_percentual: 13 }
+  { destino: "Lajedo de Soledade", voos_mensais: 0, onibus_mensais: 50, veiculos_terrestres_mensais: 2100, modal_principal: "Rodoviário", variacao_percentual: 13 },
+  { destino: "Salinas e Indústria Salineira de Macau", voos_mensais: 0, onibus_mensais: 240, veiculos_terrestres_mensais: 9200, modal_principal: "Rodoviário / Vans", variacao_percentual: 8 },
+  { destino: "Salinas de Galinhos e Fábrica de Sal", voos_mensais: 0, onibus_mensais: 30, veiculos_terrestres_mensais: 1500, modal_principal: "Barco + 4x4", variacao_percentual: 11 },
+  { destino: "Canyon dos Apertados", voos_mensais: 0, onibus_mensais: 80, veiculos_terrestres_mensais: 4200, modal_principal: "Rodoviário / Receptivo", variacao_percentual: 15 },
+  { destino: "Estátua de Santa Rita de Cássia", voos_mensais: 0, onibus_mensais: 680, veiculos_terrestres_mensais: 19500, modal_principal: "Ônibus de Excursão / Vans", variacao_percentual: 14 },
+  { destino: "Castelo de Bivar", voos_mensais: 0, onibus_mensais: 110, veiculos_terrestres_mensais: 2800, modal_principal: "Rodoviário / Carro Particular", variacao_percentual: 6 }
 ];
 
 export const investimentosData: InvestimentoData[] = [
@@ -972,7 +1147,12 @@ export const investimentosData: InvestimentoData[] = [
   { destino: "Barra de Cunhaú", investimento_infraestrutura_mil: 300, investimento_saneamento_mil: 150, investimento_turismo_mil: 150, total_mil: 600, ano: 2026 },
   { destino: "Parque das Dunas", investimento_infraestrutura_mil: 250, investimento_saneamento_mil: 100, investimento_turismo_mil: 150, total_mil: 500, ano: 2026 },
   { destino: "Cidade Histórica de Mossoró", investimento_infraestrutura_mil: 1800, investimento_saneamento_mil: 1200, investimento_turismo_mil: 900, total_mil: 3900, ano: 2026 },
-  { destino: "Lajedo de Soledade", investimento_infraestrutura_mil: 200, investimento_saneamento_mil: 50, investimento_turismo_mil: 150, total_mil: 400, ano: 2026 }
+  { destino: "Lajedo de Soledade", investimento_infraestrutura_mil: 200, investimento_saneamento_mil: 50, investimento_turismo_mil: 150, total_mil: 400, ano: 2026 },
+  { destino: "Salinas e Indústria Salineira de Macau", investimento_infraestrutura_mil: 450, investimento_saneamento_mil: 200, investimento_turismo_mil: 150, total_mil: 800, ano: 2026 },
+  { destino: "Salinas de Galinhos e Fábrica de Sal", investimento_infraestrutura_mil: 150, investimento_saneamento_mil: 50, investimento_turismo_mil: 100, total_mil: 300, ano: 2026 },
+  { destino: "Canyon dos Apertados", investimento_infraestrutura_mil: 300, investimento_saneamento_mil: 100, investimento_turismo_mil: 200, total_mil: 600, ano: 2026 },
+  { destino: "Estátua de Santa Rita de Cássia", investimento_infraestrutura_mil: 800, investimento_saneamento_mil: 400, investimento_turismo_mil: 600, total_mil: 1800, ano: 2026 },
+  { destino: "Castelo de Bivar", investimento_infraestrutura_mil: 200, investimento_saneamento_mil: 80, investimento_turismo_mil: 120, total_mil: 400, ano: 2026 }
 ];
 
 export const fluxoData: FluxoData[] = [
@@ -990,7 +1170,12 @@ export const fluxoData: FluxoData[] = [
   { destino: "Barra de Cunhaú", fluxo_visitantes_mes: 14000, receita_estimada_milhoes: 3.8, saturacao_turistica: 30, hashtag_instagram: "barradecunhau" },
   { destino: "Parque das Dunas", fluxo_visitantes_mes: 45000, receita_estimada_milhoes: 1.5, saturacao_turistica: 40, hashtag_instagram: "parquedasdunas" },
   { destino: "Cidade Histórica de Mossoró", fluxo_visitantes_mes: 58000, receita_estimada_milhoes: 18.0, saturacao_turistica: 50, hashtag_instagram: "mossoro" },
-  { destino: "Lajedo de Soledade", fluxo_visitantes_mes: 6500, receita_estimada_milhoes: 1.8, saturacao_turistica: 15, hashtag_instagram: "lajedodesoledade" }
+  { destino: "Lajedo de Soledade", fluxo_visitantes_mes: 6500, receita_estimada_milhoes: 1.8, saturacao_turistica: 15, hashtag_instagram: "lajedodesoledade" },
+  { destino: "Salinas e Indústria Salineira de Macau", fluxo_visitantes_mes: 12000, receita_estimada_milhoes: 3.2, saturacao_turistica: 45, hashtag_instagram: "salinasmacau" },
+  { destino: "Salinas de Galinhos e Fábrica de Sal", fluxo_visitantes_mes: 4500, receita_estimada_milhoes: 1.1, saturacao_turistica: 35, hashtag_instagram: "salinasgalinhos" },
+  { destino: "Canyon dos Apertados", fluxo_visitantes_mes: 7800, receita_estimada_milhoes: 1.9, saturacao_turistica: 28, hashtag_instagram: "canyondosapertados" },
+  { destino: "Estátua de Santa Rita de Cássia", fluxo_visitantes_mes: 35000, receita_estimada_milhoes: 8.5, saturacao_turistica: 62, hashtag_instagram: "santaritadecassia" },
+  { destino: "Castelo de Bivar", fluxo_visitantes_mes: 5400, receita_estimada_milhoes: 1.4, saturacao_turistica: 20, hashtag_instagram: "castelodebivar" }
 ];
 
 export const avaliacaoOptions = [
