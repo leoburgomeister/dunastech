@@ -6,6 +6,7 @@ import { AuthProvider } from '@/providers/AuthProvider';
 import { IntlProvider } from '@/providers/IntlProvider';
 import '@/app/globals.css';
 import 'leaflet/dist/leaflet.css';
+import 'maplibre-gl/dist/maplibre-gl.css';
 
 const inter = Inter({
   subsets: ['latin'],

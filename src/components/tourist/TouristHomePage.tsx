@@ -331,7 +331,7 @@ export default function TouristHomePage() {
     <div className="animate-fade-in space-y-12">
       {/* ═══ Smart Route Planner & Map Split-Pane Hero Section ═══ */}
       <section className="relative w-full border-b border-[var(--color-border)] bg-[var(--color-bg)] overflow-hidden">
-        <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[600px] lg:h-[720px] w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[calc(100vh-4rem)] lg:h-[calc(100vh-4rem)] w-full">
           
           {/* Left Column: Blurred Map initially, clear on route generation */}
           <div className="lg:col-span-7 relative h-[380px] lg:h-full w-full bg-[var(--color-surface-alt)] order-2 lg:order-1 border-b lg:border-b-0 lg:border-r border-[var(--color-border)] overflow-hidden">
@@ -383,6 +383,42 @@ export default function TouristHomePage() {
                 {step === 1 ? (
                   /* STEP 1: Basic Route Options */
                   <div className="space-y-4">
+                    {/* What we offer checklist */}
+                    <div className="space-y-2.5 pb-2 border-b border-[var(--color-border-light)] bg-[var(--color-surface-alt)]/30 p-3.5 rounded-2xl">
+                      <span className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
+                        O que oferecemos:
+                      </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+                        <div className="flex gap-2.5 items-start">
+                          <span className="text-sm mt-0.5">🗺️</span>
+                          <div>
+                            <span className="text-[11px] font-extrabold text-[var(--color-text)] block leading-tight">Roteiros Inteligentes</span>
+                            <span className="text-[9px] text-[var(--color-text-secondary)] block mt-0.5 leading-normal">Rotas otimizadas por IA para os paraísos do RN.</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2.5 items-start">
+                          <span className="text-sm mt-0.5">🛡️</span>
+                          <div>
+                            <span className="text-[11px] font-extrabold text-[var(--color-text)] block leading-tight">Guias com Cadastur</span>
+                            <span className="text-[9px] text-[var(--color-text-secondary)] block mt-0.5 leading-normal">Conexão direta com operadores 100% legalizados.</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2.5 items-start">
+                          <span className="text-sm mt-0.5">🌱</span>
+                          <div>
+                            <span className="text-[11px] font-extrabold text-[var(--color-text)] block leading-tight">Zeladoria Ecológica</span>
+                            <span className="text-[9px] text-[var(--color-text-secondary)] block mt-0.5 leading-normal">Auditoria social de preservação em 3 cliques.</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2.5 items-start">
+                          <span className="text-sm mt-0.5">📊</span>
+                          <div>
+                            <span className="text-[11px] font-extrabold text-[var(--color-text)] block leading-tight">Painel Observatório</span>
+                            <span className="text-[9px] text-[var(--color-text-secondary)] block mt-0.5 leading-normal">Dados em tempo real para controle sustentável.</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                     {/* Travel Style Selection */}
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
@@ -1408,11 +1444,22 @@ export default function TouristHomePage() {
             )}
           </div>
 
+          {/* Floating Scroll Down Button */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden lg:flex flex-col items-center gap-1.5 z-20 cursor-pointer group"
+               onClick={() => document.getElementById('recommended-destinations')?.scrollIntoView({ behavior: 'smooth' })}>
+            <span className="text-[10px] font-black uppercase tracking-wider text-[var(--color-text-muted)] group-hover:text-[var(--color-text)] transition-colors">
+              Explorar Destinos
+            </span>
+            <div className="h-9 w-6 rounded-full border-2 border-[var(--color-border)] group-hover:border-[var(--color-primary)] flex items-start justify-center p-1.5 transition-colors">
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-text-muted)] group-hover:bg-[var(--color-primary)] transition-colors animate-bounce" />
+            </div>
+          </div>
+
         </div>
       </section>
 
       {/* ═══ Popular Destinations (Larger Clickable Cards) ═══ */}
-      <section className="max-w-7xl mx-auto px-4 py-6">
+      <section id="recommended-destinations" className="max-w-7xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-3xl font-extrabold text-[var(--color-text)] tracking-tight">{t('recommendedDestinations')}</h2>
