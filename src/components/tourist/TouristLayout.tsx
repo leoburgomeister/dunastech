@@ -9,6 +9,7 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { LanguageSelector } from '@/components/ui/LanguageSelector';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { Button } from '@/components/ui/Button';
+import { PanelSwitcher } from '@/components/ui/PanelSwitcher';
 import { useAuth } from '@/providers/AuthProvider';
 import { allDestinos } from '@/data/mockData';
 import { useState } from 'react';
@@ -58,6 +59,8 @@ export default function TouristLayout({ children }: { children: React.ReactNode 
 
           {/* Right actions */}
           <div className="flex items-center gap-2 ml-auto">
+            <PanelSwitcher />
+            <div className="h-4 w-px bg-[var(--color-border)]" />
             <LanguageSelector size="sm" />
             <ThemeToggle size="sm" />
             {isAuthenticated ? (
