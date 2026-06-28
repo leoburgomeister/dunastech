@@ -4,19 +4,84 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { ShieldCheck, Star, Phone, MapPin } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { ShieldCheck, Star, Phone } from 'lucide-react';
 import { type DestinoInfo, cadasturData } from '@/data/mockData';
-import { Card } from '@/components/ui/Card';
 
-function ChangeView({ center, zoom }: { center: [number, number]; zoom: number }) {
+// Custom Marker design in Google Maps style
+const createGoogleMarker = (tipo: string, active: boolean) => {
+  let color = '#4285F4'; // Blue
+  let icon = '📍';
+  
+  if (tipo === 'Hotel' || tipo === 'Pousada') {
+    color = '#0284C7'; // Google Blue/Sky Blue
+    icon = '🏠';
+  } else if (tipo === 'Restaurante') {
+    color = '#16A34A'; // Google Green
+    icon = '🍽️';
+  } else if (tipo === 'Guia') {
+    color = '#FBBC05'; // Google Yellow
+    icon = '🧭';
+  } else if (tipo === 'Agência') {
+    color = '#8B5CF6'; // Purple
+    icon = '🎟️';
+  } else if (tipo === 'Centro') {
+    color = '#FF5A5F'; // Coral Accent
+    icon = '🌟';
+  }
+
+  const activeScale = active ? 'scale(1.25)' : 'scale(1)';
+  const filterId = `shadow-${tipo.replace(/[^a-zA-Z]/g, '')}`;
+
+  return L.divIcon({
+    html: `
+      <div style="
+        transform: ${activeScale};
+        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        width: 32px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      ">
+        <svg width="32" height="38" viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="${filterId}">
+              <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="${color}" flood-opacity="0.5"/>
+            </filter>
+          </defs>
+          <path d="M20 2C11.16 2 4 9.16 4 18C4 29 20 46 20 46C20 46 36 29 36 18C36 9.16 28.84 2 20 2Z"
+            fill="${color}" stroke="#FFFFFF" stroke-width="1.8" style="filter: url(#${filterId});" />
+          <circle cx="20" cy="18" r="9.5" fill="rgba(255,255,255,0.22)"/>
+          <text x="20" y="22" text-anchor="middle" font-size="12" fill="#fff" font-family="system-ui, sans-serif" font-weight="bold">${icon}</text>
+        </svg>
+      </div>
+    `,
+    className: 'custom-leaflet-icon-google-style',
+    iconSize: [32, 38],
+    iconAnchor: [16, 38],
+    popupAnchor: [0, -36]
+  });
+};
+
+// Map controller to handle panning/zooming transitions
+function MapController({ center, zoom, bounds }: { center: [number, number]; zoom: number; bounds: L.LatLngBounds | null }) {
   const map = useMap();
   useEffect(() => {
-    map.setView(center, zoom);
-  }, [center, zoom, map]);
+    map.invalidateSize();
+    if (bounds) {
+      map.fitBounds(bounds, {
+        padding: [40, 40],
+        animate: true,
+        duration: 1.5,
+      });
+    } else {
+      map.setView(center, zoom);
+    }
+  }, [center, zoom, bounds, map]);
   return null;
 }
 
-// Invalidate size on mount to solve Leaflet grey background issues
 function MapResize() {
   const map = useMap();
   useEffect(() => {
@@ -28,42 +93,6 @@ function MapResize() {
   return null;
 }
 
-const createCustomIcon = (tipo: string, active: boolean) => {
-  let color = '#0A6EBD'; // Primary Blue
-  if (tipo === 'Hotel' || tipo === 'Pousada') color = '#0284C7'; // Light Blue
-  if (tipo === 'Restaurante') color = '#16A34A'; // Green
-  if (tipo === 'Guia') color = '#D4A843'; // Golden Accent
-  if (tipo === 'Agência') color = '#8B5CF6'; // Purple
-
-  const activeScale = active ? 'scale(1.25)' : '';
-  const border = active ? 'border-2 border-white' : '';
-
-  return L.divIcon({
-    html: `
-      <div style="
-        transform: ${activeScale};
-        background-color: ${color};
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
-        color: white;
-        font-weight: bold;
-        font-size: 11px;
-        ${border}
-      ">
-        ${tipo[0]}
-      </div>
-    `,
-    className: 'custom-leaflet-icon',
-    iconSize: [32, 32],
-    iconAnchor: [16, 16],
-  });
-};
-
 interface DestinationMapProps {
   destination: DestinoInfo;
 }
@@ -71,11 +100,71 @@ interface DestinationMapProps {
 export default function DestinationMap({ destination }: DestinationMapProps) {
   const [mounted, setMounted] = useState(false);
   const [activePartner, setActivePartner] = useState<string | null>(null);
+  const [routePoints, setRoutePoints] = useState<[number, number][]>([]);
+  const { resolvedTheme } = useTheme();
+  const [tileUrl, setTileUrl] = useState('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png');
+
+  // Dynamic Tile Styling based on active theme
+  useEffect(() => {
+    if (resolvedTheme === 'dark') {
+      setTileUrl('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png');
+    } else {
+      setTileUrl('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png');
+    }
+  }, [resolvedTheme]);
 
   useEffect(() => {
-    const t = setTimeout(() => setMounted(true), 0);
-    return () => clearTimeout(t);
+    setMounted(true);
   }, []);
+
+  const partners = cadasturData.filter(
+    (b) => b.destino === destination.nome && b.regularizado
+  );
+
+  const mapCenter: [number, number] = [destination.latitude, destination.longitude];
+
+  // Suggest a route connecting the top 5 highest-rated partners
+  const routePartners = [...partners]
+    .sort((a, b) => b.nota - a.nota)
+    .slice(0, 5);
+
+  const pointsToRoute: [number, number][] = routePartners.map((b) => [b.latitude, b.longitude]);
+
+  // Fetch real road route from OSRM
+  useEffect(() => {
+    if (pointsToRoute.length < 2) {
+      setRoutePoints([]);
+      return;
+    }
+
+    const fetchOSRMRoute = async () => {
+      try {
+        const coordsString = routePartners
+          .map((b) => `${b.longitude},${b.latitude}`)
+          .join(';');
+
+        const response = await fetch(
+          `https://router.project-osrm.org/route/v1/driving/${coordsString}?overview=full&geometries=geojson`
+        );
+
+        if (!response.ok) throw new Error('OSRM routing failed');
+
+        const data = await response.json();
+        if (data.routes && data.routes.length > 0) {
+          const routeCoords = data.routes[0].geometry.coordinates as [number, number][];
+          const leafletCoords = routeCoords.map(([lng, lat]) => [lat, lng] as [number, number]);
+          setRoutePoints(leafletCoords);
+        } else {
+          setRoutePoints(pointsToRoute);
+        }
+      } catch (e) {
+        console.error('Failed to trace partner route:', e);
+        setRoutePoints(pointsToRoute);
+      }
+    };
+
+    fetchOSRMRoute();
+  }, [destination.nome]);
 
   if (!mounted) {
     return (
@@ -85,17 +174,12 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
     );
   }
 
-  const partners = cadasturData.filter(
-    (b) => b.destino === destination.nome && b.regularizado
-  );
-
-  const mapCenter: [number, number] = [destination.latitude, destination.longitude];
-  
-  // Suggest a route connecting only the top 5 highest-rated partners to avoid overlapping lines
-  const routePartners = [...partners]
-    .sort((a, b) => b.nota - a.nota)
-    .slice(0, 5);
-  const routePoints: [number, number][] = routePartners.map((b) => [b.latitude, b.longitude]);
+  // Calculate bounds including destination center and all partner markers
+  let mapBounds: L.LatLngBounds | null = null;
+  if (partners.length > 0) {
+    const allCoords = [mapCenter, ...partners.map((b) => [b.latitude, b.longitude] as [number, number])];
+    mapBounds = L.latLngBounds(allCoords);
+  }
 
   return (
     <div className="relative w-full h-96 rounded-2xl overflow-hidden border border-[var(--color-border)] shadow-md z-10">
@@ -104,31 +188,32 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
         zoom={13}
         className="w-full h-full"
         scrollWheelZoom={false}
+        zoomControl={false}
       >
-        <ChangeView center={mapCenter} zoom={13} />
+        <MapController center={mapCenter} zoom={13} bounds={mapBounds} />
         <MapResize />
         <TileLayer
           attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          url={tileUrl}
         />
 
-        {/* Draw polyline connecting partners to form a suggested route */}
-        {routePoints.length > 1 && (
+        {/* Real road route line connecting partners */}
+        {routePoints.length > 0 && (
           <Polyline
             positions={routePoints}
             color="var(--color-accent)"
             weight={4}
-            dashArray="10, 10"
             opacity={0.8}
+            pathOptions={{ className: 'route-polyline-flow' }}
           />
         )}
 
         {/* Map Center Marker */}
-        <Marker position={mapCenter} icon={createCustomIcon('Centro', false)}>
+        <Marker position={mapCenter} icon={createGoogleMarker('Centro', false)}>
           <Popup>
-            <div className="p-1">
-              <h4 className="font-bold text-sm text-[var(--color-text)]">{destination.nome}</h4>
-              <p className="text-xs text-[var(--color-text-secondary)]">Centro do atrativo turístico</p>
+            <div className="p-1 min-w-[140px] text-[var(--color-text)]">
+              <h4 className="font-bold text-sm">{destination.nome}</h4>
+              <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">Centro do atrativo turístico</p>
             </div>
           </Popup>
         </Marker>
@@ -138,7 +223,7 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
           <Marker
             key={partner.id}
             position={[partner.latitude, partner.longitude]}
-            icon={createCustomIcon(partner.tipo, activePartner === partner.id)}
+            icon={createGoogleMarker(partner.tipo, activePartner === partner.id)}
             eventHandlers={{
               click: () => setActivePartner(partner.id),
             }}

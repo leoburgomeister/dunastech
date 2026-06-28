@@ -415,3 +415,39 @@ input[type="number"]::-webkit-outer-spin-button {
   .no-print { display: none !important; }
   body { background: white; color: black; }
 }
+
+/* ── Leaflet Google Style Route Flow Animation ── */
+@keyframes routeFlow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+.route-polyline-flow {
+  stroke-dasharray: 12, 12;
+  animation: routeFlow 1s linear infinite;
+}
+
+/* ── Leaflet Popup Style Corrections for Google Style ── */
+.leaflet-popup-content-wrapper {
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  font-family: var(--font-body);
+  border: 1px solid var(--color-border);
+}
+
+.leaflet-popup-tip {
+  background: var(--color-surface) !important;
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: var(--color-text-muted) !important;
+  padding: 6px 6px 0 0 !important;
+}
+
+.leaflet-container a.leaflet-popup-close-button:hover {
+  color: var(--color-text) !important;
+  background: transparent !important;
+}

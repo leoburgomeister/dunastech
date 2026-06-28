@@ -236,15 +236,55 @@ export default function TouristHomePage() {
     setStep(4);
   };
 
+  // Memoized destinations for the background map based on active day/route state
+  const mapDestinations = useMemo(() => {
+    if (!suggestedRoute) {
+      // Atmospheric background dots before route is calculated
+      return destinations.filter(d => d.monitorado).slice(0, 6);
+    }
+    if (expandedDay === null) return suggestedRoute.destinations;
+    const dayItem = suggestedRoute.days.find(d => d.day === expandedDay);
+    return dayItem && dayItem.destinations.length > 0 
+      ? dayItem.destinations 
+      : suggestedRoute.destinations;
+  }, [suggestedRoute, expandedDay, destinations]);
+
   return (
     <div className="animate-fade-in space-y-12">
-      {/* ═══ Questionnaire / Route Suggestion Hero Section ═══ */}
-      <section className="relative bg-gradient-to-br from-[#0A6EBD]/10 via-[var(--color-bg)] to-[var(--color-bg)] py-16 border-b border-[var(--color-border)]">
-        <div className="max-w-6xl mx-auto px-4">
+      {/* ═══ Questionnaire / Route Suggestion Hero Section with Background Map ═══ */}
+      <section className="relative w-full min-h-[620px] lg:h-[760px] border-b border-[var(--color-border)] overflow-hidden flex items-center bg-[var(--color-bg)] transition-all duration-700">
+        
+        {/* Absolute Background Map */}
+        <div className={cn(
+          "absolute inset-0 z-0 transition-all duration-1000 transform",
+          step === 4 ? "blur-none scale-100 opacity-100" : "blur-[4px] scale-[1.02] opacity-40 pointer-events-none"
+        )}>
+          <HomeRouteMap 
+            destinations={mapDestinations} 
+            activeDay={expandedDay} 
+            isInteractive={step === 4}
+          />
+        </div>
+
+        {/* Gradient overlays for map visibility and text contrast */}
+        <div className={cn(
+          "absolute inset-0 z-10 transition-all duration-700 pointer-events-none",
+          step === 4 
+            ? "bg-gradient-to-r from-[var(--color-bg)] via-[var(--color-bg)]/80 to-[var(--color-bg)]/10 dark:from-[var(--color-bg)] dark:via-[var(--color-bg)]/75 dark:to-transparent" 
+            : "bg-gradient-to-br from-[var(--color-primary-soft)]/20 via-[var(--color-bg)]/85 to-[var(--color-bg)]"
+        )} />
+
+        {/* Content Container */}
+        <div className="relative max-w-7xl mx-auto px-4 w-full z-20 py-8 lg:py-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
-            {/* Left Header info */}
-            <div className="lg:col-span-5 space-y-5">
+            {/* Left Header info (only visible on steps 1-3) */}
+            <div className={cn(
+              "space-y-5 transition-all duration-500 transform lg:col-span-5",
+              step === 4 
+                ? "opacity-0 -translate-x-12 pointer-events-none hidden lg:block" 
+                : "opacity-100 translate-x-0"
+            )}>
               <Badge variant="accent" size="md">
                 <Sparkles className="h-3 w-3" />
                 DunasTech Roteador IA
@@ -263,13 +303,23 @@ export default function TouristHomePage() {
               </div>
             </div>
 
-            {/* Right Questionnaire wizard */}
-            <div className="lg:col-span-7">
-              <Card className="border-2 border-[var(--color-primary)]/10 shadow-xl overflow-hidden relative min-h-[380px] flex flex-col justify-between">
+            {/* Right Questionnaire wizard / Floating Panel */}
+            <div className={cn(
+              "transition-all duration-700 transform w-full",
+              step === 4 
+                ? "lg:col-span-5 max-w-[480px] lg:mr-auto" 
+                : "lg:col-span-7"
+            )}>
+              <Card className={cn(
+                "border shadow-xl overflow-hidden relative flex flex-col justify-between transition-all duration-500",
+                step === 4 
+                  ? "bg-[var(--color-surface-glass)] backdrop-blur-lg border-[var(--color-border)] shadow-2xl h-[560px] overflow-y-auto custom-scrollbar" 
+                  : "min-h-[380px] bg-[var(--color-surface)] border-[var(--color-primary)]/10"
+              )}>
                 
                 {/* Step 1: Travel Style */}
                 {step === 1 && (
-                  <div className="space-y-4 animate-fade-in-up flex-1 flex flex-col justify-between">
+                  <div className="p-6 space-y-4 animate-fade-in-up flex-1 flex flex-col justify-between">
                     <div>
                       <span className="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider">Passo 1 de 3</span>
                       <h2 className="text-lg font-bold text-[var(--color-text)] mt-1">Qual é o seu estilo preferido de viagem?</h2>
@@ -304,7 +354,7 @@ export default function TouristHomePage() {
 
                 {/* Step 2: Duration */}
                 {step === 2 && (
-                  <div className="space-y-4 animate-fade-in-up flex-1 flex flex-col justify-between">
+                  <div className="p-6 space-y-4 animate-fade-in-up flex-1 flex flex-col justify-between">
                     <div>
                       <span className="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider">Passo 2 de 3</span>
                       <h2 className="text-lg font-bold text-[var(--color-text)] mt-1">Quanto tempo você tem disponível?</h2>
@@ -335,7 +385,7 @@ export default function TouristHomePage() {
 
                 {/* Step 3: Transport */}
                 {step === 3 && (
-                  <div className="space-y-4 animate-fade-in-up flex-1 flex flex-col justify-between">
+                  <div className="p-6 space-y-4 animate-fade-in-up flex-1 flex flex-col justify-between">
                     <div>
                       <span className="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider">Passo 3 de 3</span>
                       <h2 className="text-lg font-bold text-[var(--color-text)] mt-1">Como você pretende se deslocar?</h2>
@@ -364,9 +414,9 @@ export default function TouristHomePage() {
                   </div>
                 )}
 
-                {/* Step 4: Suggested Route & Map view */}
+                {/* Step 4: Suggested Route & Floating Panel view */}
                 {step === 4 && suggestedRoute && (
-                  <div className="space-y-4 animate-fade-in-up flex-1 flex flex-col justify-between">
+                  <div className="p-5 space-y-4 animate-fade-in-up flex-1 flex flex-col justify-between">
                     <div>
                       <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
                         <div>
@@ -378,12 +428,7 @@ export default function TouristHomePage() {
                         </Button>
                       </div>
 
-                      {/* Map component */}
-                      <div className="my-3 rounded-xl overflow-hidden h-44">
-                        <HomeRouteMap destinations={suggestedRoute.destinations} />
-                      </div>
-
-                      <p className="text-xs text-[var(--color-text-secondary)] mt-2 leading-relaxed">
+                      <p className="text-xs text-[var(--color-text-secondary)] mt-2 leading-relaxed bg-[var(--color-surface)]/60 p-2.5 rounded-lg border border-[var(--color-border)]/40">
                         {suggestedRoute.description}
                       </p>
 
@@ -391,7 +436,7 @@ export default function TouristHomePage() {
                       <div className="mt-4 space-y-3 animate-fade-in">
                         <p className="text-[10px] uppercase font-bold text-[var(--color-text-muted)] tracking-wider">Cronograma do Roteiro</p>
                         
-                        <div className="space-y-2.5">
+                        <div className="space-y-2.5 max-h-[290px] overflow-y-auto pr-0.5 custom-scrollbar">
                           {suggestedRoute.days.map((dayItem, dayIndex) => {
                             const isExpanded = expandedDay === dayItem.day;
                             
@@ -426,7 +471,7 @@ export default function TouristHomePage() {
                                 
                                 // Calculate travel time
                                 let speed = 60; // default shuttle
-                                let transportLabel = 'van/carro';
+                                  let transportLabel = 'van/carro';
                                 if (selectedTransport === 'hike') {
                                   speed = 4.5;
                                   transportLabel = 'caminhada';
@@ -464,7 +509,7 @@ export default function TouristHomePage() {
                                   "rounded-xl border transition-all overflow-hidden",
                                   isExpanded 
                                     ? "bg-[var(--color-surface)] border-[var(--color-primary)] shadow-md"
-                                    : "bg-[var(--color-surface-alt)] border-[var(--color-border-light)] hover:border-[var(--color-primary)]/40"
+                                    : "bg-[var(--color-surface-alt)]/60 border-[var(--color-border-light)] hover:border-[var(--color-primary)]/40"
                                 )}
                               >
                                 {/* Header (always visible, clickable) */}
@@ -498,7 +543,7 @@ export default function TouristHomePage() {
 
                                 {/* Body (collapsible) */}
                                 {isExpanded && (
-                                  <div className="p-3.5 border-t border-[var(--color-border-light)] space-y-3.5 text-xs animate-fade-in-up">
+                                  <div className="p-3.5 border-t border-[var(--color-border-light)] space-y-3.5 text-xs bg-[var(--color-surface)] animate-fade-in-up">
                                     {/* Description */}
                                     <p className="text-[var(--color-text-secondary)] leading-relaxed bg-[var(--color-surface-alt)]/50 p-3 rounded-lg border border-[var(--color-border-light)]/60">
                                       {dayItem.description}

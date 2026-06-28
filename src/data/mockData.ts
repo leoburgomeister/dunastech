@@ -175,8 +175,8 @@ export const destinosInfo: DestinoInfo[] = [
     municipio: "Maxaranguape",
     descricao: "Famosas piscinas naturais a sete quilômetros da costa de Maxaranguape. Os corais formam um aquário natural de águas mornas e transparentes, ideal para a prática de snorkel e mergulho livre entre peixes coloridos.",
     imagem: "/images/destinations/maracajau.png",
-    latitude: -5.4092,
-    longitude: -35.3131,
+    latitude: -5.4124,
+    longitude: -35.3764,
     hashtag: "maracajau",
     monitorado: true,
     atracoes: [
@@ -622,8 +622,8 @@ const staticCadasturData: CadasturBusiness[] = [
     regularizado: true,
     nota: 4.4,
     telefone: "(84) 3261-2626",
-    latitude: -5.4020,
-    longitude: -35.3190,
+    latitude: -5.4150,
+    longitude: -35.3780,
     descricao: "Parque aquático e hotelaria integrados com saída direta para lanchas e catamarãs em direção aos corais.",
     imagem: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=500&h=350&fit=crop"
   },
@@ -636,8 +636,8 @@ const staticCadasturData: CadasturBusiness[] = [
     regularizado: true,
     nota: 4.8,
     telefone: "(84) 99122-3344",
-    latitude: -5.4095,
-    longitude: -35.3120,
+    latitude: -5.4100,
+    longitude: -35.3740,
     descricao: "Operadora profissional de mergulho nos Parrachos, fornecendo snorkel, coletes e lanchas credenciadas.",
     imagem: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=500&h=350&fit=crop"
   },
@@ -1024,10 +1024,44 @@ function generateMockBusinesses(): CadasturBusiness[] {
 
     // Coordinates: random scatter with varying radii and angles around center coordinates (no perfect circle)
     const angle = pseudoRandom(seed * 14.2) * 2 * Math.PI;
-    const radius = 0.003 + (pseudoRandom(seed * 15.6) * 0.022); // radius spread between 0.003 and 0.025 degrees
+    let radius = 0.003 + (pseudoRandom(seed * 15.6) * 0.022); // radius spread between 0.003 and 0.025 degrees
     
-    const latOffset = Math.sin(angle) * radius;
-    const lngOffset = Math.cos(angle) * radius;
+    let latOffset = Math.sin(angle) * radius;
+    let lngOffset = Math.cos(angle) * radius;
+
+    // Bias offsets to keep markers on land rather than in the ocean (which is to the east/north-east)
+    const coastalDestinations = [
+      "Ponta Negra e Morro do Careca",
+      "Praia da Pipa",
+      "Dunas de Genipabu",
+      "Parrachos de Maracajaú",
+      "São Miguel do Gostoso",
+      "Forte dos Reis Magos",
+      "Galinhos",
+      "Maior Cajueiro do Mundo",
+      "Praia do Madeiro",
+      "Barreira do Inferno",
+      "Barra de Cunhaú",
+      "Salinas e Indústria Salineira de Macau",
+      "Salinas de Galinhos e Fábrica de Sal"
+    ];
+
+    if (coastalDestinations.includes(destino)) {
+      // Force longitude offset to be negative (to the west / inland)
+      lngOffset = -Math.abs(lngOffset);
+      
+      // For São Miguel do Gostoso, the coast is to the north, so force latitude offset to be negative (south)
+      if (destino === "São Miguel do Gostoso") {
+        latOffset = -Math.abs(latOffset);
+      }
+      
+      // For Galinhos / Salinas, it's a narrow spit of land, use a much tighter radius
+      if (destino === "Galinhos" || destino === "Salinas de Galinhos e Fábrica de Sal") {
+        latOffset = latOffset * 0.25;
+        lngOffset = lngOffset * 0.25;
+      }
+    }
+
     const latitude = parseFloat((destinoInfo.latitude + latOffset).toFixed(6));
     const longitude = parseFloat((destinoInfo.longitude + lngOffset).toFixed(6));
 
