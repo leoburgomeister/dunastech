@@ -72,6 +72,10 @@ export default function PitchPage() {
   // B2G Simulator State
   const [dashboardDest, setDashboardDest] = useState("Ponta Negra");
 
+  // Switch View Mode for Slide 2 (Turista vs Governo)
+  const [viewMode, setViewMode] = useState<"turista" | "governo">("turista");
+  const [simulatedCadasturIrregular, setSimulatedCadasturIrregular] = useState(false);
+
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
 
   // 180 seconds countdown
@@ -96,13 +100,13 @@ export default function PitchPage() {
 
   // Navigate to slide
   function navigateToSlide(index: number) {
-    if (index >= 0 && index < 6) {
+    if (index >= 0 && index < 5) {
       sectionRefs.current[index]?.scrollIntoView({ behavior: "smooth" });
       setCurrentSlide(index);
     }
   }
 
-  // Keyboard navigation (6 slides modulo check)
+  // Keyboard navigation (5 slides modulo check)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeEl = document.activeElement;
@@ -115,10 +119,10 @@ export default function PitchPage() {
 
       if (e.key === "ArrowRight" || e.key === " ") {
         e.preventDefault();
-        navigateToSlide((currentSlide + 1) % 6);
+        navigateToSlide((currentSlide + 1) % 5);
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
-        navigateToSlide((currentSlide - 1 + 6) % 6);
+        navigateToSlide((currentSlide - 1 + 5) % 5);
       }
     };
 
@@ -209,12 +213,11 @@ export default function PitchPage() {
 
   // exact copy of prompter scripts matching cover page + user pitch
   const prompterScripts = [
-    "Olá, banca avaliadora! Nós somos a DunasTech, e este é o primeiro Observatório Inteligente do Turismo do Rio Grande do Norte. Vamos mostrar como transformamos o turismo de nosso estado no Hackathon do Sol.",
-    "O turismo não é apenas uma atividade no Rio Grande do Norte. Ele é o nosso motor. Hoje, os segmentos de Comércio, Serviços e Turismo representam 76% do PIB estadual, 75% da arrecadação de ICMS e 73% dos empregos formais. Mas esse motor está operando no escuro. Atualmente, os dados estão espalhados em dezenas de fontes e painéis que só mostram o passado. Nós sabemos exatamente onde o turista está, mas o poder público não sabe como o destino está sendo cuidado.",
-    "Para mudar esse cenário, criamos o primeiro Observatório Inteligente do Turismo. Nós desenvolvemos um guia turístico inteligente que transforma o turista e o morador local em verdadeiros sensores distribuídos pelo território. Com apenas três cliques, nós coletamos o sentimento real da ponta. Ou seja, nós não apenas guiamos o turista, nós ouvimos o destino.",
-    "Essas avaliações feitas em tempo real são enviadas diretamente para o nosso painel de gestão governamental, voltado para o B2G. Mas nós fomos além. Integrada à API do Instagram, nossa Inteligência Artificial varre fotos e hashtags públicas para medir o fluxo real e identificar problemas. Tudo isso alimenta o nosso KPI exclusivo: o Índice de Saúde do Atrativo, o ISA. Cruzando informações de fluxo, infraestrutura e sustentabilidade, a nossa IA Generativa não mostra apenas gráficos frios. Ela gera novos dados e permite identificar problemas que antes não eram mensurados, emitindo alertas automáticos na tela do gestor como: 'Atenção: Aumento de 42% no fluxo turístico, mas as avaliações indicam necessidade urgente de limpeza e manutenção'.",
-    "E como isso se sustenta e impacta o mercado? Nossas rotas inteligentes, feitas por IA, priorizam e recomendam exclusivamente negócios, guias e hotéis que possuam o registro regular no Cadastur do Ministério do Turismo. Com isso, nós incentivamos a formalização do pequeno e microempreendedor, gerando um mapa seguro e legalizado. Nós monetizamos a plataforma através de um SaaS Público B2G, onde as prefeituras pagam para ter acesso à inteligência e zeladoria em tempo real, e de um modelo B2B Freemium, que oferece destaque patrocinado para as empresas locais.",
-    "A Dunas Tech une a voz do cidadão, os dados do governo e o poder da Inteligência Artificial em uma única plataforma. Nós não queremos apenas atrair turistas para o Rio Grande do Norte. Nós queremos garantir que os nossos destinos estejam saudáveis e preservados para recebê-los amanhã. Muito obrigado."
+    "Olá, banca avaliadora! Nós somos a DunasTech, um Observatório Inteligente do Turismo voltado para o Rio Grande do Norte. Vamos apresentar nossa solução desenvolvida no Hackathon do Sol.",
+    "Quando falamos de turismo, pensamos também no meio ambiente? O turismo é o motor do nosso estado, mas ele exerce uma pressão tremenda sobre nossas praias, dunas e ecossistemas. Como relacionar o crescimento do turismo com o meio ambiente e a sustentabilidade de forma inteligente?",
+    "Para responder a isso, criamos uma plataforma completa com foco total no ISA - Índice de Saúde do Atrativo. Nossa tecnologia permite a gestão integrada de pontos turísticos, mapeia empreendedores regionais e gera rotas turísticas inteligentes. Podemos ver a plataforma sob duas óticas: do Turista (com rotas ecológicas e alertas de Cadastur) e do Governo (com monitoramento preditivo e alertas gerados por IA).",
+    "Nossa sustentabilidade financeira é dual e baseada em impacto legal. Geramos rotas que valorizam guias e pousadas com Cadastur regularizado, combatendo a informalidade. Monetizamos através de um SaaS B2G para municípios gerenciarem sua zeladoria em tempo real, e com modelo B2B Freemium de anúncios patrocinados para parceiros locais.",
+    "A DunasTech une a voz do cidadão, os dados públicos e inteligência artificial para que os destinos do Rio Grande do Norte continuem saudáveis e preservados. Não queremos apenas atrair turistas hoje, mas garantir que as próximas gerações encontrem nossas belezas cuidadas. Muito obrigado!"
   ];
 
   // Handler for B2C Form Submission simulation
@@ -343,15 +346,6 @@ export default function PitchPage() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[750px] h-[750px] rounded-full bg-gradient-to-r from-amber-400/20 to-orange-400/10 blur-[140px] pointer-events-none" />
           
           <div className="max-w-5xl w-full text-center space-y-8 z-10">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={currentSlide === 0 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-xs font-black uppercase tracking-widest shadow-sm"
-            >
-              <Sun className="w-4 h-4 text-amber-500 animate-spin-slow" />
-              <span>HACKATHON DO SOL 2026 — NATAL/RN</span>
-            </motion.div>
-
             <div className="space-y-4">
               <motion.h1
                 initial={{ opacity: 0, y: 35 }}
@@ -410,25 +404,26 @@ export default function PitchPage() {
           </div>
         </section>
 
-        {/* SLIDE 1: O GANCHO */}
+        {/* SLIDE 1: A PROVOCAÇÃO */}
         <section
           ref={(el) => { sectionRefs.current[1] = el; }}
           data-slide-index="1"
           className="h-screen w-full snap-start relative flex flex-col justify-center items-center overflow-hidden p-6 sm:p-12"
           style={{
-            background: "linear-gradient(135deg, #FFFDF6 0%, #FFF4D1 50%, #FFE9B3 100%)",
+            background: "linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 50%, #BBF7D0 100%)",
           }}
         >
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-gradient-to-r from-amber-400/20 to-orange-400/10 blur-[130px] pointer-events-none" />
+          {/* Eco soft glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-gradient-to-r from-emerald-400/20 to-teal-400/10 blur-[130px] pointer-events-none" />
           
           <div className="max-w-5xl w-full text-center space-y-7 z-10">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={currentSlide === 1 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-800 text-xs font-bold uppercase tracking-widest shadow-sm"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-black uppercase tracking-widest shadow-sm"
             >
-              <Sun className="w-4 h-4 text-amber-500 animate-spin-slow" />
-              <span>01. O GANCHO: ECONOMIA DO TURISMO</span>
+              <Globe className="w-4 h-4 text-emerald-600" />
+              <span>01. A PROVOCAÇÃO</span>
             </motion.div>
 
             <motion.h1
@@ -437,9 +432,9 @@ export default function PitchPage() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="text-4xl sm:text-6xl font-black tracking-tight text-slate-900 leading-tight"
             >
-              O motor da nossa economia <br />
-              <span className="bg-gradient-to-r from-amber-600 via-orange-600 to-red-500 bg-clip-text text-transparent">
-                não pode operar no escuro.
+              Quando a gente fala de turismo, <br />
+              <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                pensamos também no meio ambiente?
               </span>
             </motion.h1>
 
@@ -447,37 +442,38 @@ export default function PitchPage() {
               initial={{ opacity: 0 }}
               animate={currentSlide === 1 ? { opacity: 1 } : { opacity: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-slate-600 text-lg sm:text-xl max-w-3xl mx-auto font-medium leading-relaxed"
+              className="text-slate-750 text-lg sm:text-2xl max-w-4xl mx-auto font-bold leading-relaxed text-emerald-950"
             >
-              O turismo representa o motor do Rio Grande do Norte. Contudo, a gestão pública opera com dados fragmentados do passado e sem monitoramento de zeladoria ecológica.
+              E como o turismo se relaciona com o meio ambiente e a sustentabilidade?
             </motion.p>
 
-            {/* Light Grid Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-8 max-w-4xl mx-auto">
-              {[
-                { value: "76%", label: "do PIB Estadual", desc: "Comércio, Serviços e Turismo" },
-                { value: "75%", label: "da Arrecadação de ICMS", desc: "Arrecadação tributária do RN" },
-                { value: "73%", label: "dos Empregos Formais", desc: "Geração de trabalho estruturado" }
-              ].map((stat, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={currentSlide === 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-                  transition={{ duration: 0.5, delay: 0.3 + i * 0.1 }}
-                  className="bg-white/80 border border-amber-200/50 backdrop-blur-md rounded-2xl p-6 flex flex-col items-center shadow-md relative overflow-hidden"
-                >
-                  <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-amber-400 to-orange-500" />
-                  <span className="text-5xl font-black text-slate-900 block mb-1 tracking-tight">
-                    {stat.value}
-                  </span>
-                  <span className="text-sm font-extrabold text-slate-800 tracking-wide">
-                    {stat.label}
-                  </span>
-                  <span className="text-xs text-slate-500 mt-1">
-                    {stat.desc}
-                  </span>
-                </motion.div>
-              ))}
+            {/* Contraste Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8 max-w-4xl mx-auto">
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                animate={currentSlide === 1 ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="bg-white/90 border border-emerald-250/55 backdrop-blur-md rounded-2xl p-6 text-left shadow-md relative overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 w-full h-[4px] bg-red-400" />
+                <h3 className="text-lg font-extrabold text-red-750 mb-2">A Pressão Ambiental</h3>
+                <p className="text-sm text-slate-650 font-medium leading-relaxed">
+                  O fluxo massivo e desordenado de visitantes gera superlotação, acúmulo de resíduos sólidos nas praias, degradação das dunas e saturação da infraestrutura local sem que os órgãos públicos consigam monitorar em tempo real.
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                animate={currentSlide === 1 ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="bg-white/90 border border-emerald-250/55 backdrop-blur-md rounded-2xl p-6 text-left shadow-md relative overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 w-full h-[4px] bg-emerald-500" />
+                <h3 className="text-lg font-extrabold text-emerald-750 mb-2">O Caminho Sustentável</h3>
+                <p className="text-sm text-slate-650 font-medium leading-relaxed">
+                  É preciso transformar o visitante em um agente ativo de conservação, coletar dados ecológicos locais e direcionar a demanda apenas para empreendimentos regularizados e comprometidos com a preservação.
+                </p>
+              </motion.div>
             </div>
           </div>
         </section>
@@ -486,20 +482,23 @@ export default function PitchPage() {
         <section
           ref={(el) => { sectionRefs.current[2] = el; }}
           data-slide-index="2"
-          className="h-screen w-full snap-start relative flex items-center justify-center overflow-hidden p-6 sm:p-12"
+          className="h-screen w-full snap-start relative flex items-center justify-center overflow-hidden p-6 sm:p-12 transition-all duration-1000"
           style={{
-            background: "linear-gradient(135deg, #FFFDF6 0%, #FFF1C5 50%, #FFE5A3 100%)",
+            background: viewMode === "turista" 
+              ? "linear-gradient(135deg, #ECFEFF 0%, #CFFAFE 50%, #A5F3FC 100%)" 
+              : "linear-gradient(135deg, #FFFDF6 0%, #FFF1C5 50%, #FFE5A3 100%)",
           }}
         >
           <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center z-10">
-            <div className="lg:col-span-6 space-y-6 text-left">
+            {/* Left Column: Description */}
+            <div className="lg:col-span-5 space-y-5 text-left">
               <motion.div
                 initial={{ opacity: 0, x: -30 }}
                 animate={currentSlide === 2 ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-100 border border-cyan-200 text-cyan-800 text-xs font-bold uppercase tracking-wider"
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-bold uppercase tracking-wider"
               >
-                <Smartphone className="w-3.5 h-3.5 text-cyan-600" />
-                <span>02. A SOLUÇÃO: GUIA INTELIGENTE & SENSORES</span>
+                <Sparkles className="w-3.5 h-3.5 text-emerald-650" />
+                <span>02. A SOLUÇÃO: PLATAFORMA COMPLETA</span>
               </motion.div>
 
               <motion.h2
@@ -508,623 +507,457 @@ export default function PitchPage() {
                 transition={{ delay: 0.1 }}
                 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight"
               >
-                Transformando o cidadão <br />
-                <span className="bg-gradient-to-r from-cyan-600 to-emerald-600 bg-clip-text text-transparent">
-                  em sensor vivo.
+                Tecnologia para um <br />
+                <span className="bg-gradient-to-r from-emerald-600 via-teal-650 to-amber-600 bg-clip-text text-transparent">
+                  Turismo Sustentável
                 </span>
               </motion.h2>
 
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={currentSlide === 2 ? { opacity: 1 } : { opacity: 0 }}
-                transition={{ delay: 0.2 }}
-                className="text-slate-600 text-base sm:text-lg leading-relaxed font-medium"
-              >
-                Desenvolvemos um guia turístico inteligente que transforma o turista e o morador em sensores distribuídos. Com apenas 3 cliques rápidos, capturamos o sentimento e o estado real da infraestrutura dos atrativos.
-              </motion.p>
+              <p className="text-slate-600 text-sm sm:text-base leading-relaxed font-semibold">
+                Unificamos o gerenciamento de atrativos turísticos e a formalização dos empreendedores locais com foco absoluto no monitoramento ecológico.
+              </p>
 
               <div className="space-y-4 pt-2">
                 {[
-                  { title: "Engajamento Mobile em 3 Cliques", desc: "Checkboxes visuais e práticos eliminam digitação demorada." },
-                  { title: "Zeladoria e Auditoria Social", desc: "Mapeamento em tempo real de limpeza, conservação e segurança." },
-                  { title: "Guia Integrado ao Cadastur", desc: "Direciona fluxo exclusivamente para parceiros formalizados." }
+                  {
+                    title: "Destaque: Índice ISA (Índice de Saúde do Atrativo)",
+                    desc: "Calcula em tempo real o equilíbrio entre a saturação de visitantes e a preservação ecológica do destino.",
+                    icon: Zap,
+                    iconColor: "text-amber-600 bg-amber-50 border-amber-200"
+                  },
+                  {
+                    title: "Rotas Inteligentes & Empreendedores",
+                    desc: "Rotas geradas por IA que direcionam turistas para parceiros locais certificados.",
+                    icon: Globe,
+                    iconColor: "text-cyan-600 bg-cyan-50 border-cyan-200"
+                  },
+                  {
+                    title: "Notificação Automatizada Cadastur",
+                    desc: "Identifica prestadores não cadastrados e dispara alertas automáticos para incentivar a regularização.",
+                    icon: CheckCircle2,
+                    iconColor: "text-emerald-650 bg-emerald-50 border-emerald-200"
+                  }
                 ].map((item, i) => (
                   <motion.div
                     key={i}
                     initial={{ opacity: 0, x: -20 }}
                     animate={currentSlide === 2 ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-                    transition={{ delay: 0.3 + i * 0.1 }}
+                    transition={{ delay: 0.2 + i * 0.1 }}
                     className="flex gap-3"
                   >
-                    <div className="w-5.5 h-5.5 rounded-full bg-cyan-100 flex items-center justify-center mt-1 flex-shrink-0 text-cyan-600">
-                      <Check className="w-3.5 h-3.5" />
+                    <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 border", item.iconColor)}>
+                      <item.icon className="w-5 h-5" />
                     </div>
                     <div>
                       <h4 className="text-sm font-extrabold text-slate-900">{item.title}</h4>
-                      <p className="text-xs text-slate-500 font-medium">{item.desc}</p>
+                      <p className="text-xs text-slate-500 font-semibold">{item.desc}</p>
                     </div>
                   </motion.div>
                 ))}
               </div>
             </div>
 
-            <div className="lg:col-span-6 flex justify-center items-center">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9, rotateY: 15 }}
-                animate={currentSlide === 2 ? { opacity: 1, scale: 1, rotateY: 0 } : { opacity: 0, scale: 0.9, rotateY: 15 }}
-                transition={{ type: "spring", stiffness: 60, delay: 0.2 }}
-                className="w-[285px] h-[550px] rounded-[40px] border-4 border-slate-200 bg-white shadow-xl relative flex flex-col p-3.5 overflow-hidden"
-              >
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-4.5 bg-slate-200 rounded-b-2xl z-20" />
+            {/* Right Column: Switch + Interactive mockups */}
+            <div className="lg:col-span-7 flex flex-col items-center gap-4">
+              {/* Switch View Buttons */}
+              <div className="bg-white/85 backdrop-blur p-1 rounded-2xl flex gap-2 border border-slate-200 shadow-sm z-20">
+                <button
+                  onClick={() => setViewMode("turista")}
+                  className={cn(
+                    "px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5",
+                    viewMode === "turista"
+                      ? "bg-cyan-600 text-white shadow-md scale-105"
+                      : "text-slate-500 hover:text-slate-800"
+                  )}
+                >
+                  <Smartphone className="w-3.5 h-3.5" />
+                  Perfil: Turista (B2C)
+                </button>
+                <button
+                  onClick={() => setViewMode("governo")}
+                  className={cn(
+                    "px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5",
+                    viewMode === "governo"
+                      ? "bg-amber-600 text-white shadow-md scale-105"
+                      : "text-slate-500 hover:text-slate-800"
+                  )}
+                >
+                  <BarChart3 className="w-3.5 h-3.5" />
+                  Perfil: Governo (B2G)
+                </button>
+              </div>
 
-                {/* B2C Simulator Tabs */}
-                <div className="flex bg-slate-50 p-1 rounded-xl border border-slate-100 mb-3 z-10 shrink-0">
-                  <button
-                    onClick={() => {
-                      setSimulatorTab("route");
-                      setSimulatedSubmitted(false);
-                    }}
-                    className={cn(
-                      "flex-1 py-1 rounded-lg text-[10px] font-black transition-colors cursor-pointer",
-                      simulatorTab === "route" ? "bg-white text-cyan-600 shadow-sm" : "text-slate-400"
-                    )}
-                  >
-                    🗺️ Rotas IA
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSimulatorTab("evaluate");
-                    }}
-                    className={cn(
-                      "flex-1 py-1 rounded-lg text-[10px] font-black transition-colors cursor-pointer",
-                      simulatorTab === "evaluate" ? "bg-white text-cyan-600 shadow-sm" : "text-slate-400"
-                    )}
-                  >
-                    ✍️ Avaliar
-                  </button>
-                </div>
+              {/* RENDER VIEW MODE: TURISTA */}
+              {viewMode === "turista" ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-[285px] h-[520px] rounded-[40px] border-4 border-cyan-400 bg-white shadow-xl relative flex flex-col p-3.5 overflow-hidden"
+                >
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-4.5 bg-slate-200 rounded-b-2xl z-20" />
 
-                {/* Smartphone Scrollable Screen Content */}
-                <div className="flex-1 overflow-y-auto px-1 pt-1 pb-2 text-left space-y-3.5 scrollbar-thin select-none">
-                  
-                  {/* TAB 1: ROUTE GENERATOR */}
-                  {simulatorTab === "route" && (
-                    <div className="space-y-4">
-                      {!routeGenerated ? (
-                        <div className="space-y-4">
-                          <div className="space-y-1">
-                            <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Destino Principal</label>
-                            <select
-                              value={simulatedDest}
-                              onChange={(e) => setSimulatedDest(e.target.value)}
-                              className="w-full text-xs p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-bold focus:outline-none focus:border-cyan-500 transition-colors"
-                            >
-                              <option value="Praia da Pipa">Praia da Pipa (Tibau do Sul)</option>
-                              <option value="Ponta Negra">Ponta Negra e Morro (Natal)</option>
-                              <option value="Dunas de Genipabu">Dunas de Genipabu (Extremoz)</option>
-                              <option value="São Miguel do Gostoso">São Miguel do Gostoso</option>
-                            </select>
-                          </div>
+                  {/* B2C Simulator Tabs */}
+                  <div className="flex bg-slate-50 p-1 rounded-xl border border-slate-100 mb-3 z-10 shrink-0">
+                    <button
+                      onClick={() => {
+                        setSimulatorTab("route");
+                        setSimulatedSubmitted(false);
+                      }}
+                      className={cn(
+                        "flex-1 py-1 rounded-lg text-[10px] font-black transition-colors cursor-pointer",
+                        simulatorTab === "route" ? "bg-white text-cyan-600 shadow-sm" : "text-slate-400"
+                      )}
+                    >
+                      🗺️ Rotas IA
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSimulatorTab("evaluate");
+                      }}
+                      className={cn(
+                        "flex-1 py-1 rounded-lg text-[10px] font-black transition-colors cursor-pointer",
+                        simulatorTab === "evaluate" ? "bg-white text-cyan-600 shadow-sm" : "text-slate-400"
+                      )}
+                    >
+                      ✍️ Avaliar
+                    </button>
+                  </div>
 
-                          <div className="space-y-1.5">
-                            <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Estilo de Viagem</label>
-                            <div className="flex flex-col gap-1.5">
-                              {[
-                                { id: "sol", label: "☀️ Sol e Praia", desc: "Orlas, jangadas e relaxamento" },
-                                { id: "aventura", label: "🏄 Aventura e Vento", desc: "Dunas, buggy e kitesurf" },
-                                { id: "gastronomia", label: "🍽️ Rota Gastronômica", desc: "Melhores pratos potiguares" }
-                              ].map((cat) => (
-                                <button
-                                  key={cat.id}
-                                  type="button"
-                                  onClick={() => setRouteCategory(cat.id as any)}
-                                  className={cn(
-                                    "w-full p-2 rounded-xl text-left border transition-all cursor-pointer flex justify-between items-center",
-                                    routeCategory === cat.id
-                                      ? "bg-cyan-50 border-cyan-300 text-cyan-800"
-                                      : "bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-350"
-                                  )}
-                                >
-                                  <div>
-                                    <span className="text-[11px] font-extrabold block">{cat.label}</span>
-                                    <span className="text-[9px] text-slate-400 font-medium block mt-0.5">{cat.desc}</span>
-                                  </div>
-                                  {routeCategory === cat.id && (
-                                    <Check className="w-3.5 h-3.5 text-cyan-600" />
-                                  )}
-                                </button>
-                              ))}
+                  {/* Smartphone Scrollable Content */}
+                  <div className="flex-1 overflow-y-auto px-1 pt-1 pb-2 text-left space-y-3.5 scrollbar-thin select-none">
+                    {simulatorTab === "route" && (
+                      <div className="space-y-4">
+                        {!routeGenerated ? (
+                          <div className="space-y-4">
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Destino Principal</label>
+                              <select
+                                value={simulatedDest}
+                                onChange={(e) => setSimulatedDest(e.target.value)}
+                                className="w-full text-xs p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-bold focus:outline-none focus:border-cyan-500 transition-colors"
+                              >
+                                <option value="Praia da Pipa">Praia da Pipa (Tibau do Sul)</option>
+                                <option value="Ponta Negra">Ponta Negra e Morro (Natal)</option>
+                                <option value="Dunas de Genipabu">Dunas de Genipabu (Extremoz)</option>
+                                <option value="São Miguel do Gostoso">São Miguel do Gostoso</option>
+                              </select>
                             </div>
-                          </div>
 
-                          <button
-                            type="button"
-                            disabled={generatingRoute}
-                            onClick={() => {
-                              setGeneratingRoute(true);
-                              setTimeout(() => {
-                                setGeneratingRoute(false);
-                                setRouteGenerated(true);
-                              }, 1500);
-                            }}
-                            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md hover:from-cyan-600 hover:to-teal-600 active:scale-[0.97] transition-all cursor-pointer disabled:opacity-50"
-                          >
-                            {generatingRoute ? (
-                              <>
-                                <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                <span>Criando Rota IA...</span>
-                              </>
-                            ) : (
-                              <>
-                                <Sparkles className="w-3.5 h-3.5 text-white" />
-                                <span>Gerar Rota Inteligente</span>
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="space-y-3.5 animate-scale-in">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-black text-green-600 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                              🛡️ 100% Cadastur
-                            </span>
+                            {/* Simulation switch for Cadastur warning */}
+                            <div className="flex items-center justify-between p-2 bg-slate-50 border border-slate-200 rounded-xl">
+                              <span className="text-[9px] font-black text-slate-700">Simular Operador Irregular</span>
+                              <button
+                                type="button"
+                                onClick={() => setSimulatedCadasturIrregular(!simulatedCadasturIrregular)}
+                                className={cn(
+                                  "w-10 h-5.5 rounded-full p-0.5 transition-colors cursor-pointer relative",
+                                  simulatedCadasturIrregular ? "bg-red-500" : "bg-slate-350"
+                                )}
+                              >
+                                <div
+                                  className={cn(
+                                    "w-4 h-4 bg-white rounded-full transition-all shadow-sm absolute top-0.5",
+                                    simulatedCadasturIrregular ? "right-1" : "left-1"
+                                  )}
+                                />
+                              </button>
+                            </div>
+
                             <button
-                              onClick={() => setRouteGenerated(false)}
-                              className="text-[9px] text-cyan-600 underline font-bold cursor-pointer"
+                              type="button"
+                              disabled={generatingRoute}
+                              onClick={() => {
+                                setGeneratingRoute(true);
+                                setTimeout(() => {
+                                  setGeneratingRoute(false);
+                                  setRouteGenerated(true);
+                                }, 1000);
+                              }}
+                              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md hover:from-cyan-600 hover:to-teal-600 active:scale-[0.97] transition-all cursor-pointer disabled:opacity-50"
                             >
-                              Nova Rota
+                              {generatingRoute ? (
+                                <>
+                                  <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                  <span>Criando Rota IA...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles className="w-3.5 h-3.5 text-white" />
+                                  <span>Gerar Rota Rápida</span>
+                                </>
+                              )}
                             </button>
                           </div>
-
-                          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3 text-left space-y-3">
-                            <h4 className="text-xs font-black text-slate-800 leading-snug">
-                              Roteiro Personalizado: {simulatedDest.split(" e ")[0]}
-                            </h4>
-
-                            {/* Mini Interactive Vector Map */}
-                            <div className="w-full h-24 bg-sky-50/60 border border-slate-200 rounded-xl relative overflow-hidden flex items-center justify-center">
-                              {/* Background ocean & beach curves */}
-                              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 200 100" preserveAspectRatio="none">
-                                {/* Coastline shape */}
-                                <path
-                                  d="M 0,90 Q 60,85 100,50 T 200,30 L 200,100 L 0,100 Z"
-                                  fill="#FEFBF0"
-                                  stroke="#FFE4A3"
-                                  strokeWidth="1.5"
-                                />
-                                {/* Ocean waves details */}
-                                <path d="M 30,30 Q 50,25 70,30" stroke="#bae6fd" strokeWidth="1" fill="none" opacity="0.6" />
-                                <path d="M 120,20 Q 140,15 160,20" stroke="#bae6fd" strokeWidth="1" fill="none" opacity="0.6" />
-
-                                {/* Route path connection line */}
-                                <path
-                                  d="M 50,65 Q 90,55 130,45"
-                                  stroke="var(--color-primary)"
-                                  strokeWidth="1.5"
-                                  strokeDasharray="3,3"
-                                  fill="none"
-                                  className="animate-pulse"
-                                />
-                              </svg>
-
-                              {/* Stop Pin 1 */}
-                              <div className="absolute" style={{ left: "22%", top: "60%" }}>
-                                <span className="absolute -left-1 -top-1 h-4.5 w-4.5 rounded-full bg-cyan-400/30 animate-ping" />
-                                <div className="h-2.5 w-2.5 rounded-full bg-cyan-600 border border-white shadow-sm flex items-center justify-center relative group">
-                                  <span className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded bg-slate-900 text-[6px] font-bold text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-                                    Stop 1
-                                  </span>
-                                </div>
-                              </div>
-
-                              {/* Stop Pin 2 */}
-                              <div className="absolute" style={{ left: "45%", top: "50%" }}>
-                                <span className="absolute -left-1 -top-1 h-4.5 w-4.5 rounded-full bg-amber-400/30 animate-ping" />
-                                <div className="h-2.5 w-2.5 rounded-full bg-amber-500 border border-white shadow-sm flex items-center justify-center relative group">
-                                  <span className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded bg-slate-900 text-[6px] font-bold text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-                                    Stop 2
-                                  </span>
-                                </div>
-                              </div>
-
-                              {/* Stop Pin 3 */}
-                              <div className="absolute" style={{ left: "72%", top: "38%" }}>
-                                <span className="absolute -left-1 -top-1 h-4.5 w-4.5 rounded-full bg-green-400/30 animate-ping" />
-                                <div className="h-2.5 w-2.5 rounded-full bg-green-600 border border-white shadow-sm flex items-center justify-center relative group">
-                                  <span className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded bg-slate-900 text-[6px] font-bold text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-                                    Stop 3
-                                  </span>
-                                </div>
-                              </div>
-
-                              <span className="absolute bottom-1 right-2 text-[7px] font-bold text-amber-800 uppercase tracking-widest bg-amber-100/60 px-1 rounded">
-                                Mapa da Rota IA
+                        ) : (
+                          <div className="space-y-3.5 animate-scale-in">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-black text-cyan-650 bg-cyan-50 border border-cyan-200 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                🗺️ Rota IA Sugerida
                               </span>
+                              <button
+                                onClick={() => setRouteGenerated(false)}
+                                className="text-[9px] text-cyan-600 underline font-bold cursor-pointer"
+                              >
+                                Nova Rota
+                              </button>
                             </div>
-                            
-                            {/* Dynamic Stops */}
-                            <div className="space-y-3 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-[2px] before:bg-cyan-100">
-                              
-                              {/* Stop 1: Hotel */}
-                              <div className="flex gap-2.5 relative z-10 items-start">
-                                <div className="w-6 h-6 rounded-full bg-cyan-100 text-cyan-600 flex items-center justify-center text-[10px] font-black shrink-0 border border-cyan-200">1</div>
-                                <div className="space-y-0.5 text-left">
-                                  <span className="text-[10px] font-extrabold text-slate-800 block">Hospedagem Recomendada</span>
-                                  <p className="text-[9px] text-slate-500 font-medium leading-relaxed">
-                                    Pousada Regularizada Cadastur
-                                  </p>
-                                  <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded text-[7px] font-semibold bg-green-50 border border-green-150 text-green-700">
-                                    🛡️ Cadastur Ativo
-                                  </span>
+
+                            {/* Alert Box for automated Cadastur notification */}
+                            {simulatedCadasturIrregular && (
+                              <div className="bg-red-50 border border-red-200 rounded-xl p-2.5 space-y-1.5 text-[9px] animate-pulse">
+                                <span className="font-extrabold text-red-700 block">🚨 BLOQUEADO NA ROTA IA</span>
+                                <p className="text-slate-600 leading-relaxed font-medium">
+                                  O estabelecimento <strong>Pousada Lagoa Azul</strong> não possui registro ativo no Cadastur. 
+                                </p>
+                                <span className="text-emerald-700 font-bold block">
+                                  📧 [Automação]: Notificação de cadastro e link de regularização enviados ao proprietário.
+                                </span>
+                              </div>
+                            )}
+
+                            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3 text-left space-y-3">
+                              <h4 className="text-xs font-black text-slate-800 leading-snug">
+                                Roteiro: {simulatedDest.split(" e ")[0]}
+                              </h4>
+
+                              {/* Stop Pin List */}
+                              <div className="space-y-3 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-[2px] before:bg-cyan-155">
+                                <div className="flex gap-2.5 relative z-10 items-start">
+                                  <div className="w-6 h-6 rounded-full bg-cyan-100 text-cyan-600 flex items-center justify-center text-[10px] font-black shrink-0 border border-cyan-200">1</div>
+                                  <div className="space-y-0.5 text-left">
+                                    <span className="text-[10px] font-extrabold text-slate-800 block">Hospedagem</span>
+                                    <span className="text-[8px] text-emerald-700 font-bold bg-emerald-50 px-1 py-0.2 rounded border border-emerald-250">🛡️ Cadastur Ativo</span>
+                                  </div>
+                                </div>
+
+                                <div className="flex gap-2.5 relative z-10 items-start">
+                                  <div className="w-6 h-6 rounded-full bg-cyan-100 text-cyan-600 flex items-center justify-center text-[10px] font-black shrink-0 border border-cyan-200">2</div>
+                                  <div className="space-y-0.5 text-left">
+                                    <span className="text-[10px] font-extrabold text-slate-800 block">Restaurante Ecológico</span>
+                                    <span className="text-[8px] text-emerald-700 font-bold bg-emerald-50 px-1 py-0.2 rounded border border-emerald-250">🛡️ Cadastur Ativo</span>
+                                  </div>
                                 </div>
                               </div>
-
-                              {/* Stop 2: Activity */}
-                              <div className="flex gap-2.5 relative z-10 items-start">
-                                <div className="w-6 h-6 rounded-full bg-cyan-100 text-cyan-600 flex items-center justify-center text-[10px] font-black shrink-0 border border-cyan-200">2</div>
-                                <div className="space-y-0.5 text-left">
-                                  <span className="text-[10px] font-extrabold text-slate-800 block">Atração & Guias Locais</span>
-                                  <p className="text-[9px] text-slate-500 font-medium leading-relaxed">
-                                    {routeCategory === "sol" && "Passeio de Jangada Tradicional"}
-                                    {routeCategory === "aventura" && "Passeio de Buggy Credenciado"}
-                                    {routeCategory === "gastronomia" && "Passeio Cultural Potiguar"}
-                                  </p>
-                                  <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded text-[7px] font-semibold bg-green-50 border border-green-150 text-green-700">
-                                    🛡️ Cadastur Ativo
-                                  </span>
-                                </div>
-                              </div>
-
-                              {/* Stop 3: Restaurant */}
-                              <div className="flex gap-2.5 relative z-10 items-start">
-                                <div className="w-6 h-6 rounded-full bg-cyan-100 text-cyan-600 flex items-center justify-center text-[10px] font-black shrink-0 border border-cyan-200">3</div>
-                                <div className="space-y-0.5 text-left">
-                                  <span className="text-[10px] font-extrabold text-slate-800 block">Ponto Gastronômico</span>
-                                  <p className="text-[9px] text-slate-500 font-medium leading-relaxed">
-                                    Restaurante Regional Parceiro
-                                  </p>
-                                  <span className="inline-flex items-center gap-0.5 px-1 py-0.2 rounded text-[7px] font-semibold bg-green-50 border border-green-150 text-green-700">
-                                    🛡️ Cadastur Ativo
-                                  </span>
-                                </div>
-                              </div>
-
                             </div>
                           </div>
+                        )}
+                      </div>
+                    )}
 
-                          <div className="bg-green-500/5 border border-green-500/10 rounded-xl p-2.5 text-left">
-                            <p className="text-[8.5px] leading-relaxed text-slate-500 font-medium">
-                              💡 As rotas inteligentes priorizam apenas operadores com Cadastur ativo, reduzindo o mercado informal e aumentando a segurança do turista.
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* TAB 2: EVALUATIONS */}
-                  {simulatorTab === "evaluate" && (
-                    <div className="space-y-4">
-                      {!simulatedSubmitted ? (
-                        <form onSubmit={handleB2CSubmit} className="space-y-4">
-                          <div className="space-y-1">
-                            <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Selecione o Destino</label>
-                            <select
-                              value={simulatedDest}
-                              onChange={(e) => setSimulatedDest(e.target.value)}
-                              className="w-full text-xs p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-bold focus:outline-none focus:border-cyan-500 transition-colors"
-                            >
-                              <option value="Praia da Pipa">Praia da Pipa (Tibau do Sul)</option>
-                              <option value="Ponta Negra">Ponta Negra e Morro (Natal)</option>
-                              <option value="Dunas de Genipabu">Dunas de Genipabu (Extremoz)</option>
-                              <option value="São Miguel do Gostoso">São Miguel do Gostoso</option>
-                            </select>
-                          </div>
-
-                          <div className="space-y-1">
-                            <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Nota Geral</label>
-                            <div className="flex gap-1.5">
-                              {[1, 2, 3, 4, 5].map((s) => (
-                                <button
-                                  key={s}
-                                  type="button"
-                                  onClick={() => setSimulatedRating(s)}
-                                  className="cursor-pointer focus:outline-none transform hover:scale-110 active:scale-95 transition-transform"
-                                >
-                                  <Star
-                                    className={cn(
-                                      "w-5 h-5",
-                                      s <= simulatedRating ? "fill-amber-400 text-amber-400" : "text-slate-200"
-                                    )}
-                                  />
-                                </button>
-                              ))}
+                    {simulatorTab === "evaluate" && (
+                      <div className="space-y-4">
+                        {!simulatedSubmitted ? (
+                          <form onSubmit={handleB2CSubmit} className="space-y-4">
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Destino</label>
+                              <select
+                                value={simulatedDest}
+                                onChange={(e) => setSimulatedDest(e.target.value)}
+                                className="w-full text-xs p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-bold focus:outline-none focus:border-cyan-500 transition-colors"
+                              >
+                                <option value="Praia da Pipa">Praia da Pipa (Tibau do Sul)</option>
+                                <option value="Ponta Negra">Ponta Negra e Morro (Natal)</option>
+                                <option value="Dunas de Genipabu">Dunas de Genipabu (Extremoz)</option>
+                                <option value="São Miguel do Gostoso">São Miguel do Gostoso</option>
+                              </select>
                             </div>
-                          </div>
 
-                          <div className="space-y-1.5">
-                            <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">O que você observou?</label>
-                            <div className="grid grid-cols-2 gap-1.5">
-                              {[
-                                { key: "limpo", label: "Local Limpo", emoji: "🧹" },
-                                { key: "preservado", label: "Preservado", emoji: "🌿" },
-                                { key: "seguranca", label: "Seguro", emoji: "🔒" },
-                                { key: "superlotado", label: "Lotado", emoji: "⚠️", negative: true }
-                              ].map((c) => {
-                                const active = !!simulatedCriteria[c.key];
-                                return (
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Nota Geral</label>
+                              <div className="flex gap-1.5">
+                                {[1, 2, 3, 4, 5].map((s) => (
+                                  <button
+                                    key={s}
+                                    type="button"
+                                    onClick={() => setSimulatedRating(s)}
+                                    className="cursor-pointer focus:outline-none"
+                                  >
+                                    <Star className={cn("w-5 h-5", s <= simulatedRating ? "fill-amber-400 text-amber-400" : "text-slate-250")} />
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">O que observou?</label>
+                              <div className="grid grid-cols-2 gap-1">
+                                {[
+                                  { key: "limpo", label: "Local Limpo", emoji: "🧹" },
+                                  { key: "preservado", label: "Preservado", emoji: "🌿" },
+                                  { key: "seguranca", label: "Seguro", emoji: "🔒" },
+                                  { key: "superlotado", label: "Lotado", emoji: "⚠️", negative: true }
+                                ].map((c) => (
                                   <button
                                     key={c.key}
                                     type="button"
                                     onClick={() => toggleCriterion(c.key)}
                                     className={cn(
-                                      "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[10px] font-bold border transition-all cursor-pointer",
-                                      active
-                                        ? c.negative
-                                          ? "bg-red-50 border-red-200 text-red-700"
-                                          : "bg-cyan-50 border-cyan-200 text-cyan-700"
-                                        : "bg-slate-50 border-slate-200 text-slate-400 hover:border-slate-300"
+                                      "flex items-center gap-1 px-1.5 py-1 rounded-lg text-[9px] font-bold border cursor-pointer",
+                                      simulatedCriteria[c.key] ? "bg-cyan-50 border-cyan-300 text-cyan-800" : "bg-slate-50 border-slate-250 text-slate-400"
                                     )}
                                   >
                                     <span>{c.emoji}</span>
                                     <span>{c.label}</span>
                                   </button>
-                                );
-                              })}
+                                ))}
+                              </div>
                             </div>
-                          </div>
 
-                          <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 space-y-1.5">
-                            <label className="text-[9px] font-extrabold text-slate-600 leading-tight block">
-                              🔎 Auditoria: A infraestrutura condiz com as fotos anunciadas?
-                            </label>
-                            <div className="flex gap-1.5">
-                              <button
-                                type="button"
-                                onClick={() => setSimulatedConformity("yes")}
-                                className={cn(
-                                  "flex-1 py-1 rounded-md text-[9px] font-bold border transition-colors cursor-pointer",
-                                  simulatedConformity === "yes"
-                                    ? "bg-green-50 border-green-200 text-green-700"
-                                    : "bg-white border-slate-200 text-slate-400"
-                                )}
-                              >
-                                Sim
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setSimulatedConformity("no")}
-                                className={cn(
-                                  "flex-1 py-1 rounded-md text-[9px] font-bold border transition-colors cursor-pointer",
-                                  simulatedConformity === "no"
-                                    ? "bg-red-50 border-red-200 text-red-700"
-                                    : "bg-white border-slate-200 text-slate-400"
-                                )}
-                              >
-                                Divergente
-                              </button>
+                            <button
+                              type="submit"
+                              className="w-full py-2 bg-cyan-600 text-white font-bold text-xs uppercase rounded-xl shadow-md hover:bg-cyan-700 transition-colors cursor-pointer"
+                            >
+                              Enviar Sentimento
+                            </button>
+                          </form>
+                        ) : (
+                          <div className="text-center py-8 space-y-4">
+                            <div className="w-12 h-12 bg-cyan-50 border border-cyan-200 rounded-full flex items-center justify-center text-cyan-600 mx-auto">
+                              <CheckCircle2 className="w-6 h-6" />
                             </div>
-                          </div>
-
-                          <button
-                            type="submit"
-                            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1 shadow-md hover:from-cyan-600 hover:to-teal-600 active:scale-[0.97] transition-all cursor-pointer"
-                          >
-                            Enviar Avaliação
-                          </button>
-                        </form>
-                      ) : (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          className="h-full flex flex-col justify-center items-center text-center space-y-4 pt-16"
-                        >
-                          <div className="w-14 h-14 rounded-full bg-cyan-50 border border-cyan-200 flex items-center justify-center text-cyan-600">
-                            <CheckCircle2 className="w-8 h-8" />
-                          </div>
-                          <div className="space-y-1">
-                            <h3 className="text-sm font-extrabold text-slate-900">Avaliação Enviada!</h3>
-                            <p className="text-[10px] text-slate-500 max-w-[200px] font-medium">
-                              Dados de zeladoria integrados ao painel do gestor municipal.
+                            <span className="text-xs font-extrabold text-slate-800 block">Feedback Registrado!</span>
+                            <p className="text-[9px] text-slate-500 font-medium max-w-[180px] mx-auto">
+                              Seus dados foram processados no cálculo do Índice ISA e informados ao gestor local.
                             </p>
+                            <button onClick={() => setSimulatedSubmitted(false)} className="text-[9px] text-cyan-600 underline font-bold cursor-pointer">
+                              Avaliar Outro
+                            </button>
                           </div>
-                          <div className="bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full text-[9px] text-amber-800 font-bold tracking-wide uppercase">
-                            +10 Pontos Acumulados
-                          </div>
-                          <button
-                            onClick={resetB2CSimulator}
-                            className="text-[10px] text-slate-400 underline hover:text-slate-600 pt-6 cursor-pointer"
-                          >
-                            Avaliar Outro Destino
-                          </button>
-                        </motion.div>
-                      )}
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className="w-24 h-1 bg-slate-200 rounded-full mx-auto mt-2" />
+                </motion.div>
+              ) : (
+                /* RENDER VIEW MODE: GOVERNO */
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full bg-white border border-amber-300 rounded-3xl p-5 shadow-xl space-y-5 text-left relative overflow-hidden"
+                >
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
+
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
+                      <h3 className="text-sm font-extrabold text-slate-800 flex items-center gap-1.5">
+                        <BarChart3 className="w-4 h-4 text-amber-500" />
+                        Observatório B2G Inteligente
+                      </h3>
                     </div>
-                  )}
+                    <div className="flex gap-1.5">
+                      {["Ponta Negra", "Praia da Pipa", "São Miguel do Gostoso"].map((dest) => (
+                        <button
+                          key={dest}
+                          onClick={() => setDashboardDest(dest)}
+                          className={cn(
+                            "px-2 py-1 rounded-lg text-[9px] font-bold border transition-colors cursor-pointer",
+                            dashboardDest === dest
+                              ? "bg-amber-100 border-amber-300 text-amber-800"
+                              : "bg-slate-50 border-slate-200 text-slate-505 hover:border-slate-350"
+                          )}
+                        >
+                          {dest.split(" ")[0]}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-                </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {/* ISA HIGHLIGHT (IMPORTANT) */}
+                    <div className="bg-amber-500/5 border border-amber-300 rounded-xl p-3 flex flex-col justify-between relative overflow-hidden text-left shadow-sm">
+                      <span className="text-[9px] text-amber-800 uppercase tracking-wider font-black">⭐ Destaque ISA</span>
+                      <span className={cn("text-2xl sm:text-3xl font-black block my-1.5", aiInsightsMap[dashboardDest].isa < 60 ? "text-red-500" : "text-amber-600")}>
+                        {aiInsightsMap[dashboardDest].isa} / 100
+                      </span>
+                      <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider">Saúde do Atrativo</span>
+                      <div className="absolute right-3 top-3 w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-600">
+                        <Zap className="w-4 h-4" />
+                      </div>
+                    </div>
 
-                <div className="w-24 h-1 bg-slate-200 rounded-full mx-auto mb-1 flex-shrink-0" />
-              </motion.div>
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col justify-between relative overflow-hidden text-left">
+                      <span className="text-[9px] text-slate-400 uppercase tracking-wider font-extrabold">Fluxo Local</span>
+                      <span className="text-2xl sm:text-3xl font-black block my-1.5 text-cyan-650">
+                        {aiInsightsMap[dashboardDest].saturated}%
+                      </span>
+                      <span className="text-[8px] text-slate-500 font-bold">Varredura de Saturação</span>
+                      <div className="absolute right-3 top-3 w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-600">
+                        <Users className="w-4 h-4" />
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col justify-between relative overflow-hidden text-left">
+                      <span className="text-[9px] text-slate-400 uppercase tracking-wider font-extrabold font-bold">Cadastur</span>
+                      <span className="text-2xl sm:text-3xl font-black block my-1.5 text-green-600">
+                        94.2%
+                      </span>
+                      <span className="text-[8px] text-slate-500 font-bold">Operadores Ativos</span>
+                      <div className="absolute right-3 top-3 w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center text-green-600">
+                        <CheckCircle2 className="w-4 h-4" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Recharts Bar Chart */}
+                  <div className="h-36 bg-slate-50 border border-slate-150 rounded-xl p-2">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: -25 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                        <XAxis dataKey="name" tick={{ fontSize: 9, fill: "#475569" }} />
+                        <YAxis tick={{ fontSize: 9, fill: "#475569" }} domain={[0, 100]} />
+                        <Tooltip contentStyle={tooltipStyle} />
+                        <Bar dataKey="isa" name="ISA" radius={[4, 4, 0, 0]}>
+                          {chartData.map((entry, index) => {
+                            const isAlert = entry.isa < 60;
+                            return (
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={isAlert ? "#ef4444" : "#f59e0b"}
+                              />
+                            );
+                          })}
+                        </Bar>
+                        <Bar dataKey="saturacao" name="Saturação" fill="#06b6d4" opacity={0.2} radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* Automated warning Cadastur info box in Dashboard */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="p-3 bg-red-50/70 border border-red-200 rounded-xl space-y-1 text-left relative overflow-hidden">
+                      <div className="flex items-center gap-1 text-[9px] font-black text-red-700 uppercase tracking-wider">
+                        <CheckCircle2 className="w-3 h-3 text-red-500 animate-pulse" />
+                        <span>Aviso Cadastur Automatizado</span>
+                      </div>
+                      <p className="text-[9px] text-slate-650 font-bold leading-normal">
+                        📧 O sistema detectou 5 operadores irregulares em {dashboardDest} esta semana. Avisos automáticos de regularização foram enviados para os e-mails dos proprietários.
+                      </p>
+                    </div>
+
+                    <div className="p-3 bg-gradient-to-r from-amber-500/5 to-orange-500/5 border border-amber-200 rounded-xl space-y-0.5 text-left relative overflow-hidden">
+                      <div className="flex items-center gap-1 text-[9px] font-black text-amber-700 uppercase tracking-wider font-bold">
+                        <Sparkles className="w-3 h-3 text-amber-500" />
+                        <span>DunasIA Insights</span>
+                      </div>
+                      <p className="text-[9px] leading-relaxed text-slate-600 font-semibold italic">
+                        &ldquo;{aiInsightsMap[dashboardDest].text.substring(0, 100)}...&rdquo;
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
             </div>
           </div>
         </section>
 
-        {/* SLIDE 3: O DIFERENCIAL */}
+        {/* SLIDE 3: MODELO DE NEGÓCIOS & CADASTUR */}
         <section
           ref={(el) => { sectionRefs.current[3] = el; }}
           data-slide-index="3"
-          className="h-screen w-full snap-start relative flex items-center justify-center overflow-hidden p-6 sm:p-12"
-          style={{
-            background: "linear-gradient(135deg, #FFFDF6 0%, #FFEFC0 50%, #FFE193 100%)",
-          }}
-        >
-          <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center z-10">
-            <div className="lg:col-span-7 flex flex-col items-center">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                animate={currentSlide === 3 ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.95, y: 20 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className="w-full bg-white border border-amber-200 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4"
-              >
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
-                    <h3 className="text-xs sm:text-sm font-extrabold text-slate-800 flex items-center gap-1.5">
-                      <BarChart3 className="w-4 h-4 text-amber-500" />
-                      Observatório B2G Inteligente
-                    </h3>
-                  </div>
-                  <div className="flex gap-1.5">
-                    {["Ponta Negra", "Praia da Pipa", "São Miguel do Gostoso"].map((dest) => (
-                      <button
-                        key={dest}
-                        onClick={() => setDashboardDest(dest)}
-                        className={cn(
-                          "px-2 py-1 rounded-lg text-[9px] font-bold border transition-colors cursor-pointer",
-                          dashboardDest === dest
-                            ? "bg-amber-100 border-amber-300 text-amber-800"
-                            : "bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-300"
-                        )}
-                      >
-                        {dest.split(" ")[0]}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="bg-slate-50 border border-slate-150 rounded-xl p-3 flex flex-col justify-between relative overflow-hidden text-left">
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-extrabold">Índice ISA</span>
-                    <span className={cn("text-2xl sm:text-3xl font-black block my-1.5", aiInsightsMap[dashboardDest].isa < 60 ? "text-red-500" : "text-amber-600")}>
-                      {aiInsightsMap[dashboardDest].isa} / 100
-                    </span>
-                    <span className="text-[9px] text-slate-500 font-bold">Saúde do Atrativo</span>
-                    <div className="absolute right-3 top-3 w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-600">
-                      <Zap className="w-4 h-4" />
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-50 border border-slate-150 rounded-xl p-3 flex flex-col justify-between relative overflow-hidden text-left">
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-extrabold font-bold">Fluxo Local</span>
-                    <span className="text-2xl sm:text-3xl font-black block my-1.5 text-cyan-600">
-                      {aiInsightsMap[dashboardDest].saturated}%
-                    </span>
-                    <span className="text-[9px] text-slate-500 font-bold">Varredura de Saturação</span>
-                    <div className="absolute right-3 top-3 w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-600">
-                      <Users className="w-4 h-4" />
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-50 border border-slate-150 rounded-xl p-3 flex flex-col justify-between relative overflow-hidden text-left">
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-extrabold font-bold">Cadastur</span>
-                    <span className="text-2xl sm:text-3xl font-black block my-1.5 text-green-600">
-                      94.2%
-                    </span>
-                    <span className="text-[9px] text-slate-500 font-bold">Parceiros Regularizados</span>
-                    <div className="absolute right-3 top-3 w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center text-green-600">
-                      <CheckCircle2 className="w-4 h-4" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="h-40 bg-slate-50 border border-slate-150 rounded-xl p-2.5">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                      <XAxis dataKey="name" tick={{ fontSize: 9, fill: "#475569" }} />
-                      <YAxis tick={{ fontSize: 9, fill: "#475569" }} domain={[0, 100]} />
-                      <Tooltip contentStyle={tooltipStyle} />
-                      <Bar dataKey="isa" name="ISA" radius={[4, 4, 0, 0]}>
-                        {chartData.map((entry, index) => {
-                          const isAlert = entry.isa < 60;
-                          return (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={isAlert ? "#ef4444" : "#f59e0b"}
-                            />
-                          );
-                        })}
-                      </Bar>
-                      <Bar dataKey="saturacao" name="Saturação" fill="#06b6d4" opacity={0.3} radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-
-                <div className="p-3 bg-gradient-to-r from-amber-500/5 to-orange-500/5 border border-amber-200 rounded-xl space-y-1 text-left relative overflow-hidden">
-                  <div className="flex items-center gap-1 text-[10px] font-black text-amber-700 uppercase tracking-wider">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
-                    <span>DunasIA — Alerta e Diagnóstico Automático</span>
-                  </div>
-                  <p className="text-[11px] leading-relaxed text-slate-700 font-bold italic">
-                    &ldquo;{aiInsightsMap[dashboardDest].text}&rdquo;
-                  </p>
-                </div>
-              </motion.div>
-            </div>
-
-            <div className="lg:col-span-5 space-y-6 text-left">
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                animate={currentSlide === 3 ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 }}
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 border border-amber-250 text-amber-800 text-xs font-bold uppercase tracking-wider"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                <span>03. O DIFERENCIAL: IA & INSTAGRAM SCRAPER</span>
-              </motion.div>
-
-              <motion.h2
-                initial={{ opacity: 0, y: 20 }}
-                animate={currentSlide === 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                transition={{ delay: 0.1 }}
-                className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight"
-              >
-                Inteligência Artificial & <br />
-                <span className="bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
-                  Índice ISA
-                </span>
-              </motion.h2>
-
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={currentSlide === 3 ? { opacity: 1 } : { opacity: 0 }}
-                transition={{ delay: 0.2 }}
-                className="text-slate-600 text-base sm:text-lg leading-relaxed font-medium"
-              >
-                A nossa Inteligência Artificial não apenas calcula gráficos. Integrada à API do Instagram, ela varre posts públicos sob hashtags locais para estimar tráfego e emitir alertas preditivos de zeladoria ao gestor.
-              </motion.p>
-
-              <div className="space-y-4 pt-2">
-                {[
-                  { title: "Métrica Unificada: Índice ISA", desc: "Convergência de dados de sustentabilidade e infraestrutura." },
-                  { title: "Auditoria Social via Instagram", desc: "Varredura automatizada para medir o sentimento real." },
-                  { title: "Alertas Gerados em Tempo Real", desc: "Aviso de saturação, resíduos na areia ou acessibilidade crítica." }
-                ].map((item, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={currentSlide === 3 ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
-                    transition={{ delay: 0.3 + i * 0.1 }}
-                    className="flex gap-3"
-                  >
-                    <div className="w-5.5 h-5.5 rounded-full bg-amber-100 flex items-center justify-center mt-1 flex-shrink-0 text-amber-600">
-                      <Sparkles className="w-3.5 h-3.5" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-extrabold text-slate-900">{item.title}</h4>
-                      <p className="text-xs text-slate-500 font-medium">{item.desc}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SLIDE 4: MODELO DE NEGÓCIOS & CADASTUR */}
-        <section
-          ref={(el) => { sectionRefs.current[4] = el; }}
-          data-slide-index="4"
           className="h-screen w-full snap-start relative flex items-center justify-center overflow-hidden p-6 sm:p-12"
           style={{
             background: "linear-gradient(135deg, #FFFDF6 0%, #FFEBBF 50%, #FFDF9B 100%)",
@@ -1133,16 +966,16 @@ export default function PitchPage() {
           <div className="max-w-5xl w-full text-center space-y-7 z-10">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
-              animate={currentSlide === 4 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
+              animate={currentSlide === 3 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
               className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 border border-green-200 text-green-800 text-xs font-bold uppercase tracking-wider"
             >
               <Building2 className="w-3.5 h-3.5 text-green-600" />
-              <span>04. SUSTENTABILIDADE FINANCEIRA E CADASTUR</span>
+              <span>03. SUSTENTABILIDADE FINANCEIRA E CADASTUR</span>
             </motion.div>
 
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
-              animate={currentSlide === 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              animate={currentSlide === 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.1 }}
               className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight"
             >
@@ -1154,7 +987,7 @@ export default function PitchPage() {
 
             <motion.p
               initial={{ opacity: 0 }}
-              animate={currentSlide === 4 ? { opacity: 1 } : { opacity: 0 }}
+              animate={currentSlide === 3 ? { opacity: 1 } : { opacity: 0 }}
               transition={{ delay: 0.2 }}
               className="text-slate-600 text-base sm:text-lg max-w-3xl mx-auto font-medium"
             >
@@ -1166,7 +999,7 @@ export default function PitchPage() {
               {/* Cadastur Banner Card */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
-                animate={currentSlide === 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                animate={currentSlide === 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className="bg-white/90 border border-green-200 rounded-2xl p-6 text-left flex flex-col justify-between shadow-sm relative overflow-hidden"
               >
@@ -1188,7 +1021,7 @@ export default function PitchPage() {
               {/* Private B2B Model */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
-                animate={currentSlide === 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                animate={currentSlide === 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
                 className="bg-white/90 border border-slate-200 rounded-2xl p-6 text-left flex flex-col justify-between shadow-sm"
               >
@@ -1210,7 +1043,7 @@ export default function PitchPage() {
               {/* Public B2G SaaS */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
-                animate={currentSlide === 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                animate={currentSlide === 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
                 className="bg-white/90 border border-slate-200 rounded-2xl p-6 text-left flex flex-col justify-between shadow-sm relative overflow-hidden"
               >
@@ -1229,15 +1062,14 @@ export default function PitchPage() {
                   <span className="text-sm font-black text-cyan-600">SaaS B2G Governamental</span>
                 </div>
               </motion.div>
-
             </div>
           </div>
         </section>
 
-        {/* SLIDE 5: CONCLUSÃO */}
+        {/* SLIDE 4: CONCLUSÃO */}
         <section
-          ref={(el) => { sectionRefs.current[5] = el; }}
-          data-slide-index="5"
+          ref={(el) => { sectionRefs.current[4] = el; }}
+          data-slide-index="4"
           className="h-screen w-full snap-start relative flex flex-col justify-center items-center overflow-hidden p-6 sm:p-12"
         >
           <div
@@ -1254,7 +1086,7 @@ export default function PitchPage() {
           <div className="max-w-4xl w-full text-center space-y-7 z-10 bg-white/70 backdrop-blur-md p-8 sm:p-12 rounded-3xl border border-amber-200/50 shadow-lg relative">
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
-              animate={currentSlide === 5 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+              animate={currentSlide === 4 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
               transition={{ duration: 0.5 }}
               className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mx-auto shadow-md"
             >
@@ -1263,7 +1095,7 @@ export default function PitchPage() {
 
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
-              animate={currentSlide === 5 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              animate={currentSlide === 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.1 }}
               className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight"
             >
@@ -1272,7 +1104,7 @@ export default function PitchPage() {
 
             <motion.p
               initial={{ opacity: 0 }}
-              animate={currentSlide === 5 ? { opacity: 1 } : { opacity: 0 }}
+              animate={currentSlide === 4 ? { opacity: 1 } : { opacity: 0 }}
               transition={{ delay: 0.2 }}
               className="text-base sm:text-lg text-slate-800 max-w-3xl mx-auto font-bold leading-relaxed tracking-wide"
             >
@@ -1281,7 +1113,7 @@ export default function PitchPage() {
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={currentSlide === 5 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              animate={currentSlide === 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.3 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6"
             >
@@ -1302,7 +1134,7 @@ export default function PitchPage() {
 
             <motion.div
               initial={{ opacity: 0 }}
-              animate={currentSlide === 5 ? { opacity: 1 } : { opacity: 0 }}
+              animate={currentSlide === 4 ? { opacity: 1 } : { opacity: 0 }}
               transition={{ delay: 0.5 }}
               className="text-xs text-slate-500 pt-8 flex flex-col items-center gap-1 font-bold uppercase tracking-wider"
             >
@@ -1313,7 +1145,7 @@ export default function PitchPage() {
             {/* QR Code Container at Bottom Right of the Card */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
-              animate={currentSlide === 5 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+              animate={currentSlide === 4 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
               transition={{ delay: 0.6, type: "spring" }}
               className="absolute bottom-6 right-6 hidden md:flex flex-col items-center p-2.5 bg-white border border-amber-200 rounded-2xl shadow-md z-20 hover:scale-105 transition-transform"
             >
@@ -1331,15 +1163,14 @@ export default function PitchPage() {
 
       </main>
 
-      {/* 4. Floating Slide Navigation Dock (Bottom - 6 buttons now) */}
+      {/* 4. Floating Slide Navigation Dock (Bottom - 5 buttons now) */}
       <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-white/90 border border-amber-200/80 backdrop-blur-md px-5 py-3 rounded-full flex items-center gap-4 shadow-sm">
         <div className="flex gap-2">
           {[
             { label: "Capa" },
-            { label: "O Gancho" },
-            { label: "B2C Turista" },
-            { label: "B2G Gestão" },
-            { label: "Sustentabilidade" },
+            { label: "Provocação" },
+            { label: "A Solução" },
+            { label: "Monetização" },
             { label: "Fechamento" }
           ].map((item, i) => (
             <button
@@ -1348,8 +1179,8 @@ export default function PitchPage() {
               className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black border transition-all cursor-pointer",
                 currentSlide === i
-                  ? "bg-amber-50 border-amber-50 text-white shadow-sm"
-                  : "bg-slate-50 border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-700"
+                  ? "bg-gradient-to-br from-amber-500 to-orange-550 border-amber-500 text-white shadow-sm scale-110"
+                  : "bg-slate-50 border-slate-200 text-slate-400 hover:border-slate-350 hover:text-slate-700"
               )}
               title={item.label}
             >

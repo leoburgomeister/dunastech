@@ -237,7 +237,43 @@ export default function IAGestaoPage() {
   // Auto-load reports and greetings when switching destinations
   useEffect(() => {
     const key = selectedDestino;
-    const defaultText = localMockDiagnostics[key] || localMockDiagnostics["Ponta Negra e Morro do Careca"];
+    let defaultText = localMockDiagnostics[key];
+    
+    if (!defaultText) {
+      const currentTransport = transporteData.find((t) => t.destino === selectedDestino);
+      const currentInvest = investimentosData.find((i) => i.destino === selectedDestino);
+      const isa = calcularISA(selectedDestino, feedbacks);
+      const variacao = currentTransport?.variacao_percentual || 0;
+      const modal = currentTransport?.modal_principal || "Terrestre";
+      
+      const feedbacksDest = feedbacks.filter((f) => f.destino === selectedDestino);
+      const manutencao = feedbacksDest.filter((f) => !f.conservacao).length;
+      const superlotado = feedbacksDest.filter((f) => f.superlotado).length;
+
+      let statusLabel = "Estado Saudável";
+      if (isa < 60) {
+        statusLabel = "Estado Crítico";
+      } else if (isa > 80) {
+        statusLabel = "Estado Excelente";
+      }
+
+      const shortName = selectedDestino.split(" e ")[0];
+
+      defaultText = `RELATÓRIO DE SAÚDE TURÍSTICA & ECOLOGIA (${shortName.toUpperCase()})
+-----------------------------------------------------------
+• Índice ISA: ${isa}/100 (${statusLabel})
+• Saturação de Visitantes: ${isa < 60 ? 88 : isa < 80 ? 76 : 48}% (${isa < 60 ? "Alerta de Sobrecarga" : isa < 80 ? "Atenção Moderada" : "Sustentabilidade Ótima"})
+• Tendência de Fluxo: ${isa < 60 ? "Pressão Extrema" : isa < 80 ? "Alta Pressão" : "Crescimento Estável"} (${modal})
+
+DIAGNÓSTICO PREDITIVO:
+O atrativo ${selectedDestino} apresenta um ISA de ${isa}/100. Com variação de tráfego de ${variacao}% via ${modal}, o local necessita de monitoramento contínuo. Feedbacks recentes registram ${manutencao} alerta(s) de manutenção pendente e ${superlotado} relato(s) de superlotação, sugerindo atenção da gestão pública para a zeladoria da praia.
+
+PROPOSTAS DE INVESTIMENTO DE ZELADORIA:
+1. Infraestrutura e Zeladoria: Alocar R$ ${currentInvest?.investimento_infraestrutura_mil || 100} mil para sinalização ecológica e reformas de acessibilidade.
+2. Saneamento e Limpeza: Destinar R$ ${currentInvest?.investimento_saneamento_mil || 50} mil para gestão de resíduos nas praias.
+3. Certificação Cadastur: Promover a regularização e o selo Cadastur de 100% dos operadores locais para garantir segurança e qualidade de serviços.`;
+    }
+
     const isa = calcularISA(selectedDestino, feedbacks);
     
     const t = setTimeout(() => {
