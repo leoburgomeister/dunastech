@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
+import { Inter, Poppins, JetBrains_Mono } from 'next/font/google';
 import { getLocale, getMessages } from 'next-intl/server';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import { AuthProvider } from '@/providers/AuthProvider';
@@ -14,9 +14,10 @@ const inter = Inter({
   display: 'swap',
 });
 
-const jakarta = Plus_Jakarta_Sans({
+const poppins = Poppins({
   subsets: ['latin'],
-  variable: '--font-jakarta',
+  weight: ['400', '500', '600', '700', '800', '900'],
+  variable: '--font-poppins',
   display: 'swap',
 });
 
@@ -59,7 +60,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const messages = await getMessages();
 
   return (
-    <html lang={locale} suppressHydrationWarning className={`${inter.variable} ${jakarta.variable} ${jetbrains.variable}`}>
+    <html lang={locale} suppressHydrationWarning className={`${inter.variable} ${poppins.variable} ${jetbrains.variable}`}>
       <body>
         <ThemeProvider>
           <IntlProvider locale={locale} messages={messages as Record<string, unknown>}>

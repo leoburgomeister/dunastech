@@ -65,8 +65,8 @@
   --radius-full: 9999px;
   
   /* Typography */
-  --font-heading: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, sans-serif;
+  --font-heading: 'Poppins', var(--font-poppins), system-ui, sans-serif;
+  --font-body: 'Inter', var(--font-inter), system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   
   /* Sidebar */
@@ -122,6 +122,107 @@
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
   --shadow-glow: 0 0 24px rgba(59, 159, 231, 0.2);
+}
+
+/* ── Gestão Theme (Deep Teal & Gold Rebranding) ────────── */
+.theme-gestao {
+  --color-bg: #F7F4EE; /* Sand White */
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #F0ECE1; /* Slightly darker sand for contrast */
+  --color-surface-hover: #EBE5D3;
+  --color-surface-glass: rgba(255, 255, 255, 0.85);
+  
+  --color-border: #E3DDD0;
+  --color-border-light: #EBE8E0;
+  --color-border-focus: #0F6B6D;
+  
+  --color-primary: #0E3B3F; /* Deep Teal */
+  --color-primary-hover: #09282A;
+  --color-primary-soft: #E7EFEF; /* Soft ice-blue-ish teal tint */
+  --color-primary-text: #FFFFFF;
+  
+  --color-accent: #D4A017; /* Intelligence Gold */
+  --color-accent-hover: #B38612;
+  --color-accent-soft: #FCF6E5;
+  --color-accent-text: #0E2325;
+  
+  --color-info: #4CB3B6; /* Data Cyan */
+  --color-info-soft: #EBF8F9;
+  
+  --color-success: #0F6B6D; /* Petroleum Blue */
+  --color-success-soft: #EBF7F7;
+  
+  --color-warning: #D4A017;
+  --color-warning-soft: #FCF6E5;
+  
+  --color-danger: #C2410C; /* Premium dark orange/red */
+  --color-danger-soft: #FDF2E9;
+  
+  --color-text: #0E2325; /* Dark teal black */
+  --color-text-secondary: #3D595B;
+  --color-text-muted: #7E9798;
+  --color-text-inverted: #FFFFFF;
+
+  /* Sidebar variables - Dark Visual (Teal/Cyan/Gold) */
+  --sidebar-bg: #0E3B3F; /* Deep Teal */
+  --sidebar-border: #0F6B6D; /* Petroleum Blue */
+  --sidebar-text: #CDE6E6; /* Ice Blue */
+  --sidebar-text-hover: #F7F4EE; /* Sand White */
+  --sidebar-item-hover: #0F6B6D; /* Petroleum Blue */
+  --sidebar-item-active: #4CB3B6; /* Data Cyan */
+  --sidebar-item-active-text: #0E3B3F; /* Deep Teal */
+  --sidebar-logo-accent: #D4A017; /* Intelligence Gold */
+}
+
+/* Dark mode variations for Gestão theme */
+.dark .theme-gestao,
+.theme-gestao.dark {
+  --color-bg: #06181A; /* Deep Dark Teal */
+  --color-surface: #0E3B3F; /* Deep Teal */
+  --color-surface-alt: #092426; /* Darker teal shadow contrast */
+  --color-surface-hover: #124C52;
+  --color-surface-glass: rgba(14, 59, 63, 0.8);
+  
+  --color-border: rgba(76, 179, 182, 0.2); /* Semi-transparent Data Cyan */
+  --color-border-light: rgba(76, 179, 182, 0.1);
+  --color-border-focus: #4CB3B6;
+  
+  --color-primary: #4CB3B6; /* Data Cyan as primary in dark mode */
+  --color-primary-hover: #63C7C9;
+  --color-primary-soft: rgba(76, 179, 182, 0.12);
+  --color-primary-text: #0E3B3F;
+  
+  --color-accent: #D4A017; /* Intelligence Gold */
+  --color-accent-hover: #E5B32A;
+  --color-accent-soft: rgba(212, 160, 23, 0.12);
+  --color-accent-text: #F7F4EE;
+  
+  --color-info: #4CB3B6;
+  --color-info-soft: rgba(76, 179, 182, 0.12);
+  
+  --color-success: #0F6B6D;
+  --color-success-soft: rgba(15, 107, 109, 0.15);
+  
+  --color-warning: #D4A017;
+  --color-warning-soft: rgba(212, 160, 23, 0.12);
+  
+  --color-danger: #EF4444;
+  --color-danger-soft: rgba(239, 68, 68, 0.12);
+  
+  --color-text: #F7F4EE; /* Sand White */
+  --color-text-secondary: #CDE6E6; /* Ice Blue */
+  --color-text-muted: #7E9798;
+  --color-text-inverted: #0E3B3F;
+
+  /* Sidebar variables - Dark Mode (stays dark but fits dark theme) */
+  --sidebar-bg: #092426; /* Darker depth */
+  --sidebar-border: #0E3B3F;
+  --sidebar-text: #CDE6E6;
+  --sidebar-text-hover: #F7F4EE;
+  --sidebar-item-hover: #0E3B3F;
+  --sidebar-item-active: #4CB3B6;
+  --sidebar-item-active-text: #0E3B3F;
+  --sidebar-logo-accent: #D4A017;
 }
 
 /* ── Base Styles ────────────────────────────────────── */
