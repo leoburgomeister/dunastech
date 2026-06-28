@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { useTranslations } from 'next-intl';
 import { 
   MapPin, Star, Users, TrendingUp, ArrowRight, Shield, Sparkles, 
   Map, Award, Calendar, Compass, ShieldAlert, CheckCircle, Navigation, Eye,
@@ -22,31 +23,11 @@ const HomeRouteMap = dynamic(
   { ssr: false }
 );
 
-function getISABadge(score: number) {
-  if (score >= 80) return { label: 'Saudável', variant: 'success' as const };
-  if (score >= 60) return { label: 'Atenção', variant: 'warning' as const };
-  return { label: 'Crítico', variant: 'danger' as const };
+function getISABadge(score: number, t: (key: string) => string) {
+  if (score >= 80) return { label: t('ranking.healthy'), variant: 'success' as const };
+  if (score >= 60) return { label: t('ranking.attention'), variant: 'warning' as const };
+  return { label: t('ranking.critical'), variant: 'danger' as const };
 }
-
-// Questionnaire Options
-const styles = [
-  { id: 'adventure', label: 'Aventura & Dunas 🏄‍♂️', desc: 'Para quem busca adrenalina, passeios de buggy e dunas móveis.' },
-  { id: 'relax', label: 'Relaxar & Natureza 🐚', desc: 'Praias desertas, piscinas naturais e lagoas de água doce calma.' },
-  { id: 'culture', label: 'História & Cultura 🏰', desc: 'Forte colonial, casarões históricos e centros de artesanato.' },
-  { id: 'gastronomy', label: 'Gastronomia 🦐', desc: 'Restaurantes de frutos do mar, culinária sertaneja e drinks regionais.' },
-];
-
-const durations = [
-  { id: '1day', label: '1 Dia (Bate-volta) 📅' },
-  { id: 'weekend', label: 'Fim de Semana 🌅' },
-  { id: '1week', label: '1 Semana ou mais backpack 🎒' },
-];
-
-const transports = [
-  { id: 'buggy', label: 'Buggy / 4x4 🚗' },
-  { id: 'shuttle', label: 'Translado / Vans 🚌' },
-  { id: 'hike', label: 'Caminhada / Trilha 🥾' },
-];
 
 interface RouteDay {
   day: number;
@@ -74,6 +55,28 @@ function getHaversineDistance(
 }
 
 export default function TouristHomePage() {
+  const t = useTranslations('planner');
+
+  // Questionnaire Options
+  const styles = useMemo(() => [
+    { id: 'adventure', label: t('styles.adventure.label'), desc: t('styles.adventure.desc') },
+    { id: 'relax', label: t('styles.relax.label'), desc: t('styles.relax.desc') },
+    { id: 'culture', label: t('styles.culture.label'), desc: t('styles.culture.desc') },
+    { id: 'gastronomy', label: t('styles.gastronomy.label'), desc: t('styles.gastronomy.desc') },
+  ], [t]);
+
+  const durations = useMemo(() => [
+    { id: '1day', label: t('durations.1day.label') },
+    { id: 'weekend', label: t('durations.weekend.label') },
+    { id: '1week', label: t('durations.1week.label') },
+  ], [t]);
+
+  const transports = useMemo(() => [
+    { id: 'buggy', label: t('transports.buggy.label') },
+    { id: 'shuttle', label: t('transports.shuttle.label') },
+    { id: 'hike', label: t('transports.hike.label') },
+  ], [t]);
+
   // Questionnaire States
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [selectedStyle, setSelectedStyle] = useState('adventure');
@@ -104,67 +107,45 @@ export default function TouristHomePage() {
 
   // Process questionnaire answers and suggest a route
   const handleGenerateRoute = () => {
-    let title = '';
-    let description = '';
     let selectedDestNames: string[] = [];
 
     if (selectedStyle === 'adventure') {
       if (selectedTransport === 'hike') {
-        title = 'Trilha Ecológica de Genipabu & Pitangui';
-        description = 'Uma caminhada cheia de aventura cruzando as famosas dunas de Genipabu até chegar à lagoa de Pitangui.';
         selectedDestNames = ['Dunas de Genipabu', 'Lagoa de Pitangui'];
       } else if (selectedTransport === 'buggy') {
-        title = 'Roteiro Buggy Litoral Norte Emoção';
-        description = 'Roteiro clássico de buggy pelas dunas móveis de Genipabu, lagoa de Pitangui e mergulho nos parrachos.';
         selectedDestNames = ['Dunas de Genipabu', 'Lagoa de Pitangui', 'Parrachos de Maracajaú'];
       } else {
-        title = 'Rota de Aventura Litoral Sul & Norte';
-        description = 'Roteiro completo de van/translado conectando a famosa Ponta Negra, as dunas de Genipabu e as falésias de Pipa.';
         selectedDestNames = ['Ponta Negra e Morro do Careca', 'Dunas de Genipabu', 'Praia da Pipa'];
       }
     } else if (selectedStyle === 'relax') {
       if (selectedTransport === 'hike') {
-        title = 'Trilha das Falésias & Praia do Madeiro';
-        description = 'Caminhada relaxante à beira-mar de Pipa até a Praia do Madeiro com grande chance de avistar golfinhos.';
         selectedDestNames = ['Praia da Pipa', 'Praia do Madeiro'];
       } else if (selectedTransport === 'buggy') {
-        title = 'Rota das Dunas Calmas & Litoral Norte';
-        description = 'Roteiro relaxante de buggy passando pelas piscinas naturais de Maracajaú e a charmosa Gostoso.';
         selectedDestNames = ['Parrachos de Maracajaú', 'São Miguel do Gostoso'];
       } else {
-        title = 'Rota das Águas Calmas & Península Isolada';
-        description = 'Perfeito para relaxar nas piscinas de Maracajaú, na lagoa de Galinhos e nas praias calmas de Gostoso.';
         selectedDestNames = ['Parrachos de Maracajaú', 'Galinhos', 'São Miguel do Gostoso'];
       }
     } else if (selectedStyle === 'culture') {
       if (selectedTransport === 'hike') {
-        title = 'Caminhada Histórica do Morro à Barreira';
-        description = 'Explore a pé a praia de Ponta Negra e caminhe até o centro de lançamento histórico da Barreira do Inferno.';
         selectedDestNames = ['Ponta Negra e Morro do Careca', 'Barreira do Inferno'];
       } else if (selectedTransport === 'buggy') {
-        title = 'Rota Histórica & Buggy Litoral Norte';
-        description = 'Descubra a história do Forte dos Reis Magos e aventure-se pelas dunas de Genipabu de buggy.';
         selectedDestNames = ['Forte dos Reis Magos', 'Dunas de Genipabu'];
       } else {
-        title = 'Grande Rota Histórica e Arqueológica';
-        description = 'Viagem de van/translado explorando o Forte colonial em Natal, a Cidade Histórica de Mossoró e o Lajedo de Soledade.';
         selectedDestNames = ['Forte dos Reis Magos', 'Cidade Histórica de Mossoró', 'Lajedo de Soledade'];
       }
     } else { // gastronomy
       if (selectedTransport === 'hike') {
-        title = 'Caminhada Gastronômica da Pipa ao Madeiro';
-        description = 'Caminhe pela praia saboreando petiscos regionais, drinks tropicais e o melhor da culinária de Pipa.';
         selectedDestNames = ['Praia da Pipa', 'Praia do Madeiro'];
       } else if (selectedTransport === 'buggy') {
-        title = 'Roteiro de Buggy Gastronômico Litoral Sul';
-        description = 'Deguste os melhores caranguejos e frutos do mar entre as falésias de Pipa e Barra de Cunhaú.';
         selectedDestNames = ['Praia da Pipa', 'Barra de Cunhaú'];
       } else {
-        title = 'Circuito dos Sabores Potiguares Litoral Sul';
-        description = 'Aproveite a rica culinária praiana de Ponta Negra, Pipa e os manguezais gastronômicos de Cunhaú.';
         selectedDestNames = ['Ponta Negra e Morro do Careca', 'Praia da Pipa', 'Barra de Cunhaú'];
       }
     }
+
+    const transportKey = selectedTransport === 'buggy' ? 'buggy' : selectedTransport === 'hike' ? 'hike' : 'shuttle';
+    let title = t(`routes.${selectedStyle}.${transportKey}.title`);
+    const description = t(`routes.${selectedStyle}.${transportKey}.description`);
 
     // Smart search query injection
     let matchedQueryDest: string | null = null;
@@ -188,7 +169,7 @@ export default function TouristHomePage() {
       
       const cleanName = matchedQueryDest.replace(/ e .*/g, '').replace(/ e Morro.*/g, '');
       if (!title.includes(cleanName)) {
-        title = `${title} com ${cleanName}`;
+        title = `${title} ${t('with')} ${cleanName}`;
       }
     }
 
@@ -202,35 +183,35 @@ export default function TouristHomePage() {
       routeDays.push({
         day: 1,
         destinations: matchedDestinations.slice(0, 2),
-        description: 'Exploração dos principais pontos turísticos do destino em um roteiro bate-volta.',
+        description: t('durations.1day.description'),
       });
     } else if (selectedDuration === 'weekend') {
       routeDays.push({
         day: 1,
         destinations: [matchedDestinations[0]].filter(Boolean),
-        description: 'Chegada, check-in em parceiro certificado e visitação inicial ao cartão-postal principal.',
+        description: t('durations.weekend.day1'),
       });
       routeDays.push({
         day: 2,
         destinations: matchedDestinations.slice(1),
-        description: 'Dia de aventura guiada e retorno no final da tarde com pôr-do-sol espetacular.',
+        description: t('durations.weekend.day2'),
       });
     } else {
       // 1 week - 3 distinct days of schedules
       routeDays.push({
         day: 1,
         destinations: [matchedDestinations[0]].filter(Boolean),
-        description: 'Dia de aclimatação, passeios curtos e relaxamento nas proximidades.',
+        description: t('durations.1week.day1'),
       });
       routeDays.push({
         day: 2,
         destinations: [matchedDestinations[1]].filter(Boolean),
-        description: 'Dia reservado para esportes ecológicos e mergulho livre guiado.',
+        description: t('durations.1week.day2'),
       });
       routeDays.push({
         day: 3,
         destinations: matchedDestinations.slice(2),
-        description: 'Tour cultural e compras de artesanato certificado no centro histórico.',
+        description: t('durations.1week.day3'),
       });
     }
 
@@ -336,14 +317,14 @@ export default function TouristHomePage() {
                 <div className="space-y-2.5">
                   <Badge variant="accent" size="sm" className="px-2.5 py-0.5 text-[9px] font-bold tracking-wider uppercase">
                     <Sparkles className="h-3 w-3 animate-pulse text-[var(--color-accent)] shrink-0" />
-                    DunasTech Roteador IA
+                    {t('title')}
                   </Badge>
                   <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-[var(--color-text)] leading-[1.15] tracking-tight">
-                    Planeje Sua Rota <br />
-                    <span className="gradient-ocean gradient-text">Segura e Sustentável</span>
+                    {t('heading')} <br />
+                    <span className="gradient-ocean gradient-text">{t('subheading')}</span>
                   </h1>
                   <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
-                    Descubra roteiros otimizados no Rio Grande do Norte com base no seu perfil, tempo disponível e meio de locomoção.
+                    {t('description')}
                   </p>
                 </div>
 
@@ -352,14 +333,14 @@ export default function TouristHomePage() {
                   {/* Smart Search Bar */}
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
-                      📍 Ponto de Partida ou Foco (Opcional)
+                      {t('startPointLabel')}
                     </label>
                     <div className="relative group">
                       <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Ex: Pipa, Genipabu, Natal..."
+                        placeholder={t('startPointPlaceholder')}
                         className="w-full bg-[var(--color-surface-alt)] border border-[var(--color-border)] rounded-xl py-2 pl-9 pr-4 text-xs text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-4 focus:ring-[var(--color-primary)]/10 transition-all duration-300 hover:border-[var(--color-primary)]/30"
                       />
                       <MapPin className="absolute left-3 top-2.5 h-3.5 w-3.5 text-[var(--color-text-muted)] group-focus-within:text-[var(--color-primary)] transition-colors" />
@@ -369,7 +350,7 @@ export default function TouristHomePage() {
                   {/* Travel Style Selection */}
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
-                      🎭 Estilo de Viagem
+                      {t('travelStyleLabel')}
                     </label>
                     <div className="grid grid-cols-2 gap-2">
                       {styles.map(s => {
@@ -400,7 +381,7 @@ export default function TouristHomePage() {
                   {/* Duration Selection */}
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
-                      📅 Duração da Rota
+                      {t('durationLabel')}
                     </label>
                     <div className="flex bg-[var(--color-surface-alt)] p-1 rounded-xl border border-[var(--color-border-light)] gap-1">
                       {durations.map(d => {
@@ -427,16 +408,16 @@ export default function TouristHomePage() {
                   {/* Transport Selection */}
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
-                      🚗 Meio de Transporte
+                      {t('transportLabel')}
                     </label>
                     <div className="flex bg-[var(--color-surface-alt)] p-1 rounded-xl border border-[var(--color-border-light)] gap-1">
-                      {transports.map(t => {
-                        const isActive = selectedTransport === t.id;
+                      {transports.map(tInfo => {
+                        const isActive = selectedTransport === tInfo.id;
                         return (
                           <button
-                            key={t.id}
+                            key={tInfo.id}
                             type="button"
-                            onClick={() => setSelectedTransport(t.id)}
+                            onClick={() => setSelectedTransport(tInfo.id)}
                             className={cn(
                               "flex-1 py-1.5 text-center rounded-lg font-extrabold text-[10px] transition-all cursor-pointer truncate select-none border border-transparent",
                               isActive
@@ -444,7 +425,7 @@ export default function TouristHomePage() {
                                 : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
                             )}
                           >
-                            {t.label}
+                            {tInfo.label}
                           </button>
                         );
                       })}
@@ -458,14 +439,14 @@ export default function TouristHomePage() {
                     className="w-full mt-4 py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg hover:shadow-[var(--color-primary)]/10 active:scale-[0.98] transform flex items-center justify-center gap-2 cursor-pointer text-xs"
                   >
                     <Sparkles className="h-4 w-4 shrink-0" />
-                    Gerar Roteiro Inteligente ✨
+                    {t('generateButton')}
                   </button>
                 </div>
 
                 {/* Footer Certifications */}
                 <div className="flex items-center gap-4 text-[10px] text-[var(--color-text-muted)] justify-center pt-2">
-                  <span className="flex items-center gap-1"><Shield className="h-3.5 w-3.5 text-[var(--color-success)]" /> 100% Cadastur</span>
-                  <span className="flex items-center gap-1"><Navigation className="h-3.5 w-3.5 text-[var(--color-primary)]" /> GPS Ativo</span>
+                  <span className="flex items-center gap-1"><Shield className="h-3.5 w-3.5 text-[var(--color-success)]" /> {t('cadasturCert')}</span>
+                  <span className="flex items-center gap-1"><Navigation className="h-3.5 w-3.5 text-[var(--color-primary)]" /> {t('activeGps')}</span>
                 </div>
               </div>
             ) : (
@@ -474,7 +455,7 @@ export default function TouristHomePage() {
                   <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3 shrink-0">
                     <div className="min-w-0">
                       <Badge variant="accent" size="sm" className="px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider">
-                        Roteiro Otimizado
+                        {t('optimizedItinerary')}
                       </Badge>
                       <h2 className="text-base sm:text-lg font-black text-[var(--color-text)] mt-1 leading-tight truncate pr-2">{suggestedRoute.title}</h2>
                     </div>
@@ -483,7 +464,7 @@ export default function TouristHomePage() {
                       onClick={() => { setStep(1); setSuggestedRoute(null); }}
                       className="shrink-0 flex items-center gap-1 text-[10px] font-bold text-[var(--color-primary)] hover:underline border border-[var(--color-primary)]/20 hover:border-[var(--color-primary)]/40 px-2.5 py-1.5 rounded-lg bg-[var(--color-primary-soft)] hover:bg-[var(--color-primary-soft)]/85 transition-all cursor-pointer shadow-sm"
                     >
-                      Refazer
+                      {t('redo')}
                     </button>
                   </div>
 
@@ -493,7 +474,7 @@ export default function TouristHomePage() {
 
                   {/* Daily breakdown timeline */}
                   <div className="space-y-3 flex-1 overflow-y-auto pr-1 custom-scrollbar py-2">
-                    <p className="text-[10px] uppercase font-bold text-[var(--color-text-muted)] tracking-wider">Cronograma do Roteiro</p>
+                    <p className="text-[10px] uppercase font-bold text-[var(--color-text-muted)] tracking-wider">{t('itinerarySchedule')}</p>
                     
                     <div className="space-y-2.5">
                       {suggestedRoute.days.map((dayItem, dayIndex) => {
@@ -530,24 +511,28 @@ export default function TouristHomePage() {
                             
                             // Calculate travel time
                             let speed = 60; // default shuttle
-                            let transportLabel = 'van/carro';
+                            let transportLabel = t('vanCar');
                             if (selectedTransport === 'hike') {
                               speed = 4.5;
-                              transportLabel = 'caminhada';
+                              transportLabel = t('hike');
                             } else if (selectedTransport === 'buggy') {
                               speed = 30;
-                              transportLabel = 'buggy';
+                              transportLabel = t('buggy');
                             }
 
                             const timeHrs = dist / speed;
                             const timeMins = Math.round(timeHrs * 60);
                             let timeText = '';
                             if (timeMins < 60) {
-                              timeText = `${timeMins} min de ${transportLabel}`;
+                              timeText = t('timeMin', { time: timeMins, transport: transportLabel });
                             } else {
                               const hrs = Math.floor(timeMins / 60);
                               const mins = timeMins % 60;
-                              timeText = `${hrs}h${mins > 0 ? ` ${mins}min` : ''} de ${transportLabel}`;
+                              if (mins > 0) {
+                                timeText = t('timeHr', { hours: hrs, minutes: mins, transport: transportLabel });
+                              } else {
+                                timeText = t('timeHrOnly', { hours: hrs, transport: transportLabel });
+                              }
                             }
 
                             legs.push({
@@ -588,7 +573,7 @@ export default function TouristHomePage() {
                                 </div>
                                 <div className="min-w-0">
                                   <h3 className="font-bold text-xs text-[var(--color-text)]">
-                                    Dia {dayItem.day}
+                                    {t('day', { day: dayItem.day })}
                                   </h3>
                                   <p className="text-[9px] text-[var(--color-text-muted)] truncate max-w-[200px] sm:max-w-xs">
                                     {dayItem.destinations.map(d => d.nome).join(' ➔ ')}
@@ -610,7 +595,7 @@ export default function TouristHomePage() {
                                 {legs.length > 0 ? (
                                   <div className="space-y-2.5">
                                     <p className="font-bold text-[9px] uppercase text-[var(--color-text-muted)] tracking-wider flex items-center gap-1">
-                                      🚗 Trajeto & Locomoção
+                                      {t('routeAndMobility')}
                                     </p>
                                     
                                     <div className="relative border-l border-dashed border-[var(--color-primary)]/35 pl-4 ml-2.5 space-y-3.5 my-1.5">
@@ -621,10 +606,10 @@ export default function TouristHomePage() {
                                           
                                           <div className="flex flex-col gap-0.5">
                                             <span className="text-[10px] text-[var(--color-text-secondary)]">
-                                              De <strong className="text-[var(--color-text)]">{leg.from}</strong> para <strong className="text-[var(--color-text)]">{leg.to}</strong>
+                                              {t('from')} <strong className="text-[var(--color-text)]">{leg.from}</strong> {t('to')} <strong className="text-[var(--color-text)]">{leg.to}</strong>
                                             </span>
                                             <span className="text-[9px] text-[var(--color-text-muted)] flex items-center gap-2">
-                                              <span className="font-[var(--font-mono)]">📍 {leg.distance} km</span>
+                                              <span className="font-[var(--font-mono)]">{t('distance', { distance: leg.distance })}</span>
                                               <span className="h-1 w-1 bg-[var(--color-border)]/50 rounded-full" />
                                               <span className="flex items-center gap-0.5"><Clock className="h-2.5 w-2.5" /> {leg.timeText}</span>
                                             </span>
@@ -632,7 +617,7 @@ export default function TouristHomePage() {
                                               <div className="mt-1 p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[9px] text-amber-600 flex items-start gap-1.5 leading-relaxed">
                                                 <ShieldAlert className="h-3.5 w-3.5 text-amber-600 shrink-0 mt-0.5" />
                                                 <span>
-                                                  <strong>Aviso:</strong> A distância é de {leg.distance} km, o que é muito longo para ir a pé. Considere alugar um buggy ou contratar um translado credenciado.
+                                                  <strong>{t('warning')}</strong> {t('walkingWarning', { distance: leg.distance })}
                                                 </span>
                                               </div>
                                             )}
@@ -644,13 +629,13 @@ export default function TouristHomePage() {
                                 ) : (
                                   <div className="p-2.5 rounded-lg bg-[var(--color-primary-soft)]/20 border border-[var(--color-primary)]/15 text-[9px] text-[var(--color-text-secondary)] flex items-center gap-2">
                                     <Info className="h-3.5 w-3.5 text-[var(--color-primary)] shrink-0" />
-                                    <span>Roteiro local. Não exige deslocamento rodoviário entre destinos neste dia.</span>
+                                    <span>{t('localRoute')}</span>
                                   </div>
                                 )}
 
                                 <div className="space-y-2">
                                   <p className="font-bold text-[9px] uppercase text-[var(--color-text-muted)] tracking-wider">
-                                    🚩 Programação detalhada
+                                    {t('detailedSchedule')}
                                   </p>
                                   
                                   <div className="space-y-2.5">
@@ -662,7 +647,7 @@ export default function TouristHomePage() {
                                           </span>
                                           <Link href={`/destino/${slugify(dest.nome)}`}>
                                             <span className="text-[9px] text-[var(--color-primary)] hover:underline flex items-center gap-0.5 font-bold">
-                                              Ver destino <ArrowRight className="h-2.5 w-2.5" />
+                                              {t('viewDestination')} <ArrowRight className="h-2.5 w-2.5" />
                                             </span>
                                           </Link>
                                         </div>
@@ -705,7 +690,7 @@ export default function TouristHomePage() {
                                           </div>
                                         ) : (
                                           <div className="p-2 text-[9px] text-[var(--color-text-muted)] italic text-center">
-                                            Nenhuma atração específica listada. Aproveite para explorar o local livremente!
+                                            {t('noAttractions')}
                                           </div>
                                         )}
                                       </div>
@@ -723,11 +708,11 @@ export default function TouristHomePage() {
                   {/* Feedback Action Link */}
                   <div className="mt-2 p-3 rounded-xl bg-[var(--color-primary-soft)]/20 border border-[var(--color-primary)]/20 text-xs text-[var(--color-text-secondary)] flex items-center justify-between gap-3 shrink-0">
                     <div>
-                      <p className="font-bold text-[var(--color-text)] text-[11px]">Já realizou este roteiro?</p>
-                      <p className="text-[9px] text-[var(--color-text-muted)] leading-tight">Faça a avaliação de satisfação e auditoria de conformidade.</p>
+                      <p className="font-bold text-[var(--color-text)] text-[11px]">{t('doneThisRoute')}</p>
+                      <p className="text-[9px] text-[var(--color-text-muted)] leading-tight">{t('rateAndAudit')}</p>
                     </div>
                     <Link href="/avaliar">
-                      <Button size="sm" className="text-[10px] px-2.5 py-1.5">Avaliar Rota</Button>
+                      <Button size="sm" className="text-[10px] px-2.5 py-1.5">{t('rateRouteButton')}</Button>
                     </Link>
                   </div>
                 </div>
@@ -742,21 +727,21 @@ export default function TouristHomePage() {
       <section className="max-w-7xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-3xl font-extrabold text-[var(--color-text)] tracking-tight">Destinos Recomendados</h2>
-            <p className="text-sm text-[var(--color-text-muted)] mt-1">Classificados pela saúde do atrativo e conformidade das descrições</p>
+            <h2 className="text-3xl font-extrabold text-[var(--color-text)] tracking-tight">{t('recommendedDestinations')}</h2>
+            <p className="text-sm text-[var(--color-text-muted)] mt-1">{t('recommendedSubtitle')}</p>
           </div>
           <Link
             href="/ranking"
             className="hidden sm:flex items-center gap-1.5 text-sm font-semibold text-[var(--color-primary)] hover:underline"
           >
-            Ver ranking completo <ArrowRight className="h-4 w-4" />
+            {t('viewFullRanking')} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
         {/* Larger Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-children">
           {topDestinations.map((dest, i) => {
-            const badge = getISABadge(dest.isa);
+            const badge = getISABadge(dest.isa, t);
             return (
               <Link key={dest.nome} href={`/destino/${slugify(dest.nome)}`}>
                 <Card variant="interactive" padding="none" className="overflow-hidden group h-[440px] flex flex-col justify-between">
@@ -803,19 +788,19 @@ export default function TouristHomePage() {
                       <div className="flex items-center gap-4">
                         <div className="text-center">
                           <p className="text-base font-extrabold text-[var(--color-primary)] font-[var(--font-mono)] leading-none">{dest.isa}</p>
-                          <p className="text-[9px] text-[var(--color-text-muted)] uppercase tracking-wider mt-1">Pontuação ISA</p>
+                          <p className="text-[9px] text-[var(--color-text-muted)] uppercase tracking-wider mt-1">{t('isaScore')}</p>
                         </div>
                         <div className="h-6 w-px bg-[var(--color-border)]" />
                         <div className="text-center">
                           <p className="text-sm font-bold text-[var(--color-text)] leading-none">
                             {dest.fluxo ? (dest.fluxo.fluxo_visitantes_mes / 1000).toFixed(0) + 'k' : '—'}
                           </p>
-                          <p className="text-[9px] text-[var(--color-text-muted)] uppercase tracking-wider mt-1">Fluxo/mês</p>
+                          <p className="text-[9px] text-[var(--color-text-muted)] uppercase tracking-wider mt-1">{t('monthlyTraffic')}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-1 text-xs font-bold text-[var(--color-text)]">
                         <Eye className="h-4 w-4 text-[var(--color-primary)]" />
-                        <span>Ver Destino</span>
+                        <span>{t('viewDestinationLabel')}</span>
                       </div>
                     </div>
                   </div>
@@ -830,16 +815,16 @@ export default function TouristHomePage() {
           href="/ranking"
           className="sm:hidden flex items-center justify-center gap-1.5 mt-8 text-sm font-semibold text-[var(--color-primary)]"
         >
-          Ver ranking completo <ArrowRight className="h-4 w-4" />
+          {t('viewFullRanking')} <ArrowRight className="h-4 w-4" />
         </Link>
       </section>
 
       {/* ═══ All Destinations List ═══ */}
       <section className="max-w-7xl mx-auto px-4 pb-12">
-        <h2 className="text-2xl font-bold text-[var(--color-text)] mb-6">Todos os Destinos</h2>
+        <h2 className="text-2xl font-bold text-[var(--color-text)] mb-6">{t('allDestinations')}</h2>
         <div className="space-y-4">
           {destinations.map((dest) => {
-            const badge = getISABadge(dest.isa);
+            const badge = getISABadge(dest.isa, t);
             return (
               <Link
                 key={dest.nome}
@@ -878,7 +863,7 @@ export default function TouristHomePage() {
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-1 text-[10px] font-medium text-[var(--color-text-muted)]">
                       <span className="flex items-center gap-1">
                         <Users className="h-3.5 w-3.5 text-[var(--color-primary)]" />
-                        Fluxo: <strong className="text-[var(--color-text)]">{dest.fluxo ? (dest.fluxo.fluxo_visitantes_mes / 1000).toFixed(0) + 'k' : '0'}</strong>/mês
+                        {t('trafficLabel')} <strong className="text-[var(--color-text)]">{dest.fluxo ? (dest.fluxo.fluxo_visitantes_mes / 1000).toFixed(0) + 'k' : '0'}</strong>{t('monthly')}
                       </span>
                       <div className="hidden sm:block h-3 w-px bg-[var(--color-border-light)]" />
                       
@@ -889,15 +874,15 @@ export default function TouristHomePage() {
                               'h-1.5 w-1.5 rounded-full',
                               dest.fluxo.saturacao_turistica <= 50 ? 'bg-emerald-500' : dest.fluxo.saturacao_turistica <= 75 ? 'bg-amber-500' : 'bg-rose-500'
                             )} />
-                            Lotação: <strong className="text-[var(--color-text)]">
-                              {dest.fluxo.saturacao_turistica <= 50 ? 'Tranquilo' : dest.fluxo.saturacao_turistica <= 75 ? 'Moderado' : 'Intenso'}
+                            {t('crowdingLabel')} <strong className="text-[var(--color-text)]">
+                              {dest.fluxo.saturacao_turistica <= 50 ? t('crowdingEasy') : dest.fluxo.saturacao_turistica <= 75 ? t('crowdingMedium') : t('crowdingHard')}
                             </strong>
                           </span>
                           <div className="hidden sm:block h-3 w-px bg-[var(--color-border-light)]" />
                           <span className="flex items-center gap-1">
                             <Clock className="h-3.5 w-3.5 text-indigo-400" />
-                            Melhor Horário: <strong className="text-[var(--color-text)]">
-                              {dest.fluxo.saturacao_turistica <= 50 ? 'Qualquer horário' : dest.fluxo.saturacao_turistica <= 75 ? 'Fora de pico (11h-14h)' : 'Início da manhã / fim de tarde'}
+                            {t('bestTimeLabel')} <strong className="text-[var(--color-text)]">
+                              {dest.fluxo.saturacao_turistica <= 50 ? t('bestTimeAny') : dest.fluxo.saturacao_turistica <= 75 ? t('bestTimeOffPeak') : t('bestTimePeak')}
                             </strong>
                           </span>
                           <div className="hidden sm:block h-3 w-px bg-[var(--color-border-light)]" />
@@ -906,7 +891,7 @@ export default function TouristHomePage() {
 
                       <span className="flex items-center gap-1">
                         <Shield className="h-3.5 w-3.5 text-[var(--color-success)]" />
-                        Cadastur: <strong className="text-[var(--color-text)]">{dest.partners.length}</strong> parceiros
+                        {t('cadasturLabel')} <strong className="text-[var(--color-text)]">{dest.partners.length}</strong> {t('partnersLabel')}
                       </span>
                     </div>
                   </div>
@@ -915,7 +900,7 @@ export default function TouristHomePage() {
                   <div className="flex flex-row sm:flex-col items-center gap-3 sm:gap-2 sm:self-center flex-shrink-0 w-full sm:w-auto justify-between sm:justify-center border-t sm:border-t-0 border-[var(--color-border-light)] pt-3 sm:pt-0 mt-2 sm:mt-0">
                     <div className="flex items-center gap-2">
                       <div className="text-right">
-                        <span className="text-[9px] text-[var(--color-text-muted)] uppercase tracking-wider block font-bold leading-none mb-0.5">Índice ISA</span>
+                        <span className="text-[9px] text-[var(--color-text-muted)] uppercase tracking-wider block font-bold leading-none mb-0.5">{t('isaScore')}</span>
                         <div className="flex items-center gap-1 justify-end">
                           <span className={cn(
                             'h-1.5 w-1.5 rounded-full animate-pulse',
@@ -932,7 +917,7 @@ export default function TouristHomePage() {
                     </div>
 
                     <div className="flex items-center gap-1 text-xs font-bold text-[var(--color-primary)] group-hover:translate-x-1 transition-transform duration-200">
-                      <span>Ver Destino</span>
+                      <span>{t('viewDestinationLabel')}</span>
                       <ArrowRight className="h-3.5 w-3.5" />
                     </div>
                   </div>

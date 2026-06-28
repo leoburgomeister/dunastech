@@ -135,5 +135,166 @@
     "madeWith": "Made with ❤️ for the",
     "hackathon": "Hackathon do Sol 2026",
     "copyright": "© 2026 DunasTech. All rights reserved."
+  },
+  "planner": {
+    "title": "DunasTech AI Router",
+    "heading": "Plan Your Route",
+    "subheading": "Safe and Sustainable",
+    "description": "Discover optimized itineraries in Rio Grande do Norte based on your profile, available time, and mode of transportation.",
+    "startPointLabel": "📍 Starting Point or Focus (Optional)",
+    "startPointPlaceholder": "E.g., Pipa, Genipabu, Natal...",
+    "travelStyleLabel": "🎭 Travel Style",
+    "durationLabel": "📅 Route Duration",
+    "transportLabel": "🚗 Mode of Transportation",
+    "generateButton": "Generate Smart Itinerary ✨",
+    "cadasturCert": "100% Cadastur",
+    "activeGps": "Active GPS",
+    "optimizedItinerary": "Optimized Itinerary",
+    "redo": "Redo",
+    "itinerarySchedule": "Itinerary Schedule",
+    "day": "Day {day}",
+    "routeAndMobility": "🚗 Route & Logistics",
+    "from": "From",
+    "to": "to",
+    "with": "with",
+    "distance": "📍 {distance} km",
+    "timeMin": "{time} min by {transport}",
+    "timeHr": "{hours}h {minutes}m by {transport}",
+    "timeHrOnly": "{hours}h by {transport}",
+    "warning": "Warning:",
+    "walkingWarning": "The distance is {distance} km, which is too long to walk. Consider renting a buggy or hiring a certified shuttle.",
+    "localRoute": "Local itinerary. Does not require road travel between destinations today.",
+    "detailedSchedule": "🚩 Detailed Schedule",
+    "viewDestination": "View destination",
+    "noAttractions": "No specific attractions listed. Enjoy exploring the place freely!",
+    "doneThisRoute": "Have you done this route?",
+    "rateAndAudit": "Submit your satisfaction rating and compliance audit.",
+    "rateRouteButton": "Rate Route",
+    "recommendedDestinations": "Recommended Destinations",
+    "recommendedSubtitle": "Ranked by attraction health and compliance of descriptions",
+    "viewFullRanking": "View full ranking",
+    "viewDestinationLabel": "View Destination",
+    "isaScore": "ISA Score",
+    "monthlyTraffic": "Traffic/month",
+    "allDestinations": "All Destinations",
+    "trafficLabel": "Traffic:",
+    "monthly": "/month",
+    "crowdingLabel": "Crowd Status:",
+    "crowdingEasy": "Tranquil",
+    "crowdingMedium": "Moderate",
+    "crowdingHard": "Intense",
+    "bestTimeLabel": "Best Time to Visit:",
+    "bestTimeAny": "Any time",
+    "bestTimeOffPeak": "Off-peak hours (11am-2pm)",
+    "bestTimePeak": "Early morning / late afternoon",
+    "cadasturLabel": "Cadastur:",
+    "partnersLabel": "partners",
+    "vanCar": "van/car",
+    "buggy": "buggy",
+    "hike": "hike",
+    "styles": {
+      "adventure": {
+        "label": "Adventure & Dunes 🏄‍♂️",
+        "desc": "For those seeking adrenaline, buggy rides, and shifting dunes."
+      },
+      "relax": {
+        "label": "Relax & Nature 🐚",
+        "desc": "Deserted beaches, natural pools, and calm freshwater lagoons."
+      },
+      "culture": {
+        "label": "History & Culture 🏰",
+        "desc": "Colonial forts, historic mansions, and craft centers."
+      },
+      "gastronomy": {
+        "label": "Gastronomy 🦐",
+        "desc": "Seafood restaurants, hinterland cuisine, and regional drinks."
+      }
+    },
+    "durations": {
+      "1day": {
+        "label": "1 Day (Day trip) 📅",
+        "description": "Exploration of the destination's main tourist attractions in a day trip."
+      },
+      "weekend": {
+        "label": "Weekend 🌅",
+        "day1": "Arrival, check-in with a certified partner, and initial visit to the main landmark.",
+        "day2": "Day of guided adventure and return in the late afternoon with a spectacular sunset."
+      },
+      "1week": {
+        "label": "1 Week or more backpacking 🎒",
+        "day1": "Acclimatization day, short walks, and relaxation nearby.",
+        "day2": "Day reserved for eco-sports and guided snorkeling.",
+        "day3": "Cultural tour and shopping for certified crafts in the historic center."
+      }
+    },
+    "transports": {
+      "buggy": {
+        "label": "Buggy / 4x4 🚗"
+      },
+      "shuttle": {
+        "label": "Shuttle / Vans 🚌"
+      },
+      "hike": {
+        "label": "Hike / Trail 🥾"
+      }
+    },
+    "routes": {
+      "adventure": {
+        "hike": {
+          "title": "Genipabu & Pitangui Ecological Trail",
+          "description": "An adventure-filled walk crossing the famous Genipabu dunes to reach the Pitangui lagoon."
+        },
+        "buggy": {
+          "title": "North Coast Thrilling Buggy Tour",
+          "description": "Classic buggy tour through the shifting dunes of Genipabu, Pitangui lagoon, and snorkeling in the reef pools."
+        },
+        "shuttle": {
+          "title": "North & South Coast Adventure Route",
+          "description": "Complete shuttle/van route connecting the famous Ponta Negra, Genipabu dunes, and Pipa cliffs."
+        }
+      },
+      "relax": {
+        "hike": {
+          "title": "Cliffs & Madeiro Beach Trail",
+          "description": "Relaxing seaside walk from Pipa to Madeiro Beach with a high chance of spotting dolphins."
+        },
+        "buggy": {
+          "title": "Calm Dunes & North Coast Route",
+          "description": "Relaxing buggy tour passing through the natural pools of Maracajaú and the charming São Miguel do Gostoso."
+        },
+        "shuttle": {
+          "title": "Calm Waters & Isolated Peninsula Route",
+          "description": "Perfect for relaxing in the Maracajaú pools, Galinhos lagoon, and the calm beaches of São Miguel do Gostoso."
+        }
+      },
+      "culture": {
+        "hike": {
+          "title": "Historic Walk from Morro to Barreira",
+          "description": "Explore Ponta Negra beach on foot and walk to the historic Barreira do Inferno launch center."
+        },
+        "buggy": {
+          "title": "Historic Route & North Coast Buggy",
+          "description": "Discover the history of the Reis Magos Fort and adventure through the Genipabu dunes by buggy."
+        },
+        "shuttle": {
+          "title": "Grand Historic & Archaeological Route",
+          "description": "Shuttle/van trip exploring the colonial Fort in Natal, the Historic City of Mossoró, and the Soledade archaeological site."
+        }
+      },
+      "gastronomy": {
+        "hike": {
+          "title": "Gastronomic Walk from Pipa to Madeiro",
+          "description": "Walk along the beach savoring regional snacks, tropical drinks, and the best of Pipa's cuisine."
+        },
+        "buggy": {
+          "title": "South Coast Gastronomic Buggy Tour",
+          "description": "Taste the best crabs and seafood between the cliffs of Pipa and Barra de Cunhaú."
+        },
+        "shuttle": {
+          "title": "Potiguar Flavors South Coast Circuit",
+          "description": "Enjoy the rich beach cuisine of Ponta Negra, Pipa, and the gastronomic mangroves of Cunhaú."
+        }
+      }
+    }
   }
 }

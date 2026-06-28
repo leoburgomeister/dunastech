@@ -134,6 +134,167 @@
   "footer": {
     "madeWith": "Hecho con ❤️ para el",
     "hackathon": "Hackathon do Sol 2026",
-    "copyright": "© 2026 DunasTech. Todos los derechos reservados."
+    "copyright": "© 2026 DunasTech. Todos os derechos reservados."
+  },
+  "planner": {
+    "title": "DunasTech Enrutador IA",
+    "heading": "Planifique Su Ruta",
+    "subheading": "Segura y Sostenible",
+    "description": "Descubra itinerarios optimizados en Rio Grande do Norte según su perfil, tiempo disponible y medio de transporte.",
+    "startPointLabel": "📍 Punto de Partida o Enfoque (Opcional)",
+    "startPointPlaceholder": "Ej: Pipa, Genipabu, Natal...",
+    "travelStyleLabel": "🎭 Estilo de Viaje",
+    "durationLabel": "📅 Duración de la Ruta",
+    "transportLabel": "🚗 Medio de Transporte",
+    "generateButton": "Generar Itinerario Inteligente ✨",
+    "cadasturCert": "100% Cadastur",
+    "activeGps": "GPS Activo",
+    "optimizedItinerary": "Itinerario Optimizado",
+    "redo": "Rehacer",
+    "itinerarySchedule": "Cronograma del Itinerario",
+    "day": "Día {day}",
+    "routeAndMobility": "🚗 Trayecto y Locomoción",
+    "from": "De",
+    "to": "para",
+    "with": "con",
+    "distance": "📍 {distance} km",
+    "timeMin": "{time} min de {transport}",
+    "timeHr": "{hours}h{minutes} de {transport}",
+    "timeHrOnly": "{hours}h de {transport}",
+    "warning": "Aviso:",
+    "walkingWarning": "La distancia es de {distance} km, lo cual es demasiado largo para ir a pie. Considere alquilar un buggy o contratar un traslado acreditado.",
+    "localRoute": "Itinerario local. No requiere desplazamiento por carretera entre destinos hoy.",
+    "detailedSchedule": "🚩 Programación detallada",
+    "viewDestination": "Ver destino",
+    "noAttractions": "No se enumeran atracciones específicas. ¡Disfrute explorando el lugar libremente!",
+    "doneThisRoute": "¿Ya has realizado este itinerario?",
+    "rateAndAudit": "Realice la evaluación de satisfacción y la auditoría de conformidad.",
+    "rateRouteButton": "Evaluar Ruta",
+    "recommendedDestinations": "Destinos Recomendados",
+    "recommendedSubtitle": "Clasificados por la salud del atractivo y la conformidad de las descripciones",
+    "viewFullRanking": "Ver ranking completo",
+    "viewDestinationLabel": "Ver Destino",
+    "isaScore": "Puntuación ISA",
+    "monthlyTraffic": "Flujo/mes",
+    "allDestinations": "Todos los Destinos",
+    "trafficLabel": "Flujo:",
+    "monthly": "/mes",
+    "crowdingLabel": "Ocupación:",
+    "crowdingEasy": "Tranquilo",
+    "crowdingMedium": "Moderado",
+    "crowdingHard": "Intenso",
+    "bestTimeLabel": "Mejor Horario:",
+    "bestTimeAny": "Cualquier horario",
+    "bestTimeOffPeak": "Fuera de pico (11h-14h)",
+    "bestTimePeak": "Inicio de la mañana / fin de tarde",
+    "cadasturLabel": "Cadastur:",
+    "partnersLabel": "socios",
+    "vanCar": "van/coche",
+    "buggy": "buggy",
+    "hike": "caminata",
+    "styles": {
+      "adventure": {
+        "label": "Aventura & Dunas 🏄‍♂️",
+        "desc": "Para quienes buscan adrenalina, paseos en buggy y dunas móviles."
+      },
+      "relax": {
+        "label": "Relax y Naturaleza 🐚",
+        "desc": "Playas desiertas, piscinas naturales y lagunas tranquilas de agua dulce."
+      },
+      "culture": {
+        "label": "Historia y Cultura 🏰",
+        "desc": "Fuerte colonial, casonas históricas y centros de artesanía."
+      },
+      "gastronomy": {
+        "label": "Gastronomía 🦐",
+        "desc": "Restaurantes de mariscos, cocina local y bebidas regionales."
+      }
+    },
+    "durations": {
+      "1day": {
+        "label": "1 Día (Ida y vuelta) 📅",
+        "description": "Exploración de los principales puntos turísticos del destino en un itinerario de ida y vuelta."
+      },
+      "weekend": {
+        "label": "Fin de Semana 🌅",
+        "day1": "Llegada, check-in en un socio certificado y visita inicial a la atracción principal.",
+        "day2": "Día de aventura guiada y regreso al final de la tarde con un atardecer espectacular."
+      },
+      "1week": {
+        "label": "1 Semana o más mochilero 🎒",
+        "day1": "Día de aclimatación, paseos cortos y relajación en los alrededores.",
+        "day2": "Día reservado para deportes ecológicos y buceo libre guiado.",
+        "day3": "Tour cultural y compras de artesanía certificada en el centro histórico."
+      }
+    },
+    "transports": {
+      "buggy": {
+        "label": "Buggy / 4x4 🚗"
+      },
+      "shuttle": {
+        "label": "Traslado / Vans 🚌"
+      },
+      "hike": {
+        "label": "Caminata / Sendero 🥾"
+      }
+    },
+    "routes": {
+      "adventure": {
+        "hike": {
+          "title": "Sendero Ecológico de Genipabu y Pitangui",
+          "description": "Una caminata llena de aventura cruzando las famosas dunas de Genipabu hasta llegar a la laguna de Pitangui."
+        },
+        "buggy": {
+          "title": "Itinerario en Buggy Litoral Norte con Emoción",
+          "description": "Itinerario clásico en buggy por las dunas móviles de Genipabu, la laguna de Pitangui y buceo en los arrecifes."
+        },
+        "shuttle": {
+          "title": "Ruta de Aventura Litoral Sur y Norte",
+          "description": "Itinerario completo de van/traslado conectando la famosa Ponta Negra, las dunas de Genipabu y los acantilados de Pipa."
+        }
+      },
+      "relax": {
+        "hike": {
+          "title": "Sendero de los Acantilados y Playa de Madeiro",
+          "description": "Caminata relajante a la orilla del mar desde Pipa hasta la Playa del Madeiro con gran probabilidad de ver delfines."
+        },
+        "buggy": {
+          "title": "Ruta de las Dunas Tranquilas y Litoral Norte",
+          "description": "Itinerario relajante en buggy pasando por las piscinas naturales de Maracajaú y el encantador Gostoso."
+        },
+        "shuttle": {
+          "title": "Ruta de las Aguas Tranquilas y Península Aislada",
+          "description": "Perfecto para relajarse en las piscinas de Maracajaú, en la laguna de Galinhos y en las playas tranquilas de Gostoso."
+        }
+      },
+      "culture": {
+        "hike": {
+          "title": "Caminata Histórica del Morro a la Barreira",
+          "description": "Explore a pie la playa de Ponta Negra y camine hasta el histórico centro de lanzamiento de la Barreira del Inferno."
+        },
+        "buggy": {
+          "title": "Ruta Histórica y Buggy Litoral Norte",
+          "description": "Descubra la historia del Fuerte de los Reis Magos y aventúrese por las dunas de Genipabu en buggy."
+        },
+        "shuttle": {
+          "title": "Gran Ruta Histórica y Arqueológica",
+          "description": "Viaje en van/traslado explorando el Fuerte colonial en Natal, la Ciudad Histórica de Mossoró y el Lajedo de Soledade."
+        }
+      },
+      "gastronomy": {
+        "hike": {
+          "title": "Caminata Gastronómica de Pipa a Madeiro",
+          "description": "Camine por la playa saboreando bocadillos regionales, tragos tropicales y lo mejor de la gastronomía de Pipa."
+        },
+        "buggy": {
+          "title": "Itinerario Gastronómico en Buggy Litoral Sur",
+          "description": "Deguste los mejores cangrejos y mariscos entre los acantilados de Pipa y Barra de Cunhaú."
+        },
+        "shuttle": {
+          "title": "Circuito de los Sabores Potiguares Litoral Sur",
+          "description": "Disfrute de la rica gastronomía playera de Ponta Negra, Pipa y los manglares gastronómicos de Cunhaú."
+        }
+      }
+    }
   }
 }
