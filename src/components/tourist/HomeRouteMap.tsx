@@ -128,17 +128,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
   const [mounted, setMounted] = useState(false);
   const [routePoints, setRoutePoints] = useState<[number, number][]>([]);
   const [isLoadingRoute, setIsLoadingRoute] = useState(false);
-  const { resolvedTheme } = useTheme();
-  const [tileUrl, setTileUrl] = useState('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png');
-
-  // Dynamic Tile Styling based on active theme
-  useEffect(() => {
-    if (resolvedTheme === 'dark') {
-      setTileUrl('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png');
-    } else {
-      setTileUrl('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png');
-    }
-  }, [resolvedTheme]);
+  const tileUrl = 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}';
 
   useEffect(() => {
     setMounted(true);

@@ -256,8 +256,10 @@ export default function TouristHomePage() {
         
         {/* Absolute Background Map */}
         <div className={cn(
-          "absolute inset-0 z-0 transition-all duration-1000 transform",
-          step === 4 ? "blur-none scale-100 opacity-100" : "blur-[4px] scale-[1.02] opacity-40 pointer-events-none"
+          "absolute inset-0 z-0 transition-all duration-1000 transform origin-bottom",
+          step === 4 
+            ? "blur-none opacity-100 [transform:perspective(1200px)_rotateX(28deg)_translateY(-20px)_scale(1.05)] [backface-visibility:hidden] [transform-style:preserve-3d]" 
+            : "blur-[4px] opacity-40 scale-[1.02] pointer-events-none"
         )}>
           <HomeRouteMap 
             destinations={mapDestinations} 
@@ -270,7 +272,7 @@ export default function TouristHomePage() {
         <div className={cn(
           "absolute inset-0 z-10 transition-all duration-700 pointer-events-none",
           step === 4 
-            ? "bg-gradient-to-r from-[var(--color-bg)] via-[var(--color-bg)]/80 to-[var(--color-bg)]/10 dark:from-[var(--color-bg)] dark:via-[var(--color-bg)]/75 dark:to-transparent" 
+            ? "bg-gradient-to-l from-[var(--color-bg)] via-[var(--color-bg)]/85 to-[var(--color-bg)]/10 dark:from-[var(--color-bg)] dark:via-[var(--color-bg)]/80 dark:to-transparent" 
             : "bg-gradient-to-br from-[var(--color-primary-soft)]/20 via-[var(--color-bg)]/85 to-[var(--color-bg)]"
         )} />
 
@@ -307,7 +309,7 @@ export default function TouristHomePage() {
             <div className={cn(
               "transition-all duration-700 transform w-full",
               step === 4 
-                ? "lg:col-span-5 max-w-[480px] lg:mr-auto" 
+                ? "lg:col-span-5 max-w-[480px] lg:ml-auto" 
                 : "lg:col-span-7"
             )}>
               <Card className={cn(
