@@ -80,8 +80,11 @@ export default function PitchPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const path = window.location.pathname;
-      if (path.includes("/en")) setLocale("en");
-      else if (path.includes("/es")) setLocale("es");
+      if (path.includes("/en")) {
+        setTimeout(() => setLocale("en"), 0);
+      } else if (path.includes("/es")) {
+        setTimeout(() => setLocale("es"), 0);
+      }
     }
   }, []);
 

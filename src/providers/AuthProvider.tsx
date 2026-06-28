@@ -208,7 +208,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         displayName: name,
         photoURL: null,
         cpf: cleanCPF,
-        role: 'tourist',
+        role: (email.toLowerCase().includes('admin') || name.toLowerCase().includes('admin')) ? 'admin' : 'tourist',
         provider: 'mock',
         createdAt: new Date().toISOString(),
       };

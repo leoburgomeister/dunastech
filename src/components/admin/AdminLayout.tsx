@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, MapPin, MessageSquare, Share2, Brain, FileText,
   Sun, ChevronLeft, ChevronRight, LogOut, Settings, ShieldCheck, Building,
+  ShieldAlert, Loader2, ArrowLeft,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
@@ -27,7 +28,87 @@ const navItems = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
-  const { signOutUser } = useAuth();
+  const router = useRouter();
+  const { user, loading, isAuthenticated, signOutUser } = useAuth();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
+    }
+  }, [loading, isAuthenticated, router, pathname]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[var(--color-bg)] flex flex-col items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <Loader2 className="h-10 w-10 text-[var(--color-primary)] animate-spin" />
+          <p className="text-sm font-semibold text-[var(--color-text-secondary)] animate-pulse">
+            Verificando Credenciais...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[var(--color-bg)] flex flex-col items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <Loader2 className="h-10 w-10 text-[var(--color-primary)] animate-spin" />
+          <p className="text-sm font-semibold text-[var(--color-text-secondary)]">
+            Redirecionando para login...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (user?.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-[var(--color-bg)] flex items-center justify-center p-4">
+        <div className="w-full max-w-md animate-[scale-in_0.3s_ease-out] text-center space-y-6">
+          <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-8 shadow-xl shadow-black/10 space-y-6">
+            <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 mx-auto flex items-center justify-center text-red-500 shadow-lg shadow-red-500/5">
+              <ShieldAlert className="h-8 w-8 animate-pulse" />
+            </div>
+            
+            <div className="space-y-2">
+              <h2 className="text-xl font-extrabold text-[var(--color-text)]">Acesso Restrito</h2>
+              <p className="text-xs text-[var(--color-text-muted)] leading-relaxed">
+                Você está conectado como <strong className="text-[var(--color-text-secondary)] font-bold">{user?.displayName || 'visitante'}</strong> ({user?.email}). Esta área de gestão exige credenciais de administrador.
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-col gap-2">
+              <Link 
+                href="/"
+                className="w-full py-2.5 rounded-xl text-xs font-bold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary)]/90 transition-all flex items-center justify-center gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Voltar para o Início
+              </Link>
+              
+              <button
+                onClick={async () => {
+                  await signOutUser();
+                  router.push('/login?redirect=/gestao');
+                }}
+                className="w-full py-2.5 rounded-xl text-xs font-bold border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <LogOut className="h-4 w-4" />
+                Conectar com outra conta
+              </button>
+            </div>
+          </div>
+          
+          <p className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-extrabold">
+            DunasTech · Observatório Potiguar 2026
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const sidebarWidth = collapsed ? 'w-[72px]' : 'w-[280px]';
 

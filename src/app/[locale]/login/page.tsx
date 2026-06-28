@@ -148,7 +148,7 @@ export default function LoginPage() {
                       key={doc.id}
                       type="button"
                       onClick={() => {
-                        setDocType(doc.id as any);
+                        setDocType(doc.id as 'cpf' | 'rne' | 'passport');
                         setCpf(''); // Clear document number input
                       }}
                       className={cn(
