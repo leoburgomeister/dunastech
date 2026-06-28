@@ -315,6 +315,21 @@ export default function TouristHomePage() {
     return filtered;
   }, [suggestedRoute, expandedDay, destinations, selectedStyle, searchQuery]);
 
+  const handleShareWhatsApp = (sendPdf: boolean) => {
+    const startFormatted = startDate ? new Date(startDate + 'T00:00:00').toLocaleDateString('pt-BR') : '';
+    const endFormatted = endDate ? new Date(endDate + 'T00:00:00').toLocaleDateString('pt-BR') : '';
+    const passengers = travelerNames.split('\n').filter(Boolean).join(', ');
+    
+    let tripSummaryText = `*DunasTech - Roteiro de Viagem*\nCódigo: *DT-2026-X79B*\nPeríodo: ${startFormatted} a ${endFormatted}\nEstilo: *${suggestedRoute?.title || ''}*\nPassageiros: ${passengers}\nGerado de forma sustentável e 100% regularizada no RN.`;
+    
+    if (sendPdf) {
+      tripSummaryText += `\n\n_Estou enviando em anexo o arquivo PDF do meu roteiro._`;
+      window.print();
+    }
+    
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(tripSummaryText)}`, '_blank');
+  };
+
   return (
     <div className="animate-fade-in space-y-12">
       {/* ═══ Smart Route Planner & Map Split-Pane Hero Section ═══ */}
@@ -1072,7 +1087,7 @@ export default function TouristHomePage() {
 
                   {/* STEP 5: Travel Dossier / Voucher summary */}
                   {step === 5 && (
-                    <div className="space-y-4 animate-fade-in h-full flex flex-col justify-between print-container">
+                    <div className="space-y-6 animate-fade-in h-full flex flex-col justify-between print-container">
                       <style dangerouslySetInnerHTML={{__html: `
                         @media print {
                           body * {
@@ -1086,7 +1101,7 @@ export default function TouristHomePage() {
                             left: 0;
                             top: 0;
                             width: 100%;
-                            padding: 20px;
+                            padding: 24px;
                             background: white !important;
                             color: black !important;
                           }
@@ -1097,27 +1112,27 @@ export default function TouristHomePage() {
                       `}} />
 
                       {/* Header Ticket Ribbon */}
-                      <div className="bg-[var(--color-primary-soft)] border border-[var(--color-primary)]/30 rounded-2xl p-4 shrink-0 relative overflow-hidden">
-                        <div className="absolute right-3 top-3 opacity-10 font-[var(--font-mono)] text-5xl font-black select-none pointer-events-none">
+                      <div className="bg-[var(--color-primary-soft)] border border-[var(--color-primary)]/35 rounded-2xl p-5 shrink-0 relative overflow-hidden">
+                        <div className="absolute right-4 top-4 opacity-10 font-[var(--font-mono)] text-6xl font-black select-none pointer-events-none">
                           VCHR
                         </div>
                         <div className="flex items-center justify-between">
                           <div>
-                            <Badge variant="accent" size="sm" className="px-2 py-0.5 text-[8px] font-extrabold uppercase">
+                            <Badge variant="accent" size="md" className="px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider">
                               {t('travelDossier')}
                             </Badge>
-                            <h2 className="text-sm sm:text-base font-black text-[var(--color-text)] mt-1">{suggestedRoute.title}</h2>
+                            <h2 className="text-base sm:text-lg font-black text-[var(--color-text)] mt-1.5 leading-tight">{suggestedRoute.title}</h2>
                           </div>
                         </div>
-                        <div className="mt-3 flex items-center justify-between border-t border-dashed border-[var(--color-primary)]/20 pt-2.5 text-[10px]">
+                        <div className="mt-4 flex items-center justify-between border-t border-dashed border-[var(--color-primary)]/25 pt-3 text-xs">
                           <div>
-                            <span className="text-[9px] text-[var(--color-text-muted)] block uppercase font-bold tracking-wider">{t('bookingCode')}</span>
-                            <strong className="font-[var(--font-mono)] text-[var(--color-primary)] text-xs">DT-2026-X79B</strong>
+                            <span className="text-[10px] text-[var(--color-text-muted)] block uppercase font-bold tracking-wider">{t('bookingCode')}</span>
+                            <strong className="font-[var(--font-mono)] text-[var(--color-primary)] text-sm font-black tracking-wider">DT-2026-X79B</strong>
                           </div>
                           {startDate && (
                             <div className="text-right">
-                              <span className="text-[9px] text-[var(--color-text-muted)] block uppercase font-bold tracking-wider">Período</span>
-                              <strong className="text-[var(--color-text)] font-semibold">
+                              <span className="text-[10px] text-[var(--color-text-muted)] block uppercase font-bold tracking-wider">Período</span>
+                              <strong className="text-[var(--color-text)] font-bold text-xs sm:text-sm">
                                 {new Date(startDate + 'T00:00:00').toLocaleDateString('pt-BR')} {endDate ? `➔ ${new Date(endDate + 'T00:00:00').toLocaleDateString('pt-BR')}` : ''}
                               </strong>
                             </div>
@@ -1126,58 +1141,58 @@ export default function TouristHomePage() {
                       </div>
 
                       {/* Scrollable Summary details */}
-                      <div className="space-y-4 flex-1 overflow-y-auto pr-1 custom-scrollbar py-2">
+                      <div className="space-y-5 flex-1 overflow-y-auto pr-1.5 custom-scrollbar py-2">
                         
                         {/* Resumo do Planejamento */}
-                        <div className="p-3.5 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-alt)]/25 space-y-2.5 text-xs">
-                          <h3 className="font-extrabold text-[10px] text-[var(--color-text)] uppercase tracking-wider border-b border-[var(--color-border-light)] pb-1 flex items-center gap-1">
+                        <div className="p-4 sm:p-5 rounded-2xl border border-[var(--color-border-light)] bg-[var(--color-surface-alt)]/25 space-y-3.5 text-xs sm:text-sm">
+                          <h3 className="font-extrabold text-xs sm:text-sm text-[var(--color-text)] uppercase tracking-wider border-b border-[var(--color-border-light)] pb-1.5 flex items-center gap-1.5">
                             📋 {t('routeSummary')}
                           </h3>
-                          <div className="grid grid-cols-2 gap-2 text-[10px]">
+                          <div className="grid grid-cols-2 gap-3 text-xs sm:text-sm">
                             <div>
                               <span className="text-[var(--color-text-muted)]">{t('groupProfile')}:</span>{' '}
-                              <strong className="text-[var(--color-text)]">{t(`groupProfiles.${selectedGroupProfile}`)}</strong>
+                              <strong className="text-[var(--color-text)] font-semibold">{t(`groupProfiles.${selectedGroupProfile}`)}</strong>
                             </div>
                             <div>
                               <span className="text-[var(--color-text-muted)]">{t('budgetLevel')}:</span>{' '}
-                              <strong className="text-[var(--color-text)]">{t(`budgets.${selectedBudget}`)}</strong>
+                              <strong className="text-[var(--color-text)] font-semibold">{t(`budgets.${selectedBudget}`)}</strong>
                             </div>
                             <div>
                               <span className="text-[var(--color-text-muted)]">{t('transportLabel')}:</span>{' '}
-                              <strong className="text-[var(--color-text)]">{t(`transports.${selectedTransport}.label`)}</strong>
+                              <strong className="text-[var(--color-text)] font-semibold">{t(`transports.${selectedTransport}.label`)}</strong>
                             </div>
                             <div>
                               <span className="text-[var(--color-text-muted)]">{t('stayPreference')}:</span>{' '}
-                              <strong className="text-[var(--color-text)]">{t(`stayPreferences.${selectedStayPreference}`)}</strong>
+                              <strong className="text-[var(--color-text)] font-semibold">{t(`stayPreferences.${selectedStayPreference}`)}</strong>
                             </div>
                           </div>
 
                           {travelerNames.trim() && (
-                            <div className="border-t border-[var(--color-border-light)]/60 pt-2 text-[10px]">
-                              <span className="text-[var(--color-text-muted)] block font-semibold">{t('travelers')}:</span>
-                              <div className="flex flex-wrap gap-1.5 mt-1">
+                            <div className="border-t border-[var(--color-border-light)]/60 pt-3 text-xs">
+                              <span className="text-[var(--color-text-muted)] block font-semibold mb-1.5">{t('travelers')}:</span>
+                              <div className="flex flex-wrap gap-2">
                                 {travelerNames.split('\n').filter(Boolean).map((n, i) => (
-                                  <span key={i} className="px-2 py-0.5 rounded bg-[var(--color-surface-alt)] text-[9px] font-semibold border border-[var(--color-border-light)]">{n}</span>
+                                  <span key={i} className="px-3 py-1 rounded-lg bg-[var(--color-surface-alt)] text-xs font-semibold border border-[var(--color-border-light)]">{n}</span>
                                 ))}
                               </div>
                             </div>
                           )}
 
                           {specialRequirements.trim() && (
-                            <div className="border-t border-[var(--color-border-light)]/60 pt-2 text-[10px]">
+                            <div className="border-t border-[var(--color-border-light)]/60 pt-3 text-xs">
                               <span className="text-[var(--color-text-muted)] block font-semibold">{t('specialRequirements')}:</span>
-                              <p className="text-[9px] text-[var(--color-text-secondary)] italic leading-relaxed mt-0.5">{specialRequirements}</p>
+                              <p className="text-xs text-[var(--color-text-secondary)] italic leading-relaxed mt-1">{specialRequirements}</p>
                             </div>
                           )}
                         </div>
 
                         {/* Roteiro Final Detalhado */}
-                        <div className="space-y-3">
-                          <h3 className="font-extrabold text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">
+                        <div className="space-y-4">
+                          <h3 className="font-extrabold text-xs sm:text-sm text-[var(--color-text-secondary)] uppercase tracking-wider">
                             Itinerário de Experiências
                           </h3>
 
-                          <div className="space-y-3">
+                          <div className="space-y-4">
                             {suggestedRoute.days.map((dayItem, dayIndex) => {
                               // Calculate legs/mobility
                               const legs: {
@@ -1238,22 +1253,22 @@ export default function TouristHomePage() {
                               });
 
                               return (
-                                <div key={dayItem.day} className="p-3 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface)] space-y-2">
-                                  <span className="text-[10px] font-black text-[var(--color-primary)]">
+                                <div key={dayItem.day} className="p-4 rounded-2xl border border-[var(--color-border-light)] bg-[var(--color-surface)] space-y-3.5">
+                                  <span className="text-xs sm:text-sm font-black text-[var(--color-primary)] block">
                                     {t('day', { day: dayItem.day })}
                                   </span>
 
                                   {legs.length > 0 && (
-                                    <div className="bg-[var(--color-surface-alt)]/35 p-2 rounded-lg border border-[var(--color-border-light)]/45 text-[9px] text-[var(--color-text-secondary)] space-y-1">
+                                    <div className="bg-[var(--color-surface-alt)]/40 p-3 rounded-xl border border-[var(--color-border-light)]/60 text-xs text-[var(--color-text-secondary)] space-y-1.5">
                                       {legs.map((leg, idx) => (
-                                        <div key={idx}>
-                                          🚗 {leg.from} ➔ {leg.to} ({leg.distance} km • {leg.timeText})
+                                        <div key={idx} className="flex items-center gap-1.5 font-semibold">
+                                          🚗 <span className="text-[var(--color-text)] font-extrabold">{leg.from}</span> ➔ <span className="text-[var(--color-text)] font-extrabold">{leg.to}</span> ({leg.distance} km • {leg.timeText})
                                         </div>
                                       ))}
                                     </div>
                                   )}
 
-                                  <div className="space-y-2 pt-1">
+                                  <div className="space-y-3 pt-1">
                                     {dayItem.destinations.map((dest) => {
                                       // Find enriched destination details
                                       const enrichedDest = destinations.find(d => d.nome === dest.nome) || { ...dest, isa: 0 };
@@ -1275,43 +1290,45 @@ export default function TouristHomePage() {
                                       const hasSelectedExps = selectedLocalAtts.length > 0 || selectedPartnerExps.length > 0;
 
                                       return (
-                                        <div key={dest.nome} className="pl-2 border-l-2 border-[var(--color-primary)]/40 py-0.5 space-y-1.5">
-                                          <div className="flex items-center justify-between text-[10px]">
-                                            <strong className="text-[var(--color-text)]">📍 {dest.nome}</strong>
-                                            <span className="text-[8px] bg-[var(--color-primary-soft)] text-[var(--color-primary)] px-1.5 py-0.5 rounded font-[var(--font-mono)] font-bold">
+                                        <div key={dest.nome} className="pl-3 border-l-2 border-[var(--color-primary)]/45 py-1 space-y-2">
+                                          <div className="flex items-center justify-between text-xs sm:text-sm">
+                                            <strong className="text-[var(--color-text)] font-black">📍 {dest.nome}</strong>
+                                            <span className="text-[9px] bg-[var(--color-primary-soft)] text-[var(--color-primary)] px-2 py-0.5 rounded font-[var(--font-mono)] font-extrabold">
                                               ISA {enrichedDest.isa}
                                             </span>
                                           </div>
 
                                           {hasSelectedExps ? (
-                                            <div className="space-y-1.5 pl-1.5 text-[9px]">
+                                            <div className="space-y-2.5 pl-1.5 text-xs">
                                               {/* Local Attractions */}
                                               {selectedLocalAtts.map(act => (
-                                                <div key={act.id} className="flex items-start gap-1">
-                                                  <span className="text-[var(--color-success)] shrink-0">✓</span>
+                                                <div key={act.id} className="flex items-start gap-2">
+                                                  <span className="text-[var(--color-success)] shrink-0 font-bold text-sm">✔️</span>
                                                   <div>
-                                                    <strong className="text-[var(--color-text)]">{act.nome}</strong>
-                                                    <span className="text-[var(--color-text-secondary)] block">{act.descricao}</span>
+                                                    <strong className="text-[var(--color-text)] font-bold text-xs sm:text-sm">{act.nome}</strong>
+                                                    <span className="text-[11px] sm:text-xs text-[var(--color-text-secondary)] leading-relaxed block mt-0.5">{act.descricao}</span>
                                                   </div>
                                                 </div>
                                               ))}
 
                                               {/* Partner Experiences */}
                                               {selectedPartnerExps.map((pExp, idx) => (
-                                                <div key={idx} className="flex items-start gap-1 p-1 rounded bg-[var(--color-primary-soft)]/10 border border-[var(--color-primary)]/5">
-                                                  <span className="text-[var(--color-primary)] shrink-0 font-bold">🛡️</span>
-                                                  <div>
-                                                    <strong className="text-[var(--color-text)]">{pExp.title}</strong>
-                                                    <span className="text-[var(--color-text-secondary)] block">{pExp.desc}</span>
-                                                    <span className="text-[7.5px] text-[var(--color-text-muted)] block mt-0.5">
-                                                      Fornecido por: {pExp.partner.nome} • Tel: {pExp.partner.telefone}
-                                                    </span>
+                                                <div key={idx} className="p-3 rounded-xl bg-[var(--color-primary-soft)]/20 border border-[var(--color-primary)]/10 space-y-1">
+                                                  <div className="flex items-start gap-1.5">
+                                                    <span className="text-[var(--color-primary)] shrink-0 font-bold">🛡️</span>
+                                                    <div>
+                                                      <strong className="text-[var(--color-text)] font-bold text-xs sm:text-sm">{pExp.title}</strong>
+                                                      <span className="text-[11px] sm:text-xs text-[var(--color-text-secondary)] leading-relaxed block mt-0.5">{pExp.desc}</span>
+                                                      <span className="text-[9.5px] text-[var(--color-text-muted)] block mt-1.5 font-medium">
+                                                        Fornecido por: {pExp.partner.nome} • Tel: {pExp.partner.telefone}
+                                                      </span>
+                                                    </div>
                                                   </div>
                                                 </div>
                                               ))}
                                             </div>
                                           ) : (
-                                            <span className="text-[9px] text-[var(--color-text-muted)] italic pl-1.5 block">
+                                            <span className="text-xs text-[var(--color-text-muted)] italic pl-1.5 block">
                                               Nenhuma atividade selecionada. Aproveite para passear livremente.
                                             </span>
                                           )}
@@ -1326,11 +1343,11 @@ export default function TouristHomePage() {
                         </div>
 
                         {/* Sustainability Compliance Shield */}
-                        <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-[var(--color-text-secondary)] flex items-start gap-3">
-                          <Shield className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+                        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs sm:text-sm text-[var(--color-text-secondary)] flex items-start gap-3">
+                          <Shield className="h-6 w-6 text-emerald-600 shrink-0 mt-0.5" />
                           <div>
-                            <h4 className="font-extrabold text-[10px] text-emerald-800 uppercase tracking-wider">{t('sustainabilityShield')}</h4>
-                            <p className="text-[9px] text-emerald-700/90 leading-relaxed mt-0.5">
+                            <h4 className="font-extrabold text-xs text-emerald-800 uppercase tracking-wider">{t('sustainabilityShield')}</h4>
+                            <p className="text-[11px] sm:text-xs text-emerald-700/90 leading-relaxed mt-1">
                               {t('sustainabilityText')}
                             </p>
                           </div>
@@ -1338,27 +1355,35 @@ export default function TouristHomePage() {
                       </div>
 
                       {/* Print/Share Actions */}
-                      <div className="space-y-2 pt-2 border-t border-[var(--color-border-light)] shrink-0 no-print">
-                        <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="space-y-3 pt-3 border-t border-[var(--color-border-light)] shrink-0 no-print">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs sm:text-sm">
                           <button
                             type="button"
                             onClick={() => window.print()}
-                            className="py-2.5 bg-[var(--color-surface-alt)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-[var(--color-text)] rounded-xl font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer bg-transparent"
+                            className="py-3 bg-[var(--color-surface-alt)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-[var(--color-text)] rounded-xl font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer bg-transparent"
                           >
-                            <Printer className="h-3.5 w-3.5" />
+                            <Printer className="h-4 w-4" />
                             {t('printItinerary')}
                           </button>
                           <button
                             type="button"
-                            onClick={() => {
-                              const tripSummaryText = `*DunasTech - Roteiro de Viagem*\nCódigo: *DT-2026-X79B*\nPeríodo: ${startDate} a ${endDate}\nEstilo: *${suggestedRoute.title}*\nPassageiros: ${travelerNames.split('\n').join(', ')}\n\nGerado de forma sustentável e 100% regularizada no RN.`;
-                              window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(tripSummaryText)}`, '_blank');
-                            }}
-                            className="py-2.5 bg-[#25D366] hover:bg-[#20ba59] text-white rounded-xl font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border-0"
+                            onClick={() => handleShareWhatsApp(false)}
+                            className="py-3 bg-[#25D366] hover:bg-[#20ba59] text-white rounded-xl font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border-0"
                           >
-                            <Share2 className="h-3.5 w-3.5" />
-                            {t('shareWhatsApp')}
+                            <Share2 className="h-4 w-4" />
+                            Enviar Texto (WhatsApp)
                           </button>
+                          <button
+                            type="button"
+                            onClick={() => handleShareWhatsApp(true)}
+                            className="py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border-0"
+                          >
+                            <Share2 className="h-4 w-4" />
+                            Enviar PDF (WhatsApp)
+                          </button>
+                        </div>
+                        <div className="text-[10px] text-center text-[var(--color-text-muted)] bg-[var(--color-surface-alt)]/30 py-1.5 px-3 rounded-lg border border-[var(--color-border-light)]/40 mt-1">
+                          💡 <strong>Dica do PDF:</strong> Salve o roteiro como PDF na janela de impressão que se abrirá, e depois anexe o arquivo no WhatsApp!
                         </div>
                         <button
                           type="button"
@@ -1371,7 +1396,7 @@ export default function TouristHomePage() {
                             setSpecialRequirements('');
                             setSelectedExperiences({});
                           }}
-                          className="w-full py-2.5 bg-[var(--color-primary-soft)] hover:bg-[var(--color-primary-soft)]/85 text-[var(--color-primary)] border border-[var(--color-primary)]/15 rounded-xl font-bold transition-all text-center cursor-pointer text-xs"
+                          className="w-full py-3 bg-[var(--color-primary-soft)] hover:bg-[var(--color-primary-soft)]/85 text-[var(--color-primary)] border border-[var(--color-primary)]/15 rounded-xl font-bold transition-all text-center cursor-pointer text-xs sm:text-sm"
                         >
                           {t('newPlanning')}
                         </button>
