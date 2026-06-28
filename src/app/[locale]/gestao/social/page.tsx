@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { destinosInfo, fluxoData } from "@/data/mockData";
 import { Share2, Heart, MessageCircle, Camera, Loader2, Settings, Key, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface InstagramPost {
   id: string;
@@ -31,6 +32,7 @@ export default function SocialGestaoPage() {
   const [instagramData, setInstagramData] = useState<InstagramResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [forceRefresh, setForceRefresh] = useState(false);
+  const [expandedKPI, setExpandedKPI] = useState<'hashtag' | 'likes' | 'comments' | null>(null);
   
   // Apify Token local state
   const [apiToken, setApiToken] = useState(() => {
@@ -204,7 +206,13 @@ export default function SocialGestaoPage() {
           <div className="space-y-6">
             {/* Summary KPI Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-[var(--color-surface)] border border-[var(--color-border)] p-4 rounded-xl flex items-center justify-between">
+              <div 
+                onClick={() => setExpandedKPI(expandedKPI === 'hashtag' ? null : 'hashtag')}
+                className={cn(
+                  "bg-[var(--color-surface)] border p-4 rounded-xl flex items-center justify-between cursor-pointer hover:border-[var(--color-primary)] transition-all select-none",
+                  expandedKPI === 'hashtag' ? "border-[var(--color-primary)] bg-[var(--color-primary-soft)]/5" : "border-[var(--color-border)]"
+                )}
+              >
                 <div>
                   <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-extrabold">Hashtag Rastreada</span>
                   <span className="text-lg font-black block mt-1 text-[var(--color-primary)]">#{instagramData?.hashtag}</span>
@@ -218,7 +226,13 @@ export default function SocialGestaoPage() {
                 </div>
               </div>
 
-              <div className="bg-[var(--color-surface)] border border-[var(--color-border)] p-4 rounded-xl flex items-center justify-between">
+              <div 
+                onClick={() => setExpandedKPI(expandedKPI === 'likes' ? null : 'likes')}
+                className={cn(
+                  "bg-[var(--color-surface)] border p-4 rounded-xl flex items-center justify-between cursor-pointer hover:border-red-500 transition-all select-none",
+                  expandedKPI === 'likes' ? "border-red-500 bg-red-500/5" : "border-[var(--color-border)]"
+                )}
+              >
                 <div>
                   <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-extrabold">Total Curtidas</span>
                   <span className="text-lg font-black block mt-1 text-red-500">{instagramData?.totalLikes.toLocaleString("pt-BR")}</span>
@@ -228,7 +242,13 @@ export default function SocialGestaoPage() {
                 </div>
               </div>
 
-              <div className="bg-[var(--color-surface)] border border-[var(--color-border)] p-4 rounded-xl flex items-center justify-between">
+              <div 
+                onClick={() => setExpandedKPI(expandedKPI === 'comments' ? null : 'comments')}
+                className={cn(
+                  "bg-[var(--color-surface)] border p-4 rounded-xl flex items-center justify-between cursor-pointer hover:border-cyan-500 transition-all select-none",
+                  expandedKPI === 'comments' ? "border-cyan-500 bg-cyan-500/5" : "border-[var(--color-border)]"
+                )}
+              >
                 <div>
                   <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-extrabold">Total Comentários</span>
                   <span className="text-lg font-black block mt-1 text-cyan-500">{instagramData?.totalComments.toLocaleString("pt-BR")}</span>
@@ -238,6 +258,73 @@ export default function SocialGestaoPage() {
                 </div>
               </div>
             </div>
+
+            {/* Expanded KPI Detail Block */}
+            {expandedKPI && (
+              <Card className="p-5 border border-[var(--color-border)] bg-[var(--color-surface-alt)]/40 animate-fade-in space-y-3 text-left">
+                <div className="flex items-center justify-between border-b border-[var(--color-border-light)] pb-2">
+                  <h3 className="font-bold text-xs text-[var(--color-text)] flex items-center gap-2">
+                    {expandedKPI === 'hashtag' && <>📱 Sentimento dos Posts na Hashtag #{instagramData?.hashtag}</>}
+                    {expandedKPI === 'likes' && <>❤️ Posts com Maior Engajamento de Curtidas (Top 3)</>}
+                    {expandedKPI === 'comments' && <>💬 Posts com Maior Engajamento de Comentários (Top 3)</>}
+                  </h3>
+                  <button 
+                    onClick={() => setExpandedKPI(null)}
+                    className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
+                  >
+                    Fechar [x]
+                  </button>
+                </div>
+
+                {expandedKPI === 'hashtag' && (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="p-3 bg-[var(--color-surface)] border border-[var(--color-border-light)] rounded-xl text-center space-y-1">
+                      <span className="text-[10px] font-bold text-emerald-500 block">Positivo</span>
+                      <span className="font-black text-lg text-[var(--color-text)]">
+                        {instagramData?.posts.filter(p => p.sentiment === "Positivo").length || 0} posts
+                      </span>
+                    </div>
+                    <div className="p-3 bg-[var(--color-surface)] border border-[var(--color-border-light)] rounded-xl text-center space-y-1">
+                      <span className="text-[10px] font-bold text-blue-500 block">Neutro</span>
+                      <span className="font-black text-lg text-[var(--color-text)]">
+                        {instagramData?.posts.filter(p => p.sentiment === "Neutro").length || 0} posts
+                      </span>
+                    </div>
+                    <div className="p-3 bg-[var(--color-surface)] border border-[var(--color-border-light)] rounded-xl text-center space-y-1">
+                      <span className="text-[10px] font-bold text-red-500 block">Negativo</span>
+                      <span className="font-black text-lg text-[var(--color-text)]">
+                        {instagramData?.posts.filter(p => p.sentiment === "Negativo").length || 0} posts
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {(expandedKPI === 'likes' || expandedKPI === 'comments') && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    {[...(instagramData?.posts || [])]
+                      .sort((a, b) => expandedKPI === 'likes' ? b.likesCount - a.likesCount : b.commentsCount - a.commentsCount)
+                      .slice(0, 3)
+                      .map((post) => (
+                        <div key={post.id} className="p-3.5 bg-[var(--color-surface)] border border-[var(--color-border-light)] rounded-xl space-y-1 flex flex-col justify-between">
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-black text-[var(--color-text)]">@{post.ownerUsername}</span>
+                              <Badge variant={post.sentiment === "Positivo" ? "success" : post.sentiment === "Neutro" ? "info" : "danger"} size="sm">
+                                {post.sentiment}
+                              </Badge>
+                            </div>
+                            <p className="text-[10px] text-[var(--color-text-secondary)] line-clamp-2 leading-relaxed">{post.caption}</p>
+                          </div>
+                          <div className="flex items-center gap-3 pt-1 border-t border-[var(--color-border-light)] mt-1.5 text-[9px] text-[var(--color-text-muted)]">
+                            <span className="flex items-center gap-1"><Heart className="w-3 h-3 text-red-500 fill-current" /> {post.likesCount}</span>
+                            <span className="flex items-center gap-1"><MessageCircle className="w-3 h-3 text-cyan-500" /> {post.commentsCount}</span>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </Card>
+            )}
 
             {/* Scraped Posts Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

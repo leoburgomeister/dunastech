@@ -3,7 +3,7 @@
 import { use, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import { LocalImage } from '@/components/ui/LocalImage';
 import {
   ArrowLeft, Star, Phone, ShieldCheck, MapPin, Building, Award, CheckCircle, Sparkles
 } from 'lucide-react';
@@ -143,9 +143,10 @@ export default function VitrinePage({ params }: { params: Promise<{ id: string }
           <div className="md:col-span-5 space-y-6">
             {/* Storefront Image */}
             <div className="relative h-64 w-full rounded-2xl overflow-hidden border border-[var(--color-border)] shadow-md">
-              <Image
-                src={negocio.imagem || 'https://images.unsplash.com/photo-1590012314607-cda9d9b699ae?w=800&h=500&fit=crop'}
+              <LocalImage
+                src={negocio.imagem}
                 alt={negocio.nome}
+                fallbackLabel={negocio.nome}
                 fill
                 className="object-cover"
               />

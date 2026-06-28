@@ -44,21 +44,23 @@ export default function CidadesGestaoPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"nome" | "populacao" | "area" | "idh" | "receita" | "investimento">("receita");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [monitoredSpots, setMonitoredSpots] = useState<string[]>([]);
+  const [monitoredSpots, setMonitoredSpots] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("dunastech_monitored_spots");
+      if (saved) return JSON.parse(saved);
+    }
+    return destinosInfo.filter(d => d.monitorado !== false).map(d => d.nome);
+  });
+  const [expandedKPI, setExpandedKPI] = useState<'population' | 'area' | 'investments' | 'revenue' | null>(null);
 
   // Load monitored spots from localStorage, fallback to mockData defaults
   useEffect(() => {
-    const saved = localStorage.getItem("dunastech_monitored_spots");
-    if (saved) {
-      setTimeout(() => {
-        setMonitoredSpots(JSON.parse(saved));
-      }, 0);
-    } else {
-      const defaults = destinosInfo.filter(d => d.monitorado !== false).map(d => d.nome);
-      setTimeout(() => {
-        setMonitoredSpots(defaults);
-      }, 0);
-      localStorage.setItem("dunastech_monitored_spots", JSON.stringify(defaults));
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("dunastech_monitored_spots");
+      if (!saved) {
+        const defaults = destinosInfo.filter(d => d.monitorado !== false).map(d => d.nome);
+        localStorage.setItem("dunastech_monitored_spots", JSON.stringify(defaults));
+      }
     }
   }, []);
 
@@ -180,7 +182,13 @@ export default function CidadesGestaoPage() {
 
         {/* KPIs Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="p-4 flex items-center gap-4">
+          <Card 
+            onClick={() => setExpandedKPI(expandedKPI === 'population' ? null : 'population')}
+            className={cn(
+              "p-4 flex items-center gap-4 cursor-pointer hover:border-[var(--color-primary)] transition-all border select-none",
+              expandedKPI === 'population' ? "border-[var(--color-primary)] bg-[var(--color-primary-soft)]/5" : "border-[var(--color-border-light)]"
+            )}
+          >
             <div className="p-3 bg-[var(--color-primary-light)] rounded-2xl text-[var(--color-primary)]">
               <Users className="w-5 h-5" />
             </div>
@@ -192,7 +200,13 @@ export default function CidadesGestaoPage() {
             </div>
           </Card>
 
-          <Card className="p-4 flex items-center gap-4">
+          <Card 
+            onClick={() => setExpandedKPI(expandedKPI === 'area' ? null : 'area')}
+            className={cn(
+              "p-4 flex items-center gap-4 cursor-pointer hover:border-emerald-500 transition-all border select-none",
+              expandedKPI === 'area' ? "border-emerald-500 bg-emerald-500/5" : "border-[var(--color-border-light)]"
+            )}
+          >
             <div className="p-3 bg-emerald-100 dark:bg-emerald-950 rounded-2xl text-emerald-500">
               <Map className="w-5 h-5" />
             </div>
@@ -204,7 +218,13 @@ export default function CidadesGestaoPage() {
             </div>
           </Card>
 
-          <Card className="p-4 flex items-center gap-4">
+          <Card 
+            onClick={() => setExpandedKPI(expandedKPI === 'investments' ? null : 'investments')}
+            className={cn(
+              "p-4 flex items-center gap-4 cursor-pointer hover:border-blue-500 transition-all border select-none",
+              expandedKPI === 'investments' ? "border-blue-500 bg-blue-500/5" : "border-[var(--color-border-light)]"
+            )}
+          >
             <div className="p-3 bg-blue-100 dark:bg-blue-950 rounded-2xl text-blue-500">
               <DollarSign className="w-5 h-5" />
             </div>
@@ -216,7 +236,13 @@ export default function CidadesGestaoPage() {
             </div>
           </Card>
 
-          <Card className="p-4 flex items-center gap-4">
+          <Card 
+            onClick={() => setExpandedKPI(expandedKPI === 'revenue' ? null : 'revenue')}
+            className={cn(
+              "p-4 flex items-center gap-4 cursor-pointer hover:border-purple-500 transition-all border select-none",
+              expandedKPI === 'revenue' ? "border-purple-500 bg-purple-500/5" : "border-[var(--color-border-light)]"
+            )}
+          >
             <div className="p-3 bg-purple-100 dark:bg-purple-950 rounded-2xl text-purple-500">
               <TrendingUp className="w-5 h-5" />
             </div>
@@ -229,6 +255,48 @@ export default function CidadesGestaoPage() {
           </Card>
         </div>
 
+        {/* Expanded KPI Detail Block */}
+        {expandedKPI && (
+          <Card className="p-5 border border-[var(--color-border)] bg-[var(--color-surface-alt)]/40 animate-fade-in space-y-3">
+            <div className="flex items-center justify-between border-b border-[var(--color-border-light)] pb-2">
+              <h3 className="font-bold text-xs text-[var(--color-text)] flex items-center gap-2">
+                {expandedKPI === 'population' && <>👥 Distribuição Populacional por Município (Top 6)</>}
+                {expandedKPI === 'area' && <>🗺️ Detalhamento de Área Territorial Monitorada (Top 6)</>}
+                {expandedKPI === 'investments' && <>💰 Detalhamento de Investimentos Estaduais (Top 6)</>}
+                {expandedKPI === 'revenue' && <>📈 Detalhamento de Receita de Turismo (Top 6)</>}
+              </h3>
+              <button 
+                onClick={() => setExpandedKPI(null)}
+                className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
+              >
+                Fechar [x]
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              {[...municipiosList]
+                .sort((a, b) => {
+                  if (expandedKPI === 'population') return b.populacao - a.populacao;
+                  if (expandedKPI === 'area') return b.area_km2 - a.area_km2;
+                  if (expandedKPI === 'investments') return b.investimento_mil - a.investimento_mil;
+                  return b.receita_milhoes - a.receita_milhoes;
+                })
+                .slice(0, 6)
+                .map((m) => (
+                  <div key={m.nome} className="p-3 bg-[var(--color-surface)] border border-[var(--color-border-light)] rounded-xl text-center space-y-1">
+                    <span className="text-[10px] font-bold text-[var(--color-text-muted)] truncate block">{m.nome}</span>
+                    <span className="font-black text-xs text-[var(--color-text)] block">
+                      {expandedKPI === 'population' && `${m.populacao.toLocaleString("pt-BR")}`}
+                      {expandedKPI === 'area' && `${m.area_km2.toLocaleString("pt-BR")} km²`}
+                      {expandedKPI === 'investments' && `R$ ${m.investimento_mil.toLocaleString("pt-BR")}k`}
+                      {expandedKPI === 'revenue' && `R$ ${m.receita_milhoes.toFixed(1)}M`}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          </Card>
+        )}
+
         {/* Charts & Comparative Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
@@ -239,7 +307,7 @@ export default function CidadesGestaoPage() {
               </CardTitle>
             </CardHeader>
             <div className="space-y-3 p-5 pt-0">
-              {municipiosList
+              {[...municipiosList]
                 .sort((a, b) => b.receita_milhoes - a.receita_milhoes)
                 .slice(0, 6)
                 .map((m, idx) => {
@@ -247,7 +315,7 @@ export default function CidadesGestaoPage() {
                   const pct = maxRevenue > 0 ? (m.receita_milhoes / maxRevenue) * 100 : 0;
                   return (
                     <div key={m.nome} className="space-y-1">
-                      <div className="flex justify-between text-xs font-semibold">
+                       <div className="flex justify-between text-xs font-semibold">
                         <span className="text-[var(--color-text)]">{m.nome}</span>
                         <span className="text-[var(--color-text-secondary)]">R$ {m.receita_milhoes.toFixed(1)}M</span>
                       </div>
@@ -271,7 +339,7 @@ export default function CidadesGestaoPage() {
               </CardTitle>
             </CardHeader>
             <div className="space-y-3 p-5 pt-0">
-              {municipiosList
+              {[...municipiosList]
                 .sort((a, b) => b.investimento_mil - a.investimento_mil)
                 .slice(0, 6)
                 .map((m, idx) => {

@@ -12,6 +12,8 @@ interface KPICardProps {
   accentColor?: 'primary' | 'accent' | 'success' | 'warning' | 'danger' | 'info';
   className?: string;
   formula?: { expressao: string; explicacao: string };
+  onClick?: () => void;
+  active?: boolean;
 }
 
 const accentColors = {
@@ -47,12 +49,32 @@ const accentColors = {
   },
 };
 
-export function KPICard({ title, value, trend, icon: Icon, accentColor = 'primary', className, formula }: KPICardProps) {
+export function KPICard({ 
+  title, 
+  value, 
+  trend, 
+  icon: Icon, 
+  accentColor = 'primary', 
+  className, 
+  formula,
+  onClick,
+  active
+}: KPICardProps) {
   const colors = accentColors[accentColor];
   const [showTooltip, setShowTooltip] = useState(false);
 
   return (
-    <div className={cn('surface-card p-5 flex items-start gap-4 relative overflow-visible', className)}>
+    <div 
+      onClick={onClick}
+      className={cn(
+        'surface-card p-5 flex items-start gap-4 relative overflow-visible transition-all duration-300 border',
+        onClick ? 'cursor-pointer hover:scale-[1.02] hover:shadow-md' : '',
+        active 
+          ? 'border-[var(--color-primary)] ring-2 ring-[var(--color-primary)]/15 bg-[var(--color-surface-alt)]' 
+          : 'border-[var(--color-border-light)]',
+        className
+      )}
+    >
       <div className={cn('flex-shrink-0 h-11 w-11 rounded-xl flex items-center justify-center ring-1', colors.bg, colors.ring)}>
         <Icon className={cn('h-5 w-5', colors.icon)} />
       </div>

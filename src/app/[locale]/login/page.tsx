@@ -8,10 +8,12 @@ import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
 import { useAuth } from '@/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 export default function LoginPage() {
   const { signInWithGoogle, signInWithCPF, error, loading, clearError, isAuthenticated } = useAuth();
   const [mode, setMode] = useState<'choice' | 'cpf'>('choice');
+  const [docType, setDocType] = useState<'cpf' | 'rne' | 'passport'>('cpf');
   const [cpf, setCpf] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -110,7 +112,7 @@ export default function LoginPage() {
                 <div className="flex-1 h-px bg-[var(--color-border)]" />
               </div>
 
-              {/* CPF option */}
+              {/* Document Login option */}
               <Button
                 variant="secondary"
                 size="lg"
@@ -118,7 +120,7 @@ export default function LoginPage() {
                 icon={CreditCard}
                 onClick={() => setMode('cpf')}
               >
-                Cadastrar com CPF
+                Cadastrar com CPF / RNE / Passaporte
               </Button>
             </div>
           ) : (
@@ -131,10 +133,47 @@ export default function LoginPage() {
                 ← Voltar às opções
               </button>
 
+              {/* Document Type Tab Selectors */}
+              <div className="space-y-1.5 text-left">
+                <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
+                  Tipo de Documento
+                </label>
+                <div className="grid grid-cols-3 gap-1 bg-[var(--color-surface-alt)] p-1 rounded-xl border border-[var(--color-border-light)]">
+                  {[
+                    { id: 'cpf', label: 'CPF' },
+                    { id: 'rne', label: 'RNE' },
+                    { id: 'passport', label: 'Passaporte' }
+                  ].map((doc) => (
+                    <button
+                      key={doc.id}
+                      type="button"
+                      onClick={() => {
+                        setDocType(doc.id as any);
+                        setCpf(''); // Clear document number input
+                      }}
+                      className={cn(
+                        "py-1.5 rounded-lg text-[10px] font-black text-center transition-all cursor-pointer",
+                        docType === doc.id
+                          ? "bg-[var(--color-primary-soft)] text-[var(--color-primary)] border-none"
+                          : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]/30"
+                      )}
+                    >
+                      {doc.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <Input
-                label="CPF"
-                placeholder="000.000.000-00"
-                maskType="cpf"
+                label={
+                  docType === 'cpf' ? 'CPF' :
+                  docType === 'rne' ? 'RNE (Registro Nacional de Estrangeiro)' : 'Passaporte Mercosul'
+                }
+                placeholder={
+                  docType === 'cpf' ? '000.000.000-00' :
+                  docType === 'rne' ? 'W000000-X' : 'AB123456'
+                }
+                maskType={docType === 'cpf' ? 'cpf' : undefined}
                 icon={CreditCard}
                 value={cpf}
                 onChange={(e) => setCpf(e.target.value)}
@@ -172,8 +211,14 @@ export default function LoginPage() {
             </form>
           )}
 
+          {/* Secure database badge */}
+          <div className="flex items-center justify-center gap-1.5 mt-6 pt-4 border-t border-[var(--color-border-light)] text-[9px] font-black text-[var(--color-text-muted)] uppercase tracking-wider">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Supabase Auth & Database Criptografado</span>
+          </div>
+
           {/* Footer */}
-          <p className="text-[11px] text-[var(--color-text-muted)] text-center mt-6">
+          <p className="text-[11px] text-[var(--color-text-muted)] text-center mt-4">
             Ao entrar, você concorda com nossos termos de uso e política de privacidade.
           </p>
         </Card>

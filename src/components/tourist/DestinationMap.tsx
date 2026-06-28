@@ -1,96 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
-import L from 'leaflet';
-import { useTheme } from 'next-themes';
-import { ShieldCheck, Star, Phone } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import maplibregl from 'maplibre-gl';
 import { type DestinoInfo, cadasturData } from '@/data/mockData';
 
-// Custom Marker design in Google Maps style
-const createGoogleMarker = (tipo: string, active: boolean) => {
-  let color = '#4285F4'; // Blue
-  let icon = '📍';
-  
+// Helper to determine marker styling based on partner type
+function getPartnerIconStyle(tipo: string): { icon: string; color: string } {
   if (tipo === 'Hotel' || tipo === 'Pousada') {
-    color = '#0284C7'; // Google Blue/Sky Blue
-    icon = '🏠';
+    return { color: '#0284C7', icon: '🏠' }; // Blue
   } else if (tipo === 'Restaurante') {
-    color = '#16A34A'; // Google Green
-    icon = '🍽️';
+    return { color: '#16A34A', icon: '🍽️' }; // Green
   } else if (tipo === 'Guia') {
-    color = '#FBBC05'; // Google Yellow
-    icon = '🧭';
+    return { color: '#FBBC05', icon: '🧭' }; // Yellow
   } else if (tipo === 'Agência') {
-    color = '#8B5CF6'; // Purple
-    icon = '🎟️';
+    return { color: '#8B5CF6', icon: '🎟️' }; // Purple
   } else if (tipo === 'Centro') {
-    color = '#FF5A5F'; // Coral Accent
-    icon = '🌟';
+    return { color: '#FF5A5F', icon: '🌟' }; // Coral Red
   }
-
-  const activeScale = active ? 'scale(1.25)' : 'scale(1)';
-  const filterId = `shadow-${tipo.replace(/[^a-zA-Z]/g, '')}`;
-
-  return L.divIcon({
-    html: `
-      <div style="
-        transform: ${activeScale};
-        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-        width: 32px;
-        height: 38px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      ">
-        <svg width="32" height="38" viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <filter id="${filterId}">
-              <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="${color}" flood-opacity="0.5"/>
-            </filter>
-          </defs>
-          <path d="M20 2C11.16 2 4 9.16 4 18C4 29 20 46 20 46C20 46 36 29 36 18C36 9.16 28.84 2 20 2Z"
-            fill="${color}" stroke="#FFFFFF" stroke-width="1.8" style="filter: url(#${filterId});" />
-          <circle cx="20" cy="18" r="9.5" fill="rgba(255,255,255,0.22)"/>
-          <text x="20" y="22" text-anchor="middle" font-size="12" fill="#fff" font-family="system-ui, sans-serif" font-weight="bold">${icon}</text>
-        </svg>
-      </div>
-    `,
-    className: 'custom-leaflet-icon-google-style',
-    iconSize: [32, 38],
-    iconAnchor: [16, 38],
-    popupAnchor: [0, -36]
-  });
-};
-
-// Map controller to handle panning/zooming transitions
-function MapController({ center, zoom, bounds }: { center: [number, number]; zoom: number; bounds: L.LatLngBounds | null }) {
-  const map = useMap();
-  useEffect(() => {
-    map.invalidateSize();
-    if (bounds) {
-      map.fitBounds(bounds, {
-        padding: [40, 40],
-        animate: true,
-        duration: 1.5,
-      });
-    } else {
-      map.setView(center, zoom);
-    }
-  }, [center, zoom, bounds, map]);
-  return null;
-}
-
-function MapResize() {
-  const map = useMap();
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      map.invalidateSize();
-    }, 250);
-    return () => clearTimeout(timer);
-  }, [map]);
-  return null;
+  return { color: '#64748B', icon: '📍' }; // Slate Gray
 }
 
 interface DestinationMapProps {
@@ -98,36 +25,205 @@ interface DestinationMapProps {
 }
 
 export default function DestinationMap({ destination }: DestinationMapProps) {
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<maplibregl.Map | null>(null);
+  const markersRef = useRef<maplibregl.Marker[]>([]);
+  const animationFrameRef = useRef<number | null>(null);
   const [mounted, setMounted] = useState(false);
-  const [activePartner, setActivePartner] = useState<string | null>(null);
-  const [routePoints, setRoutePoints] = useState<[number, number][]>([]);
-  const tileUrl = 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}';
 
   useEffect(() => {
     setTimeout(() => {
       setMounted(true);
     }, 0);
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
   }, []);
 
   const partners = cadasturData.filter(
     (b) => b.destino === destination.nome && b.regularizado
   );
 
-  const mapCenter: [number, number] = [destination.latitude, destination.longitude];
-
-  // Suggest a route connecting the top 5 highest-rated partners
+  // Suggested route connecting the top 5 highest-rated partners
   const routePartners = [...partners]
     .sort((a, b) => b.nota - a.nota)
     .slice(0, 5);
 
-  const pointsToRoute: [number, number][] = routePartners.map((b) => [b.latitude, b.longitude]);
-
-  // Fetch real road route from OSRM
+  // Initialize Map
   useEffect(() => {
-    if (pointsToRoute.length < 2) {
-      setTimeout(() => {
-        setRoutePoints([]);
-      }, 0);
+    if (!mounted || !mapContainerRef.current || mapRef.current) return;
+
+    const map = new maplibregl.Map({
+      container: mapContainerRef.current,
+      style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+      center: [destination.longitude, destination.latitude],
+      zoom: 13,
+      interactive: true,
+      attributionControl: false
+    });
+
+    mapRef.current = map;
+
+    map.on('load', () => {
+      // Add route source and layer for connecting partners
+      map.addSource('partner-route', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates: []
+          },
+          properties: {}
+        }
+      });
+
+      map.addLayer({
+        id: 'partner-route-line',
+        type: 'line',
+        source: 'partner-route',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        paint: {
+          'line-color': '#10B981', // Emerald green for Cadastur route
+          'line-width': 4,
+          'line-opacity': 0.75
+        }
+      });
+    });
+  }, [mounted, destination.nome]);
+
+  // Update Markers and Fit Bounds when destination or partners change
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    // Clear existing markers
+    markersRef.current.forEach(m => m.remove());
+    markersRef.current = [];
+
+    // Add main center destination marker
+    const centerStyle = getPartnerIconStyle('Centro');
+    const centerEl = document.createElement('div');
+    centerEl.className = 'marker-wrapper';
+
+    const centerPulse = document.createElement('div');
+    centerPulse.className = 'marker-pulse';
+    centerPulse.style.backgroundColor = centerStyle.color;
+    centerEl.appendChild(centerPulse);
+
+    const centerPin = document.createElement('div');
+    centerPin.className = 'marker-custom';
+    centerPin.style.backgroundColor = centerStyle.color;
+    centerEl.appendChild(centerPin);
+
+    const centerEmoji = document.createElement('span');
+    centerEmoji.className = 'marker-emoji';
+    centerEmoji.innerText = centerStyle.icon;
+    centerPin.appendChild(centerEmoji);
+
+    const centerPopup = new maplibregl.Popup({ offset: 25 }).setHTML(`
+      <div style="font-family: var(--font-jakarta), sans-serif; padding: 2px;">
+        <h4 style="font-weight: 850; font-size: 14px; margin: 0; color: #f8fafc;">${destination.nome}</h4>
+        <p style="font-size: 11px; color: #94a3b8; margin: 4px 0 0 0;">Centro do atrativo turístico</p>
+      </div>
+    `);
+
+    const centerMarker = new maplibregl.Marker({ element: centerEl, anchor: 'bottom' })
+      .setLngLat([destination.longitude, destination.latitude])
+      .setPopup(centerPopup)
+      .addTo(map);
+    markersRef.current.push(centerMarker);
+
+    // Add partner markers
+    partners.forEach((partner) => {
+      const style = getPartnerIconStyle(partner.tipo);
+      const el = document.createElement('div');
+      el.className = 'marker-wrapper';
+
+      const pulse = document.createElement('div');
+      pulse.className = 'marker-pulse';
+      pulse.style.backgroundColor = style.color;
+      el.appendChild(pulse);
+
+      const pin = document.createElement('div');
+      pin.className = 'marker-custom';
+      pin.style.backgroundColor = style.color;
+      el.appendChild(pin);
+
+      const emojiEl = document.createElement('span');
+      emojiEl.className = 'marker-emoji';
+      emojiEl.innerText = style.icon;
+      pin.appendChild(emojiEl);
+
+      const popupHtml = `
+        <div style="font-family: var(--font-jakarta), sans-serif; padding: 4px; min-width: 180px; color: #f8fafc;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-size: 9px; font-weight: 850; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 6px; background: rgba(16, 185, 129, 0.15); color: #10B981; border-radius: 9999px;">
+              ${partner.tipo}
+            </span>
+            <div style="display: flex; align-items: center; gap: 2px; font-size: 11px; color: #fbbf24; font-weight: 700;">
+              ⭐ ${partner.nota}
+            </div>
+          </div>
+          <h4 style="font-weight: 800; font-size: 13px; margin: 0 0 4px 0; line-height: 1.3;">${partner.nome}</h4>
+          <div style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: #10b981; margin-bottom: 6px;">
+            🛡️ <span style="font-weight: 550;">Regularizado Cadastur</span>
+          </div>
+          ${partner.telefone ? `
+            <p style="font-size: 11px; color: #94a3b8; margin: 0 0 8px 0; display: flex; align-items: center; gap: 4px;">
+              📞 ${partner.telefone}
+            </p>
+          ` : ''}
+          <div style="border-top: 1px solid #334155; padding-top: 8px; margin-top: 4px;">
+            <a href="/vitrine/${partner.id}" style="display: block; text-align: center; font-size: 11px; font-weight: 700; padding: 6px 12px; background: #10b981; color: white; border-radius: 8px; text-decoration: none; transition: background 0.15s ease;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
+              Ver Vitrine Comercial
+            </a>
+          </div>
+        </div>
+      `;
+
+      const popup = new maplibregl.Popup({ offset: 25 }).setHTML(popupHtml);
+
+      const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
+        .setLngLat([partner.longitude, partner.latitude])
+        .setPopup(popup)
+        .addTo(map);
+      markersRef.current.push(marker);
+    });
+
+    // Fit bounds including all points
+    const bounds = new maplibregl.LngLatBounds();
+    bounds.extend([destination.longitude, destination.latitude]);
+    partners.forEach(p => bounds.extend([p.longitude, p.latitude]));
+
+    map.fitBounds(bounds, {
+      padding: { top: 50, bottom: 50, left: 50, right: 50 },
+      maxZoom: 14,
+      duration: 1500
+    });
+  }, [destination, partners]);
+
+  // Fetch and animate partner connection route
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || routePartners.length < 2) {
+      if (map && map.isStyleLoaded() && map.getSource('partner-route')) {
+        const source = map.getSource('partner-route') as maplibregl.GeoJSONSource;
+        source.setData({
+          type: 'Feature',
+          geometry: { type: 'LineString', coordinates: [] },
+          properties: {}
+        });
+      }
       return;
     }
 
@@ -142,120 +238,79 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
         );
 
         if (!response.ok) throw new Error('OSRM routing failed');
-
         const data = await response.json();
+
         if (data.routes && data.routes.length > 0) {
           const routeCoords = data.routes[0].geometry.coordinates as [number, number][];
-          const leafletCoords = routeCoords.map(([lng, lat]) => [lat, lng] as [number, number]);
-          setRoutePoints(leafletCoords);
+          animateRoute(routeCoords);
         } else {
-          setRoutePoints(pointsToRoute);
+          // Fallback to straight lines
+          const straightCoords = routePartners.map((b) => [b.longitude, b.latitude] as [number, number]);
+          animateRoute(straightCoords);
         }
       } catch (e) {
         console.error('Failed to trace partner route:', e);
-        setRoutePoints(pointsToRoute);
+        // Fallback to straight lines
+        const straightCoords = routePartners.map((b) => [b.longitude, b.latitude] as [number, number]);
+        animateRoute(straightCoords);
       }
     };
 
-    fetchOSRMRoute();
+    const animateRoute = (coordinates: [number, number][]) => {
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+
+      if (!map.getSource('partner-route')) return;
+      const source = map.getSource('partner-route') as maplibregl.GeoJSONSource;
+
+      let currentStep = 0;
+      const totalSteps = 45; // Animate slightly faster for partner map
+      const pointsPerStep = Math.max(1, Math.ceil(coordinates.length / totalSteps));
+
+      const step = () => {
+        if (!mapRef.current || !map.getSource('partner-route')) return;
+
+        currentStep++;
+        const endIndex = Math.min(currentStep * pointsPerStep, coordinates.length);
+        const activeCoords = coordinates.slice(0, endIndex);
+
+        source.setData({
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates: activeCoords
+          },
+          properties: {}
+        });
+
+        if (endIndex < coordinates.length) {
+          animationFrameRef.current = requestAnimationFrame(step);
+        }
+      };
+
+      step();
+    };
+
+    if (map.isStyleLoaded()) {
+      fetchOSRMRoute();
+    } else {
+      map.on('style.load', fetchOSRMRoute);
+    }
+
+    return () => {
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
   }, [destination.nome]);
 
-  if (!mounted) {
-    return (
-      <div className="w-full h-96 bg-[var(--color-surface-alt)] rounded-2xl flex items-center justify-center text-[var(--color-text-muted)] text-sm border border-[var(--color-border)]">
-        Carregando mapa interativo...
-      </div>
-    );
-  }
-
-  // Calculate bounds including destination center and all partner markers
-  let mapBounds: L.LatLngBounds | null = null;
-  if (partners.length > 0) {
-    const allCoords = [mapCenter, ...partners.map((b) => [b.latitude, b.longitude] as [number, number])];
-    mapBounds = L.latLngBounds(allCoords);
-  }
-
   return (
-    <div className="relative w-full h-96 rounded-2xl overflow-hidden border border-[var(--color-border)] shadow-md z-10">
-      <MapContainer
-        center={mapCenter}
-        zoom={13}
-        className="w-full h-full"
-        scrollWheelZoom={false}
-        zoomControl={false}
-      >
-        <MapController center={mapCenter} zoom={13} bounds={mapBounds} />
-        <MapResize />
-        <TileLayer
-          attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url={tileUrl}
-        />
-
-        {/* Real road route line connecting partners */}
-        {routePoints.length > 0 && (
-          <Polyline
-            positions={routePoints}
-            color="var(--color-accent)"
-            weight={4}
-            opacity={0.8}
-            pathOptions={{ className: 'route-polyline-flow' }}
-          />
-        )}
-
-        {/* Map Center Marker */}
-        <Marker position={mapCenter} icon={createGoogleMarker('Centro', false)}>
-          <Popup>
-            <div className="p-1 min-w-[140px] text-[var(--color-text)]">
-              <h4 className="font-bold text-sm">{destination.nome}</h4>
-              <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">Centro do atrativo turístico</p>
-            </div>
-          </Popup>
-        </Marker>
-
-        {/* Partner Markers */}
-        {partners.map((partner) => (
-          <Marker
-            key={partner.id}
-            position={[partner.latitude, partner.longitude]}
-            icon={createGoogleMarker(partner.tipo, activePartner === partner.id)}
-            eventHandlers={{
-              click: () => setActivePartner(partner.id),
-            }}
-          >
-            <Popup>
-              <div className="p-2 space-y-2 min-w-48 text-[var(--color-text)]">
-                <div className="flex items-center justify-between">
-                  <span className="text-[9px] uppercase font-extrabold tracking-wider px-2 py-0.5 bg-[var(--color-primary-soft)] text-[var(--color-primary)] rounded-full">
-                    {partner.tipo}
-                  </span>
-                  <div className="flex items-center gap-0.5 text-xs text-[var(--color-accent)] font-semibold">
-                    <Star className="h-3 w-3 fill-current" />
-                    {partner.nota}
-                  </div>
-                </div>
-                <h4 className="font-bold text-sm leading-tight">{partner.nome}</h4>
-                <div className="flex items-center gap-1 text-xs text-[var(--color-text-muted)]">
-                  <ShieldCheck className="h-3.5 w-3.5 text-[var(--color-success)]" />
-                  <span>Regularizado Cadastur</span>
-                </div>
-                {partner.telefone && (
-                  <p className="text-xs flex items-center gap-1 text-[var(--color-text-secondary)]">
-                    <Phone className="h-3 w-3" /> {partner.telefone}
-                  </p>
-                )}
-                <div className="pt-1">
-                  <Link
-                    href={`/vitrine/${partner.id}`}
-                    className="block text-center text-xs font-bold py-1.5 px-3 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors"
-                  >
-                    Ver Vitrine Comercial
-                  </Link>
-                </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
+    <div className="relative w-full h-96 rounded-2xl overflow-hidden border border-slate-200/10 shadow-md">
+      <div ref={mapContainerRef} className="w-full h-full" />
+      {/* Absolute overlay edge border for refined aesthetic */}
+      <div className="absolute inset-0 pointer-events-none border border-slate-800/10 rounded-2xl" />
     </div>
   );
 }

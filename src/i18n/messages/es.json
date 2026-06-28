@@ -134,13 +134,13 @@
   "footer": {
     "madeWith": "Hecho con ❤️ para el",
     "hackathon": "Hackathon do Sol 2026",
-    "copyright": "© 2026 DunasTech. Todos os derechos reservados."
+    "copyright": "© 2026 DunasTech. Todos los derechos reservados."
   },
   "planner": {
-    "title": "DunasTech Enrutador IA",
-    "heading": "Planifique Su Ruta",
-    "subheading": "Segura y Sostenible",
-    "description": "Descubra itinerarios optimizados en Rio Grande do Norte según su perfil, tiempo disponible y medio de transporte.",
+    "title": "DunasTech Observatorio",
+    "heading": "Rutas con Alma Potiguar,",
+    "subheading": "Turismo Seguro y Sostenible",
+    "description": "DunasTech es el observatorio inteligente que lo conecta con lo mejor de Rio Grande do Norte. Planifique rutas a su medida, contrate guías certificados en Cadastur y ayude a monitorear el estado de nuestros destinos. ¡Orgullo de valorar nuestra cultura y preservar nuestros paraísos naturales!",
     "startPointLabel": "📍 Punto de Partida o Enfoque (Opcional)",
     "startPointPlaceholder": "Ej: Pipa, Genipabu, Natal...",
     "travelStyleLabel": "🎭 Estilo de Viaje",
@@ -214,7 +214,7 @@
         "desc": "Senderos ecológicos, avistamiento de vida silvestre y reservas naturales."
       },
       "family": {
-        "label": "Familia y Lazer 👨‍👩‍👧‍👦",
+        "label": "Familia y Ocio 👨‍👩‍👧‍👦",
         "desc": "Hoteles con recreación, resorts y playas tranquilas para niños."
       }
     },
@@ -314,7 +314,7 @@
       "friends": "Grupo de Amigos"
     },
     "budgets": {
-      "budget": "Económico (Mochileiro)",
+      "budget": "Económico (Mochilero)",
       "moderate": "Moderado (Estándar)",
       "luxury": "Lujo (Premium)"
     },
@@ -325,11 +325,11 @@
       "none": "Ya tengo alojamiento / Otro"
     },
     "nextStep": "Avanzar",
-    "prevStep": "Voltar",
+    "prevStep": "Atrás",
     "acceptAndPlan": "Aceptar y Planificar Viaje ✈️",
     "planTripTitle": "Personalice su Viaje",
     "planTripDesc": "Elija las experiencias e ingrese los datos necesarios para generar el detalle completo de su viaje.",
-    "selectExperiences": "Elija sus Experiências",
+    "selectExperiences": "Elija sus Experiencias",
     "experienciasTitle": "Atracciones y Experiencias recomendadas",
     "cadasturBadge": "🛡️ Certificado Cadastur",
     "rating": "Nota: {nota}",
