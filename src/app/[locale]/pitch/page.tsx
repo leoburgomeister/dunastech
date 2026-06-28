@@ -213,11 +213,11 @@ export default function PitchPage() {
 
   // exact copy of prompter scripts matching cover page + user pitch
   const prompterScripts = [
-    "Olá, banca avaliadora! Nós somos a DunasTech, um Observatório Inteligente do Turismo voltado para o Rio Grande do Norte. Vamos apresentar nossa solução desenvolvida no Hackathon do Sol.",
-    "Quando falamos de turismo, pensamos também no meio ambiente? O turismo é o motor do nosso estado, mas ele exerce uma pressão tremenda sobre nossas praias, dunas e ecossistemas. Como relacionar o crescimento do turismo com o meio ambiente e a sustentabilidade de forma inteligente?",
-    "Para responder a isso, criamos uma plataforma completa com foco total no ISA - Índice de Saúde do Atrativo. Nossa tecnologia permite a gestão integrada de pontos turísticos, mapeia empreendedores regionais e gera rotas turísticas inteligentes. Podemos ver a plataforma sob duas óticas: do Turista (com rotas ecológicas e alertas de Cadastur) e do Governo (com monitoramento preditivo e alertas gerados por IA).",
-    "Nossa sustentabilidade financeira é dual e baseada em impacto legal. Geramos rotas que valorizam guias e pousadas com Cadastur regularizado, combatendo a informalidade. Monetizamos através de um SaaS B2G para municípios gerenciarem sua zeladoria em tempo real, e com modelo B2B Freemium de anúncios patrocinados para parceiros locais.",
-    "A DunasTech une a voz do cidadão, os dados públicos e inteligência artificial para que os destinos do Rio Grande do Norte continuem saudáveis e preservados. Não queremos apenas atrair turistas hoje, mas garantir que as próximas gerações encontrem nossas belezas cuidadas. Muito obrigado!"
+    "Olá, banca avaliadora! Nós somos a DunasTech e viemos apresentar a POTI, a nossa Plataforma de Observação do Turismo Inteligente. O turismo inteligente começa com visão.",
+    "Quando falamos de turismo, pensamos também no meio ambiente e na sustentabilidade do ecossistema local do RN? O turismo representa 76% do PIB do setor de serviços, 75% do ICMS e 73% dos empregos formais do nosso estado. Mas a gestão opera no escuro, sem dados em tempo real sobre o estado real dos destinos. Fluxo sem controle destrói o que atrai.",
+    "A solução é a POTI: um ecossistema com dois painéis integrados. O principal diferencial é o ISA - Índice de Saúde do Atrativo, um score de 0 a 100 baseado em avaliações de turistas, varredura de Instagram e dados de zeladoria. O Turista gera rotas personalizadas e guias de viagem. O Governo recebe diagnósticos preditivos e alertas de zeladoria para gerenciar atrativos como Ponta Negra, Pipa e Gostoso.",
+    "Nossa sustentabilidade financeira é baseada em três fontes de receita: B2C (roteiros gratuitos via WhatsApp), B2B Freemium (destaques patrocinados CPC para operadores locais certificados no Cadastur) e SaaS B2G (licenciamento anual para prefeituras). Além disso, temos o sistema de Força Cadastur que envia auto-notificações preventivas de regularização.",
+    "Nós não queremos apenas atrair turistas para o Rio Grande do Norte. Nós queremos garantir que os nossos destinos estejam saudáveis e preservados para recebê-los amanhã. A POTI combina a voz do turista, dados do governo e IA para preservar o que nos torna únicos. Muito obrigado!"
   ];
 
   // Handler for B2C Form Submission simulation
@@ -330,7 +330,6 @@ export default function PitchPage() {
         </div>
       </header>
 
-      {/* 3. Main Slide Deck (100vh snap scroll) */}
       <main className="h-screen w-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth bg-[#FFFDF6]">
         
         {/* SLIDE 0: PÁGINA DE ROSTO (COVER PAGE) */}
@@ -351,18 +350,18 @@ export default function PitchPage() {
                 initial={{ opacity: 0, y: 35 }}
                 animate={currentSlide === 0 ? { opacity: 1, y: 0 } : { opacity: 0, y: 35 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
-                className="text-5xl sm:text-8xl font-black tracking-tighter text-slate-900 leading-none"
+                className="text-6xl sm:text-9xl font-black tracking-tighter text-slate-900 leading-none"
               >
-                DUNAS<span className="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 bg-clip-text text-transparent">TECH</span>
+                POTI
               </motion.h1>
               
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={currentSlide === 0 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-lg sm:text-2xl text-slate-700 font-extrabold uppercase tracking-wider max-w-2xl mx-auto border-y border-amber-300/40 py-3"
+                className="text-base sm:text-xl text-slate-700 font-extrabold uppercase tracking-wider max-w-3xl mx-auto border-y border-amber-300/40 py-3"
               >
-                Observatório Inteligente do Turismo
+                Plataforma de Observação do Turismo Inteligente
               </motion.p>
             </div>
 
@@ -370,9 +369,9 @@ export default function PitchPage() {
               initial={{ opacity: 0 }}
               animate={currentSlide === 0 ? { opacity: 1 } : { opacity: 0 }}
               transition={{ duration: 0.7, delay: 0.3 }}
-              className="text-slate-500 text-sm sm:text-base max-w-xl mx-auto font-medium"
+              className="text-slate-650 text-lg sm:text-xl max-w-2xl mx-auto font-bold italic"
             >
-              Conectando a voz do turista, dados do governo e Inteligência Artificial para planejar a sustentabilidade dos atrativos do Rio Grande do Norte.
+              "O turismo inteligente começa com visão."
             </motion.p>
 
             <motion.div
@@ -423,7 +422,7 @@ export default function PitchPage() {
               className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-black uppercase tracking-widest shadow-sm"
             >
               <Globe className="w-4 h-4 text-emerald-600" />
-              <span>01. A PROVOCAÇÃO</span>
+              <span>01. A PERGUNTA QUE IMPORTA</span>
             </motion.div>
 
             <motion.h1
@@ -432,7 +431,7 @@ export default function PitchPage() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="text-4xl sm:text-6xl font-black tracking-tight text-slate-900 leading-tight"
             >
-              Quando a gente fala de turismo, <br />
+              Quando falamos de turismo, <br />
               <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
                 pensamos também no meio ambiente?
               </span>
@@ -442,39 +441,42 @@ export default function PitchPage() {
               initial={{ opacity: 0 }}
               animate={currentSlide === 1 ? { opacity: 1 } : { opacity: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-slate-750 text-lg sm:text-2xl max-w-4xl mx-auto font-bold leading-relaxed text-emerald-950"
+              className="text-slate-700 text-sm sm:text-base max-w-3xl mx-auto font-bold leading-relaxed"
             >
-              E como o turismo se relaciona com o meio ambiente e a sustentabilidade?
+              Como o turismo se relaciona com a sustentabilidade? O Rio Grande do Norte recebe milhões de visitantes — mas quem monitora o impacto nos destinos que os recebem?
             </motion.p>
 
-            {/* Contraste Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8 max-w-4xl mx-auto">
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                animate={currentSlide === 1 ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="bg-white/90 border border-emerald-250/55 backdrop-blur-md rounded-2xl p-6 text-left shadow-md relative overflow-hidden"
-              >
-                <div className="absolute top-0 left-0 w-full h-[4px] bg-red-400" />
-                <h3 className="text-lg font-extrabold text-red-750 mb-2">A Pressão Ambiental</h3>
-                <p className="text-sm text-slate-650 font-medium leading-relaxed">
-                  O fluxo massivo e desordenado de visitantes gera superlotação, acúmulo de resíduos sólidos nas praias, degradação das dunas e saturação da infraestrutura local sem que os órgãos públicos consigam monitorar em tempo real.
-                </p>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                animate={currentSlide === 1 ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-                className="bg-white/90 border border-emerald-250/55 backdrop-blur-md rounded-2xl p-6 text-left shadow-md relative overflow-hidden"
-              >
-                <div className="absolute top-0 left-0 w-full h-[4px] bg-emerald-500" />
-                <h3 className="text-lg font-extrabold text-emerald-750 mb-2">O Caminho Sustentável</h3>
-                <p className="text-sm text-slate-650 font-medium leading-relaxed">
-                  É preciso transformar o visitante em um agente ativo de conservação, coletar dados ecológicos locais e direcionar a demanda apenas para empreendimentos regularizados e comprometidos com a preservação.
-                </p>
-              </motion.div>
+            {/* Stats Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 max-w-4xl mx-auto">
+              {[
+                { val: "76%", label: "do PIB estadual em comércio e turismo" },
+                { val: "75%", label: "da arrecadação de ICMS depende do setor" },
+                { val: "73%", label: "dos empregos formais ligados ao turismo" }
+              ].map((stat, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={currentSlide === 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                  transition={{ duration: 0.5, delay: 0.3 + i * 0.1 }}
+                  className="bg-white/80 border border-emerald-200/50 rounded-2xl p-4 text-center shadow-sm"
+                >
+                  <span className="text-3xl font-black text-emerald-600 block">{stat.val}</span>
+                  <span className="text-[11px] text-slate-500 font-bold tracking-tight block mt-1 leading-tight">{stat.label}</span>
+                </motion.div>
+              ))}
             </div>
+
+            {/* Tension Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={currentSlide === 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+              className="mt-6 p-4 max-w-3xl mx-auto bg-amber-50 border border-amber-200 rounded-2xl text-center shadow-sm"
+            >
+              <p className="text-xs sm:text-sm font-extrabold text-amber-800 leading-relaxed">
+                ⚠️ O turismo <span className="underline text-amber-900 font-black">é</span> a nossa economia — mas a gestão opera no escuro, sem dados em tempo real sobre o estado real dos destinos. <strong className="text-red-700">Fluxo sem controle destrói o que atrai.</strong>
+              </p>
+            </motion.div>
           </div>
         </section>
 
@@ -498,7 +500,7 @@ export default function PitchPage() {
                 className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-bold uppercase tracking-wider"
               >
                 <Sparkles className="w-3.5 h-3.5 text-emerald-650" />
-                <span>02. A SOLUÇÃO: PLATAFORMA COMPLETA</span>
+                <span>02. A SOLUÇÃO: A PLATAFORMA</span>
               </motion.div>
 
               <motion.h2
@@ -507,54 +509,60 @@ export default function PitchPage() {
                 transition={{ delay: 0.1 }}
                 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight"
               >
-                Tecnologia para um <br />
+                Uma plataforma. <br />
                 <span className="bg-gradient-to-r from-emerald-600 via-teal-650 to-amber-600 bg-clip-text text-transparent">
-                  Turismo Sustentável
+                  Dois painéis. Um ecossistema.
                 </span>
               </motion.h2>
 
-              <p className="text-slate-600 text-sm sm:text-base leading-relaxed font-semibold">
-                Unificamos o gerenciamento de atrativos turísticos e a formalização dos empreendedores locais com foco absoluto no monitoramento ecológico.
+              <p className="text-slate-655 text-xs sm:text-sm leading-relaxed font-semibold">
+                O POTI conecta turistas, empreendedores regionais e o poder público num único sistema de inteligência sustentável para o RN.
               </p>
 
-              <div className="space-y-4 pt-2">
-                {[
-                  {
-                    title: "Destaque: Índice ISA (Índice de Saúde do Atrativo)",
-                    desc: "Calcula em tempo real o equilíbrio entre a saturação de visitantes e a preservação ecológica do destino.",
-                    icon: Zap,
-                    iconColor: "text-amber-600 bg-amber-50 border-amber-200"
-                  },
-                  {
-                    title: "Rotas Inteligentes & Empreendedores",
-                    desc: "Rotas geradas por IA que direcionam turistas para parceiros locais certificados.",
-                    icon: Globe,
-                    iconColor: "text-cyan-600 bg-cyan-50 border-cyan-200"
-                  },
-                  {
-                    title: "Notificação Automatizada Cadastur",
-                    desc: "Identifica prestadores não cadastrados e dispara alertas automáticos para incentivar a regularização.",
-                    icon: CheckCircle2,
-                    iconColor: "text-emerald-650 bg-emerald-50 border-emerald-200"
-                  }
-                ].map((item, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={currentSlide === 2 ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-                    transition={{ delay: 0.2 + i * 0.1 }}
-                    className="flex gap-3"
-                  >
-                    <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 border", item.iconColor)}>
-                      <item.icon className="w-5 h-5" />
+              {/* ISA DESTAQUE BOX */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={currentSlide === 2 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                transition={{ delay: 0.2 }}
+                className="p-5 rounded-2xl border-2 border-cyan-400/30 bg-gradient-to-br from-cyan-500/5 to-emerald-500/5 shadow-md relative overflow-hidden text-left"
+              >
+                <div className="absolute -right-3 -top-5 text-[80px] font-black text-cyan-500/5 select-none pointer-events-none">
+                  ISA
+                </div>
+                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-cyan-100 border border-cyan-200 text-cyan-800 text-[10px] font-black uppercase tracking-wider mb-2">
+                  ★ Diferencial Principal
+                </div>
+                <h3 className="text-sm font-extrabold text-slate-800 mb-1">Índice de Saúde do Atrativo — ISA</h3>
+                <p className="text-xs text-slate-500 leading-relaxed font-medium mb-3">
+                  Score contínuo que combina avaliações dos turistas, varredura de Instagram por geolocalização e dados de zeladoria para gerar o estado real de cada ponto turístico.
+                </p>
+                <div className="flex items-center gap-3 bg-white/60 rounded-xl p-3 border border-slate-100 mb-3">
+                  <div className="flex flex-col text-left">
+                    <span className="text-3xl font-black text-cyan-600 leading-none">42</span>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase mt-1">/ 100 — Ponta Negra</span>
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="text-[9px] text-amber-700 font-extrabold tracking-wider mb-1">⚠️ ZELADORIA NECESSÁRIA</div>
+                    <div className="h-2 bg-slate-150 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-amber-500 to-cyan-500" style={{ width: "42%" }} />
                     </div>
-                    <div>
-                      <h4 className="text-sm font-extrabold text-slate-900">{item.title}</h4>
-                      <p className="text-xs text-slate-500 font-semibold">{item.desc}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="bg-white/50 border border-slate-100 rounded-lg p-2 text-center">
+                    <span className="text-sm font-black text-slate-700 block">88%</span>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase block leading-none">Saturação</span>
+                  </div>
+                  <div className="bg-white/50 border border-slate-100 rounded-lg p-2 text-center">
+                    <span className="text-sm font-black text-slate-700 block">94%</span>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase block leading-none">Cadastur</span>
+                  </div>
+                  <div className="bg-white/50 border border-slate-100 rounded-lg p-2 text-center">
+                    <span className="text-sm font-black text-red-500 block">↓12</span>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase block leading-none">vs anterior</span>
+                  </div>
+                </div>
+              </motion.div>
             </div>
 
             {/* Right Column: Switch + Interactive mockups */}
@@ -644,6 +652,16 @@ export default function PitchPage() {
                               </select>
                             </div>
 
+                            {/* Estilo de Viagem selector */}
+                            <div className="space-y-1">
+                              <label className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">Estilo de Viagem</label>
+                              <div className="flex gap-1.5 flex-wrap">
+                                <span className="px-2.5 py-1 rounded-full bg-cyan-100 border border-cyan-200 text-[10px] font-black text-cyan-800 cursor-pointer shadow-sm">☀️ Sol e Praia</span>
+                                <span className="px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 text-[10px] font-bold text-slate-500 hover:border-cyan-200 hover:text-cyan-600 transition-colors cursor-pointer">🏄 Aventura</span>
+                                <span className="px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 text-[10px] font-bold text-slate-500 hover:border-cyan-200 hover:text-cyan-600 transition-colors cursor-pointer">🍽️ Gastronômica</span>
+                              </div>
+                            </div>
+
                             {/* Simulation switch for Cadastur warning */}
                             <div className="flex items-center justify-between p-2 bg-slate-50 border border-slate-200 rounded-xl">
                               <span className="text-[9px] font-black text-slate-700">Simular Operador Irregular</span>
@@ -662,6 +680,16 @@ export default function PitchPage() {
                                   )}
                                 />
                               </button>
+                            </div>
+
+                            {/* Instagram GeoPhotos - Realidade Atual */}
+                            <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
+                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block">📸 INSTAGRAM GEOPHOTOS — REALIDADE</label>
+                              <div className="flex gap-1.5">
+                                <div className="flex-1 h-12 rounded-lg bg-gradient-to-br from-cyan-500/10 to-teal-500/10 border border-cyan-100 flex items-center justify-center text-lg shadow-sm">🏖️</div>
+                                <div className="flex-1 h-12 rounded-lg bg-gradient-to-br from-cyan-500/10 to-teal-500/10 border border-cyan-100 flex items-center justify-center text-lg shadow-sm">🌊</div>
+                                <div className="flex-1 h-12 rounded-lg bg-gradient-to-br from-cyan-500/10 to-teal-500/10 border border-cyan-100 flex items-center justify-center text-lg shadow-sm">🏄</div>
+                              </div>
                             </div>
 
                             <button
@@ -934,7 +962,7 @@ export default function PitchPage() {
                         <span>Aviso Cadastur Automatizado</span>
                       </div>
                       <p className="text-[9px] text-slate-650 font-bold leading-normal">
-                        📧 O sistema detectou 5 operadores irregulares em {dashboardDest} esta semana. Avisos automáticos de regularização foram enviados para os e-mails dos proprietários.
+                        📧 Auto-aviso Cadastur: 3 parceiros com vencimento em &lt; 30 dias (Pousada Dunas, Buggy RN, Receptivo Pipa). Notificações automáticas disparadas.
                       </p>
                     </div>
 
@@ -979,9 +1007,9 @@ export default function PitchPage() {
               transition={{ delay: 0.1 }}
               className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight"
             >
-              Estímulo à Formalização & <br />
+              Três fontes. <br />
               <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                Monetização Dual
+                Uma missão.
               </span>
             </motion.h2>
 
@@ -989,80 +1017,135 @@ export default function PitchPage() {
               initial={{ opacity: 0 }}
               animate={currentSlide === 3 ? { opacity: 1 } : { opacity: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-slate-600 text-base sm:text-lg max-w-3xl mx-auto font-medium"
+              className="text-slate-655 text-sm sm:text-base max-w-3xl mx-auto font-medium"
             >
-              Unimos o incentivo regulatório do Ministério do Turismo com a sustentabilidade do ecossistema local do RN, gerando renda e segurança jurídica.
+              Modelo dual sustentável que une turista, mercado e governo público
             </motion.p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-6 max-w-4xl mx-auto items-stretch">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-4 max-w-4xl mx-auto items-stretch">
               
-              {/* Cadastur Banner Card */}
+              {/* Card 1: B2C */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={currentSlide === 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="bg-white/90 border border-green-200 rounded-2xl p-6 text-left flex flex-col justify-between shadow-sm relative overflow-hidden"
+                className="bg-white/90 border border-cyan-200 rounded-2xl p-5 text-left flex flex-col justify-between shadow-sm relative overflow-hidden"
               >
-                <div className="absolute top-0 right-0 w-24 h-24 bg-green-500/5 rounded-full blur-xl pointer-events-none" />
                 <div className="space-y-3">
-                  <div className="w-10 h-10 rounded-xl bg-green-550/10 flex items-center justify-center text-green-600 bg-green-50">
-                    <CheckCircle2 className="w-5.5 h-5.5" />
+                  <div className="flex items-center justify-between">
+                    <span className="text-[9px] text-cyan-750 font-black uppercase tracking-wider bg-cyan-100/50 px-2.5 py-0.5 rounded-full">B2C</span>
+                    <span className="text-xl">👤</span>
                   </div>
-                  <h3 className="text-base font-extrabold text-slate-900">Força Cadastur</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                    Nossas rotas inteligentes recomendam <strong>exclusivamente</strong> guias, pousadas e receptivos com registro regular no Cadastur, incentivando a formalização local.
-                  </p>
+                  <h3 className="text-base font-extrabold text-slate-900">Turista & Local</h3>
+                  <div className="space-y-1.5 text-xs text-slate-500 font-semibold leading-relaxed">
+                    <p className="flex gap-1.5 items-start">
+                      <span className="text-cyan-600">→</span> Roteiros IA gratuitos com PDF no WhatsApp
+                    </p>
+                    <p className="flex gap-1.5 items-start">
+                      <span className="text-cyan-600">→</span> Sistema de recompensas por zeladoria
+                    </p>
+                    <p className="flex gap-1.5 items-start">
+                      <span className="text-cyan-600">→</span> Avaliações e reporte de infraestrutura
+                    </p>
+                    <p className="flex gap-1.5 items-start">
+                      <span className="text-cyan-600">→</span> Acesso a guias Cadastur verificados
+                    </p>
+                  </div>
                 </div>
-                <div className="mt-6 pt-4 border-t border-slate-100 text-[10px] text-green-600 font-bold uppercase tracking-wider">
-                  Incentivo Regulatório
+                <div className="mt-4 pt-3 border-t border-slate-100 text-[10px] text-cyan-600 font-bold uppercase tracking-wider">
+                  Experiência Gratuita
                 </div>
               </motion.div>
 
-              {/* Private B2B Model */}
+              {/* Card 2: B2B Freemium */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={currentSlide === 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="bg-white/90 border border-slate-200 rounded-2xl p-6 text-left flex flex-col justify-between shadow-sm"
+                className="bg-white/90 border border-purple-200 rounded-2xl p-5 text-left flex flex-col justify-between shadow-sm relative overflow-hidden"
               >
                 <div className="space-y-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-550/10 flex items-center justify-center text-amber-600 bg-amber-50">
-                    <Building2 className="w-5.5 h-5.5" />
+                  <div className="flex items-center justify-between">
+                    <span className="text-[9px] text-purple-750 font-black uppercase tracking-wider bg-purple-100/50 px-2.5 py-0.5 rounded-full">B2B Freemium</span>
+                    <span className="text-xl">💼</span>
                   </div>
-                  <h3 className="text-base font-extrabold text-slate-900">B2B Freemium</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                    Destaques patrocinados, planos de fidelidade de rotas e relatórios estatísticos de satisfação para operadoras locais.
-                  </p>
+                  <h3 className="text-base font-extrabold text-slate-900">Empreendedor</h3>
+                  <div className="space-y-1.5 text-xs text-slate-500 font-semibold leading-relaxed">
+                    <p className="flex gap-1.5 items-start">
+                      <span className="text-purple-600">→</span> Vitrine gratuita com Cadastur ativo
+                    </p>
+                    <p className="flex gap-1.5 items-start">
+                      <span className="text-purple-600">→</span> Destaque patrocinado CPC nas rotas
+                    </p>
+                    <p className="flex gap-1.5 items-start">
+                      <span className="text-purple-600">→</span> Relatórios de satisfação e fluxo
+                    </p>
+                    <p className="flex gap-1.5 items-start">
+                      <span className="text-purple-600">→</span> Planos de fidelidade para clientes
+                    </p>
+                  </div>
                 </div>
-                <div className="mt-6 pt-4 border-t border-slate-100">
-                  <span className="text-[10px] text-slate-400 block uppercase tracking-wider font-extrabold">Exposição Adicional</span>
-                  <span className="text-sm font-black text-amber-600">Patrocínio CPC</span>
+                <div className="mt-4 pt-3 border-t border-slate-100 text-[10px] text-purple-600 font-bold uppercase tracking-wider">
+                  Exposição Local CPC
                 </div>
               </motion.div>
 
-              {/* Public B2G SaaS */}
+              {/* Card 3: SaaS B2G */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={currentSlide === 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
-                className="bg-white/90 border border-slate-200 rounded-2xl p-6 text-left flex flex-col justify-between shadow-sm relative overflow-hidden"
+                className="bg-white/90 border border-green-200 rounded-2xl p-5 text-left flex flex-col justify-between shadow-sm relative overflow-hidden"
               >
-                <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-xl pointer-events-none" />
                 <div className="space-y-3">
-                  <div className="w-10 h-10 rounded-xl bg-cyan-50 flex items-center justify-center text-cyan-600">
-                    <Globe className="w-5.5 h-5.5" />
+                  <div className="flex items-center justify-between">
+                    <span className="text-[9px] text-green-750 font-black uppercase tracking-wider bg-green-100/50 px-2.5 py-0.5 rounded-full">SaaS B2G</span>
+                    <span className="text-xl">🏛️</span>
                   </div>
-                  <h3 className="text-base font-extrabold text-slate-900">SaaS Público B2G</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                    Licenciamento anual pago por prefeituras e órgãos estaduais para acesso à zeladoria, mapas preditivos e diagnósticos automatizados.
-                  </p>
+                  <h3 className="text-base font-extrabold text-slate-900">Prefeitura & Estado</h3>
+                  <div className="space-y-1.5 text-xs text-slate-500 font-semibold leading-relaxed">
+                    <p className="flex gap-1.5 items-start">
+                      <span className="text-green-600">→</span> Dashboard ISA em tempo real por destino
+                    </p>
+                    <p className="flex gap-1.5 items-start">
+                      <span className="text-green-600">→</span> Alertas preditivos DunasIA
+                    </p>
+                    <p className="flex gap-1.5 items-start">
+                      <span className="text-green-600">→</span> Relatórios mensais de auditoria
+                    </p>
+                    <p className="flex gap-1.5 items-start">
+                      <span className="text-green-600">→</span> Exportação para políticas públicas
+                    </p>
+                  </div>
                 </div>
-                <div className="mt-6 pt-4 border-t border-slate-100">
-                  <span className="text-[10px] text-slate-400 block uppercase tracking-wider font-extrabold">Assinatura Anual</span>
-                  <span className="text-sm font-black text-cyan-600">SaaS B2G Governamental</span>
+                <div className="mt-4 pt-3 border-t border-slate-100 text-[10px] text-green-600 font-bold uppercase tracking-wider">
+                  Assinatura Anual SaaS B2G
                 </div>
               </motion.div>
+
             </div>
+
+            {/* Força Cadastur Alert Banner */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={currentSlide === 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              transition={{ delay: 0.6 }}
+              className="mt-6 p-4 max-w-4xl mx-auto bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-4 text-left shadow-sm relative overflow-hidden"
+            >
+              <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 flex-shrink-0">
+                <CheckCircle2 className="w-5.5 h-5.5" />
+              </div>
+              <div className="flex-1">
+                <h4 className="text-xs font-extrabold text-amber-800 uppercase tracking-wider mb-1">🏅 Força Cadastur — Incentivo à Formalização</h4>
+                <p className="text-xs text-slate-655 leading-relaxed font-semibold">
+                  Rotas inteligentes recomendam exclusivamente empreendedores com Cadastur regular. Aviso automático antes do vencimento garante continuidade e reduz inadimplência regulatória.
+                </p>
+              </div>
+              <span className="px-2.5 py-1 rounded-full bg-amber-200/50 text-[10px] font-black text-amber-800 uppercase tracking-wider whitespace-nowrap">
+                Auto-notificação ativa
+              </span>
+            </motion.div>
+
           </div>
         </section>
 
@@ -1097,9 +1180,9 @@ export default function PitchPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={currentSlide === 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.1 }}
-              className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight"
+              className="text-4xl sm:text-7xl font-black text-slate-900 tracking-tight"
             >
-              DUNAS<span className="text-amber-500">TECH</span>
+              POTI
             </motion.h2>
 
             <motion.p
@@ -1108,7 +1191,7 @@ export default function PitchPage() {
               transition={{ delay: 0.2 }}
               className="text-base sm:text-lg text-slate-800 max-w-3xl mx-auto font-bold leading-relaxed tracking-wide"
             >
-              Nós não queremos apenas atrair turistas para o Rio Grande do Norte. Nós queremos garantir que os nossos destinos estejam saudáveis e preservados para recebê-los amanhã.
+              POTI é o primeiro Observatório Inteligente do Turismo do Rio Grande do Norte — combinando a voz do turista, dados do governo e Inteligência Artificial para garantir que o que nos faz únicos seja preservado.
             </motion.p>
 
             <motion.div
@@ -1138,7 +1221,7 @@ export default function PitchPage() {
               transition={{ delay: 0.5 }}
               className="text-xs text-slate-500 pt-8 flex flex-col items-center gap-1 font-bold uppercase tracking-wider"
             >
-              <span>DunasTech — Hackathon do Sol 2026</span>
+              <span>DunasTech — Hackathon do Sol 2026 · Natal/RN</span>
               <span>Eixo: Observatório Potiguar Inteligente</span>
             </motion.div>
 
