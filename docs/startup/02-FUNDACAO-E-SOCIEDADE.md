@@ -8,7 +8,7 @@
 
 ## 1. Princípio fundador
 
-A ideia e a liderança da DunasTech são de **Leonardo Barbosa Burgomeister (founder)**. Os demais participam como **sócios-membros** que **conquistam** sua participação por permanência e entrega (vesting). **Júlio não faz parte da sociedade.**
+A ideia e a liderança da DunasTech são de **Leonardo Barbosa Burgomeister (founder)**. Os demais participam como **sócios-membros** que **conquistam** sua participação por permanência e entrega (vesting). O núcleo da sociedade é composto por **Leonardo, Antônio, Ari, Camilly e Claudia** — a equipe segue com esse grupo daqui em diante.
 
 Objetivos do desenho societário:
 1. Manter **controle claro** com o founder (evita paralisia decisória).

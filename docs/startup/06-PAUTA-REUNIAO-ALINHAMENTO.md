@@ -10,7 +10,7 @@
 ## Abertura (10 min)
 - Boas-vindas e contexto: onde estamos e por que o marco de **30/07** (governo) define a prioridade.
 - Regras da reunião: pontualidade, câmera aberta, foco, decisões viram ata.
-- Confirmar remoção de Júlio e o núcleo atual: Leonardo, Antônio, Ari, Camilly, Claudia.
+- Confirmar o núcleo da sociedade: Leonardo, Antônio, Ari, Camilly, Claudia.
 
 ---
 

@@ -21,7 +21,7 @@ Aquisição de novos negócios de forma técnica; conhece o setor (gastronomia/t
 ### Claudia — Corporate Affairs & Comunicação
 Comunicação institucional, redes sociais, imagem/marca da empresa, secretariado geral e relações. Constrói a presença pública e apoia a articulação institucional.
 
-> **Júlio não faz parte da equipe/sociedade.**
+> **Núcleo da sociedade:** Leonardo, Antônio, Ari, Camilly e Claudia.
 
 ---
 
