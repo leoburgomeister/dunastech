@@ -23,6 +23,16 @@ O mercado é robusto: turismo/serviços representam **76% do PIB** do RN e o est
 
 ---
 
+## Dashboard de gestão (visualização)
+
+Para **visualizar e gerenciar tudo em um só lugar**, abra o cockpit interativo:
+
+➡️ **[`dashboard.html`](dashboard.html)** — abra com duplo clique no navegador (funciona offline).
+
+Inclui: contagem regressiva para 30/07, saúde do projeto, cronograma/Gantt, gráfico de participação societária, papéis + matriz RACI, OKRs, ramp-up e checklist de fundação — com **checkboxes que salvam o progresso** no seu navegador.
+
+---
+
 ## Como navegar este pacote
 
 | # | Documento | O que resolve |
