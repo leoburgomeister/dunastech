@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { subscribeFeedbacks } from "@/lib/firebase";
 import type { Feedback } from "@/data/mockData";

@@ -24,7 +24,7 @@ export default function PitchView() {
           Modelo de Negócios
         </div>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight">
-          Como a <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">DunasTech</span> gera receita
+          Como a <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">POTI</span> gera receita
         </h1>
         <p className="text-slate-400 max-w-2xl mx-auto">
           Plataforma de inteligência turística com modelo de monetização em duas frentes: 
@@ -120,7 +120,7 @@ export default function PitchView() {
       {/* Value Proposition */}
       <div className="bg-slate-800/30 border border-white/5 rounded-2xl p-6 space-y-5">
         <h3 className="text-lg font-bold text-white text-center">
-          Por que prefeituras pagam pelo <span className="text-amber-400">DunasTech</span>?
+          Por que prefeituras pagam pelo <span className="text-amber-400">POTI</span>?
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <ValueCard
@@ -166,7 +166,7 @@ export default function PitchView() {
       {/* CTA */}
       <div className="text-center space-y-3 pb-8">
         <p className="text-slate-500 text-sm">
-          Equipe <span className="font-bold text-white">Dunas Tech</span> — Hackathon do Sol 2026
+          Equipe <span className="font-bold text-white">POTI</span> — Hackathon do Sol 2026
         </p>
         <p className="text-xs text-slate-600">
           Eixo 3: Observatório Inteligente Potiguar

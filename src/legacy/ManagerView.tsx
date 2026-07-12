@@ -179,7 +179,7 @@ export default function ManagerView() {
             className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-violet-600/15"
           >
             <BrainCircuit className="w-4 h-4" />
-            Perguntar à DunasIA
+            Perguntar à PotiIA
           </button>
 
           <select

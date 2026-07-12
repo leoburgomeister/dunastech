@@ -19,10 +19,25 @@ export default function AdminDashboardPage() {
   const [expandedKPI, setExpandedKPI] = useState<'visitors' | 'revenue' | 'isa' | 'variation' | null>(null);
   const [showCriticalDetails, setShowCriticalDetails] = useState(false);
 
+  // Brand Book Macro Region selector state
+  const [selectedMacroRegion, setSelectedMacroRegion] = useState<'all' | 'Litoral' | 'Serras' | 'Agreste'>('all');
+
   // Filtering State
   const [filterMode, setFilterMode] = useState<'all' | 'spot' | 'region'>('all');
   const [selectedSpot, setSelectedSpot] = useState<string>(destinosInfo[0].nome);
   const [selectedRegion, setSelectedRegion] = useState<string>('Natal');
+
+  // Helper to map destinations to macro-regions dynamically
+  const getMacroRegion = (destinoNome: string): 'Litoral' | 'Serras' | 'Agreste' => {
+    const name = destinoNome.toLowerCase();
+    if (name.includes('serra') || name.includes('martins') || name.includes('gameleiras') || name.includes('bento') || name.includes('portalegre')) {
+      return 'Serras';
+    }
+    if (name.includes('santa cruz') || name.includes('rita') || name.includes('cerro') || name.includes('geoparque')) {
+      return 'Agreste';
+    }
+    return 'Litoral';
+  };
 
   // Extract unique regions (municipalities) and spots
   const regions = useMemo(() => Array.from(new Set(destinosInfo.map(d => d.municipio))), []);
@@ -36,19 +51,25 @@ export default function AdminDashboardPage() {
     return () => unsub();
   }, []);
 
-  // Filtered feedbacks
+  // Filtered feedbacks based on both macro-region and specific selectors
   const currentFeedbacks = useMemo(() => {
-    if (filterMode === 'all') return feedbacks;
+    let list = feedbacks;
+    if (selectedMacroRegion !== 'all') {
+      list = list.filter(fb => getMacroRegion(fb.destino) === selectedMacroRegion);
+    }
+    if (filterMode === 'all') return list;
     if (filterMode === 'spot') {
-      return feedbacks.filter(fb => fb.destino === selectedSpot);
+      return list.filter(fb => fb.destino === selectedSpot);
     }
     // Region
-    return feedbacks.filter(fb => {
+    return list.filter(fb => {
       const spotObj = destinosInfo.find(d => d.nome === fb.destino);
       return spotObj?.municipio === selectedRegion;
     });
-  }, [feedbacks, filterMode, selectedSpot, selectedRegion]);
+  }, [feedbacks, filterMode, selectedSpot, selectedRegion, selectedMacroRegion]);
 
+  // Always based on ALL destinations (not region-filtered) to match kpis.criticalCount,
+  // which is intentionally a state-wide health warning regardless of the active region filter.
   const criticalDestinations = useMemo(() => {
     return destinosInfo.map(d => {
       const isa = calcularISA(d.nome, feedbacks);
@@ -61,10 +82,13 @@ export default function AdminDashboardPage() {
   // KPI calculations based on active filters
   const kpis = useMemo(() => {
     let filteredSpots = destinosInfo;
+    if (selectedMacroRegion !== 'all') {
+      filteredSpots = filteredSpots.filter(d => getMacroRegion(d.nome) === selectedMacroRegion);
+    }
     if (filterMode === 'spot') {
-      filteredSpots = destinosInfo.filter(d => d.nome === selectedSpot);
+      filteredSpots = filteredSpots.filter(d => d.nome === selectedSpot);
     } else if (filterMode === 'region') {
-      filteredSpots = destinosInfo.filter(d => d.municipio === selectedRegion);
+      filteredSpots = filteredSpots.filter(d => d.municipio === selectedRegion);
     }
 
     const totalVisitors = filteredSpots.reduce((s, d) => {
@@ -84,19 +108,27 @@ export default function AdminDashboardPage() {
       filteredSpots.reduce((s, d) => {
         const td = transporteData.find(t => t.destino === d.nome);
         return s + (td?.variacao_percentual || 0);
-      }, 0) / filteredSpots.length
+      }, 0) / (filteredSpots.length || 1)
     );
+
+    // Calculate average occupancy rate from saturation
+    const avgOccupancy = filteredSpots.length > 0 
+      ? Math.round(filteredSpots.reduce((s, d) => s + (fluxoData.find(f => f.destino === d.nome)?.saturacao_turistica || 0), 0) / filteredSpots.length)
+      : 0;
 
     // Critical count based on ALL destinations (always show general health warning)
     const generalISA = destinosInfo.map(d => calcularISA(d.nome, feedbacks));
     const criticalCount = generalISA.filter(s => s < 60).length;
 
-    return { totalVisitors, totalRevenue, avgISA, avgVariation, criticalCount };
-  }, [feedbacks, filterMode, selectedSpot, selectedRegion]);
+    return { totalVisitors, totalRevenue, avgISA, avgVariation, avgOccupancy, criticalCount };
+  }, [feedbacks, filterMode, selectedSpot, selectedRegion, selectedMacroRegion]);
 
   // Chart data: ISA by destination
   const chartISA = useMemo(() => {
     let spotsForChart = destinosInfo;
+    if (selectedMacroRegion !== 'all') {
+      spotsForChart = spotsForChart.filter(d => getMacroRegion(d.nome) === selectedMacroRegion);
+    }
     
     if (filterMode === 'spot') {
       // Spot compared to state average
@@ -115,7 +147,7 @@ export default function AdminDashboardPage() {
     }
 
     if (filterMode === 'region') {
-      spotsForChart = destinosInfo.filter(d => d.municipio === selectedRegion);
+      spotsForChart = spotsForChart.filter(d => d.municipio === selectedRegion);
     }
 
     return spotsForChart.map(d => ({
@@ -123,15 +155,18 @@ export default function AdminDashboardPage() {
       isa: calcularISA(d.nome, feedbacks),
       saturacao: fluxoData.find(f => f.destino === d.nome)?.saturacao_turistica || 0,
     })).sort((a, b) => b.isa - a.isa);
-  }, [feedbacks, filterMode, selectedSpot, selectedRegion]);
+  }, [feedbacks, filterMode, selectedSpot, selectedRegion, selectedMacroRegion]);
 
   // Chart data: Transport pressure
   const chartTransport = useMemo(() => {
     let spotsForChart = destinosInfo;
+    if (selectedMacroRegion !== 'all') {
+      spotsForChart = spotsForChart.filter(d => getMacroRegion(d.nome) === selectedMacroRegion);
+    }
     if (filterMode === 'spot') {
-      spotsForChart = destinosInfo.filter(d => d.nome === selectedSpot);
+      spotsForChart = spotsForChart.filter(d => d.nome === selectedSpot);
     } else if (filterMode === 'region') {
-      spotsForChart = destinosInfo.filter(d => d.municipio === selectedRegion);
+      spotsForChart = spotsForChart.filter(d => d.municipio === selectedRegion);
     }
 
     return spotsForChart.map(d => {
@@ -143,7 +178,7 @@ export default function AdminDashboardPage() {
         veiculos: Math.round((t?.veiculos_terrestres_mensais || 0) / 100),
       };
     });
-  }, [filterMode, selectedSpot, selectedRegion]);
+  }, [filterMode, selectedSpot, selectedRegion, selectedMacroRegion]);
 
   // Recent feedbacks list
   const recentFeedbacks = currentFeedbacks.slice(0, 5);
@@ -195,8 +230,23 @@ export default function AdminDashboardPage() {
                 <button
                   key={reg.id}
                   onClick={() => {
-                    setSelectedMacroRegion(reg.id as any);
+                    const nextRegion = reg.id as 'all' | 'Litoral' | 'Serras' | 'Agreste';
+                    setSelectedMacroRegion(nextRegion);
                     setFilterMode('all'); // Reset specific filters on macro-region change
+
+                    // Keep selectedSpot/selectedRegion valid for the new macro-region so the
+                    // "Por Ponto"/"Por Município" selects don't hold a value outside their own option list.
+                    const spotsInRegion = spots.filter(s => nextRegion === 'all' || getMacroRegion(s) === nextRegion);
+                    if (!spotsInRegion.includes(selectedSpot)) {
+                      setSelectedSpot(spotsInRegion[0] ?? destinosInfo[0].nome);
+                    }
+                    const regionsInRegion = regions.filter(r => {
+                      const spotInRegion = destinosInfo.find(d => d.municipio === r);
+                      return nextRegion === 'all' || (spotInRegion && getMacroRegion(spotInRegion.nome) === nextRegion);
+                    });
+                    if (!regionsInRegion.includes(selectedRegion)) {
+                      setSelectedRegion(regionsInRegion[0] ?? 'Natal');
+                    }
                   }}
                   className={cn(
                     "px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer",
@@ -371,40 +421,40 @@ export default function AdminDashboardPage() {
           active={expandedKPI === 'visitors'}
         />
         <KPICard
-          title="Ocupação Média"
-          value={`${kpis.avgOccupancy}%`}
+          title="ISA Médio"
+          value={`${kpis.avgISA}`}
           trend={{ value: 8.1, direction: 'up' }}
           icon={Activity}
           accentColor="success"
           formula={{
-            expressao: "Média (Saturação Geográfica)",
-            explicacao: "Média aritmética da ocupação e saturação dos destinos com base na capacidade máxima de carga."
+            expressao: "Média (Índice de Saúde do Atrativo)",
+            explicacao: "Média do ISA dos destinos no filtro atual, combinando feedback de turistas com métricas de investimento e saturação."
           }}
           onClick={() => setExpandedKPI(expandedKPI === 'isa' ? null : 'isa')}
           active={expandedKPI === 'isa'}
         />
         <KPICard
-          title="Gasto Médio"
-          value="R$ 312,40"
+          title="Receita Estimada"
+          value={kpis.totalRevenue > 0 ? `R$ ${kpis.totalRevenue.toFixed(1)}M` : "R$ 0M"}
           trend={{ value: 15.3, direction: 'up' }}
           icon={DollarSign}
           accentColor="accent"
           formula={{
-            expressao: "Média Ponderada (Ticket Médio)",
-            explicacao: "Ticket médio diário gasto por turista em alimentação, passeios e hospedagem regularizada."
+            expressao: "∑ (Receita Estimada dos Destinos)",
+            explicacao: "Soma da receita estimada gerada pelos destinos ativos no filtro."
           }}
           onClick={() => setExpandedKPI(expandedKPI === 'revenue' ? null : 'revenue')}
           active={expandedKPI === 'revenue'}
         />
         <KPICard
-          title="Arrecadação (ISS)"
-          value={kpis.totalRevenue > 0 ? `R$ ${(kpis.totalRevenue * 0.15).toFixed(1)}M` : "R$ 0M"}
-          trend={{ value: 10.7, direction: 'up' }}
+          title="Variação de Fluxo"
+          value={`${kpis.avgVariation > 0 ? '+' : ''}${kpis.avgVariation}%`}
+          trend={{ value: 10.7, direction: kpis.avgVariation >= 0 ? 'up' : 'down' }}
           icon={TrendingUp}
           accentColor="info"
           formula={{
-            expressao: "Estimativa ISS (Receita * 15%)",
-            explicacao: "Impacto fiscal direto estimado para a arrecadação de tributos municipais dos destinos selecionados."
+            expressao: "Média (Variação % de Transporte)",
+            explicacao: "Variação percentual média no fluxo de transporte (voos, ônibus, veículos) dos destinos no filtro."
           }}
           onClick={() => setExpandedKPI(expandedKPI === 'variation' ? null : 'variation')}
           active={expandedKPI === 'variation'}

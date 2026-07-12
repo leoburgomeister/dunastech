@@ -7,7 +7,6 @@ import {
   query,
   orderBy,
   Firestore,
-  Timestamp,
 } from "firebase/firestore";
 import type { Feedback } from "@/data/mockData";
 
@@ -58,44 +57,66 @@ export async function addFeedback(feedback: Omit<Feedback, "id" | "timestamp">):
   }
 
   // Fallback: localStorage
-  const stored = localStorage.getItem("dunastech_feedbacks");
+  const stored = localStorage.getItem("poti_feedbacks");
   const feedbacks: Feedback[] = stored ? JSON.parse(stored) : [];
   feedbacks.push({
     ...feedbackWithTimestamp,
     id: `local-${Date.now()}`,
   });
-  localStorage.setItem("dunastech_feedbacks", JSON.stringify(feedbacks));
+  localStorage.setItem("poti_feedbacks", JSON.stringify(feedbacks));
 }
 
 /**
  * Subscribe to real-time feedback updates.
  * Returns an unsubscribe function.
- * Falls back to localStorage polling if Firebase is not configured.
+ * Falls back to localStorage polling if Firebase is not configured, if the Firestore
+ * listener fails to set up, or if it errors asynchronously after being set up (e.g.
+ * permission-denied or network errors delivered via onSnapshot's error callback).
  */
 export function subscribeFeedbacks(
   callback: (feedbacks: Feedback[]) => void
 ): () => void {
   if (db) {
+    let fellBackToLocal = false;
+    let localCleanup: (() => void) | null = null;
+
     try {
       const q = query(
         collection(db, FEEDBACKS_COLLECTION),
         orderBy("timestamp", "desc")
       );
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        const feedbacks: Feedback[] = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Feedback[];
-        callback(feedbacks);
-      });
-      return unsubscribe;
+      const unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const feedbacks: Feedback[] = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          })) as Feedback[];
+          callback(feedbacks);
+        },
+        (error) => {
+          console.warn("Firebase listener error, falling back to localStorage:", error);
+          if (!fellBackToLocal) {
+            fellBackToLocal = true;
+            localCleanup = startLocalFeedbackPolling(callback);
+          }
+        }
+      );
+      return () => {
+        unsubscribe();
+        localCleanup?.();
+      };
     } catch (error) {
       console.warn("Firebase listener failed, using localStorage:", error);
     }
   }
 
+  return startLocalFeedbackPolling(callback);
+}
+
+function startLocalFeedbackPolling(callback: (feedbacks: Feedback[]) => void): () => void {
   // Initial mock data if empty
-  if (typeof window !== "undefined" && !localStorage.getItem("dunastech_feedbacks")) {
+  if (typeof window !== "undefined" && !localStorage.getItem("poti_feedbacks")) {
     const now = Date.now();
     const initialMockFeedbacks = [
       {
@@ -144,18 +165,18 @@ export function subscribeFeedbacks(
         timestamp: now - 3600000 * 12,
       }
     ];
-    localStorage.setItem("dunastech_feedbacks", JSON.stringify(initialMockFeedbacks));
+    localStorage.setItem("poti_feedbacks", JSON.stringify(initialMockFeedbacks));
   }
 
   // Fallback: poll localStorage every 2s
   const interval = setInterval(() => {
-    const stored = localStorage.getItem("dunastech_feedbacks");
+    const stored = localStorage.getItem("poti_feedbacks");
     const feedbacks: Feedback[] = stored ? JSON.parse(stored) : [];
     callback(feedbacks);
   }, 2000);
 
   // Initial load
-  const stored = localStorage.getItem("dunastech_feedbacks");
+  const stored = localStorage.getItem("poti_feedbacks");
   callback(stored ? JSON.parse(stored) : []);
 
   return () => clearInterval(interval);

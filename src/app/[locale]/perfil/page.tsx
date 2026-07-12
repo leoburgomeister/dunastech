@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { 
-  User, CreditCard, Mail, Calendar, Compass, Navigation, ArrowLeft, LogOut, Trash2 
+import {
+  CreditCard, Mail, Compass, Navigation, ArrowLeft, LogOut, Trash2
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -56,7 +56,7 @@ export default function PerfilPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('dunastech_route_history');
+      const stored = localStorage.getItem('poti_route_history');
       if (stored) {
         setTimeout(() => {
           setHistory(JSON.parse(stored));
@@ -67,7 +67,7 @@ export default function PerfilPage() {
 
   const handleClearHistory = () => {
     if (confirm('Deseja realmente limpar seu histórico de rotas?')) {
-      localStorage.removeItem('dunastech_route_history');
+      localStorage.removeItem('poti_route_history');
       setHistory([]);
     }
   };

@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Trophy, Shield, AlertTriangle, Activity, MapPin, Users, Info, ChevronDown, ChevronUp, AlertCircle, Heart, ArrowRight } from 'lucide-react';
 import { cn, slugify } from '@/lib/utils';
 import { Badge } from '@/components/ui/Badge';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
 import { destinosInfo, fluxoData, calcularISA, investimentosData, Feedback } from '@/data/mockData';
+import { subscribeFeedbacks } from '@/lib/firebase';
 import Link from 'next/link';
 
 function getISAConfig(score: number) {
@@ -19,15 +19,21 @@ function getISAConfig(score: number) {
 export default function RankingPage() {
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'healthy' | 'attention' | 'critical'>('all');
   const [expandedDestName, setExpandedDestName] = useState<string | null>(null);
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+
+  useEffect(() => {
+    const unsub = subscribeFeedbacks(setFeedbacks);
+    return () => unsub();
+  }, []);
 
   const ranked = useMemo(() => {
     return destinosInfo.map(d => {
-      const isa = calcularISA(d.nome, [] as Feedback[]);
+      const isa = calcularISA(d.nome, feedbacks);
       const fluxo = fluxoData.find(f => f.destino === d.nome);
       const investimento = investimentosData.find(i => i.destino === d.nome);
       return { ...d, isa, fluxo, investimento };
     }).sort((a, b) => b.isa - a.isa);
-  }, []);
+  }, [feedbacks]);
 
   const avgISA = Math.round(ranked.reduce((s, d) => s + d.isa, 0) / ranked.length);
   const healthySpots = ranked.filter(d => d.isa >= 80);

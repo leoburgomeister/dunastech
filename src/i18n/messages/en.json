@@ -1,7 +1,7 @@
 {
   "common": {
-    "appName": "DunasTech",
-    "tagline": "Smart Tourism Observatory",
+    "appName": "POTI",
+    "tagline": "Platform of Smart Tourism Observatory",
     "loading": "Loading...",
     "error": "An error occurred",
     "save": "Save",
@@ -134,13 +134,13 @@
   "footer": {
     "madeWith": "Made with ❤️ for the",
     "hackathon": "Hackathon do Sol 2026",
-    "copyright": "© 2026 DunasTech. All rights reserved."
+    "copyright": "© 2026 POTI. All rights reserved."
   },
   "planner": {
-    "title": "DunasTech Observatory",
+    "title": "POTI - Smart Tourism Observatory",
     "heading": "Routes with Potiguar Soul,",
     "subheading": "Safe and Sustainable Tourism",
-    "description": "DunasTech is the smart observatory that connects you to the best of Rio Grande do Norte. Plan tailored routes, hire Cadastur-certified guides, and help monitor the state of our destinations. Proud to value our culture and preserve our natural paradises!",
+    "description": "POTI is the smart observatory platform that connects you to the best of Rio Grande do Norte. Plan tailored routes, hire Cadastur-certified guides, and help monitor the state of our destinations. Proud to value our culture and preserve our natural paradises!",
     "startPointLabel": "📍 Starting Point or Focus (Optional)",
     "startPointPlaceholder": "E.g., Pipa, Genipabu, Natal...",
     "travelStyleLabel": "🎭 Travel Style",
@@ -301,6 +301,34 @@
         "shuttle": {
           "title": "Potiguar Flavors South Coast Circuit",
           "description": "Enjoy the rich beach cuisine of Ponta Negra, Pipa, and the gastronomic mangroves of Cunhaú."
+        }
+      },
+      "ecotourism": {
+        "hike": {
+          "title": "Lagoons & Reefs Ecological Trail",
+          "description": "A hike exploring Pitangui Lagoon and the coral reef pools of Maracajaú."
+        },
+        "buggy": {
+          "title": "Sustainable North Coast Buggy Route",
+          "description": "Buggy tour connecting the Maracajaú reef pools to the fishing village of Galinhos."
+        },
+        "shuttle": {
+          "title": "Lagoons & Mangroves Ecological Circuit",
+          "description": "Shuttle/van itinerary through Pitangui Lagoon, the Maracajaú reef pools, and the Galinhos mangroves."
+        }
+      },
+      "family": {
+        "hike": {
+          "title": "Family Walk: Ponta Negra & Pipa",
+          "description": "A relaxed stroll along Ponta Negra's waterfront and the family-friendly Pipa beach, great for kids."
+        },
+        "buggy": {
+          "title": "Family North Coast Buggy Route",
+          "description": "A safe buggy ride through Reis Magos Fort and the Genipabu dunes, with stops for all ages."
+        },
+        "shuttle": {
+          "title": "Complete Family Route RN",
+          "description": "Shuttle/van itinerary through Ponta Negra, Reis Magos Fort, and Pipa beach, comfortable for the whole family."
         }
       }
     },

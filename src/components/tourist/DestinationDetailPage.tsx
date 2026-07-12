@@ -3,15 +3,15 @@
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { 
-  MapPin, Star, ShieldCheck, Phone, CheckCircle, AlertTriangle, 
+import {
+  MapPin, Star, Lock, CheckCircle, Send,
   ArrowLeft, ArrowRight, ShieldAlert, Award, Compass, ThumbsUp, ThumbsDown
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { ProgressBar } from '@/components/ui/ProgressBar';
 import { type DestinoInfo, cadasturData, fluxoData } from '@/data/mockData';
 import { useAuth } from '@/providers/AuthProvider';
 import { addFeedback } from '@/lib/firebase';
@@ -28,8 +28,9 @@ interface DestinationDetailPageProps {
 }
 
 export default function DestinationDetailPage({ destination }: DestinationDetailPageProps) {
-  const { isAuthenticated, user } = useAuth();
-  
+  const { isAuthenticated } = useAuth();
+  const pathname = usePathname();
+
   // Custom states for Description Conformity Audit
   const [infraMatches, setInfraMatches] = useState<string>('yes');
   const [naturalMatches, setNaturalMatches] = useState<string>('yes');
@@ -37,6 +38,12 @@ export default function DestinationDetailPage({ destination }: DestinationDetail
   const [comments, setComments] = useState('');
   const [isAudited, setIsAudited] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const auditQuestions: { key: string; label: string; value: string; setValue: (v: string) => void }[] = [
+    { key: 'infra', label: 'Infraestrutura condiz com o anunciado?', value: infraMatches, setValue: setInfraMatches },
+    { key: 'natural', label: 'Natureza está preservada como descrito?', value: naturalMatches, setValue: setNaturalMatches },
+    { key: 'services', label: 'Serviços e segurança adequados?', value: servicesMatch, setValue: setServicesMatch },
+  ];
 
   const partners = useMemo(() => {
     return cadasturData.filter(b => b.destino === destination.nome && b.regularizado);
@@ -294,7 +301,7 @@ export default function DestinationDetailPage({ destination }: DestinationDetail
             </div>
           </Card>
 
-          {/* Description Conformity Auditing section redirect */}
+          {/* Description Conformity Auditing */}
           <Card className="border border-[var(--color-primary)]/20 bg-[var(--color-primary-soft)]/10">
             <CardHeader>
               <CardTitle className="text-sm flex items-center gap-2">
@@ -302,16 +309,83 @@ export default function DestinationDetailPage({ destination }: DestinationDetail
                 Auditoria Pós-Visita
               </CardTitle>
             </CardHeader>
-            <div className="space-y-3">
-              <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
-                Já visitou este local? Colabore com o observatório de turismo realizando a pesquisa de satisfação e auditoria de conformidade pós-visita.
-              </p>
-              <Link href="/avaliar" className="block w-full">
-                <Button size="sm" className="w-full justify-center" icon={Compass}>
-                  Realizar Pesquisa
+
+            {!isAuthenticated ? (
+              <div className="space-y-3">
+                <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                  Já visitou este local? Faça login para colaborar com o observatório de turismo auditando a conformidade deste destino.
+                </p>
+                <Link href={`/login?redirect=${encodeURIComponent(pathname)}`} className="block w-full">
+                  <Button size="sm" variant="secondary" className="w-full justify-center" icon={Lock}>
+                    Entrar para Auditar
+                  </Button>
+                </Link>
+              </div>
+            ) : isAudited ? (
+              <div className="flex flex-col items-center text-center gap-2 py-2">
+                <CheckCircle className="h-8 w-8 text-emerald-500" />
+                <p className="text-sm font-bold text-[var(--color-text)]">Auditoria enviada!</p>
+                <p className="text-xs text-[var(--color-text-secondary)]">
+                  Obrigado por colaborar com o observatório de turismo.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleAuditSubmit} className="space-y-4">
+                <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                  Já visitou este local? Colabore com o observatório de turismo respondendo a auditoria de conformidade pós-visita.
+                </p>
+
+                {auditQuestions.map((q) => (
+                  <div key={q.key} className="space-y-1.5">
+                    <p className="text-xs font-semibold text-[var(--color-text)]">{q.label}</p>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => q.setValue('yes')}
+                        className={cn(
+                          'flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-bold border transition-all cursor-pointer',
+                          q.value === 'yes'
+                            ? 'bg-emerald-500 border-emerald-500 text-white'
+                            : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-emerald-500'
+                        )}
+                      >
+                        <ThumbsUp className="h-3 w-3" /> Sim
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => q.setValue('no')}
+                        className={cn(
+                          'flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-bold border transition-all cursor-pointer',
+                          q.value === 'no'
+                            ? 'bg-rose-500 border-rose-500 text-white'
+                            : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-rose-500'
+                        )}
+                      >
+                        <ThumbsDown className="h-3 w-3" /> Não
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                <div className="space-y-1.5">
+                  <label htmlFor="audit-comments" className="text-xs font-semibold text-[var(--color-text)]">
+                    Observações (opcional)
+                  </label>
+                  <textarea
+                    id="audit-comments"
+                    value={comments}
+                    onChange={(e) => setComments(e.target.value)}
+                    rows={2}
+                    placeholder="Conte mais sobre o que encontrou no local..."
+                    className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-2 text-xs text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-border-focus)] resize-none"
+                  />
+                </div>
+
+                <Button type="submit" size="sm" className="w-full justify-center" icon={Send} loading={loading}>
+                  Enviar Auditoria
                 </Button>
-              </Link>
-            </div>
+              </form>
+            )}
           </Card>
         </div>
       </div>

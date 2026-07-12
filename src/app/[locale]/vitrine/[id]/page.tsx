@@ -1,11 +1,11 @@
 'use client';
 
-import { use, useState, useEffect } from 'react';
+import { use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { LocalImage } from '@/components/ui/LocalImage';
 import {
-  ArrowLeft, Star, Phone, ShieldCheck, MapPin, Building, Award, CheckCircle, Sparkles
+  ArrowLeft, Star, Phone, ShieldCheck, MapPin, Award, CheckCircle, Sparkles
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';

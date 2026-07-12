@@ -4,9 +4,8 @@ import { useState, useMemo } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
 import { cadasturData } from "@/data/mockData";
-import { ShieldCheck, AlertTriangle, CheckCircle, ShieldAlert, Mail, Search, Filter } from "lucide-react";
+import { ShieldCheck, AlertTriangle, CheckCircle, ShieldAlert, Mail, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Expiration dates mapping for mock data representation

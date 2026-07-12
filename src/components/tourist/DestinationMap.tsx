@@ -1,12 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import { useTheme } from 'next-themes';
 import { type DestinoInfo, cadasturData } from '@/data/mockData';
-import { Badge } from '@/components/ui/Badge';
-import { Users, Activity, MapPin } from 'lucide-react';
-import { slugify } from '@/lib/utils';
 
 // Helper to determine marker styling based on partner type
 function getPartnerIconStyle(tipo: string): { icon: string; color: string } {
@@ -47,14 +44,16 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
     };
   }, []);
 
-  const partners = cadasturData.filter(
-    (b) => b.destino === destination.nome && b.regularizado
+  const partners = useMemo(
+    () => cadasturData.filter((b) => b.destino === destination.nome && b.regularizado),
+    [destination.nome]
   );
 
   // Suggested route connecting the top 5 highest-rated partners
-  const routePartners = [...partners]
-    .sort((a, b) => b.nota - a.nota)
-    .slice(0, 5);
+  const routePartners = useMemo(
+    () => [...partners].sort((a, b) => b.nota - a.nota).slice(0, 5),
+    [partners]
+  );
 
   // Initialize Map
   useEffect(() => {
@@ -109,7 +108,7 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
       map.remove();
       setMapInstance(null);
     };
-  }, [mounted, destination.nome, resolvedTheme]);
+  }, [mounted, destination.nome, destination.latitude, destination.longitude, resolvedTheme]);
 
   // Update Markers and Fit Bounds when destination, partners, or mapInstance changes
   useEffect(() => {
@@ -314,7 +313,7 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [destination.nome, mapInstance]);
+  }, [destination.nome, mapInstance, routePartners]);
 
   return (
     <div className="relative w-full h-96 rounded-2xl overflow-hidden border border-slate-200/10 shadow-md">

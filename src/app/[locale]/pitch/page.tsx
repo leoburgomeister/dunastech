@@ -4,10 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Sun,
-  Zap,
   Building2,
-  Globe,
   Users,
   ArrowLeft,
   ArrowRight,
@@ -24,10 +21,7 @@ import {
   Minimize2,
   ChevronDown,
   MessageSquare,
-  Activity,
-  MapPin,
-  Clock,
-  FileText
+  Clock
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -39,7 +33,6 @@ import {
   CartesianGrid,
   Cell
 } from "recharts";
-import { Badge } from "@/components/ui/Badge";
 import { PotiLogo } from "@/components/ui/PotiLogo";
 
 // Utility function to merge classes safely
@@ -83,17 +76,18 @@ export default function PitchPage() {
   const [sendingNotification, setSendingNotification] = useState(false);
   const [notificationSent, setNotificationSent] = useState(false);
 
-  // Path-based locale detection
+  // Path-based locale detection (deferred to avoid SSR hydration mismatch)
   const [locale, setLocale] = useState("pt-BR");
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    const handle = requestAnimationFrame(() => {
       const path = window.location.pathname;
       if (path.includes("/en")) {
         setLocale("en");
       } else if (path.includes("/es")) {
         setLocale("es");
       }
-    }
+    });
+    return () => cancelAnimationFrame(handle);
   }, []);
 
   const dict: Record<string, Record<string, string>> = {
@@ -266,7 +260,7 @@ export default function PitchPage() {
 
   // Prompter scripts matching the rebranding focus
   const prompterScripts = [
-    "Olá, banca! Nós somos a DunasTech, e apresentamos o Poti RN Gestão, a central de inteligência turística do Rio Grande do Norte. Desenvolvemos uma plataforma que transforma dados dispersos em decisões estratégicas para prefeituras, órgãos estaduais e investidores.",
+    "Olá, banca! Nós somos a equipe do POTI - Plataforma de Observatório do Turismo Inteligente do Rio Grande do Norte. Desenvolvemos uma plataforma que transforma dados dispersos em decisões estratégicas para prefeituras, órgãos estaduais e investidores.",
     "O turismo gera dados todos os dias, mas o desafio é transformá-los em decisões. No RN, o turismo representa 76% do PIB de serviços, 75% da arrecadação de ICMS e 73% dos empregos. No entanto, prefeituras ainda governam no escuro, sem dados reais da zeladoria local. O fluxo sem controle destrói os atrativos turísticos.",
     "A solução é a plataforma integrada POTI. Introduzimos o ISA - Índice de Saúde do Atrativo, um score dinâmico (0 a 100) baseado em dados do turista, zeladoria e APIs sociais. No perfil do Turista (B2C), geramos rotas e avaliações inteligentes. No perfil da Gestão (B2G), fornecemos alertas preditivos automáticos.",
     "Nosso ecossistema resolve o problema integrando 4 grandes atores. O turista é transformado em um sensor vivo de zeladoria. A prefeitura visualiza o ISA e alertas em tempo real. O trade de MEIs locais é inserido em uma vitrine auditável, e os administradores técnicos auditam logs e conformidade com a LGPD.",
@@ -467,8 +461,8 @@ export default function PitchPage() {
               transition={{ delay: 0.1 }}
               className="text-3xl sm:text-5xl font-black text-[#0E2325] tracking-tight leading-tight"
             >
-              "O turismo gera dados todos os dias. <br />
-              <span className="text-[#0F6B6D]">O desafio é transformá-los em decisões."</span>
+              &ldquo;O turismo gera dados todos os dias. <br />
+              <span className="text-[#0F6B6D]">O desafio é transformá-los em decisões.&rdquo;</span>
             </motion.h2>
 
             {/* Statistics Grid */}
@@ -667,7 +661,7 @@ export default function PitchPage() {
                                   <button
                                     key={cat.id}
                                     type="button"
-                                    onClick={() => setRouteCategory(cat.id as any)}
+                                    onClick={() => setRouteCategory(cat.id as "sol" | "aventura" | "gastronomia")}
                                     className={cn(
                                       "py-1 rounded-md text-[9px] font-bold border transition-all cursor-pointer",
                                       routeCategory === cat.id
@@ -1372,7 +1366,7 @@ export default function PitchPage() {
               transition={{ delay: 0.5 }}
               className="text-[9px] text-[#7E9798] pt-6 flex flex-col items-center gap-1 font-extrabold uppercase tracking-wider border-t border-[#0F6B6D]/30 mt-6"
             >
-              <span>DunasTech · Hackathon do Sol 2026 · Natal/RN</span>
+              <span>POTI · Hackathon do Sol 2026 · Natal/RN</span>
               <span>Inteligência Territorial Governamental</span>
             </motion.div>
           </div>

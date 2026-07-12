@@ -5,9 +5,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
-import { 
-  MapPin, Star, Users, TrendingUp, ArrowRight, Shield, Sparkles, 
-  Map, Award, Calendar, Compass, ShieldAlert, CheckCircle, Navigation, Eye,
+import {
+  MapPin, Star, Users, ArrowRight, Shield, Sparkles,
+  ShieldAlert, CheckCircle, Navigation, Eye, Search, X,
   ChevronDown, ChevronUp, Clock, Info, Printer, Share2,
   ClipboardCheck, Send, ThumbsUp, ThumbsDown
 } from 'lucide-react';
@@ -16,7 +16,6 @@ import { addFeedback } from '@/lib/firebase';
 import { cn, slugify } from '@/lib/utils';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
 import { destinosInfo, fluxoData, cadasturData, calcularISA } from '@/data/mockData';
 import type { Feedback } from '@/data/mockData';
 
@@ -27,9 +26,9 @@ const HomeRouteMap = dynamic(
 );
 
 function getISABadge(score: number, t: (key: string) => string) {
-  if (score >= 80) return { label: t('ranking.healthy'), variant: 'success' as const };
-  if (score >= 60) return { label: t('ranking.attention'), variant: 'warning' as const };
-  return { label: t('ranking.critical'), variant: 'danger' as const };
+  if (score >= 80) return { label: t('healthy'), variant: 'success' as const };
+  if (score >= 60) return { label: t('attention'), variant: 'warning' as const };
+  return { label: t('critical'), variant: 'danger' as const };
 }
 
 interface RouteDay {
@@ -59,6 +58,7 @@ function getHaversineDistance(
 
 export default function TouristHomePage() {
   const t = useTranslations('planner');
+  const tRanking = useTranslations('ranking');
 
   // Questionnaire Options
   const styles = useMemo(() => [
@@ -197,6 +197,22 @@ export default function TouristHomePage() {
       } else {
         selectedDestNames = ['Forte dos Reis Magos', 'Cidade Histórica de Mossoró', 'Lajedo de Soledade'];
       }
+    } else if (selectedStyle === 'ecotourism') {
+      if (selectedTransport === 'hike') {
+        selectedDestNames = ['Lagoa de Pitangui', 'Parrachos de Maracajaú'];
+      } else if (selectedTransport === 'buggy') {
+        selectedDestNames = ['Parrachos de Maracajaú', 'Galinhos'];
+      } else {
+        selectedDestNames = ['Lagoa de Pitangui', 'Parrachos de Maracajaú', 'Galinhos'];
+      }
+    } else if (selectedStyle === 'family') {
+      if (selectedTransport === 'hike') {
+        selectedDestNames = ['Ponta Negra e Morro do Careca', 'Praia da Pipa'];
+      } else if (selectedTransport === 'buggy') {
+        selectedDestNames = ['Forte dos Reis Magos', 'Dunas de Genipabu'];
+      } else {
+        selectedDestNames = ['Ponta Negra e Morro do Careca', 'Forte dos Reis Magos', 'Praia da Pipa'];
+      }
     } else { // gastronomy
       if (selectedTransport === 'hike') {
         selectedDestNames = ['Praia da Pipa', 'Praia do Madeiro'];
@@ -288,7 +304,7 @@ export default function TouristHomePage() {
 
     // Save generated route to search/route history in local storage
     if (typeof window !== 'undefined') {
-      const historyStr = localStorage.getItem('dunastech_route_history');
+      const historyStr = localStorage.getItem('poti_route_history');
       const history = historyStr ? JSON.parse(historyStr) : [];
       const newHistoryItem = {
         id: `route-${Date.now()}`,
@@ -299,7 +315,7 @@ export default function TouristHomePage() {
         date: new Date().toLocaleDateString('pt-BR'),
         destinations: matchedDestinations.map(d => d.nome),
       };
-      localStorage.setItem('dunastech_route_history', JSON.stringify([newHistoryItem, ...history].slice(0, 10)));
+      localStorage.setItem('poti_route_history', JSON.stringify([newHistoryItem, ...history].slice(0, 10)));
     }
 
     setStep(3);
@@ -368,7 +384,7 @@ export default function TouristHomePage() {
     const endFormatted = endDate ? new Date(endDate + 'T00:00:00').toLocaleDateString('pt-BR') : '';
     const passengers = travelerNames.split('\n').filter(Boolean).join(', ');
     
-    let tripSummaryText = `*DunasTech - Roteiro de Viagem*\nCódigo: *DT-2026-X79B*\nPeríodo: ${startFormatted} a ${endFormatted}\nEstilo: *${suggestedRoute?.title || ''}*\nPassageiros: ${passengers}\nGerado de forma sustentável e 100% regularizada no RN.`;
+    let tripSummaryText = `*POTI - Roteiro de Viagem*\nCódigo: *POTI-2026-X79B*\nPeríodo: ${startFormatted} a ${endFormatted}\nEstilo: *${suggestedRoute?.title || ''}*\nPassageiros: ${passengers}\nGerado de forma sustentável e 100% regularizada no RN.`;
     
     if (sendPdf) {
       tripSummaryText += `\n\n_Estou enviando em anexo o arquivo PDF do meu roteiro._`;
@@ -404,7 +420,7 @@ export default function TouristHomePage() {
                   <div className="h-12 w-12 rounded-2xl bg-[var(--color-primary-soft)] flex items-center justify-center">
                     <Sparkles className="h-6 w-6 text-[var(--color-primary)] animate-pulse" />
                   </div>
-                  <span className="text-xl font-black tracking-wider text-[var(--color-text)]">DUNASTECH</span>
+                  <span className="text-xl font-black tracking-wider text-[var(--color-text)]">POTI</span>
                   <span className="text-[10px] uppercase font-bold text-[var(--color-text-muted)] tracking-widest">Observatório Potiguar</span>
                 </div>
               </div>
@@ -470,6 +486,34 @@ export default function TouristHomePage() {
                         </div>
                       </div>
                     </div>
+                    {/* Destination Search */}
+                    <div className="space-y-1.5">
+                      <label htmlFor="home-search" className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
+                        Buscar destino específico
+                      </label>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--color-text-muted)] pointer-events-none" />
+                        <input
+                          id="home-search"
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder="Ex: Pipa, Genipabu, Natal..."
+                          className="w-full h-9 pl-9 pr-8 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-alt)]/40 text-xs text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-border-focus)]"
+                        />
+                        {searchQuery && (
+                          <button
+                            type="button"
+                            onClick={() => setSearchQuery('')}
+                            aria-label="Limpar busca"
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
                     {/* Travel Style Selection */}
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
@@ -1799,7 +1843,7 @@ export default function TouristHomePage() {
         {/* Larger Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-children">
           {topDestinations.map((dest, i) => {
-            const badge = getISABadge(dest.isa, t);
+            const badge = getISABadge(dest.isa, tRanking);
             return (
               <Link key={dest.nome} href={`/destino/${slugify(dest.nome)}`}>
                 <Card variant="interactive" padding="none" className="overflow-hidden group h-[440px] flex flex-col justify-between">
@@ -1882,7 +1926,7 @@ export default function TouristHomePage() {
         <h2 className="text-2xl font-bold text-[var(--color-text)] mb-6">{t('allDestinations')}</h2>
         <div className="space-y-4">
           {destinations.map((dest) => {
-            const badge = getISABadge(dest.isa, t);
+            const badge = getISABadge(dest.isa, tRanking);
             return (
               <Link
                 key={dest.nome}

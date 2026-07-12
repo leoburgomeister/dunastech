@@ -14,7 +14,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       defaultTheme="dark"
       enableSystem
       disableTransitionOnChange={false}
-      storageKey="dunastech-theme"
+      storageKey="poti-theme"
     >
       {children}
     </NextThemesProvider>

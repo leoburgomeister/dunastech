@@ -32,6 +32,16 @@ interface CachedResult {
 const instagramCache: Record<string, CachedResult> = {};
 const CACHE_TTL = 3600 * 1000 * 6; // 6 hours cache time-to-live
 
+// Removes expired entries so the cache doesn't grow unbounded with every distinct
+// hashtag ever requested over the life of the server process.
+function sweepExpiredCache(now: number) {
+  for (const key of Object.keys(instagramCache)) {
+    if (now - instagramCache[key].timestamp >= CACHE_TTL) {
+      delete instagramCache[key];
+    }
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -39,21 +49,26 @@ export async function POST(request: NextRequest) {
 
     if (!hashtag) {
       return NextResponse.json(
-        { error: "Hashtag é obrigatória" },
+        { error: "Hashtag é obrigatória", posts: [] },
         { status: 400 }
       );
     }
 
     const apiToken = process.env.APIFY_API_TOKEN || clientApiToken;
     const now = Date.now();
-    const hasCache = instagramCache[hashtag];
-    const isMockCache = hasCache && instagramCache[hashtag].data.source === "mock";
+    sweepExpiredCache(now);
 
-    if (!forceRefresh && hasCache && (now - instagramCache[hashtag].timestamp < CACHE_TTL) && !(apiToken && isMockCache)) {
+    // Keyed by token presence too: a real (tokened) fetch and the mock fallback must never
+    // share a slot, or one visitor's personal-token result gets served to every other visitor
+    // requesting the same hashtag (and a later tokenless request would silently overwrite it).
+    const cacheKey = `${hashtag}:${apiToken ? "real" : "mock"}`;
+    const hasCache = instagramCache[cacheKey];
+
+    if (!forceRefresh && hasCache && (now - hasCache.timestamp < CACHE_TTL)) {
       console.log(`Returning cached Instagram results for hashtag: #${hashtag}`);
       return NextResponse.json({
-        ...instagramCache[hashtag].data,
-        source: instagramCache[hashtag].data.source === "mock" ? "mock-cache" : "apify-cache",
+        ...hasCache.data,
+        source: hasCache.data.source === "mock" ? "mock-cache" : "apify-cache",
       });
     }
 
@@ -94,7 +109,7 @@ export async function POST(request: NextRequest) {
         cachedAt: now,
       };
 
-      instagramCache[hashtag] = {
+      instagramCache[cacheKey] = {
         timestamp: now,
         data: mockResult,
       };
@@ -141,7 +156,7 @@ export async function POST(request: NextRequest) {
       cachedAt: now,
     };
 
-    instagramCache[hashtag] = {
+    instagramCache[cacheKey] = {
       timestamp: now,
       data: result,
     };
@@ -150,7 +165,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Scraper API error:", error);
     return NextResponse.json(
-      { error: "Erro ao buscar dados do Instagram" },
+      { error: "Erro ao buscar dados do Instagram", posts: [] },
       { status: 500 }
     );
   }

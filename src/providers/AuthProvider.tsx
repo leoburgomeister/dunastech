@@ -19,7 +19,7 @@ const isFirebaseConfigured = !!(
   process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
 );
 
-export interface DunasUser {
+export interface PotiUser {
   uid: string;
   email: string | null;
   displayName: string | null;
@@ -31,11 +31,11 @@ export interface DunasUser {
 }
 
 interface AuthContextType {
-  user: DunasUser | null;
+  user: PotiUser | null;
   loading: boolean;
   error: string | null;
   signInWithGoogle: () => Promise<void>;
-  signInWithCPF: (cpf: string, name: string, email: string) => Promise<void>;
+  signInWithCPF: (cpf: string, name: string, email: string, docType?: 'cpf' | 'rne' | 'passport') => Promise<void>;
   signOutUser: () => Promise<void>;
   isAuthenticated: boolean;
   clearError: () => void;
@@ -52,17 +52,19 @@ export function useAuth() {
 }
 
 // Mock user for development without Firebase
-const MOCK_STORAGE_KEY = 'dunastech_mock_user';
+const MOCK_STORAGE_KEY = 'poti_mock_user';
 
-function getMockUser(): DunasUser | null {
+function getMockUser(): PotiUser | null {
   if (typeof window === 'undefined') return null;
   try {
     const stored = localStorage.getItem(MOCK_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : null;
-  } catch { return null; }
+    return stored ? JSON.parse(stored) as PotiUser : null;
+  } catch {
+    return null;
+  }
 }
 
-function setMockUser(user: DunasUser | null) {
+function setMockUser(user: PotiUser | null) {
   if (typeof window === 'undefined') return;
   if (user) {
     localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(user));
@@ -72,7 +74,7 @@ function setMockUser(user: DunasUser | null) {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<DunasUser | null>(null);
+  const [user, setUser] = useState<PotiUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -100,10 +102,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const db = getFirestore();
             const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
             if (userDoc.exists()) {
-              setUser(userDoc.data() as DunasUser);
+              setUser(userDoc.data() as PotiUser);
             } else {
-              // First login — create profile
-              const newUser: DunasUser = {
+              // User doesn't exist in Firestore, create basic profile
+              const newUser: PotiUser = {
                 uid: firebaseUser.uid,
                 email: firebaseUser.email,
                 displayName: firebaseUser.displayName,
@@ -147,9 +149,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (!isFirebaseConfigured) {
       // Mock Google sign-in
-      const mockUser: DunasUser = {
+      const mockUser: PotiUser = {
         uid: 'mock-google-' + Date.now(),
-        email: 'turista@dunastech.com',
+        email: 'turista@poti.com.br',
         displayName: 'Turista Demo',
         photoURL: null,
         cpf: null,
@@ -176,16 +178,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const signInWithCPF = useCallback(async (cpf: string, name: string, email: string) => {
+  const signInWithCPF = useCallback(async (cpf: string, name: string, email: string, docType: 'cpf' | 'rne' | 'passport' = 'cpf') => {
     setError(null);
     setLoading(true);
 
-    // Validate CPF
-    const cleanCPF = cpf.replace(/\D/g, '');
-    if (!validateCPF(cleanCPF)) {
-      setError('CPF inválido. Verifique os dígitos e tente novamente.');
-      setLoading(false);
-      return;
+    // CPF gets the full check-digit validation; RNE/Passaporte have no equivalent
+    // public algorithm, so we just require a plausible non-empty document number.
+    let cleanCPF: string;
+    if (docType === 'cpf') {
+      cleanCPF = cpf.replace(/\D/g, '');
+      if (!validateCPF(cleanCPF)) {
+        setError('CPF inválido. Verifique os dígitos e tente novamente.');
+        setLoading(false);
+        return;
+      }
+    } else {
+      cleanCPF = cpf.trim().toUpperCase().replace(/\s+/g, '');
+      if (cleanCPF.length < 5) {
+        setError(docType === 'rne' ? 'RNE inválido. Verifique o número informado.' : 'Passaporte inválido. Verifique o número informado.');
+        setLoading(false);
+        return;
+      }
     }
 
     if (!name.trim() || name.trim().length < 3) {
@@ -202,13 +215,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (!isFirebaseConfigured) {
       // Mock CPF sign-in
-      const mockUser: DunasUser = {
+      const mockUser: PotiUser = {
         uid: 'mock-cpf-' + cleanCPF,
         email,
         displayName: name,
         photoURL: null,
         cpf: cleanCPF,
-        role: (email.toLowerCase().includes('admin') || name.toLowerCase().includes('admin')) ? 'admin' : 'tourist',
+        // Mock-mode only (no Firebase configured): a fixed demo address, not a substring match,
+        // so an ordinary tourist typing e.g. "administracao@empresa.com" can't self-elevate.
+        role: email.toLowerCase() === 'admin@poti.com.br' ? 'admin' : 'tourist',
         provider: 'mock',
         createdAt: new Date().toISOString(),
       };
@@ -227,7 +242,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (!existing.empty) {
         // CPF already registered — log them in
-        const existingUser = existing.docs[0].data() as DunasUser;
+        const existingUser = existing.docs[0].data() as PotiUser;
         setUser(existingUser);
         setLoading(false);
         return;
@@ -235,7 +250,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Create new user with CPF
       const uid = `cpf-${cleanCPF}`;
-      const newUser: DunasUser = {
+      const newUser: PotiUser = {
         uid,
         email,
         displayName: name,

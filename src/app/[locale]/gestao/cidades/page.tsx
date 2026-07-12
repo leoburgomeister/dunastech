@@ -4,30 +4,25 @@ import { useState, useMemo, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { 
-  destinosInfo, 
-  fluxoData, 
-  ibgeData, 
-  investimentosData, 
-  calcularISA 
+import {
+  destinosInfo,
+  fluxoData,
+  ibgeData,
+  investimentosData
 } from "@/data/mockData";
-import { 
-  Building, 
-  Users, 
-  Map, 
-  TrendingUp, 
-  DollarSign, 
-  Search, 
-  ArrowUpDown, 
-  MapPin, 
-  Eye, 
-  EyeOff, 
-  Activity,
-  CheckCircle,
+import {
+  Building,
+  Users,
+  Map,
+  TrendingUp,
+  DollarSign,
+  Search,
+  ArrowUpDown,
+  Eye,
+  EyeOff,
   AlertCircle
 } from "lucide-react";
-import { cn, slugify } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface MunicipioStats {
   nome: string;
@@ -310,7 +305,7 @@ export default function CidadesGestaoPage() {
               {[...municipiosList]
                 .sort((a, b) => b.receita_milhoes - a.receita_milhoes)
                 .slice(0, 6)
-                .map((m, idx) => {
+                .map((m) => {
                   const maxRevenue = Math.max(...municipiosList.map(item => item.receita_milhoes));
                   const pct = maxRevenue > 0 ? (m.receita_milhoes / maxRevenue) * 100 : 0;
                   return (
@@ -342,7 +337,7 @@ export default function CidadesGestaoPage() {
               {[...municipiosList]
                 .sort((a, b) => b.investimento_mil - a.investimento_mil)
                 .slice(0, 6)
-                .map((m, idx) => {
+                .map((m) => {
                   const maxInvest = Math.max(...municipiosList.map(item => item.investimento_mil));
                   const pct = maxInvest > 0 ? (m.investimento_mil / maxInvest) * 100 : 0;
                   return (

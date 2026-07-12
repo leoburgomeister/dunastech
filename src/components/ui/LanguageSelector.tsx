@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Globe, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { usePathname, useRouter } from 'next/navigation';
 
 const locales = [
   { code: 'pt-BR', flag: '🇧🇷', label: 'Português' },
@@ -20,8 +19,6 @@ export function LanguageSelector({ className, size = 'md' }: LanguageSelectorPro
   const [open, setOpen] = useState(false);
   const [currentLocale, setCurrentLocale] = useState('pt-BR');
   const ref = useRef<HTMLDivElement>(null);
-  const router = useRouter();
-  const pathname = usePathname();
 
   // Read locale from cookie on mount
   useEffect(() => {

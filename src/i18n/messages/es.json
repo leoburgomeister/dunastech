@@ -1,7 +1,7 @@
 {
   "common": {
-    "appName": "DunasTech",
-    "tagline": "Observatorio Inteligente del Turismo",
+    "appName": "POTI",
+    "tagline": "Plataforma de Observatorio del Turismo Inteligente",
     "loading": "Cargando...",
     "error": "Ocurrió un error",
     "save": "Guardar",
@@ -134,13 +134,13 @@
   "footer": {
     "madeWith": "Hecho con ❤️ para el",
     "hackathon": "Hackathon do Sol 2026",
-    "copyright": "© 2026 DunasTech. Todos los derechos reservados."
+    "copyright": "© 2026 POTI. Todos los derechos reservados."
   },
   "planner": {
-    "title": "DunasTech Observatorio",
+    "title": "POTI - Observatorio del Turismo Inteligente",
     "heading": "Rutas con Alma Potiguar,",
     "subheading": "Turismo Seguro y Sostenible",
-    "description": "DunasTech es el observatorio inteligente que lo conecta con lo mejor de Rio Grande do Norte. Planifique rutas a su medida, contrate guías certificados en Cadastur y ayude a monitorear el estado de nuestros destinos. ¡Orgullo de valorar nuestra cultura y preservar nuestros paraísos naturales!",
+    "description": "POTI es la plataforma de observatorio inteligente que lo conecta con lo mejor de Rio Grande do Norte. Planifique rutas a su medida, contrate guías certificados en Cadastur y ayude a monitorear el estado de nuestros destinos. ¡Orgullo de valorar nuestra cultura y preservar nuestros paraísos naturales!",
     "startPointLabel": "📍 Punto de Partida o Enfoque (Opcional)",
     "startPointPlaceholder": "Ej: Pipa, Genipabu, Natal...",
     "travelStyleLabel": "🎭 Estilo de Viaje",
@@ -301,6 +301,34 @@
         "shuttle": {
           "title": "Circuito de los Sabores Potiguares Litoral Sur",
           "description": "Disfrute de la rica gastronomía playera de Ponta Negra, Pipa y los manglares gastronómicos de Cunhaú."
+        }
+      },
+      "ecotourism": {
+        "hike": {
+          "title": "Sendero Ecológico: Lagunas y Arrecifes",
+          "description": "Caminata explorando la Laguna de Pitangui y los arrecifes de coral de Maracajaú."
+        },
+        "buggy": {
+          "title": "Ruta de Buggy Sostenible Litoral Norte",
+          "description": "Paseo en buggy conectando los arrecifes de Maracajaú con el pueblo pesquero de Galinhos."
+        },
+        "shuttle": {
+          "title": "Circuito Ecológico: Lagunas y Manglares",
+          "description": "Itinerario en furgoneta por la Laguna de Pitangui, los arrecifes de Maracajaú y los manglares de Galinhos."
+        }
+      },
+      "family": {
+        "hike": {
+          "title": "Paseo Familiar: Ponta Negra y Pipa",
+          "description": "Un paseo tranquilo por el paseo marítimo de Ponta Negra y la playa familiar de Pipa, ideal para niños."
+        },
+        "buggy": {
+          "title": "Ruta Familiar en Buggy Litoral Norte",
+          "description": "Paseo seguro en buggy por el Fuerte de los Reis Magos y las dunas de Genipabu, con paradas para todas las edades."
+        },
+        "shuttle": {
+          "title": "Ruta Familiar Completa RN",
+          "description": "Itinerario en furgoneta por Ponta Negra, el Fuerte de los Reis Magos y la playa de Pipa, cómodo para toda la familia."
         }
       }
     },

@@ -47,14 +47,14 @@ export default function LoginPage() {
   const handleCPFSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
-    await signInWithCPF(cpf, name, email);
-    if (!error) router.push(redirectPath);
+    await signInWithCPF(cpf, name, email, docType);
+    // Redirect is handled by the isAuthenticated effect above once sign-in actually succeeds.
   };
 
   const handleGoogleLogin = async () => {
     clearError();
     await signInWithGoogle();
-    router.push(redirectPath);
+    // Redirect is handled by the isAuthenticated effect above once sign-in actually succeeds.
   };
 
   return (
@@ -72,7 +72,7 @@ export default function LoginPage() {
             <div className="h-14 w-14 rounded-2xl gradient-ocean mx-auto flex items-center justify-center mb-4">
               <span className="text-2xl">🏖️</span>
             </div>
-            <h1 className="text-2xl font-bold text-[var(--color-text)]">Bem-vindo ao DunasTech</h1>
+            <h1 className="text-2xl font-bold text-[var(--color-text)]">Bem-vindo ao POTI</h1>
             <p className="text-sm text-[var(--color-text-muted)] mt-1">
               Entre para avaliar destinos e contribuir com o observatório
             </p>
@@ -214,7 +214,7 @@ export default function LoginPage() {
           {/* Secure database badge */}
           <div className="flex items-center justify-center gap-1.5 mt-6 pt-4 border-t border-[var(--color-border-light)] text-[9px] font-black text-[var(--color-text-muted)] uppercase tracking-wider">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Supabase Auth & Database Criptografado</span>
+            <span>Autenticação e Banco de Dados Criptografado</span>
           </div>
 
           {/* Footer */}

@@ -32,7 +32,7 @@ export default function AIChatSidebar({
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "model",
-      text: "Olá, Gestor! Sou o Assistente IA da DunasTech. Posso responder perguntas sobre o ISA dos destinos, reportes de manutenção, saturação de fluxo e sugerir planos de ação. O que deseja saber?",
+      text: "Olá, Gestor! Sou o Assistente IA da POTI. Posso responder perguntas sobre o ISA dos destinos, reportes de manutenção, saturação de fluxo e sugerir planos de ação. O que deseja saber?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -98,7 +98,7 @@ export default function AIChatSidebar({
           <BrainCircuit className="w-5 h-5 text-violet-400" />
           <div>
             <h3 className="text-sm font-bold text-white flex items-center gap-1">
-              DunasIA Chat
+              PotiIA Chat
               <Sparkles className="w-3 h-3 text-amber-400 fill-amber-400" />
             </h3>
             <p className="text-[10px] text-slate-500">Inteligência Turística Potiguar</p>
@@ -131,7 +131,7 @@ export default function AIChatSidebar({
               <p className="whitespace-pre-wrap">{msg.text}</p>
             </div>
             <span className="text-[9px] text-slate-600 mt-1 px-1">
-              {msg.role === "user" ? "Você" : "DunasIA"}
+              {msg.role === "user" ? "Você" : "PotiIA"}
             </span>
           </div>
         ))}

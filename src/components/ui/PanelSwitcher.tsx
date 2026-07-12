@@ -156,7 +156,7 @@ export function PanelSwitcher() {
           {/* Footer hint */}
           <div className="px-3.5 py-2 border-t border-[var(--color-border-light)]">
             <p className="text-[8.5px] text-[var(--color-text-muted)] text-center">
-              DunasTech · Observatório Potiguar 2026
+              POTI · Observatório Potiguar 2026
             </p>
           </div>
         </div>

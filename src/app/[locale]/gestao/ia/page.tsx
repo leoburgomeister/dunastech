@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { destinosInfo, fluxoData, transporteData, investimentosData, calcularISA } from "@/data/mockData";
+import { destinosInfo, transporteData, investimentosData, calcularISA } from "@/data/mockData";
 import type { Feedback } from "@/data/mockData";
 import { subscribeFeedbacks } from "@/lib/firebase";
-import { 
+import {
   Brain, Sparkles, Loader2, Send, MessageSquare, ShieldAlert,
-  TrendingUp, Trash2, Bus, ShieldCheck, Wrench, Activity, AlertCircle
+  TrendingUp, Trash2, Bus, ShieldCheck, Wrench, Activity
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -225,28 +225,39 @@ export default function IAGestaoPage() {
   const [inputValue, setInputValue] = useState("");
   const [loadingChat, setLoadingChat] = useState(false);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  // Mirrors `feedbacks` for the destino-switch effect below, so new feedbacks arriving
+  // in the background don't reset the in-progress chat conversation (see that effect's comment).
+  const feedbacksRef = useRef<Feedback[]>([]);
 
   useEffect(() => {
-    const unsub = subscribeFeedbacks(setFeedbacks);
+    const unsub = subscribeFeedbacks((fb) => {
+      feedbacksRef.current = fb;
+      setFeedbacks(fb);
+    });
     return () => unsub();
   }, []);
 
   const currentTransport = transporteData.find((t) => t.destino === selectedDestino);
   const currentInvest = investimentosData.find((i) => i.destino === selectedDestino);
 
-  // Auto-load reports and greetings when switching destinations
+  // Auto-load reports and greetings when switching destinations.
+  // Intentionally depends only on `selectedDestino`, not `feedbacks` — the live feedback
+  // stream updates in the background (any tourist, any destino) and must not reset an
+  // in-progress chat conversation each time it changes. Uses `feedbacksRef` for a fresh
+  // snapshot at the moment the destino changes instead.
   useEffect(() => {
+    const currentFeedbacks = feedbacksRef.current;
     const key = selectedDestino;
     let defaultText = localMockDiagnostics[key];
-    
+
     if (!defaultText) {
       const currentTransport = transporteData.find((t) => t.destino === selectedDestino);
       const currentInvest = investimentosData.find((i) => i.destino === selectedDestino);
-      const isa = calcularISA(selectedDestino, feedbacks);
+      const isa = calcularISA(selectedDestino, currentFeedbacks);
       const variacao = currentTransport?.variacao_percentual || 0;
       const modal = currentTransport?.modal_principal || "Terrestre";
-      
-      const feedbacksDest = feedbacks.filter((f) => f.destino === selectedDestino);
+
+      const feedbacksDest = currentFeedbacks.filter((f) => f.destino === selectedDestino);
       const manutencao = feedbacksDest.filter((f) => !f.conservacao).length;
       const superlotado = feedbacksDest.filter((f) => f.superlotado).length;
 
@@ -274,20 +285,20 @@ PROPOSTAS DE INVESTIMENTO DE ZELADORIA:
 3. Certificação Cadastur: Promover a regularização e o selo Cadastur de 100% dos operadores locais para garantir segurança e qualidade de serviços.`;
     }
 
-    const isa = calcularISA(selectedDestino, feedbacks);
-    
+    const isa = calcularISA(selectedDestino, currentFeedbacks);
+
     const t = setTimeout(() => {
       setAiInsight(defaultText);
       setChatMessages([
-        { 
-          sender: "ai", 
-          text: `Olá! Sou a DunasIA. Estou monitorando o atrativo "${selectedDestino}". O Índice ISA atual está em ${isa}/100. Posso ajudar a detalhar o relatório ecológico ou discutir alternativas de investimento para esta praia. O que gostaria de saber sobre a gestão deste atrativo?` 
+        {
+          sender: "ai",
+          text: `Olá! Sou a DunasIA. Estou monitorando o atrativo "${selectedDestino}". O Índice ISA atual está em ${isa}/100. Posso ajudar a detalhar o relatório ecológico ou discutir alternativas de investimento para esta praia. O que gostaria de saber sobre a gestão deste atrativo?`
         }
       ]);
     }, 0);
 
     return () => clearTimeout(t);
-  }, [selectedDestino, feedbacks]);
+  }, [selectedDestino]);
 
   const generateDiagnostic = async () => {
     setLoadingInsight(true);

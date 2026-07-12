@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/Button';
 import { PanelSwitcher } from '@/components/ui/PanelSwitcher';
 import { useAuth } from '@/providers/AuthProvider';
 import { allDestinos } from '@/data/mockData';
-import { useState } from 'react';
 
 const bottomTabs = [
   { href: '/', icon: Compass, translationKey: 'explore' },
@@ -24,7 +23,6 @@ const bottomTabs = [
 export default function TouristLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, isAuthenticated } = useAuth();
-  const [searchOpen, setSearchOpen] = useState(false);
   const tNav = useTranslations('nav');
   const tAuth = useTranslations('auth');
 
@@ -115,7 +113,7 @@ export default function TouristLayout({ children }: { children: React.ReactNode 
       {/* Footer — Desktop */}
       <footer className="hidden lg:block border-t border-[var(--color-border)] py-6">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between text-xs text-[var(--color-text-muted)]">
-          <p>© 2026 DunasTech. Feito com ❤️ para o Hackathon do Sol.</p>
+          <p>© 2026 POTI. Feito com ❤️ para o Hackathon do Sol.</p>
           <div className="flex items-center gap-4">
             <Link href="/gestao" className="hover:text-[var(--color-text)] transition-colors">Gestão</Link>
             <Link href="/pitch" className="hover:text-[var(--color-text)] transition-colors">Pitch</Link>

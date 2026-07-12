@@ -5,11 +5,9 @@ import { ClipboardCheck, Send, CheckCircle, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { StarRating } from '@/components/ui/StarRating';
-import { Badge } from '@/components/ui/Badge';
 import { useAuth } from '@/providers/AuthProvider';
 import { addFeedback } from '@/lib/firebase';
-import { allDestinos, avaliacaoOptions } from '@/data/mockData';
-import Link from 'next/link';
+import { allDestinos } from '@/data/mockData';
 import { useRouter } from 'next/navigation';
 
 const criteria = [
@@ -24,7 +22,7 @@ const criteria = [
 ];
 
 export default function EvaluationPage() {
-  const { isAuthenticated, user, loading: authLoading } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const router = useRouter();
   const [selectedDest, setSelectedDest] = useState('');
 

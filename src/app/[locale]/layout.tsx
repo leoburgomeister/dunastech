@@ -29,19 +29,19 @@ const jetbrains = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'DunasTech | Observatório Inteligente do Turismo',
-    template: '%s | DunasTech',
+    default: 'POTI | Plataforma de Observatório do Turismo Inteligente',
+    template: '%s | POTI',
   },
   description:
-    'Plataforma inteligente de monitoramento sustentável do turismo no Rio Grande do Norte.',
-  keywords: ['turismo', 'Rio Grande do Norte', 'Natal', 'sustentabilidade', 'observatório', 'IA', 'Cadastur'],
-  authors: [{ name: 'DunasTech' }],
+    'Plataforma de Observatório do Turismo Inteligente no Rio Grande do Norte.',
+  keywords: ['turismo', 'Rio Grande do Norte', 'Natal', 'sustentabilidade', 'observatório', 'IA', 'Cadastur', 'POTI'],
+  authors: [{ name: 'POTI' }],
   openGraph: {
-    title: 'DunasTech | Observatório Inteligente do Turismo',
+    title: 'POTI | Plataforma de Observatório do Turismo Inteligente',
     description: 'Explore, avalie e monitore os destinos turísticos do RN.',
     type: 'website',
     locale: 'pt_BR',
-    siteName: 'DunasTech',
+    siteName: 'POTI',
   },
 };
 

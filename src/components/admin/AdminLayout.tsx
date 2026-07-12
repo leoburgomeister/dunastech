@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, MapPin, MessageSquare, Share2, Brain, FileText,
-  Sun, ChevronLeft, ChevronRight, LogOut, Settings, ShieldCheck, Building,
+  ChevronLeft, ChevronRight, LogOut, ShieldCheck, Building,
   ShieldAlert, Loader2, ArrowLeft,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -105,7 +105,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
           
           <p className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-extrabold">
-            DunasTech · Observatório Potiguar 2026
+            POTI · Observatório Potiguar 2026
           </p>
         </div>
       </div>

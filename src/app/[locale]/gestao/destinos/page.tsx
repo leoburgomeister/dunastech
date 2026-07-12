@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card } from "@/components/ui/Card";
-import { destinosInfo, fluxoData, ibgeData, transporteData, calcularISA } from "@/data/mockData";
+import { destinosInfo, fluxoData, ibgeData, transporteData, calcularISA, type Feedback } from "@/data/mockData";
 import { Badge } from "@/components/ui/Badge";
 import { MapPin, Users, Activity, ChevronDown, ChevronUp } from "lucide-react";
 import { cn, slugify } from "@/lib/utils";
+import { subscribeFeedbacks } from "@/lib/firebase";
 
 const DestinosMap = dynamic(
   () => import("@/components/admin/DestinosMap"),
@@ -15,7 +17,7 @@ const DestinosMap = dynamic(
 );
 
 export default function DestinosGestaoPage() {
-  const [monitoredSpots, setMonitoredSpots] = useState<string[]>(() => {
+  const [monitoredSpots] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("dunastech_monitored_spots");
       if (saved) return JSON.parse(saved);
@@ -23,6 +25,7 @@ export default function DestinosGestaoPage() {
     return destinosInfo.filter(d => d.monitorado !== false).map(d => d.nome);
   });
   const [expandedSpotName, setExpandedSpotName] = useState<string | null>(null);
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -32,6 +35,8 @@ export default function DestinosGestaoPage() {
         localStorage.setItem("dunastech_monitored_spots", JSON.stringify(defaults));
       }
     }
+    const unsub = subscribeFeedbacks(setFeedbacks);
+    return () => unsub();
   }, []);
 
   const activeSpots = useMemo(() => {
@@ -50,7 +55,7 @@ export default function DestinosGestaoPage() {
           <div>
             <h1 className="text-xl font-bold">Destinos Turísticos Monitorados</h1>
             <p className="text-xs text-[var(--color-text-muted)]">
-              Zeladoria, saturação e dados demográficos integrados pelo DunasTech.
+              Zeladoria, saturação e dados demográficos integrados pelo POTI.
             </p>
           </div>
           <Badge variant="primary" size="md">
@@ -59,7 +64,7 @@ export default function DestinosGestaoPage() {
         </div>
 
         {/* Map Container - always show all spots */}
-        <DestinosMap destinations={destinosInfo} />
+        <DestinosMap destinations={destinosInfo} feedbacks={feedbacks} />
 
         {/* SECTION: Active sensors */}
         <div className="space-y-3">
@@ -83,8 +88,8 @@ export default function DestinosGestaoPage() {
                   )}
                 >
                   <div>
-                    <div className="relative">
-                      <img src={d.imagem} alt={d.nome} className="w-full h-44 object-cover rounded-t-xl" />
+                    <div className="relative h-44">
+                      <Image src={d.imagem} alt={d.nome} fill sizes="(max-width: 768px) 100vw, 400px" className="object-cover rounded-t-xl" />
                       <div className="absolute top-2 right-2 flex gap-1">
                         <Badge variant={fluxo && fluxo.saturacao_turistica > 75 ? "danger" : "success"} size="sm">
                           Saturação: {fluxo?.saturacao_turistica || 0}%
@@ -150,7 +155,7 @@ export default function DestinosGestaoPage() {
                           <div>
                             <span className="font-bold text-[var(--color-text)] uppercase tracking-wider block mb-1">Índice de Saúde (ISA)</span>
                             {(() => {
-                              const isaVal = calcularISA(d.nome, []); // empty array for static
+                              const isaVal = calcularISA(d.nome, feedbacks);
                               return (
                                 <div className="flex items-center gap-2 bg-[var(--color-surface-alt)] p-2 rounded-lg">
                                   <Activity className="h-4.5 w-4.5 text-[var(--color-primary)] animate-pulse" />
@@ -210,8 +215,8 @@ export default function DestinosGestaoPage() {
                     )}
                   >
                     <div>
-                      <div className="relative">
-                        <img src={d.imagem} alt={d.nome} className="w-full h-44 object-cover rounded-t-xl grayscale-[15%]" />
+                      <div className="relative h-44">
+                        <Image src={d.imagem} alt={d.nome} fill sizes="(max-width: 768px) 100vw, 400px" className="object-cover rounded-t-xl grayscale-[15%]" />
                         <div className="absolute top-2 right-2">
                           <Badge variant="warning" size="sm">Sensores Inativos</Badge>
                         </div>
@@ -274,7 +279,7 @@ export default function DestinosGestaoPage() {
                             <div>
                               <span className="font-bold text-[var(--color-text)] uppercase tracking-wider block mb-1">Índice de Saúde (ISA)</span>
                               {(() => {
-                                const isaVal = calcularISA(d.nome, []); // empty array for static
+                                const isaVal = calcularISA(d.nome, feedbacks);
                                 return (
                                   <div className="flex items-center gap-2 bg-[var(--color-surface-alt)] p-2 rounded-lg">
                                     <Activity className="h-4.5 w-4.5 text-[var(--color-primary)] animate-pulse" />

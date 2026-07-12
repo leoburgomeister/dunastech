@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { useTheme } from 'next-themes';
 import L from 'leaflet';
-import { type DestinoInfo, fluxoData, calcularISA } from '@/data/mockData';
+import { type DestinoInfo, type Feedback, fluxoData, calcularISA } from '@/data/mockData';
 import { Badge } from '@/components/ui/Badge';
 import { Users, Activity, MapPin } from 'lucide-react';
 import { slugify } from '@/lib/utils';
@@ -60,9 +61,10 @@ const createCustomIcon = (isaScore: number) => {
 
 interface DestinosMapProps {
   destinations: DestinoInfo[];
+  feedbacks?: Feedback[];
 }
 
-export default function DestinosMap({ destinations }: DestinosMapProps) {
+export default function DestinosMap({ destinations, feedbacks = [] }: DestinosMapProps) {
   const [mounted, setMounted] = useState(false);
   const { resolvedTheme } = useTheme();
 
@@ -103,8 +105,7 @@ export default function DestinosMap({ destinations }: DestinosMapProps) {
         />
 
         {destinations.map((d) => {
-          // Compute real-time ISA score (since feedbacks is not loaded in child, calculation falls back gracefully)
-          const isa = calcularISA(d.nome, []);
+          const isa = calcularISA(d.nome, feedbacks);
           const fluxo = fluxoData.find((f) => f.destino === d.nome);
           const slug = slugify(d.nome);
 
@@ -117,7 +118,7 @@ export default function DestinosMap({ destinations }: DestinosMapProps) {
               <Popup>
                 <div className="p-2 space-y-2 min-w-56 text-[var(--color-text)]">
                   <div className="relative h-20 w-full rounded-lg overflow-hidden">
-                    <img src={d.imagem} alt={d.nome} className="w-full h-full object-cover" />
+                    <Image src={d.imagem} alt={d.nome} fill sizes="224px" className="object-cover" />
                     <div className="absolute top-1.5 right-1.5">
                       <Badge variant={isa >= 80 ? 'success' : isa >= 60 ? 'warning' : 'danger'} size="sm">
                         ISA: {isa}

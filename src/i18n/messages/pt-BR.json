@@ -1,7 +1,7 @@
 {
   "common": {
-    "appName": "DunasTech",
-    "tagline": "Observatório Inteligente do Turismo",
+    "appName": "POTI",
+    "tagline": "Plataforma de Observatório do Turismo Inteligente",
     "loading": "Carregando...",
     "error": "Ocorreu um erro",
     "save": "Salvar",
@@ -134,13 +134,13 @@
   "footer": {
     "madeWith": "Feito com ❤️ para o",
     "hackathon": "Hackathon do Sol 2026",
-    "copyright": "© 2026 DunasTech. Todos os direitos reservados."
+    "copyright": "© 2026 POTI. Todos os direitos reservados."
   },
   "planner": {
-    "title": "DunasTech Observatório",
+    "title": "POTI - Observatório do Turismo Inteligente",
     "heading": "Roteiros com Alma Potiguar,",
     "subheading": "Turismo Seguro e Sustentável",
-    "description": "A DunasTech é o observatório inteligente que conecta você ao melhor do Rio Grande do Norte. Planeje rotas sob medida, contrate guias credenciados no Cadastur e ajude a monitorar o estado dos nossos destinos. Orgulho de valorizar nossa cultura e preservar os nossos paraísos naturais!",
+    "description": "A POTI é a plataforma de observatório inteligente que conecta você ao melhor do Rio Grande do Norte. Planeje rotas sob medida, contrate guias credenciados no Cadastur e ajude a monitorar o estado dos nossos destinos. Orgulho de valorizar nossa cultura e preservar os nossos paraísos naturais!",
     "startPointLabel": "📍 Ponto de Partida ou Foco (Opcional)",
     "startPointPlaceholder": "Ex: Pipa, Genipabu, Natal...",
     "travelStyleLabel": "🎭 Estilo de Viagem",
@@ -301,6 +301,34 @@
         "shuttle": {
           "title": "Circuito dos Sabores Potiguares Litoral Sul",
           "description": "Aproveite a rica culinária praiana de Ponta Negra, Pipa e os manguezais gastronômicos de Cunhaú."
+        }
+      },
+      "ecotourism": {
+        "hike": {
+          "title": "Trilha Ecológica das Lagoas & Parrachos",
+          "description": "Caminhada explorando a Lagoa de Pitangui e os recifes de coral dos Parrachos de Maracajaú."
+        },
+        "buggy": {
+          "title": "Rota de Buggy Sustentável Litoral Norte",
+          "description": "Passeio de buggy conectando os Parrachos de Maracajaú à vila de pescadores de Galinhos."
+        },
+        "shuttle": {
+          "title": "Circuito Ecológico Lagoas & Manguezais",
+          "description": "Roteiro de van/translado pela Lagoa de Pitangui, Parrachos de Maracajaú e os manguezais de Galinhos."
+        }
+      },
+      "family": {
+        "hike": {
+          "title": "Caminhada em Família Ponta Negra & Pipa",
+          "description": "Passeio tranquilo pela orla de Ponta Negra e a praia familiar de Pipa, ideal para crianças."
+        },
+        "buggy": {
+          "title": "Roteiro de Buggy em Família Litoral Norte",
+          "description": "Passeio de buggy seguro pelo Forte dos Reis Magos e as dunas de Genipabu, com paradas para todas as idades."
+        },
+        "shuttle": {
+          "title": "Rota Completa em Família RN",
+          "description": "Roteiro de van/translado por Ponta Negra, Forte dos Reis Magos e Praia da Pipa, com conforto para toda a família."
         }
       }
     },

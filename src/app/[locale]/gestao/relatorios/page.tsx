@@ -110,7 +110,7 @@ export default function RelatoriosGestaoPage() {
             <span>Auditoria Cadastur & Sustentabilidade Legal</span>
           </div>
           <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
-            Todos os relatórios gerados pelo DunasTech cumprem com a regulamentação municipal e as diretrizes do Ministério do Turismo. A priorização exclusiva de parceiros formalizados no **Cadastur** garante a integridade legal da amostragem estatística.
+            Todos os relatórios gerados pelo POTI cumprem com a regulamentação municipal e as diretrizes do Ministério do Turismo. A priorização exclusiva de parceiros formalizados no **Cadastur** garante a integridade legal da amostragem estatística.
           </p>
         </Card>
       </div>

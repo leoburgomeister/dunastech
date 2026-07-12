@@ -5,42 +5,6 @@ import maplibregl from 'maplibre-gl';
 import { useTheme } from 'next-themes';
 import { type DestinoInfo } from '@/data/mockData';
 
-// Helper to determine emoji and color based on destination
-function getDestinationIcon(nome: string): { icon: string; color: string } {
-  const n = nome.toLowerCase();
-  if (n.includes("ponta negra") || n.includes("madeiro") || n.includes("pipa")) {
-    return { icon: "🏖️", color: "#38BDF8" }; // Ocean blue
-  }
-  if (n.includes("genipabu") || n.includes("dunas")) {
-    return { icon: "🐪", color: "#F59E0B" }; // Sandy Amber
-  }
-  if (n.includes("maracajaú") || n.includes("lagoa")) {
-    return { icon: "🏊", color: "#06B6D4" }; // Cyan
-  }
-  if (n.includes("gostoso") || n.includes("cunhaú") || n.includes("galinhos")) {
-    return { icon: "⛵", color: "#0EA5E9" }; // Sky
-  }
-  if (n.includes("forte") || n.includes("castelo") || n.includes("mossoró")) {
-    return { icon: "🏰", color: "#A855F7" }; // Purple
-  }
-  if (n.includes("cajueiro") || n.includes("parque")) {
-    return { icon: "🌳", color: "#22C55E" }; // Green
-  }
-  if (n.includes("inferno")) {
-    return { icon: "🚀", color: "#EF4444" }; // Red
-  }
-  if (n.includes("soledade") || n.includes("apertados")) {
-    return { icon: "⛰️", color: "#78350F" }; // Brown
-  }
-  if (n.includes("salinas") || n.includes("sal")) {
-    return { icon: "🧂", color: "#64748B" }; // Slate
-  }
-  if (n.includes("santa rita") || n.includes("monumento")) {
-    return { icon: "⛪", color: "#F59E0B" }; // Gold
-  }
-  return { icon: "📍", color: "#EF4444" }; // Red
-}
-
 interface HomeRouteMapProps {
   destinations: (DestinoInfo & { dia?: number; emoji?: string })[];
   activeDay?: number | null;
@@ -54,6 +18,8 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
   const animationFrameRef = useRef<number | null>(null);
   const [mounted, setMounted] = useState(false);
   const { resolvedTheme } = useTheme();
+  const firstLatitude = destinations[0]?.latitude;
+  const firstLongitude = destinations[0]?.longitude;
 
   useEffect(() => {
     setTimeout(() => {
@@ -70,8 +36,8 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
   useEffect(() => {
     if (!mounted || !mapContainerRef.current) return;
 
-    const initialCenter: [number, number] = destinations.length > 0 
-      ? [destinations[0].longitude, destinations[0].latitude]
+    const initialCenter: [number, number] = firstLongitude !== undefined && firstLatitude !== undefined
+      ? [firstLongitude, firstLatitude]
       : [-35.2009, -5.7945]; // Natal Central
 
     const styleUrl = resolvedTheme === 'dark'
@@ -138,7 +104,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       map.remove();
       setMapInstance(null);
     };
-  }, [mounted, isInteractive, destinations.length, resolvedTheme]);
+  }, [mounted, isInteractive, destinations.length, firstLatitude, firstLongitude, resolvedTheme]);
 
   // Update Markers and Fit Bounds when destinations change or mapInstance changes
   useEffect(() => {

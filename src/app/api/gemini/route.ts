@@ -23,8 +23,15 @@ export async function POST(request: NextRequest) {
 
       const systemInstruction = buildChatSystemInstruction(feedbacks);
 
+      // Gemini requires the first turn in history to have role "user" — the frontend seeds
+      // its chat state with an initial assistant greeting, so drop any leading non-"user"
+      // turns before sending, or the very first real message would fail with a 400.
+      const rawHistory: { role: string; text: string }[] = history || [];
+      const firstUserIndex = rawHistory.findIndex((m) => m.role === "user");
+      const trimmedHistory = firstUserIndex === -1 ? [] : rawHistory.slice(firstUserIndex);
+
       const chat = model.startChat({
-        history: history.map((m: { role: string; text: string }) => ({
+        history: trimmedHistory.map((m) => ({
           role: m.role,
           parts: [{ text: m.text }],
         })),
@@ -46,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!apiKey) {
-      const mockInsight = generateMockInsight(destino, feedbacks, transporteInfo, isaScore);
+      const mockInsight = generateMockInsight(destino, feedbacks, transporteInfo, investimentoInfo, instagramData, isaScore);
       return NextResponse.json({ source: "mock", insight: mockInsight });
     }
 
@@ -187,6 +194,8 @@ function generateMockInsight(
   destino: string,
   feedbacks: Feedback[] | null,
   transporteInfo: any,
+  investimentoInfo: any,
+  instagramData: any,
   isaScore: number
 ): string {
   const variacao = transporteInfo?.variacao_percentual || 0;
@@ -197,11 +206,19 @@ function generateMockInsight(
   if (isaScore < 60) alertLevel = "Crítico";
   else if (isaScore > 80) alertLevel = "Excelente";
 
+  const investimentoLine = investimentoInfo?.total_mil
+    ? `\nInvestimentos públicos registrados somam R$ ${investimentoInfo.total_mil} mil, com R$ ${investimentoInfo.investimento_infraestrutura_mil || 0} mil em infraestrutura e R$ ${investimentoInfo.investimento_saneamento_mil || 0} mil em saneamento.`
+    : "";
+
+  const instagramLine = instagramData?.totalLikes
+    ? `\nNas redes sociais, o destino acumula ${instagramData.totalLikes} curtidas recentes, com predominância de posts ${instagramData.posts?.map((p: any) => p.sentiment).join(", ") || "neutros"}.`
+    : "";
+
   return `## 🤖 Diagnóstico IA — ${destino}
 
 **Nível de Alerta: ${alertLevel.toUpperCase()}** | ISA: ${isaScore}/100
 
-O destino "${destino}" apresenta uma variação de fluxo de ${variacao}% em modais terrestres/aéreos. No sensor social, temos ${manutencao} alerta(s) de manutenção pendente e ${superlotado} sinalização(ões) de superlotação no atrativo.
+O destino "${destino}" apresenta uma variação de fluxo de ${variacao}% em modais terrestres/aéreos. No sensor social, temos ${manutencao} alerta(s) de manutenção pendente e ${superlotado} sinalização(ões) de superlotação no atrativo.${investimentoLine}${instagramLine}
 
 O Índice de Saúde do Atrativo (ISA) de **${isaScore}** reflete a pressão atual. Um score de alerta "${alertLevel}" requer medidas mitigadoras.
 

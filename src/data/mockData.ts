@@ -1,5 +1,5 @@
 // ============================================================
-// MOCK DATA V2 — Observatório Inteligente do Turismo (DunasTech)
+// MOCK DATA V2 — Plataforma de Observatório do Turismo Inteligente (POTI)
 // ============================================================
 
 export interface AttractionActivity {
@@ -1222,7 +1222,7 @@ export const avaliacaoOptions = [
   { id: "seguranca", label: "Segurança Ativa", emoji: "👮", weight: 15 },
   { id: "custo_beneficio", label: "Preço Justo (Alimentação/Lazer)", emoji: "🪙", weight: 10 },
   { id: "conservacao", label: "Equipamentos Conservados", emoji: "🏗️", weight: 15 },
-  { id: "superlotado", label: "Superlotado (Alerta)", emoji: "⚠️", weight: -10, negative: true }
+  { id: "superlotado", label: "Superlotado (Alerta)", emoji: "⚠️", weight: -15, negative: true }
 ];
 
 // --- ISA (Índice de Saúde do Atrativo) Calculator V2 ---
