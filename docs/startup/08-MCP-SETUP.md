@@ -32,23 +32,27 @@ Plugins já presentes no Cursor (além do `mcp.json`): **Atlassian**, **Notion**
 3. Em **Atlassian** (plugin e/ou entrada `atlassian` do projeto), clique **Connect / Authenticate**.
 4. Complete o OAuth Atlassian com a conta que vê o projeto DunasTech.
 5. Confirme que o status muda para **Connected / Ready**.
-6. Volte neste chat (ou mande: `Jira liberado` + URL do site, ex. `https://xxx.atlassian.net`).
+6. **Importante:** a sessão OAuth do Desktop **não é compartilhada** com este cloud agent. Para o Jira ser lido daqui:
+   - continue o trabalho num **Agent chat no Desktop** (recomendado), **ou**
+   - cole a **URL do site** (`https://xxx.atlassian.net`) + project key e tente de novo após reiniciar MCPs.
+7. Mande: `Jira liberado` + URL do site.
 
 Endpoint oficial usado: `https://mcp.atlassian.com/v1/mcp/authv2`.
 
-### B) Google Drive — prioridade #1 (atas)
+### B) Google Drive / pasta local — prioridade #1 (atas)
 
-1. No Desktop, na lista MCP, ative **google-drive**.
-2. Na primeira execução o pacote pede OAuth Google. Se precisar forçar:
+Download local já feito em:
 
-```bash
-npx -y @piotr-agier/google-drive-mcp auth
-```
+`C:\Users\Leobu\dev\DunasTech\docs\plano de negócio ai`
 
-3. Autorize a conta que tem a pasta das **atas** / Drive da DunasTech.
-4. (Ideal) cole aqui o **link da pasta** das atas.
+Esse path **não existe no cloud**. Destino no Git: [`docs/plano-de-negocio-ai/`](../plano-de-negocio-ai/README.md).
 
-Sem credenciais Google no ambiente cloud, o agente **não** autentica Drive sozinho.
+**Caminho mais rápido (sem MCP Drive):** no PowerShell do repo, copie e faça push (comandos no README da pasta). Depois diga `Drive sincronizado`.
+
+Alternativa MCP:
+1. No Desktop, ative **google-drive**.
+2. Se pedir login: `npx -y @piotr-agier/google-drive-mcp auth`
+3. Cole o link da pasta Drive.
 
 ### C) Notion — opcional
 
