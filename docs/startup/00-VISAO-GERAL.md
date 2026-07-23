@@ -1,16 +1,18 @@
 # 00 — Visão Geral: A Ideia Polida
 
 > Objetivo deste documento: deixar a ideia da DunasTech **madura, clara e apresentável** — pronta para pitch ao governo e para escalar.
+>
+> **Marca definida (atualização):** a empresa/startup é a **DunasTech**; o produto/plataforma é a **POTI — Plataforma de Observação do Turismo Inteligente**. (Confirmado no pitch atual do projeto.)
 
 ---
 
 ## 1. One-liner (pitch de uma frase)
 
-> **DunasTech é a plataforma de inteligência de dados do turismo do RN que transforma cada turista em um sensor do território — gerando, ao mesmo tempo, uma experiência melhor para quem visita e evidências para quem decide (governo, prefeituras e empresas).**
+> **A POTI (Plataforma de Observação do Turismo Inteligente), da DunasTech, transforma cada turista em um sensor do território — gerando, ao mesmo tempo, uma experiência melhor para quem visita e evidências para quem decide (governo, prefeituras e empresas).**
 
 ## 2. Elevator pitch (30 segundos)
 
-O turismo é a espinha dorsal da economia do Rio Grande do Norte (76% do PIB estadual), mas os dados que sustentam decisões são **fragmentados, lentos e presos em silos**. A DunasTech agrega dados oficiais (Cadastur, SÍRIO, IBGE, Emprotur), dados da web (Google, Instagram, Booking) e a **participação cidadã do turista** em uma única plataforma. Para o turista, entregamos um **guia inteligente** e uma **avaliação rápida**. Para o gestor público e o empresário, entregamos **painéis preditivos, alertas e o ISA** — o Índice de Saúde do Atrativo Turístico. É a evolução do turismo baseado em intuição para o turismo baseado em evidência.
+O turismo é a espinha dorsal da economia do Rio Grande do Norte (76% do PIB estadual), mas os dados que sustentam decisões são **fragmentados, lentos e presos em silos**. A **POTI** agrega dados oficiais (Cadastur, SÍRIO, IBGE, Emprotur), dados da web (Google, Instagram, Booking) e a **participação cidadã do turista** em uma única plataforma. Para o turista, entregamos um **guia inteligente** e uma **avaliação rápida**. Para o gestor público e o empresário, entregamos **painéis preditivos, alertas e o ISA** — o Índice de Saúde do Atrativo Turístico. É a evolução do turismo baseado em intuição para o turismo baseado em evidência.
 
 ## 3. Problema
 
@@ -42,7 +44,9 @@ flowchart TD
 
 ## 5. O diferencial: o ISA (Índice de Saúde do Atrativo Turístico)
 
-Nosso ativo-âncora. Cruza **fluxo de visitantes + investimento público/privado + estado de conservação + percepção dos turistas** em uma **nota de 0 a 100** por atrativo (quanto menor, maior a necessidade de intervenção). Alinhado à lógica de indicadores de sustentabilidade do **Plano Nacional de Turismo 2024–2027**.
+Nosso ativo-âncora. Cruza **avaliações de turistas + varredura de Instagram + dados de zeladoria** (fluxo, conservação, percepção) em uma **nota de 0 a 100** por atrativo (quanto menor, maior a necessidade de intervenção). Alinhado à lógica de indicadores de sustentabilidade do **Plano Nacional de Turismo 2024–2027**.
+
+**Exemplos reais no pitch atual (ISA por atrativo):** Gostoso 86 · Pipa 79 · Maracajaú 70 · Genipabu 68 · Ponta Negra 42 (alerta: alta saturação e queda de ISA no Morro do Careca → zeladoria urgente).
 
 > Em vez de apenas mostrar **onde** o turista está, a DunasTech mostra **como o destino está sendo cuidado.** Esse é o diferencial frente a um dashboard tradicional.
 
@@ -56,16 +60,13 @@ Exemplo de insight automático:
 - **Instrumento de política pública sustentável:** ao recomendar destinos periféricos (Programa DEL Turismo: Tibau do Sul, São Miguel do Gostoso, Apodi), alivia a pressão sobre a capital e distribui renda para o interior.
 - **Autoridade e conformidade:** só recomenda prestadores regularizados no Cadastur.
 
-## 7. Marca e nomenclatura
+## 7. Marca e nomenclatura (DEFINIDO)
 
-Nome de trabalho: **DunasTech**. Para a marca institucional voltada ao governo, avaliamos posicionar o produto como **"Observatório Inteligente do Turismo do RN"**. Opções de sigla estudadas:
+- **Empresa / startup:** **DunasTech**.
+- **Produto / plataforma:** **POTI — Plataforma de Observação do Turismo Inteligente** (o "primeiro Observatório Inteligente do Turismo do RN").
+- **Eixo institucional:** "Observatório Potiguar Inteligente".
 
-- **OIT-RN** — Observatório de Inteligência Turística do RN (institucional; atenção à colisão com a sigla da OIT).
-- **OPIT** — Observatório Potiguar de Inteligência Turística (curto e forte).
-- **ODIT** — Observatório de Dados e Inteligência Turística (destaca dados).
-- **OTI-RN** — Observatório de Turismo Inteligente do RN (memorável).
-
-**Recomendação:** manter **DunasTech** como marca-empresa (startup/produto) e usar **"Observatório Inteligente do Turismo do RN"** como marca-institucional/governamental do painel B2G. Decisão final de marca fica com Claudia + Leonardo (ver cronograma, marco de 22/07).
+Essa nomenclatura já está aplicada no pitch atual do projeto (branch `refactor-pitch-deck-isa`), encerrando a discussão anterior de siglas (OIT-RN, OPIT, ODIT, OTI-RN). Ajustes finos de identidade visual seguem com Claudia + Leonardo.
 
 ## 8. Visão de futuro (para onde escala)
 

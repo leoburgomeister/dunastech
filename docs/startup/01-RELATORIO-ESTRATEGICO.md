@@ -144,11 +144,14 @@ flowchart LR
     B2B -->|receita| Caixa
 ```
 
-### D.2. Fontes de receita
+### D.2. Fontes de receita (alinhado ao pitch atual da POTI)
 
-- **SaaS B2G (âncora):** assinatura por secretaria/prefeitura para o Observatório + ISA + alertas + relatórios.
-- **SaaS B2B:** assinatura para trade turístico (inteligência de mercado, mapas de intenção).
-- **Freemium/Ads B2C:** camada gratuita + destaques/parcerias com prestadores regularizados.
+Três fontes de receita + um mecanismo de conformidade:
+
+- **B2C (gratuito):** roteiros e guias de viagem gratuitos via **WhatsApp** — maximiza volume de dados e adoção.
+- **B2B Freemium (CPC):** **destaques patrocinados** (custo por clique) para operadores locais **certificados no Cadastur**.
+- **SaaS B2G (âncora):** **licenciamento anual** para prefeituras/secretarias — Observatório + ISA + alertas de zeladoria + relatórios.
+- **Força Cadastur (conformidade):** auto-notificações preventivas de regularização a estabelecimentos sem registro ativo — reforça a legalidade da rede e cria relacionamento com prestadores.
 - **Serviços/relatórios sob demanda:** estudos customizados e exportações (PDF/XLS).
 
 ### D.3. Planos (Bronze / Prata / Ouro)

@@ -11,7 +11,7 @@
 
 ## Sumário executivo (leia isto primeiro)
 
-A **DunasTech** transforma dados dispersos do turismo do RN em um ativo estratégico. Nascemos de uma solução vencedora de hackathon — o **ISA (Índice de Saúde do Atrativo Turístico)** — e evoluímos para uma plataforma de **inteligência turística** em três frentes:
+A **DunasTech** (empresa) transforma dados dispersos do turismo do RN em um ativo estratégico por meio da **POTI — Plataforma de Observação do Turismo Inteligente** (produto). Nascemos de uma solução vencedora de hackathon — o **ISA (Índice de Saúde do Atrativo Turístico)** — e evoluímos para uma plataforma de **inteligência turística** em três frentes:
 
 - **B2C/C2C (turista como sensor):** guia inteligente + avaliação rápida por checkboxes que alimenta indicadores objetivos.
 - **B2G (gestão pública):** painel preditivo com fluxo, receita, conservação, pressão turística, alertas e o ISA dinâmico.
@@ -49,6 +49,7 @@ Inclui: contagem regressiva para 30/07, saúde do projeto, cronograma/Gantt, gr�
 
 ## Decisões já tomadas
 
+- **Marca:** empresa = **DunasTech**; plataforma/produto = **POTI (Plataforma de Observação do Turismo Inteligente)**.
 - **Idealizador/founder:** Leonardo detém o controle da empresa.
 - **Equity adotado (Cenário B):** Leonardo **72%** · Reserva estratégica **4%** · **6% para cada** um dos 4 membros (Antônio, Ari, Camilly, Claudia), com vesting.
 - **Metodologia:** Scrum ágil + Design Thinking; ferramenta de gestão **Jira**.

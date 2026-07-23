@@ -125,7 +125,7 @@
     <div class="logo">🌵</div>
     <div class="brand">
       <h1>DUNAS<b>TECH</b> — Cockpit de Gestão</h1>
-      <p>Observatório Inteligente do Turismo · RN</p>
+      <p>POTI · Plataforma de Observação do Turismo Inteligente · RN</p>
     </div>
     <div class="spacer"></div>
     <div class="count">
@@ -163,6 +163,9 @@
       <div class="card"><h3>Pesquisa de mercado</h3><div class="v small" style="color:var(--ok)">🟢 Consolidada</div><div class="s">Dados RN, personas, fontes</div></div>
       <div class="card"><h3>Sociedade/Jurídico</h3><div class="v small" style="color:var(--crit)">🔴 Pendente</div><div class="s">Equity definido; falta formalizar</div></div>
     </div>
+
+    <h2 class="sec">ISA por atrativo <span class="pill">POTI · demo do pitch</span></h2>
+    <div class="card" id="isaBox"></div>
 
     <h2 class="sec">Progresso por frente</h2>
     <div class="grid g2">
@@ -357,6 +360,14 @@ const FUND = [
   {id:"f6",t:"Registrar decisões em ata",w:"Camilly"},
 ];
 
+const ISA = [
+  {name:"Gostoso", isa:86, sat:48},
+  {name:"Pipa", isa:79, sat:76},
+  {name:"Maracajaú", isa:70, sat:54},
+  {name:"Genipabu", isa:68, sat:62},
+  {name:"Ponta Negra", isa:42, sat:88},
+];
+
 const DOCS = [
   {f:"README.md",d:"Índice + sumário executivo"},
   {f:"00-VISAO-GERAL.md",d:"Ideia polida, ISA, marca, posicionamento"},
@@ -498,6 +509,19 @@ function renderFund(){
   });
 }
 
+function isaColor(v){return v<50?"var(--crit)":(v<70?"var(--warn)":"var(--ok)");}
+function renderIsa(){
+  const c=document.getElementById("isaBox");if(!c)return;c.innerHTML="";
+  ISA.forEach(a=>{
+    const row=el("div");row.style.cssText="display:grid;grid-template-columns:120px 1fr 90px;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--border)";
+    row.innerHTML=`<div style="font-size:13.5px">${a.name}</div>
+      <div class="bar" style="margin-top:0"><span style="width:${a.isa}%;background:${isaColor(a.isa)}"></span></div>
+      <div style="font-size:12px;text-align:right"><b>ISA ${a.isa}</b> <span class="muted">· sat. ${a.sat}%</span></div>`;
+    c.appendChild(row);
+  });
+  const note=el("div","note",'🛡️ <b>Força Cadastur:</b> auto-notificações preventivas de regularização para estabelecimentos sem registro ativo. ISA = avaliações de turistas + varredura de Instagram + zeladoria (0–100).');
+  c.appendChild(note);
+}
 function renderDocs(){
   const c=document.getElementById("docsList");c.innerHTML="";
   DOCS.forEach(d=>{
@@ -555,7 +579,7 @@ document.getElementById("resetBtn").onclick=()=>{
 /* Init */
 if(state.__theme)document.documentElement.setAttribute("data-theme",state.__theme);
 renderGantt();renderMiles();renderDonut();renderRoles();renderRaci();
-renderOkrs();renderRamp();renderFund();renderDocs();renderKPIs();countdown();
+renderOkrs();renderRamp();renderFund();renderDocs();renderIsa();renderKPIs();countdown();
 </script>
 </body>
 </html>
