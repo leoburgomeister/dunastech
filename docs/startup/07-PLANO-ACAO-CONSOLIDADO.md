@@ -8,13 +8,16 @@
 
 ## 0. Status de acesso (fazer agora)
 
+Guia passo a passo: [`08-MCP-SETUP.md`](08-MCP-SETUP.md) · config: [`.cursor/mcp.json`](../../.cursor/mcp.json)
+
 | Fonte | Status | O que falta |
 |-------|--------|-------------|
-| **Jira** | ⛔ MCP Atlassian `needsAuth` — auth interativa **só no Cursor Desktop** | Autenticar **Atlassian** em Settings → MCP no Cursor Desktop; depois reabrir este chat / dizer “Jira liberado” |
-| **Google Drive / atas originais** | ⛔ Sem MCP Drive; uploads `.docx` do chat Estrutura **não estão mais no ambiente** | (A) Autenticar Drive se houver MCP, **ou** (B) colar link da pasta Drive, **ou** (C) subir atas em `docs/drive/atas/` |
-| **GitHub / docs startup** | ✅ Branch + PR #4 | Merge opcional do PR #4 |
-| **Ambiente de dev** | ✅ PR #5 (draft) | Merge opcional do PR #5 |
-| **Notion** | ⛔ `needsAuth` | Só se for fonte de verdade — autentique no Desktop |
+| **Jira** | ⛔ MCP Atlassian `needsAuth` — auth interativa **só no Cursor Desktop** | Desktop → Settings → MCP → **Connect Atlassian**; depois “Jira liberado” + URL do site |
+| **Google Drive / atas** | 🟡 MCP `google-drive` montado no `mcp.json`; ainda sem OAuth | Desktop → ativar + `npx -y @piotr-agier/google-drive-mcp auth` (ou Connect) + link da pasta |
+| **GitHub / docs startup** | ✅ Neste PR | — |
+| **Ambiente de dev MCPs** | ✅ context7 / playwright / chrome-devtools / firebase no `mcp.json` | Firebase login opcional |
+| **Notion** | ⛔ `needsAuth` (opcional) | Desktop → Connect Notion |
+| **Datadog** | ❌ error / fora de escopo | Ignorar até pós-30/07 |
 
 **Pedido imediato ao founder:** no Cursor Desktop, autenticar o servidor MCP **Atlassian**. Assim dá para puxar épicos/sprints/tarefas reais e rebatizar este plano com o board vivo.
 

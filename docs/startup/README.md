@@ -45,6 +45,7 @@ Inclui: contagem regressiva para 30/07, saúde do projeto, cronograma/Gantt, gr�
 | 05 | [Cronograma de Kickoff](05-CRONOGRAMA-KICKOFF.md) | Cronograma consolidado 11/07 → 30/07, marcos e responsáveis |
 | 06 | [Pauta da Reunião de Alinhamento](06-PAUTA-REUNIAO-ALINHAMENTO.md) | Roteiro da reunião inicial e decisões a fechar |
 | 07 | [Plano de Ação Consolidado](07-PLANO-ACAO-CONSOLIDADO.md) | Plano remontado (Estrutura + Development + atas); foco 24–30/07 |
+| 08 | [Setup MCP](08-MCP-SETUP.md) | Autenticar Atlassian (Jira), Drive, Notion e MCPs de execução |
 
 ---
 
