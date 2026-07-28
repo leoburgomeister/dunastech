@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/Badge";
 import { MapPin, Users, Activity, ChevronDown, ChevronUp } from "lucide-react";
 import { cn, slugify } from "@/lib/utils";
 import { subscribeFeedbacks } from "@/lib/firebase";
+import { useSupabaseSync } from "@/lib/supabase-data";
 
 const DestinosMap = dynamic(
   () => import("@/components/admin/DestinosMap"),
@@ -17,6 +18,7 @@ const DestinosMap = dynamic(
 );
 
 export default function DestinosGestaoPage() {
+  useSupabaseSync();
   const [monitoredSpots] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("dunastech_monitored_spots");

@@ -18,6 +18,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { destinosInfo, fluxoData, cadasturData, calcularISA } from '@/data/mockData';
 import type { Feedback } from '@/data/mockData';
+import { useSupabaseSync } from '@/lib/supabase-data';
 
 // Dynamically load Map component to prevent SSR window error on homepage
 const HomeRouteMap = dynamic(
@@ -57,6 +58,7 @@ function getHaversineDistance(
 }
 
 export default function TouristHomePage() {
+  useSupabaseSync();
   const t = useTranslations('planner');
   const tRanking = useTranslations('ranking');
 

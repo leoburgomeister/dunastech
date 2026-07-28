@@ -8,6 +8,7 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Card } from '@/components/ui/Card';
 import { destinosInfo, fluxoData, calcularISA, investimentosData, Feedback } from '@/data/mockData';
 import { subscribeFeedbacks } from '@/lib/firebase';
+import { useSupabaseSync } from '@/lib/supabase-data';
 import Link from 'next/link';
 
 function getISAConfig(score: number) {
@@ -17,6 +18,7 @@ function getISAConfig(score: number) {
 }
 
 export default function RankingPage() {
+  useSupabaseSync();
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'healthy' | 'attention' | 'critical'>('all');
   const [expandedDestName, setExpandedDestName] = useState<string | null>(null);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);

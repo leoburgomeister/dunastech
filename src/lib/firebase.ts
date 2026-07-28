@@ -9,6 +9,7 @@ import {
   Firestore,
 } from "firebase/firestore";
 import type { Feedback } from "@/data/mockData";
+import { supabase } from "@/lib/supabase";
 
 // Firebase config from environment variables
 const firebaseConfig = {
@@ -42,6 +43,28 @@ const FEEDBACKS_COLLECTION = "feedbacks";
  * Falls back to localStorage if Firebase is not configured.
  */
 export async function addFeedback(feedback: Omit<Feedback, "id" | "timestamp">): Promise<void> {
+  if (supabase) {
+    try {
+      const { error } = await supabase.from("feedbacks").insert({
+        destino: feedback.destino,
+        nota_geral: feedback.nota_geral,
+        limpo: feedback.limpo,
+        sinalizado: feedback.sinalizado,
+        preservado: feedback.preservado,
+        acessibilidade: feedback.acessibilidade,
+        seguranca: feedback.seguranca,
+        custo_beneficio: feedback.custo_beneficio,
+        conservacao: feedback.conservacao,
+        superlotado: feedback.superlotado,
+        comentario: feedback.comentario || null,
+      });
+      if (!error) return;
+      console.warn("Supabase feedback insert failed, falling back:", error);
+    } catch (error) {
+      console.warn("Supabase feedback insert threw, falling back:", error);
+    }
+  }
+
   const feedbackWithTimestamp = {
     ...feedback,
     timestamp: Date.now(),
@@ -73,9 +96,82 @@ export async function addFeedback(feedback: Omit<Feedback, "id" | "timestamp">):
  * listener fails to set up, or if it errors asynchronously after being set up (e.g.
  * permission-denied or network errors delivered via onSnapshot's error callback).
  */
+function mapSupabaseFeedback(row: {
+  id: string;
+  destino: string;
+  nota_geral: number;
+  limpo: boolean;
+  sinalizado: boolean;
+  preservado: boolean;
+  acessibilidade: boolean;
+  seguranca: boolean;
+  custo_beneficio: boolean;
+  conservacao: boolean;
+  superlotado: boolean;
+  comentario: string | null;
+  created_at: string;
+}): Feedback {
+  return {
+    id: row.id,
+    destino: row.destino,
+    nota_geral: row.nota_geral,
+    limpo: row.limpo,
+    sinalizado: row.sinalizado,
+    preservado: row.preservado,
+    acessibilidade: row.acessibilidade,
+    seguranca: row.seguranca,
+    custo_beneficio: row.custo_beneficio,
+    conservacao: row.conservacao,
+    superlotado: row.superlotado,
+    comentario: row.comentario ?? undefined,
+    timestamp: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
+  };
+}
+
 export function subscribeFeedbacks(
   callback: (feedbacks: Feedback[]) => void
 ): () => void {
+  if (supabase) {
+    const client = supabase;
+    let allRows: Feedback[] = [];
+    let fellBackToLocal = false;
+    let localCleanup: (() => void) | null = null;
+
+    const channel = client
+      .channel("feedbacks-realtime")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "feedbacks" },
+        (payload) => {
+          allRows = [mapSupabaseFeedback(payload.new as Parameters<typeof mapSupabaseFeedback>[0]), ...allRows];
+          callback(allRows);
+        }
+      )
+      .subscribe();
+
+    client
+      .from("feedbacks")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .then(({ data, error }) => {
+        if (error) {
+          console.warn("Supabase feedbacks initial fetch failed, falling back to localStorage:", error);
+          if (!fellBackToLocal) {
+            fellBackToLocal = true;
+            localCleanup = startLocalFeedbackPolling(callback);
+          }
+          return;
+        }
+        allRows = (data || []).map(mapSupabaseFeedback);
+        callback(allRows);
+      });
+
+    return () => {
+      client.removeChannel(channel);
+      localCleanup?.();
+    };
+  }
+
   if (db) {
     let fellBackToLocal = false;
     let localCleanup: (() => void) | null = null;

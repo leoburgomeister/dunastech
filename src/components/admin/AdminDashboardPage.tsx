@@ -12,8 +12,10 @@ import {
 } from '@/data/mockData';
 import type { Feedback } from '@/data/mockData';
 import { subscribeFeedbacks } from '@/lib/firebase';
+import { useSupabaseSync } from '@/lib/supabase-data';
 
 export default function AdminDashboardPage() {
+  useSupabaseSync();
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [mounted, setMounted] = useState(false);
   const [expandedKPI, setExpandedKPI] = useState<'visitors' | 'revenue' | 'isa' | 'variation' | null>(null);

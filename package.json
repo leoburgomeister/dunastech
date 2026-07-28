@@ -20,6 +20,7 @@
     "framer-motion": "^12.42.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.21.0",
+    "@supabase/supabase-js": "^2.58.0",
     "maplibre-gl": "^5.24.0",
     "next": "16.2.9",
     "next-intl": "^4.13.0",

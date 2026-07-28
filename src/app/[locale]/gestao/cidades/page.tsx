@@ -10,6 +10,7 @@ import {
   ibgeData,
   investimentosData
 } from "@/data/mockData";
+import { useSupabaseSync } from "@/lib/supabase-data";
 import {
   Building,
   Users,
@@ -36,6 +37,7 @@ interface MunicipioStats {
 }
 
 export default function CidadesGestaoPage() {
+  useSupabaseSync();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"nome" | "populacao" | "area" | "idh" | "receita" | "investimento">("receita");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
