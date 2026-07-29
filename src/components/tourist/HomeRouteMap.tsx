@@ -55,6 +55,13 @@ import {
 } from '@/lib/map/rnHighlight';
 import { createFallbackWatcher, type MapErrorLike } from '@/lib/map/fallback';
 import {
+  loadRouteCache,
+  lookupRoute,
+  osrmUrl,
+  straightLine,
+  OSRM_TIMEOUT_MS,
+} from '@/lib/map/routeCache';
+import {
   heroSpots,
   pickHeroSpot,
   HERO_SPOT_STORAGE_KEY,
@@ -643,32 +650,45 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       return;
     }
 
+    /**
+     * Ordem: cache estatico, depois OSRM, depois linha reta.
+     *
+     * O cache vem primeiro de proposito. O desenho da rota e o momento que a
+     * apresentacao depende, e router.project-osrm.org e servidor publico de
+     * demonstracao: sem SLA, com rate limit e fora do nosso controle. Para as
+     * 18 combinacoes que a home sabe gerar, a geometria ja esta gravada — o
+     * traco sai instantaneo e sem tocar a rede. So roteiro fora da tabela
+     * (quando a busca injeta um destino) vai ao OSRM.
+     */
     const fetchAndAnimateRoute = async () => {
+      const paradas = destinations.map(
+        (d) => [d.longitude, d.latitude] as Coord
+      );
+
+      const cache = await loadRouteCache();
+      const cacheada = lookupRoute(cache, paradas);
+      if (cacheada) {
+        animateRoute(cacheada);
+        return;
+      }
+
+      // Timeout explicito: sem ele uma requisicao pendurada — o que acontece
+      // em rede que engole pacote em vez de recusar — deixaria a rota sem
+      // desenhar para sempre, e sem erro nenhum no console.
+      const abort = new AbortController();
+      const relogio = setTimeout(() => abort.abort(), OSRM_TIMEOUT_MS);
+
       try {
-        const coordsString = destinations
-          .map((d) => `${d.longitude},${d.latitude}`)
-          .join(';');
-
-        const response = await fetch(
-          `https://router.project-osrm.org/route/v1/driving/${coordsString}?overview=full&geometries=geojson`
-        );
-
-        if (!response.ok) throw new Error('OSRM API failed');
+        const response = await fetch(osrmUrl(paradas), { signal: abort.signal });
+        if (!response.ok) throw new Error(`OSRM HTTP ${response.status}`);
         const data = await response.json();
-
-        if (data.routes && data.routes.length > 0) {
-          const routeCoords = data.routes[0].geometry.coordinates as [number, number][];
-          animateRoute(routeCoords);
-        } else {
-          // Fallback to straight lines
-          const straightCoords = destinations.map((d) => [d.longitude, d.latitude] as [number, number]);
-          animateRoute(straightCoords);
-        }
+        const geo = data?.routes?.[0]?.geometry?.coordinates as Coord[] | undefined;
+        animateRoute(geo && geo.length > 1 ? geo : straightLine(paradas));
       } catch (e) {
-        console.error('Failed to trace real-road route:', e);
-        // Fallback to straight lines
-        const straightCoords = destinations.map((d) => [d.longitude, d.latitude] as [number, number]);
-        animateRoute(straightCoords);
+        console.warn('Rota real indisponivel, usando linha reta:', e);
+        animateRoute(straightLine(paradas));
+      } finally {
+        clearTimeout(relogio);
       }
     };
 

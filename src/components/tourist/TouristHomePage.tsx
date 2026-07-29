@@ -21,6 +21,7 @@ import { Badge } from '@/components/ui/Badge';
 import { destinosInfo, fluxoData, cadasturData, calcularISA } from '@/data/mockData';
 import type { Feedback, DestinoInfo } from '@/data/mockData';
 import { useSupabaseSync } from '@/lib/supabase-data';
+import { destinosDoRoteiro, normalizeTransport } from '@/lib/routePresets';
 
 // Dynamically load Map component to prevent SSR window error on homepage
 const HomeRouteMap = dynamic(
@@ -195,59 +196,12 @@ export default function TouristHomePage() {
 
   // Process questionnaire answers and suggest a route
   const handleGenerateRoute = () => {
-    let selectedDestNames: string[] = [];
+    // A tabela vive em routePresets porque o script que pre-cacheia as rotas
+    // do OSRM le a MESMA fonte. Duplicada, o cache envelheceria em silencio
+    // na primeira vez que alguem trocasse um destino aqui.
+    const selectedDestNames: string[] = destinosDoRoteiro(selectedStyle, selectedTransport);
 
-    if (selectedStyle === 'adventure') {
-      if (selectedTransport === 'hike') {
-        selectedDestNames = ['Dunas de Genipabu', 'Lagoa de Pitangui'];
-      } else if (selectedTransport === 'buggy') {
-        selectedDestNames = ['Dunas de Genipabu', 'Lagoa de Pitangui', 'Parrachos de Maracajaú'];
-      } else {
-        selectedDestNames = ['Ponta Negra e Morro do Careca', 'Dunas de Genipabu', 'Praia da Pipa'];
-      }
-    } else if (selectedStyle === 'relax') {
-      if (selectedTransport === 'hike') {
-        selectedDestNames = ['Praia da Pipa', 'Praia do Madeiro'];
-      } else if (selectedTransport === 'buggy') {
-        selectedDestNames = ['Parrachos de Maracajaú', 'São Miguel do Gostoso'];
-      } else {
-        selectedDestNames = ['Parrachos de Maracajaú', 'Galinhos', 'São Miguel do Gostoso'];
-      }
-    } else if (selectedStyle === 'culture') {
-      if (selectedTransport === 'hike') {
-        selectedDestNames = ['Ponta Negra e Morro do Careca', 'Barreira do Inferno'];
-      } else if (selectedTransport === 'buggy') {
-        selectedDestNames = ['Forte dos Reis Magos', 'Dunas de Genipabu'];
-      } else {
-        selectedDestNames = ['Forte dos Reis Magos', 'Cidade Histórica de Mossoró', 'Lajedo de Soledade'];
-      }
-    } else if (selectedStyle === 'ecotourism') {
-      if (selectedTransport === 'hike') {
-        selectedDestNames = ['Lagoa de Pitangui', 'Parrachos de Maracajaú'];
-      } else if (selectedTransport === 'buggy') {
-        selectedDestNames = ['Parrachos de Maracajaú', 'Galinhos'];
-      } else {
-        selectedDestNames = ['Lagoa de Pitangui', 'Parrachos de Maracajaú', 'Galinhos'];
-      }
-    } else if (selectedStyle === 'family') {
-      if (selectedTransport === 'hike') {
-        selectedDestNames = ['Ponta Negra e Morro do Careca', 'Praia da Pipa'];
-      } else if (selectedTransport === 'buggy') {
-        selectedDestNames = ['Forte dos Reis Magos', 'Dunas de Genipabu'];
-      } else {
-        selectedDestNames = ['Ponta Negra e Morro do Careca', 'Forte dos Reis Magos', 'Praia da Pipa'];
-      }
-    } else { // gastronomy
-      if (selectedTransport === 'hike') {
-        selectedDestNames = ['Praia da Pipa', 'Praia do Madeiro'];
-      } else if (selectedTransport === 'buggy') {
-        selectedDestNames = ['Praia da Pipa', 'Barra de Cunhaú'];
-      } else {
-        selectedDestNames = ['Ponta Negra e Morro do Careca', 'Praia da Pipa', 'Barra de Cunhaú'];
-      }
-    }
-
-    const transportKey = selectedTransport === 'buggy' ? 'buggy' : selectedTransport === 'hike' ? 'hike' : 'shuttle';
+    const transportKey = normalizeTransport(selectedTransport);
     let title = t(`routes.${selectedStyle}.${transportKey}.title`);
     const description = t(`routes.${selectedStyle}.${transportKey}.description`);
 
