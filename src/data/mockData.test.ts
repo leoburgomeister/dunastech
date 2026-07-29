@@ -1,13 +1,37 @@
 import { describe, it, expect } from 'vitest';
-import { calcularISA } from './mockData';
+import { calcularISA, destinosInfo } from './mockData';
 import type { Feedback } from './mockData';
 
 describe('calcularISA', () => {
   it('should fall back to a base score plus static metrics when there are no feedbacks', () => {
-    // "Ponta Negra e Morro do Careca" has investment > 3000 (+15) and saturation > 85 (-18)
-    // Base is 65 => 65 + 15 - 18 = 62
+    // "Ponta Negra e Morro do Careca": investimento 5400 mil => bônus 21,6 limitado ao teto 21.
+    // Saturação 88 => penalidade (88 - 70) * 0,5 = 9. Base 74 => 74 + 21 - 9 = 86.
     const score = calcularISA('Ponta Negra e Morro do Careca', []);
-    expect(score).toBe(62);
+    expect(score).toBe(86);
+  });
+
+  it('should cap the investment bonus so the static baseline never passes 95', () => {
+    // Nenhum destino pode ultrapassar 74 + 21 = 95 sem feedbacks, por mais que se invista.
+    for (const destino of destinosInfo) {
+      const score = calcularISA(destino.nome, []);
+      expect(score).toBeLessThanOrEqual(95);
+    }
+  });
+
+  it('should keep every destination healthy on the static baseline (calibração do pitch)', () => {
+    // Calibração de palco: todos entre 82 e 95, ninguém com selo de "Atenção" (<80).
+    for (const destino of destinosInfo) {
+      const score = calcularISA(destino.nome, []);
+      expect(score).toBeGreaterThanOrEqual(82);
+    }
+  });
+
+  it('should still penalize saturation above 70', () => {
+    // Ponta Negra (saturação 88) tem investimento no teto, mas fica abaixo de um destino
+    // igualmente bem investido e menos saturado — a pressão turística tem que aparecer.
+    const pontaNegra = calcularISA('Ponta Negra e Morro do Careca', []);
+    const genipabu = calcularISA('Dunas de Genipabu', []);
+    expect(pontaNegra).toBeLessThan(genipabu);
   });
 
   it('should calculate ISA based on positive feedback bonus and rating star factor', () => {
