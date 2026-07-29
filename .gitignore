@@ -46,3 +46,5 @@ next-env.d.ts
 
 # Superpowers brainstorm sessions
 .superpowers/
+# claude code (worktrees e config local de dev)
+/.claude/
