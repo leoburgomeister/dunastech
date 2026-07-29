@@ -258,14 +258,21 @@ export default function PitchPage() {
     }
   };
 
-  // Prompter scripts matching the rebranding focus
+  // Roteiro do apresentador (3 min) — alinhado ao pitch desenvolvido para o CONETUR.
+  // Um bloco por slide. Números de mercado a conferir em fonte primária antes do palco.
   const prompterScripts = [
-    "Olá, banca! Nós somos a equipe do POTI - Plataforma de Observatório do Turismo Inteligente do Rio Grande do Norte. Desenvolvemos uma plataforma que transforma dados dispersos em decisões estratégicas para prefeituras, órgãos estaduais e investidores.",
-    "O turismo gera dados todos os dias, mas o desafio é transformá-los em decisões. No RN, o turismo representa 76% do PIB de serviços, 75% da arrecadação de ICMS e 73% dos empregos. No entanto, prefeituras ainda governam no escuro, sem dados reais da zeladoria local. O fluxo sem controle destrói os atrativos turísticos.",
-    "A solução é a plataforma integrada POTI. Introduzimos o ISA - Índice de Saúde do Atrativo, um score dinâmico (0 a 100) baseado em dados do turista, zeladoria e APIs sociais. No perfil do Turista (B2C), geramos rotas e avaliações inteligentes. No perfil da Gestão (B2G), fornecemos alertas preditivos automáticos.",
-    "Nosso ecossistema resolve o problema integrando 4 grandes atores. O turista é transformado em um sensor vivo de zeladoria. A prefeitura visualiza o ISA e alertas em tempo real. O trade de MEIs locais é inserido em uma vitrine auditável, e os administradores técnicos auditam logs e conformidade com a LGPD.",
-    "Monetizamos o observatório de forma sustentável com três fontes: roteiros B2C gratuitos, destaques patrocinados Freemium B2B baseados em CPC para negócios credenciados no Cadastur, e assinatura SaaS B2G para órgãos públicos. Nosso sistema de Força Cadastur notifica negócios irregulares prevenindo fraudes.",
-    "O Poti RN Gestão conecta dados, transforma a gestão e promove o crescimento sustentável do turismo potiguar. Garantimos que os destinos do Rio Grande do Norte estejam preservados hoje para continuarem atraindo turistas amanhã. Muito obrigado!"
+    // Slide 0 — Abertura (0:00–0:25)
+    "Secretário, conselheiros: o turismo é cerca de 76% do PIB e 75% do ICMS do Rio Grande do Norte. E hoje se decide sobre essa força olhando pelo retrovisor — dados que chegam meses depois, dispersos em planilhas. Somos a DunasTech, e criamos o POTI: a Plataforma de Observação do Turismo Inteligente.",
+    // Slide 1 — O Desafio (0:25–0:55)
+    "O turismo gera dados todos os dias; o desafio é transformá-los em decisão. Aqui, ele é 76% do PIB de serviços, 75% do ICMS e 73% dos empregos formais — mas a secretaria que administra isso opera com poucos servidores e sem um turismólogo dedicado a dados. E o momento é único: só entre janeiro e maio de 2026 foram 34.815 turistas internacionais, mais que todo o ano de 2025, com cerca de R$ 1,7 bilhão injetados na alta estação. Fluxo sem controle destrói o atrativo.",
+    // Slide 2 — A Solução + ISA (0:55–1:40)
+    "O POTI é uma camada de inteligência com duas faces sobre o mesmo dado. Para o turista: um assistente que monta o roteiro do dia em menos de 15 minutos, recomendando só prestadores regularizados no Cadastur. Para o governo: um observatório preditivo. O coração é o ISA — Índice de Saúde do Atrativo: limpeza, sinalização, preservação, acessibilidade, segurança, custo-benefício, conservação e lotação. Em tempo real, o gestor vê qual atrativo está adoecendo antes de virar crise. E não é maquete: já consumimos dados reais de Cadastur, IBGE e dos destinos dos três polos.",
+    // Slide 3 — Ecossistema (1:40–2:05)
+    "Um ecossistema com quatro atores. O turista vira sensor vivo de zeladoria. O gestor público enxerga o ISA e recebe alertas preditivos. O trade local regularizado ganha uma vitrine auditável — incentivo direto à formalização. E o console técnico garante segurança e conformidade com a LGPD, com as interações do turista anonimizadas antes de qualquer agregação.",
+    // Slide 4 — Sustentabilidade + Impacto (2:05–2:35)
+    "O modelo se sustenta em três canais: roteiros B2C gratuitos, destaque por CPC para o trade credenciado no Cadastur, e assinatura SaaS para o governo. E o impacto territorial é claro: ajudamos o estado a distribuir o fluxo para o interior — nossa meta é aumentar em 30% os roteiros para fora da Costa das Dunas — e a formalizar o setor, porque só quem está no Cadastur é recomendado.",
+    // Slide 5 — Pedido + Fecho (2:35–3:00)
+    "Não viemos pedir cheque. Viemos propor uma parceria de dados: acesso às bases oficiais e um piloto com a Secretaria de Turismo. Em troca, o estado ganha um observatório vivo do próprio turismo, sem depender de consultoria externa. POTI, da DunasTech: transformamos o turismo do RN de intuição em inteligência. Muito obrigado."
   ];
 
   // Custom tooltip style for charts
@@ -1366,7 +1373,7 @@ export default function PitchPage() {
               transition={{ delay: 0.5 }}
               className="text-[9px] text-[#7E9798] pt-6 flex flex-col items-center gap-1 font-extrabold uppercase tracking-wider border-t border-[#0F6B6D]/30 mt-6"
             >
-              <span>POTI · Hackathon do Sol 2026 · Natal/RN</span>
+              <span>POTI · uma solução DunasTech · Hackathon do Sol 2026 · Natal/RN</span>
               <span>Inteligência Territorial Governamental</span>
             </motion.div>
           </div>
