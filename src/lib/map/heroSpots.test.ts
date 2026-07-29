@@ -7,7 +7,7 @@ describe('heroSpots', () => {
   it('encontra todos os nomes da curadoria em destinosInfo', () => {
     // Se um nome for renomeado no mockData, este teste cai antes de a home
     // silenciosamente perder um destino do sorteio.
-    expect(spots).toHaveLength(9);
+    expect(spots).toHaveLength(10);
   });
 
   it('traz coordenadas e ISA reais, nao copiados', () => {
@@ -21,7 +21,7 @@ describe('heroSpots', () => {
   it('todo destino tem zoom de enquadramento plausivel', () => {
     for (const s of spots) {
       expect(s.zoom).toBeGreaterThan(12);
-      expect(s.zoom).toBeLessThan(15);
+      expect(s.zoom).toBeLessThan(17);
     }
   });
 
@@ -95,7 +95,7 @@ describe('pickHeroSpot', () => {
       vistos.add(escolhido.nome);
       anterior = escolhido.nome;
     }
-    expect(vistos.size).toBe(9);
+    expect(vistos.size).toBe(10);
   });
 
   it('nunca devolve o anterior em sequencia', () => {

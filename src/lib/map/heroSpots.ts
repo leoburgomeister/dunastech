@@ -58,6 +58,10 @@ const CURADORIA: ReadonlyArray<{ nome: string; zoom: number }> = [
   { nome: 'Canyon dos Apertados', zoom: 13.8 },
   // Litoral de vento, faixa de praia longa e limpa.
   { nome: 'São Miguel do Gostoso', zoom: 13.2 },
+  // Copa continua de ~8.500 m2, uma mancha circular unica no meio do bairro.
+  // Zoom muito mais fechado que os demais: nos outros o quadro e a paisagem,
+  // aqui o quadro e um objeto de ~100 m de diametro.
+  { nome: 'Maior Cajueiro do Mundo', zoom: 16.2 },
 ];
 
 /**

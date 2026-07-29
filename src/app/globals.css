@@ -642,19 +642,24 @@ input[type="number"]::-webkit-outer-spin-button {
    pulso nao distinguia nada. */
 
 /* ── Pin do atrativo sorteado na abertura da home ─────────────────── */
+/* O elemento raiz do marcador NUNCA pode receber transform: o MapLibre usa
+   essa propriedade para posicionar o marcador na coordenada, e sobrescreve-la
+   prende o pin na origem do container. Offset e animacao ficam no filho. */
 .hero-pin {
+  pointer-events: none;
+}
+
+.hero-pin-inner {
   display: flex;
   flex-direction: column;
   align-items: center;
-  transform: translateY(-6px);
-  pointer-events: none;
   animation: heroPinIn 700ms var(--ease) both;
   animation-delay: 600ms;
 }
 
 @keyframes heroPinIn {
-  from { opacity: 0; transform: translateY(4px) scale(0.94); }
-  to   { opacity: 1; transform: translateY(-6px) scale(1); }
+  from { opacity: 0; transform: translateY(10px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .hero-pin-card {
@@ -712,7 +717,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-pin { animation: none; }
+  .hero-pin-inner { animation: none; }
 }
 
 /* MapLibre Popup Styling */

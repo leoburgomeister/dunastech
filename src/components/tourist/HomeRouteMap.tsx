@@ -381,6 +381,27 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     });
   }, [destinations, activeDay, mapInstance, mapMode, hasRoute]);
 
+  // Padding de camera: desloca o centro otico para a area que sobra a
+  // esquerda do painel. Sem isto o destino era centralizado no canvas inteiro
+  // e caia sob o painel — junto com o cartao do pin, que tem ~240px. Setar no
+  // mapa (em vez de opcao por voo) faz orbita, voo e fitBounds respeitarem o
+  // mesmo enquadramento sem repeticao.
+  useEffect(() => {
+    const map = mapInstance;
+    if (!map) return;
+
+    const aplicar = () => {
+      const c = map.getCanvas();
+      map.setPadding(overviewPadding(c.clientWidth, c.clientHeight));
+    };
+
+    aplicar();
+    map.on('resize', aplicar);
+    return () => {
+      map.off('resize', aplicar);
+    };
+  }, [mapInstance]);
+
   // Pin do atrativo sorteado, com o ISA. So existe no hero: com roteiro
   // gerado quem manda sao os marcadores numerados da rota, e com destino
   // buscado o pin apontaria para o lugar errado.
@@ -391,16 +412,22 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     const cor = ISA_BAND_COLOR[isaBand(heroSpot.isa)];
     const el = document.createElement('div');
     el.className = 'hero-pin';
+    // O conteudo vive num filho porque o MapLibre posiciona o marcador
+    // escrevendo transform no elemento raiz — qualquer transform nosso ali
+    // (offset ou animacao de entrada) apaga o posicionamento e o pin gruda
+    // na origem do container.
     el.innerHTML = `
-      <div class="hero-pin-card">
-        <span class="hero-pin-isa" style="background:${cor}">${heroSpot.isa}</span>
-        <span class="hero-pin-text">
-          <strong>${heroSpot.nome}</strong>
-          <small>${heroSpot.municipio} · Índice de Saúde do Atrativo</small>
-        </span>
+      <div class="hero-pin-inner">
+        <div class="hero-pin-card">
+          <span class="hero-pin-isa" style="background:${cor}">${heroSpot.isa}</span>
+          <span class="hero-pin-text">
+            <strong>${heroSpot.nome}</strong>
+            <small>${heroSpot.municipio} · Índice de Saúde do Atrativo</small>
+          </span>
+        </div>
+        <span class="hero-pin-stem"></span>
+        <span class="hero-pin-dot" style="background:${cor}"></span>
       </div>
-      <span class="hero-pin-stem"></span>
-      <span class="hero-pin-dot" style="background:${cor}"></span>
     `;
 
     const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
