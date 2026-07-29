@@ -97,8 +97,8 @@ export const destinosInfo: DestinoInfo[] = [
     municipio: "Natal",
     descricao: "O principal cartão-postal de Natal, famoso pela icônica duna de 120 metros cercada por Mata Atlântica e uma enseada de águas calmas. O local possui excelente infraestrutura de lazer, gastronomia e hotelaria à beira-mar, atraindo milhares de banhistas e entusiastas de esportes aquáticos.",
     imagem: "/images/destinations/hero_ponta_negra.png",
-    latitude: -5.8811,
-    longitude: -35.1711,
+    latitude: -5.8884,
+    longitude: -35.1596,
     hashtag: "pontanegranatal",
     monitorado: true,
     atracoes: [
@@ -175,8 +175,8 @@ export const destinosInfo: DestinoInfo[] = [
     municipio: "Maxaranguape",
     descricao: "Famosas piscinas naturais a sete quilômetros da costa de Maxaranguape. Os corais formam um aquário natural de águas mornas e transparentes, ideal para a prática de snorkel e mergulho livre entre peixes coloridos.",
     imagem: "/images/destinations/maracajau.png",
-    latitude: -5.4124,
-    longitude: -35.3764,
+    latitude: -5.4116,
+    longitude: -35.3098,
     hashtag: "maracajau",
     monitorado: true,
     atracoes: [
@@ -251,8 +251,8 @@ export const destinosInfo: DestinoInfo[] = [
     municipio: "Parnamirim",
     descricao: "Patrimônio natural situado em Pirangi, no município de Parnamirim. Registrado no Guinness Book por cobrir uma área colossal de mais de 8.500 metros quadrados, resultado de uma anomalia genética que faz seus galhos crescerem para os lados e criarem novas raízes.",
     imagem: "/images/destinations/maior_caju.png",
-    latitude: -5.9739,
-    longitude: -35.1289,
+    latitude: -5.9786,
+    longitude: -35.1234,
     hashtag: "maiorcajueiro",
     monitorado: true,
     atracoes: [
@@ -289,8 +289,8 @@ export const destinosInfo: DestinoInfo[] = [
     municipio: "Extremoz",
     descricao: "Oásis de águas calmas, mornas e doce no coração de dunas em Extremoz. Equipada com estruturas de lazer como redários dentro da água e tirolesas, é um destino familiar imperdível para relaxamento completo.",
     imagem: "/images/destinations/genipabu.png",
-    latitude: -5.7250,
-    longitude: -35.2100,
+    latitude: -5.6466,
+    longitude: -35.2297,
     hashtag: "lagoadepitangui",
     monitorado: true,
     atracoes: [
