@@ -43,3 +43,6 @@ next-env.d.ts
 
 .vercel
 .env*.local
+
+# claude code (worktrees e config local de dev)
+/.claude/
