@@ -1,29 +1,31 @@
 import { type MapMode, is3D } from './mapMode';
-import { CINEMATIC_PITCH } from './scene3d';
+import {
+  CINEMATIC_PITCH,
+  RN_CENTER,
+  RN_OVERVIEW_ZOOM,
+  RN_OVERVIEW_PITCH,
+} from './scene3d';
 
 /**
- * Centro aproximado do Rio Grande do Norte.
- * O estado vai de ~-38.6 a ~-34.8 de longitude e ~-6.99 a ~-4.83 de latitude.
+ * Camera do hero da pagina de destino.
+ *
+ * O enquadramento de abertura e o mesmo da home (scene3d), para as duas telas
+ * nascerem no mesmo plano do estado. O que muda e a chegada: aqui a camera
+ * fecha em um destino unico, entao desce mais que o DESTINATION_ZOOM da home,
+ * que enquadra um destino buscado sem sair do contexto da rota.
  */
-export const RN_CENTER: [number, number] = [-36.7, -5.85];
 
-/**
- * Abertura inicial: o estado inteiro no quadro, mas ja com algum zoom —
- * abrir no globo vazio faz o primeiro segundo parecer erro de carregamento.
- */
-export const RN_OVERVIEW_ZOOM = 6.8;
-
-/** Zoom de chegada quando a camera mergulha em um destino especifico. */
-export const DESTINATION_ZOOM = 14.2;
+/** Zoom de chegada do hero. Perto o bastante para ler o lugar. */
+export const HERO_DESTINATION_ZOOM = 14.2;
 
 /**
  * A camera chega de lado, nao de frente. Com bearing 0 e pitch 60 o relevo
  * fica achatado contra o horizonte e a cena perde a leitura de profundidade.
  */
-export const DESTINATION_BEARING = -25;
+export const HERO_BEARING = -25;
 
-/** Duracao do mergulho do estado ate o destino. */
-export const DESTINATION_FLY_DURATION_MS = 6000;
+/** Duracao do mergulho do estado ate o destino, no hero. */
+export const HERO_FLY_DURATION_MS = 6000;
 
 /**
  * Arco baixo: o voo sobe pouco entre origem e destino e chega macio.
@@ -43,7 +45,7 @@ export function rnOverview(): CameraTarget {
   return {
     center: RN_CENTER,
     zoom: RN_OVERVIEW_ZOOM,
-    pitch: 0,
+    pitch: RN_OVERVIEW_PITCH,
     bearing: 0,
   };
 }
@@ -56,9 +58,9 @@ export function destinationCamera(
 ): CameraTarget {
   return {
     center: [longitude, latitude],
-    zoom: DESTINATION_ZOOM,
+    zoom: HERO_DESTINATION_ZOOM,
     pitch: is3D(mode) ? CINEMATIC_PITCH : 0,
-    bearing: is3D(mode) ? DESTINATION_BEARING : 0,
+    bearing: is3D(mode) ? HERO_BEARING : 0,
   };
 }
 
@@ -67,5 +69,5 @@ export function destinationCamera(
  * flat a camera corta direto para o destino.
  */
 export function flightDuration(mode: MapMode): number {
-  return mode === 'cinematic' ? DESTINATION_FLY_DURATION_MS : 0;
+  return mode === 'cinematic' ? HERO_FLY_DURATION_MS : 0;
 }

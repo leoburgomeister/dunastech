@@ -44,5 +44,7 @@ next-env.d.ts
 .vercel
 .env*.local
 
+# Superpowers brainstorm sessions
+.superpowers/
 # claude code (worktrees e config local de dev)
 /.claude/

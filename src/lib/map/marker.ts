@@ -15,10 +15,16 @@ export interface MarkerSpec {
   /** Cor da cabeca, da haste e do anel. */
   color: string;
   /** Emoji ou caractere exibido dentro da cabeca. */
-  glyph: string;
+  glyph?: string;
+  /**
+   * Numeral da parada, com a tipografia do produto. Tem precedencia sobre o
+   * glyph: numa rota a ordem da parada e informacao, o emoji nao era — e o
+   * numeral ainda nao depende da fonte de emoji do sistema.
+   */
+  label?: string;
 }
 
-export function createMarkerElement({ color, glyph }: MarkerSpec): HTMLElement {
+export function createMarkerElement({ color, glyph, label }: MarkerSpec): HTMLElement {
   const wrapper = document.createElement('div');
   wrapper.className = 'marker-wrapper';
   wrapper.style.setProperty('--marker-color', color);
@@ -39,10 +45,10 @@ export function createMarkerElement({ color, glyph }: MarkerSpec): HTMLElement {
   head.className = 'marker-head';
   wrapper.appendChild(head);
 
-  const glyphEl = document.createElement('span');
-  glyphEl.className = 'marker-glyph';
-  glyphEl.textContent = glyph;
-  head.appendChild(glyphEl);
+  const content = document.createElement('span');
+  content.className = label !== undefined ? 'marker-label' : 'marker-glyph';
+  content.textContent = label ?? glyph ?? '';
+  head.appendChild(content);
 
   return wrapper;
 }

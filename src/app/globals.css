@@ -73,11 +73,17 @@
   --sidebar-width: 280px;
   --sidebar-collapsed: 72px;
   
-  /* Transitions */
-  --transition-fast: 150ms ease-out;
-  --transition-base: 200ms ease-out;
-  --transition-slow: 300ms ease-out;
-  --transition-spring: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Transitions
+     Uma unica curva no produto inteiro, variando so a duracao. Medimos os
+     sites do showcase da GSAP: Kononenko usa cubic-bezier(0.17,0.84,0.44,1)
+     em todas as transicoes; Noomo usa uma so em 0.3/0.4/0.5s. Nenhum deles
+     usa overshoot — overshoot le como "template alegre", nao como caro.
+     A antiga --transition-spring passava de 1 (0.34, 1.56, 0.64, 1). */
+  --ease: cubic-bezier(0.17, 0.84, 0.44, 1);
+  --transition-fast: 150ms var(--ease);
+  --transition-base: 200ms var(--ease);
+  --transition-slow: 300ms var(--ease);
+  --transition-spring: 400ms var(--ease);
 }
 
 /* ── Dark Theme ─────────────────────────────────────── */
@@ -245,11 +251,17 @@ body {
   transition: background-color var(--transition-slow), color var(--transition-slow);
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
+/* Em @layer base de proposito. Fora de layer, esta regra vencia TODOS os
+   utilitarios de peso do Tailwind aplicados a titulo (utilities e uma layer
+   posterior, e CSS sem layer ganha de qualquer layer): um
+   <h1 class="font-extrabold"> computava 700 em vez de 800. */
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
 }
 
 /* ── Scrollbar ──────────────────────────────────────── */
@@ -377,7 +389,7 @@ h1, h2, h3, h4, h5, h6 {
 .animate-scale-in { animation: scaleIn 300ms ease-out; }
 .animate-slide-in-right { animation: slideInRight 300ms ease-out; }
 .animate-slide-in-left { animation: slideInLeft 300ms ease-out; }
-.animate-slide-up { animation: slideUp 400ms cubic-bezier(0.34, 1.56, 0.64, 1); }
+.animate-slide-up { animation: slideUp 400ms var(--ease); }
 .animate-shimmer { 
   background: linear-gradient(90deg, transparent 25%, var(--color-surface-hover) 50%, transparent 75%);
   background-size: 200% 100%;
@@ -542,7 +554,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .animate-slide-in-right {
-  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slideInRight 400ms var(--ease) forwards;
 }
 
 /* ── Leaflet Popup Style Corrections for Google Style ── */
@@ -584,7 +596,9 @@ input[type="number"]::-webkit-outer-spin-button {
   pointer-events: none;
 }
 
-/* Sombra projetada: ancora o pin no terreno em vez de deixa-lo boiando. */
+/* Sombra projetada: ancora o pin no terreno em vez de deixa-lo boiando.
+   Estatica de proposito — pelo mesmo motivo que o markerPulse saiu, nada
+   aqui pode ficar animando por marcador em cima do canvas WebGL. */
 .marker-ground {
   position: absolute;
   bottom: 0;
@@ -594,19 +608,6 @@ input[type="number"]::-webkit-outer-spin-button {
   transform: translateX(-50%);
   border-radius: 50%;
   background: radial-gradient(closest-side, rgba(2, 6, 23, 0.55), rgba(2, 6, 23, 0));
-}
-
-/* Anel achatado: expande no plano do chao, acompanhando a perspectiva. */
-.marker-ping {
-  position: absolute;
-  bottom: -1px;
-  left: 50%;
-  width: 26px;
-  height: 9px;
-  border: 1.5px solid var(--marker-color);
-  border-radius: 50%;
-  transform: translateX(-50%) scale(1);
-  animation: markerPing 2.6s infinite cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .marker-stem {
@@ -639,9 +640,7 @@ input[type="number"]::-webkit-outer-spin-button {
   justify-content: center;
   cursor: pointer;
   pointer-events: auto;
-  transition:
-    transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.22s ease;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
 .marker-head:hover,
@@ -658,28 +657,123 @@ input[type="number"]::-webkit-outer-spin-button {
   user-select: none;
 }
 
-@keyframes markerPing {
-  0% {
-    transform: translateX(-50%) scale(0.6);
-    opacity: 0.85;
-  }
-  100% {
-    transform: translateX(-50%) scale(2.6);
-    opacity: 0;
-  }
+/* Marcador numerado da rota da home. A cabeca do pin nao gira mais, entao o
+   rotulo tambem nao precisa desgirar. */
+.marker-label {
+  font-family: var(--font-heading);
+  /* Cabe nos 27px internos da cabeca. Era 17px, dimensionado para a gota de
+     44px que saiu. */
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #fff;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* markerPulse removido: era uma animacao infinita por marcador rodando em
+   cima do canvas WebGL, competindo com a orbita da camera por frame budget
+   sem carregar nenhuma informacao — todo marcador pulsava igual, entao o
+   pulso nao distinguia nada. */
+
+/* ── Pin do atrativo sorteado na abertura da home ─────────────────── */
+/* O elemento raiz do marcador NUNCA pode receber transform: o MapLibre usa
+   essa propriedade para posicionar o marcador na coordenada, e sobrescreve-la
+   prende o pin na origem do container. Offset e animacao ficam no filho. */
+.hero-pin {
+  pointer-events: none;
+}
+
+.hero-pin-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: heroPinIn 700ms var(--ease) both;
+  animation-delay: 600ms;
+}
+
+@keyframes heroPinIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* O cartao e o unico ponto clicavel: leva para a pagina do destino. */
+.hero-pin-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 14px;
+  border-radius: var(--radius-full);
+  /* Opaco de proposito: o fundo e foto de satelite, e translucido some. */
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.55);
+  white-space: nowrap;
+  text-decoration: none;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: transform var(--transition-base), box-shadow var(--transition-base),
+    border-color var(--transition-base);
+}
+
+.hero-pin-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-primary);
+  box-shadow: 0 16px 38px -10px rgba(0, 0, 0, 0.6);
+}
+
+.hero-pin-card:hover .hero-pin-go {
+  transform: translateX(3px);
+  color: var(--color-primary);
+}
+
+.hero-pin-go {
+  font-size: 15px;
+  line-height: 1;
+  color: var(--color-text-muted);
+  transition: transform var(--transition-base), color var(--transition-base);
+}
+
+.hero-pin-text { display: flex; flex-direction: column; line-height: 1.25; }
+.hero-pin-text strong {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--color-text);
+}
+.hero-pin-text small {
+  font-size: 10px;
+  color: var(--color-text-muted);
+}
+
+.hero-pin-stem {
+  width: 2px;
+  height: 22px;
+  background: linear-gradient(to bottom, var(--color-border), rgba(255, 255, 255, 0.25));
+}
+
+.hero-pin-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  border: 2px solid var(--color-surface);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.14);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .marker-ping {
-    animation: none;
-    opacity: 0.5;
-  }
+  .hero-pin-inner { animation: none; }
 }
 
-/* Ponto que desce o trilho do indicador de scroll do hero. */
+/* Ponto que desce o trilho do indicador de scroll do hero. Fora do canvas
+   WebGL, entao nao disputa frame budget com a orbita. */
 .scroll-hint-dot {
   transform: translateX(-50%);
-  animation: scrollHint 2.2s infinite cubic-bezier(0.65, 0, 0.35, 1);
+  animation: scrollHint 2.2s infinite var(--ease);
 }
 
 @keyframes scrollHint {
