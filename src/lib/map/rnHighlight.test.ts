@@ -7,6 +7,9 @@ import {
   buildOutlineFeature,
   MASK_BBOX,
   type Ring,
+  fadeByZoom,
+  RN_FADE_START_ZOOM,
+  RN_FADE_END_ZOOM,
 } from './rnHighlight';
 
 const QUADRADO: Ring = [
@@ -98,5 +101,25 @@ describe('buildOutlineFeature', () => {
     const f = buildOutlineFeature([QUADRADO]);
     expect(f.geometry.type).toBe('MultiLineString');
     expect(f.geometry.coordinates).toEqual([QUADRADO]);
+  });
+});
+
+describe('fadeByZoom', () => {
+  it('monta a rampa do zoom aberto ate o zoom fechado', () => {
+    expect(fadeByZoom(0.55)).toEqual([
+      'interpolate', ['linear'], ['zoom'],
+      RN_FADE_START_ZOOM, 0.55,
+      RN_FADE_END_ZOOM, 0,
+    ]);
+  });
+
+  it('some antes de a camera chegar em Genipabu', () => {
+    // o mergulho termina em GENIPABU_ZOOM 13.2 — o destaque tem que ja ter
+    // acabado bem antes, senao escurece o oceano na tomada fechada.
+    expect(RN_FADE_END_ZOOM).toBeLessThan(13.2);
+  });
+
+  it('esta inteiro no plano aberto do estado (~zoom 6.5)', () => {
+    expect(RN_FADE_START_ZOOM).toBeGreaterThan(6.5);
   });
 });

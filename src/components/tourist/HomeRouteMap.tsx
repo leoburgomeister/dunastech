@@ -20,6 +20,7 @@ import {
   INTRO_DIVE_MS,
   DESTINATION_ZOOM,
   DESTINATION_FLY_MS,
+  overviewPadding,
 } from '@/lib/map/scene3d';
 import {
   createOrbitController,
@@ -41,6 +42,12 @@ import {
   RN_OUTLINE_SOURCE_ID,
   RN_MASK_LAYER_ID,
   RN_OUTLINE_LAYER_ID,
+  RN_GLOW_OUTER_LAYER_ID,
+  RN_GLOW_INNER_LAYER_ID,
+  RN_GLOW,
+  RN_ACCENT,
+  zoomRamp,
+  fadeByZoom,
 } from '@/lib/map/rnHighlight';
 
 /** Constante de modulo para nao criar array novo a cada render. */
@@ -170,17 +177,39 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
             id: RN_MASK_LAYER_ID,
             type: 'fill',
             source: RN_MASK_SOURCE_ID,
-            paint: { 'fill-color': '#04121E', 'fill-opacity': 0.55 },
-          }, abaixoDaRota);
+            paint: { 'fill-color': '#04121E', 'fill-opacity': fadeByZoom(0.55) },
+          } as maplibregl.LayerSpecification, abaixoDaRota);
 
           map.addSource(RN_OUTLINE_SOURCE_ID, { type: 'geojson', data: buildOutlineFeature(rings) });
+
+          // Aura: da mais larga e difusa para a mais fechada, e so entao a
+          // linha nitida. A ordem importa — invertida, o borrao lava o traco.
+          const halo = { 'line-join': 'round', 'line-cap': 'round' } as const;
+          for (const [id, cfg] of [
+            [RN_GLOW_OUTER_LAYER_ID, RN_GLOW.outer],
+            [RN_GLOW_INNER_LAYER_ID, RN_GLOW.inner],
+          ] as const) {
+            map.addLayer({
+              id,
+              type: 'line',
+              source: RN_OUTLINE_SOURCE_ID,
+              layout: halo,
+              paint: {
+                'line-color': RN_ACCENT,
+                'line-width': zoomRamp(cfg.width),
+                'line-blur': zoomRamp(cfg.blur),
+                'line-opacity': fadeByZoom(cfg.opacity),
+              },
+            } as maplibregl.LayerSpecification, abaixoDaRota);
+          }
+
           map.addLayer({
             id: RN_OUTLINE_LAYER_ID,
             type: 'line',
             source: RN_OUTLINE_SOURCE_ID,
-            layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: { 'line-color': '#F0C75E', 'line-width': 2, 'line-opacity': 0.9 },
-          }, abaixoDaRota);
+            layout: halo,
+            paint: { 'line-color': RN_ACCENT, 'line-width': 1.6, 'line-opacity': fadeByZoom(0.95) },
+          } as maplibregl.LayerSpecification, abaixoDaRota);
         })
         .catch((e) => {
           // Destaque e enfeite: sem ele o mapa segue funcionando.
@@ -338,8 +367,9 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     const comecar = () => {
       if (cancelled) return;
 
+      const canvas = map.getCanvas();
       map.fitBounds(RN_BOUNDS, {
-        padding: 48,
+        padding: overviewPadding(canvas.clientWidth, canvas.clientHeight),
         pitch: RN_OVERVIEW_PITCH,
         bearing: 0,
         duration: 0,

@@ -42,11 +42,42 @@ export const RN_BOUNDS: [[number, number], [number, number]] = [
 ];
 
 /**
- * No plano aberto a camera fica quase de cima. Pitch alto num estado inteiro
- * so achata o mapa contra o horizonte e a forma do RN — que e o ponto do plano
- * — deixa de ser reconhecivel.
+ * No plano aberto a camera olha de cima, sem inclinacao nenhuma. O objetivo
+ * deste plano e uma coisa so: a plateia reconhecer o contorno do RN. Qualquer
+ * pitch aplica perspectiva, o estado afunila no topo e a forma — que e o
+ * unico conteudo do plano — deixa de ser reconhecivel. A inclinacao entra
+ * depois, no mergulho, onde ela serve para mostrar relevo.
  */
-export const RN_OVERVIEW_PITCH = 18;
+export const RN_OVERVIEW_PITCH = 0;
+
+/** Largura maxima do painel no desktop (lg:w-[min(30rem,42vw)]). */
+const PANEL_MAX_W_PX = 480;
+const PANEL_VW_RATIO = 0.42;
+/** Onde o painel comeca no mobile (top-[42vh]). */
+const PANEL_TOP_VH_RATIO = 0.42;
+/** Breakpoint lg do Tailwind. */
+const LG_BREAKPOINT_PX = 1024;
+
+/**
+ * Padding do enquadramento de abertura descontando o painel flutuante.
+ * Sem isso o fitBounds centraliza o estado no canvas inteiro e metade dele
+ * nasce atras do painel — inclusive a faixa costeira, que e o que interessa.
+ */
+export function overviewPadding(
+  width: number,
+  height: number
+): { top: number; bottom: number; left: number; right: number } {
+  if (width >= LG_BREAKPOINT_PX) {
+    const painel = Math.min(PANEL_MAX_W_PX, width * PANEL_VW_RATIO);
+    return { top: 56, bottom: 56, left: 56, right: Math.round(painel) + 48 };
+  }
+  return {
+    top: 40,
+    bottom: Math.round(height * (1 - PANEL_TOP_VH_RATIO)) + 24,
+    left: 32,
+    right: 32,
+  };
+}
 
 /** Tempo parado no plano aberto, para a plateia ler o estado antes do mergulho. */
 export const INTRO_HOLD_MS = 2600;
