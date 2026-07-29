@@ -31,6 +31,29 @@ export const GENIPABU_CENTER: [number, number] = [-35.1967, -5.7089];
 /** Perto o bastante para o campo de dunas preencher o quadro. */
 export const GENIPABU_ZOOM = 13.2;
 
+/**
+ * Caixa do estado, da malha do IBGE em public/geo/rn.geojson com folga.
+ * Constante em vez de calculada do arquivo: o enquadramento de abertura nao
+ * pode depender de um fetch terminar.
+ */
+export const RN_BOUNDS: [[number, number], [number, number]] = [
+  [-38.62, -7.02],
+  [-34.93, -4.79],
+];
+
+/**
+ * No plano aberto a camera fica quase de cima. Pitch alto num estado inteiro
+ * so achata o mapa contra o horizonte e a forma do RN — que e o ponto do plano
+ * — deixa de ser reconhecivel.
+ */
+export const RN_OVERVIEW_PITCH = 18;
+
+/** Tempo parado no plano aberto, para a plateia ler o estado antes do mergulho. */
+export const INTRO_HOLD_MS = 2600;
+
+/** Duracao do mergulho do estado ate as dunas. */
+export const INTRO_DIVE_MS = 5200;
+
 /** Duracao do mergulho ate a rota no modo cinematografico. */
 export const CINEMATIC_FLY_DURATION_MS = 5500;
 

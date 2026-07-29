@@ -14,6 +14,10 @@ import {
   PLAIN_FIT_DURATION_MS,
   GENIPABU_CENTER,
   GENIPABU_ZOOM,
+  RN_BOUNDS,
+  RN_OVERVIEW_PITCH,
+  INTRO_HOLD_MS,
+  INTRO_DIVE_MS,
 } from '@/lib/map/scene3d';
 import {
   createOrbitController,
@@ -72,6 +76,8 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
   } | null>(null);
   const [routeReady, setRouteReady] = useState(false);
   const [following, setFollowing] = useState(false);
+  /** Abertura concluida: so entao a orbita assume a camera. */
+  const [introDone, setIntroDone] = useState(false);
   // Computado uma unica vez: o componente entra via dynamic(..., { ssr: false }),
   // entao window ja existe no primeiro render. O guard cobre import direto.
   const [mapMode] = useState<MapMode>(() =>
@@ -227,11 +233,16 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
   // Update Markers and Fit Bounds when destinations change or mapInstance changes
   useEffect(() => {
     const map = mapInstance;
-    if (!map || destinations.length === 0) return;
+    if (!map) return;
 
-    // Clear existing markers
+    // Limpa sempre, inclusive quando a lista esvazia — antes os marcadores
+    // antigos ficavam no mapa porque o efeito saia cedo demais.
     markersRef.current.forEach(m => m.remove());
     markersRef.current = [];
+
+    // No hero nao ha paradas, so a cena: um pino numerado sobre a duna
+    // anunciaria uma parada de roteiro que nao existe.
+    if (!hasRoute || destinations.length === 0) return;
 
     // Add custom markers
     destinations.forEach((dest, index) => {
@@ -284,13 +295,9 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       curve: 1.2,
     };
 
-    // Sem roteiro a home nao e ferramenta, e cartao-postal: a camera fica
-    // parada em Genipabu orbitando, em vez de enquadrar todos os destinos
-    // (o que jogava o zoom para ~8.8 e transformava a costa num fio).
-    if (!hasRoute) {
-      map.flyTo({ center: GENIPABU_CENTER, zoom: GENIPABU_ZOOM, ...flight });
-      return;
-    }
+    // Sem roteiro quem comanda a camera e a sequencia de abertura (efeito
+    // abaixo): plano aberto no estado, espera, mergulho em Genipabu.
+    if (!hasRoute) return;
 
     map.fitBounds(bounds, {
       padding: { top: 60, bottom: 60, left: 60, right: 60 },
@@ -298,6 +305,65 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       ...flight,
     });
   }, [destinations, activeDay, mapInstance, mapMode, hasRoute]);
+
+  // Abertura em dois tempos: plano aberto no estado inteiro, para a plateia
+  // reconhecer o RN pelo contorno, e so entao o mergulho ate as dunas.
+  // Sem isso a home abria colada em Genipabu e o destaque do estado — mascara
+  // e contorno dourado — nunca chegava a ser visto.
+  useEffect(() => {
+    const map = mapInstance;
+    if (!map || hasRoute) return;
+
+    // Com movimento reduzido nao ha mergulho: vai direto ao destino final.
+    // Nao mexe em introDone — fora do modo cinematografico a orbita ja sai
+    // cedo e ninguem le esse estado.
+    if (mapMode !== 'cinematic') {
+      map.jumpTo({ center: GENIPABU_CENTER, zoom: GENIPABU_ZOOM });
+      return;
+    }
+
+    let holdTimer: ReturnType<typeof setTimeout> | undefined;
+    let diveTimer: ReturnType<typeof setTimeout> | undefined;
+    let cancelled = false;
+
+    const comecar = () => {
+      if (cancelled) return;
+
+      map.fitBounds(RN_BOUNDS, {
+        padding: 48,
+        pitch: RN_OVERVIEW_PITCH,
+        bearing: 0,
+        duration: 0,
+      });
+
+      holdTimer = setTimeout(() => {
+        if (cancelled) return;
+        map.flyTo({
+          center: GENIPABU_CENTER,
+          zoom: GENIPABU_ZOOM,
+          pitch: CINEMATIC_PITCH,
+          duration: INTRO_DIVE_MS,
+          curve: 1.4,
+        });
+        // A orbita so entra depois do mergulho: enquanto o flyTo corre, ela
+        // ja fica quieta pelo isBusy, mas liberar antes deixaria a camera
+        // girando no meio da descida assim que o voo terminasse cedo.
+        diveTimer = setTimeout(() => {
+          if (!cancelled) setIntroDone(true);
+        }, INTRO_DIVE_MS);
+      }, INTRO_HOLD_MS);
+    };
+
+    if (map.loaded()) comecar();
+    else map.once('load', comecar);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(holdTimer);
+      clearTimeout(diveTimer);
+      map.off('load', comecar);
+    };
+  }, [mapInstance, mapMode, hasRoute]);
 
   // Orbita lenta: so no modo cinematografico, so apos o load, e so com a aba visivel.
   useEffect(() => {
@@ -316,7 +382,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     let ready = map.loaded();
 
     const syncOrbit = () => {
-      if (ready && !document.hidden) {
+      if (ready && introDone && !document.hidden) {
         orbit.start();
       } else {
         orbit.stop();
@@ -341,7 +407,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       orbit.destroy();
       orbitRef.current = null;
     };
-  }, [mapInstance, mapMode]);
+  }, [mapInstance, mapMode, introDone]);
 
   // A linha desenhada e o caminho do voo seguem o roteiro completo; os
   // marcadores continuam sendo os do dia aberto.
@@ -354,7 +420,9 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
   useEffect(() => {
     const map = mapInstance;
     const destinations = pathDestinations;
-    if (!map || destinations.length < 2) {
+    // Sem roteiro nao ha rota: no hero a camera e um plano fixo sobre as dunas,
+    // e uma linha ligando destinos cruzaria o quadro sem significar nada.
+    if (!map || !hasRoute || destinations.length < 2) {
       routeCoordsRef.current = [];
       if (map && map.isStyleLoaded() && map.getSource('route')) {
         const source = map.getSource('route') as maplibregl.GeoJSONSource;
@@ -455,7 +523,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [pathDestinations, mapInstance]);
+  }, [pathDestinations, mapInstance, hasRoute]);
 
   // Encerra o voo devolvendo a camera exatamente de onde ela saiu, em vez de
   // largar onde o ultimo ponto caiu ou reenquadrar a rota inteira — o usuario
