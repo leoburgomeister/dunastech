@@ -641,6 +641,80 @@ input[type="number"]::-webkit-outer-spin-button {
    sem carregar nenhuma informacao — todo marcador pulsava igual, entao o
    pulso nao distinguia nada. */
 
+/* ── Pin do atrativo sorteado na abertura da home ─────────────────── */
+.hero-pin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateY(-6px);
+  pointer-events: none;
+  animation: heroPinIn 700ms var(--ease) both;
+  animation-delay: 600ms;
+}
+
+@keyframes heroPinIn {
+  from { opacity: 0; transform: translateY(4px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(-6px) scale(1); }
+}
+
+.hero-pin-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px 8px 8px;
+  border-radius: var(--radius-full);
+  /* Opaco de proposito: o fundo e foto de satelite, e traducido some. */
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.55);
+  white-space: nowrap;
+}
+
+.hero-pin-isa {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #06121C;
+  flex: none;
+}
+
+.hero-pin-text { display: flex; flex-direction: column; line-height: 1.25; }
+.hero-pin-text strong {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--color-text);
+}
+.hero-pin-text small {
+  font-size: 10px;
+  color: var(--color-text-muted);
+}
+
+.hero-pin-stem {
+  width: 2px;
+  height: 22px;
+  background: linear-gradient(to bottom, var(--color-border), rgba(255, 255, 255, 0.25));
+}
+
+.hero-pin-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-surface);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.14);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-pin { animation: none; }
+}
+
 /* MapLibre Popup Styling */
 .maplibregl-popup-content {
   background: var(--color-surface) !important;

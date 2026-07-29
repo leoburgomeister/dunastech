@@ -49,6 +49,14 @@ import {
   zoomRamp,
   fadeByZoom,
 } from '@/lib/map/rnHighlight';
+import {
+  heroSpots,
+  pickHeroSpot,
+  isaBand,
+  ISA_BAND_COLOR,
+  HERO_SPOT_STORAGE_KEY,
+  type HeroSpot,
+} from '@/lib/map/heroSpots';
 
 /** Constante de modulo para nao criar array novo a cada render. */
 const SEM_ROTA: DestinoInfo[] = [];
@@ -92,6 +100,37 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
   const [following, setFollowing] = useState(false);
   /** Abertura concluida: so entao a orbita assume a camera. */
   const [introDone, setIntroDone] = useState(false);
+
+  /**
+   * Destino da abertura, sorteado uma vez por carregamento. Lazy initializer
+   * roda so no cliente — o componente entra por dynamic(ssr:false), entao nao
+   * ha risco de o servidor sortear um destino e o cliente outro.
+   */
+  const [heroSpot] = useState<HeroSpot | null>(() => {
+    let anterior: string | null = null;
+    try {
+      anterior = sessionStorage.getItem(HERO_SPOT_STORAGE_KEY);
+    } catch {
+      // sessionStorage bloqueado (aba anonima restrita): sorteia sem memoria.
+    }
+    return pickHeroSpot(heroSpots(), anterior, Math.random);
+  });
+
+  // Gravar o sorteio e efeito colateral, e por isso mora num efeito e nao no
+  // inicializador: em StrictMode o inicializador roda duas vezes e so um dos
+  // resultados vira estado, entao gravar la deixava no storage um destino
+  // diferente do que a tela mostra — e o proximo load evitaria o errado.
+  useEffect(() => {
+    if (!heroSpot) return;
+    try {
+      sessionStorage.setItem(HERO_SPOT_STORAGE_KEY, heroSpot.nome);
+    } catch {
+      // sem storage a home so perde a memoria entre recargas.
+    }
+  }, [heroSpot]);
+
+  const heroCenter = heroSpot?.center ?? GENIPABU_CENTER;
+  const heroZoom = heroSpot?.zoom ?? GENIPABU_ZOOM;
   // Computado uma unica vez: o componente entra via dynamic(..., { ssr: false }),
   // entao window ja existe no primeiro render. O guard cobre import direto.
   const [mapMode] = useState<MapMode>(() =>
@@ -139,8 +178,8 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       style: styleUrl,
       // Abre direto em Genipabu: nao ha voo de entrada porque a home nao
       // comeca em lugar nenhum antes de chegar la.
-      center: GENIPABU_CENTER,
-      zoom: GENIPABU_ZOOM,
+      center: heroCenter,
+      zoom: heroZoom,
       interactive: isInteractive,
       attributionControl: false
     });
@@ -264,7 +303,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       map.remove();
       setMapInstance(null);
     };
-  }, [mounted, isInteractive, styleUrl, mapMode]);
+  }, [mounted, isInteractive, styleUrl, mapMode, heroCenter, heroZoom]);
 
   // Update Markers and Fit Bounds when destinations change or mapInstance changes
   useEffect(() => {
@@ -342,6 +381,37 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     });
   }, [destinations, activeDay, mapInstance, mapMode, hasRoute]);
 
+  // Pin do atrativo sorteado, com o ISA. So existe no hero: com roteiro
+  // gerado quem manda sao os marcadores numerados da rota, e com destino
+  // buscado o pin apontaria para o lugar errado.
+  useEffect(() => {
+    const map = mapInstance;
+    if (!map || !heroSpot || hasRoute || focusTarget) return;
+
+    const cor = ISA_BAND_COLOR[isaBand(heroSpot.isa)];
+    const el = document.createElement('div');
+    el.className = 'hero-pin';
+    el.innerHTML = `
+      <div class="hero-pin-card">
+        <span class="hero-pin-isa" style="background:${cor}">${heroSpot.isa}</span>
+        <span class="hero-pin-text">
+          <strong>${heroSpot.nome}</strong>
+          <small>${heroSpot.municipio} · Índice de Saúde do Atrativo</small>
+        </span>
+      </div>
+      <span class="hero-pin-stem"></span>
+      <span class="hero-pin-dot" style="background:${cor}"></span>
+    `;
+
+    const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
+      .setLngLat(heroSpot.center)
+      .addTo(map);
+
+    return () => {
+      marker.remove();
+    };
+  }, [mapInstance, heroSpot, hasRoute, focusTarget]);
+
   // Abertura em dois tempos: plano aberto no estado inteiro, para a plateia
   // reconhecer o RN pelo contorno, e so entao o mergulho ate as dunas.
   // Sem isso a home abria colada em Genipabu e o destaque do estado — mascara
@@ -356,7 +426,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     // Nao mexe em introDone — fora do modo cinematografico a orbita ja sai
     // cedo e ninguem le esse estado.
     if (mapMode !== 'cinematic') {
-      map.jumpTo({ center: GENIPABU_CENTER, zoom: GENIPABU_ZOOM });
+      map.jumpTo({ center: heroCenter, zoom: heroZoom });
       return;
     }
 
@@ -378,8 +448,8 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       holdTimer = setTimeout(() => {
         if (cancelled) return;
         map.flyTo({
-          center: GENIPABU_CENTER,
-          zoom: GENIPABU_ZOOM,
+          center: heroCenter,
+          zoom: heroZoom,
           pitch: CINEMATIC_PITCH,
           duration: INTRO_DIVE_MS,
           curve: 1.4,
@@ -402,7 +472,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       clearTimeout(diveTimer);
       map.off('load', comecar);
     };
-  }, [mapInstance, mapMode, hasRoute, focusTarget]);
+  }, [mapInstance, mapMode, hasRoute, focusTarget, heroCenter, heroZoom]);
 
   // Busca confirmada com Enter: a camera voa ate o lugar pedido e a orbita
   // retoma la. Nao reagimos a cada tecla de proposito — reenquadrar a cada
