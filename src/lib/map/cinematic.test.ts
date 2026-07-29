@@ -72,7 +72,7 @@ describe('createOrbitController', () => {
   it('gira a camera enquanto roda', () => {
     const clock = fakeClock();
     const map = fakeMap();
-    const orbit = createOrbitController(map, clock, 40000);
+    const orbit = createOrbitController(map, clock, { periodMs: 40000 });
 
     orbit.start();
     expect(orbit.isRunning()).toBe(true);
@@ -87,7 +87,7 @@ describe('createOrbitController', () => {
   it('para de girar apos stop', () => {
     const clock = fakeClock();
     const map = fakeMap();
-    const orbit = createOrbitController(map, clock, 40000);
+    const orbit = createOrbitController(map, clock, { periodMs: 40000 });
 
     orbit.start();
     clock.advance(10000);
@@ -104,7 +104,7 @@ describe('createOrbitController', () => {
   it('retoma do bearing atual apos stop e start', () => {
     const clock = fakeClock();
     const map = fakeMap();
-    const orbit = createOrbitController(map, clock, 40000);
+    const orbit = createOrbitController(map, clock, { periodMs: 40000 });
 
     orbit.start();
     clock.advance(10000);
@@ -118,7 +118,7 @@ describe('createOrbitController', () => {
   it('start duplicado nao cria uma segunda animacao', () => {
     const clock = fakeClock();
     const map = fakeMap();
-    const orbit = createOrbitController(map, clock, 40000);
+    const orbit = createOrbitController(map, clock, { periodMs: 40000 });
 
     orbit.start();
     orbit.start();
@@ -128,7 +128,7 @@ describe('createOrbitController', () => {
   it('destroy encerra a animacao', () => {
     const clock = fakeClock();
     const map = fakeMap();
-    const orbit = createOrbitController(map, clock, 40000);
+    const orbit = createOrbitController(map, clock, { periodMs: 40000 });
 
     orbit.start();
     orbit.destroy();
@@ -139,5 +139,53 @@ describe('createOrbitController', () => {
 
   it('usa 40s por volta como padrao', () => {
     expect(ORBIT_PERIOD_MS).toBe(40000);
+  });
+});
+
+describe('createOrbitController com camera ocupada', () => {
+  it('nao toca na camera enquanto isBusy for true', () => {
+    const clock = fakeClock();
+    const map = fakeMap();
+    let busy = true;
+    const orbit = createOrbitController(map, clock, {
+      periodMs: 40000,
+      isBusy: () => busy,
+    });
+
+    orbit.start();
+    clock.advance(10000);
+    // setBearing chama jumpTo, que cancela transicoes em curso: nao pode rodar aqui.
+    expect(map.setBearing).not.toHaveBeenCalled();
+
+    busy = false;
+    clock.advance(10000);
+    expect(map.setBearing).toHaveBeenCalledOnce();
+  });
+
+  it('retoma sem salto: o tempo parado nao vira giro acumulado', () => {
+    const clock = fakeClock();
+    const map = fakeMap();
+    let busy = true;
+    const orbit = createOrbitController(map, clock, {
+      periodMs: 40000,
+      isBusy: () => busy,
+    });
+
+    orbit.start();
+    clock.advance(30000); // 3/4 de volta se fosse tempo absoluto
+    busy = false;
+
+    clock.advance(10000); // primeiro frame livre: deve girar so 1/4 de volta
+    expect(map.setBearing).toHaveBeenCalledWith(90);
+  });
+
+  it('sem isBusy, gira sempre', () => {
+    const clock = fakeClock();
+    const map = fakeMap();
+    const orbit = createOrbitController(map, clock, { periodMs: 40000 });
+
+    orbit.start();
+    clock.advance(10000);
+    expect(map.setBearing).toHaveBeenCalledWith(90);
   });
 });

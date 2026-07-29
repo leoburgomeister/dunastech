@@ -20,6 +20,16 @@ export interface OrbitController {
   isRunning(): boolean;
 }
 
+export interface OrbitOptions {
+  periodMs?: number;
+  /**
+   * Enquanto retornar true, a orbita nao mexe na camera.
+   * Necessario porque setBearing() chama jumpTo(), que internamente faz stop()
+   * e cancelaria qualquer transicao em curso — inclusive o mergulho do fitBounds.
+   */
+  isBusy?: () => boolean;
+}
+
 export function orbitBearingAt(
   elapsedMs: number,
   periodMs: number,
@@ -37,22 +47,31 @@ function normalizeBearing(bearing: number): number {
 export function createOrbitController(
   map: OrbitTarget,
   deps: OrbitDeps,
-  periodMs: number = ORBIT_PERIOD_MS
+  { periodMs = ORBIT_PERIOD_MS, isBusy }: OrbitOptions = {}
 ): OrbitController {
   let frameId: number | null = null;
-  let startedAt = 0;
-  let startBearing = 0;
+  let lastAt = 0;
+  let bearing = 0;
 
+  // Acumula por delta em vez de tempo absoluto: assim o tempo passado com a
+  // camera ocupada nao vira um salto de giro quando a orbita retoma.
   function tick(): void {
-    const elapsed = deps.now() - startedAt;
-    map.setBearing(orbitBearingAt(elapsed, periodMs, startBearing));
+    const now = deps.now();
+    const delta = now - lastAt;
+    lastAt = now;
+
+    if (!isBusy?.()) {
+      bearing = orbitBearingAt(delta, periodMs, bearing);
+      map.setBearing(bearing);
+    }
+
     frameId = deps.requestFrame(tick);
   }
 
   function start(): void {
     if (frameId !== null) return;
-    startedAt = deps.now();
-    startBearing = map.getBearing();
+    lastAt = deps.now();
+    bearing = map.getBearing();
     frameId = deps.requestFrame(tick);
   }
 
