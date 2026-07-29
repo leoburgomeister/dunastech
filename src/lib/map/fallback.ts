@@ -20,15 +20,33 @@ export interface MapErrorLike {
 }
 
 /**
+ * O MapLibre usa status 0 para falha do proprio fetch — CORS, DNS, offline,
+ * firewall bloqueando o dominio. O fonte diz textualmente "we provide the
+ * arbitrary HTTP error code of 0". Tratar so 4xx/5xx deixaria passar
+ * justamente o caso de rede de auditorio bloqueando api.maptiler.com.
+ */
+function falhouNaRede(status: number | undefined): boolean {
+  return typeof status === 'number' && (status === 0 || status >= 400);
+}
+
+/**
  * Falha de estilo e fatal: sem estilo nao ha mapa nenhum. Falha de source e
  * transitoria — um tile que nao veio nao justifica trocar o basemap inteiro,
  * ou qualquer rede ruim derrubaria a cena 3D.
+ *
+ * `styleLoaded` importa porque ausencia de sourceId NAO basta para concluir
+ * "fatal": o Evented so injeta sourceId no bubbling a partir do source, entao
+ * erro de outra natureza depois do estilo pronto chega sem sourceId e
+ * dispararia degradacao a toa. Style que falhou de verdade nunca marca
+ * isStyleLoaded().
  */
-export function classifyMapError(e: MapErrorLike): MapErrorKind {
-  const status = e.error?.status;
-  const httpRuim = typeof status === 'number' && status >= 400;
-  if (!httpRuim) return 'ignore';
-  return e.sourceId ? 'source' : 'style';
+export function classifyMapError(
+  e: MapErrorLike,
+  styleLoaded = false
+): MapErrorKind {
+  if (!falhouNaRede(e.error?.status)) return 'ignore';
+  if (e.sourceId) return 'source';
+  return styleLoaded ? 'ignore' : 'style';
 }
 
 /**
@@ -39,8 +57,8 @@ export function classifyMapError(e: MapErrorLike): MapErrorKind {
 export const SOURCE_FAILURE_THRESHOLD = 12;
 
 export interface FallbackWatcher {
-  /** Alimente com cada evento 'error' do mapa. */
-  handle(e: MapErrorLike): void;
+  /** Alimente com cada evento 'error' do mapa, mais map.isStyleLoaded(). */
+  handle(e: MapErrorLike, styleLoaded?: boolean): void;
   sourceFailures(): number;
   hasFallenBack(): boolean;
 }
@@ -59,8 +77,8 @@ export function createFallbackWatcher(
   };
 
   return {
-    handle(e) {
-      const tipo = classifyMapError(e);
+    handle(e, styleLoaded = false) {
+      const tipo = classifyMapError(e, styleLoaded);
       if (tipo === 'style') {
         disparar('style');
         return;

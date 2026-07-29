@@ -99,3 +99,25 @@ describe('createFallbackWatcher', () => {
     expect(onFallback).toHaveBeenCalledWith('source');
   });
 });
+
+describe('classifyMapError — casos que o fonte do MapLibre revelou', () => {
+  it('trata status 0 como falha: e o codigo que o MapLibre usa para falha do proprio fetch', () => {
+    // maplibre-gl-dev.js:9868-9884 — "we provide the arbitrary HTTP error code of 0"
+    // Cobre CORS, DNS, offline e firewall bloqueando o dominio: exatamente o
+    // cenario de rede de auditorio. Antes isso era classificado como ruido.
+    expect(classifyMapError({ error: { status: 0 } })).toBe('style');
+    expect(classifyMapError({ sourceId: 's', error: { status: 0 } })).toBe('source');
+  });
+
+  it('nao degrada por erro sem sourceId quando o estilo JA carregou', () => {
+    // Ausencia de sourceId nao basta: o Evented so injeta sourceId no bubbling
+    // a partir do source, entao erro de outra natureza depois do estilo pronto
+    // chegaria sem sourceId e dispararia degradacao a toa.
+    expect(classifyMapError({ error: { status: 500 } }, true)).toBe('ignore');
+    expect(classifyMapError({ error: { status: 500 } }, false)).toBe('style');
+  });
+
+  it('erro de source continua sendo de source com o estilo carregado', () => {
+    expect(classifyMapError({ sourceId: 'maptiler-terrain', error: { status: 403 } }, true)).toBe('source');
+  });
+});

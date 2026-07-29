@@ -5,6 +5,7 @@ import maplibregl from 'maplibre-gl';
 import { Play, Square } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { type DestinoInfo } from '@/data/mockData';
+import { cn, slugify } from '@/lib/utils';
 import { resolveMapMode, is3D, type MapMode } from '@/lib/map/mapMode';
 import {
   buildStyleUrl,
@@ -56,8 +57,6 @@ import { createFallbackWatcher, type MapErrorLike } from '@/lib/map/fallback';
 import {
   heroSpots,
   pickHeroSpot,
-  isaBand,
-  ISA_BAND_COLOR,
   HERO_SPOT_STORAGE_KEY,
   type HeroSpot,
 } from '@/lib/map/heroSpots';
@@ -212,7 +211,9 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       );
       setDegradou(true);
     });
-    map.on('error', (e) => vigia.handle(e as unknown as MapErrorLike));
+    map.on('error', (e) =>
+      vigia.handle(e as unknown as MapErrorLike, !!map.isStyleLoaded())
+    );
 
     setMapInstance(map);
 
@@ -462,24 +463,25 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     const map = mapInstance;
     if (!map || !heroSpot || hasRoute || focusTarget || !zoomProximo) return;
 
-    const cor = ISA_BAND_COLOR[isaBand(heroSpot.isa)];
     const el = document.createElement('div');
     el.className = 'hero-pin';
     // O conteudo vive num filho porque o MapLibre posiciona o marcador
     // escrevendo transform no elemento raiz — qualquer transform nosso ali
     // (offset ou animacao de entrada) apaga o posicionamento e o pin gruda
     // na origem do container.
+    // Ancora de verdade, nao div com onclick: preserva abrir em nova aba,
+    // foco por teclado e o destino visivel na barra de status.
     el.innerHTML = `
       <div class="hero-pin-inner">
-        <div class="hero-pin-card">
-          <span class="hero-pin-isa" style="background:${cor}">${heroSpot.isa}</span>
+        <a class="hero-pin-card" href="/destino/${slugify(heroSpot.nome)}">
           <span class="hero-pin-text">
             <strong>${heroSpot.nome}</strong>
-            <small>${heroSpot.municipio} · Índice de Saúde do Atrativo</small>
+            <small>${heroSpot.municipio}</small>
           </span>
-        </div>
+          <span class="hero-pin-go" aria-hidden="true">→</span>
+        </a>
         <span class="hero-pin-stem"></span>
-        <span class="hero-pin-dot" style="background:${cor}"></span>
+        <span class="hero-pin-dot"></span>
       </div>
     `;
 
@@ -783,13 +785,19 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       {/* Dynamic Overlay styling for Dark Map theme */}
       <div className="absolute inset-0 pointer-events-none border border-slate-800/10 rounded-2xl" />
 
-      {/* Nome do estado no plano aberto. Some exatamente quando o pin do
-          atrativo entra: um substitui o outro, nunca convivem. Fica na area
-          visivel a esquerda do painel, nao no centro do canvas. */}
-      {!hasRoute && !zoomProximo && (
+      {/* Nome do estado no plano aberto. Fica no ALTO da area visivel, nao no
+          meio: centralizado ele pousava em cima do proprio contorno do estado
+          e os dois competiam. Sempre montado, so mudando opacidade — assim a
+          saida e um fade e nao um corte seco. */}
+      {!hasRoute && (
         <div
-          className="pointer-events-none absolute inset-y-0 left-0 z-10 hidden flex-col justify-center pl-14 lg:flex"
+          className={cn(
+            'pointer-events-none absolute inset-x-0 top-0 z-10 hidden flex-col pl-14 pt-16 lg:flex',
+            'transition-opacity duration-700 ease-[cubic-bezier(0.17,0.84,0.44,1)]',
+            zoomProximo ? 'opacity-0' : 'opacity-100'
+          )}
           style={{ width: 'calc(100% - min(30rem, 42vw) - 3rem)' }}
+          aria-hidden={zoomProximo}
         >
           <span className="text-[11px] font-bold uppercase tracking-[0.32em] text-white/70 [text-shadow:0_1px_10px_rgba(0,0,0,0.7)]">
             Observatório

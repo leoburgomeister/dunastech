@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { heroSpots, pickHeroSpot, isaBand, ISA_BAND_COLOR, type HeroSpot } from './heroSpots';
+import { slugify } from '@/lib/utils';
+import { destinosInfo } from '@/data/mockData';
 
 describe('heroSpots', () => {
   const spots = heroSpots();
@@ -107,5 +109,23 @@ describe('pickHeroSpot', () => {
       expect(escolhido.nome).not.toBe(anterior);
       anterior = escolhido.nome;
     }
+  });
+});
+
+describe('link do pin para a pagina do destino', () => {
+  it('todo destino da curadoria tem slug que resolve em destinosInfo', () => {
+    // O pin do hero e uma ancora para /destino/{slug}. Se um nome mudar e o
+    // slug deixar de casar, o pin passa a levar para 404 — e isso so
+    // apareceria em producao, clicando.
+    for (const spot of heroSpots()) {
+      const slug = slugify(spot.nome);
+      const achou = destinosInfo.some((d) => slugify(d.nome) === slug);
+      expect(achou, `slug "${slug}" nao resolve nenhum destino`).toBe(true);
+    }
+  });
+
+  it('slugs sao unicos entre si', () => {
+    const slugs = heroSpots().map((s) => slugify(s.nome));
+    expect(new Set(slugs).size).toBe(slugs.length);
   });
 });
