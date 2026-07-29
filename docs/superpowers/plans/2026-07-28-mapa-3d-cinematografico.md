@@ -818,6 +818,30 @@ git commit -m "feat(map): integra cena 3D cinematografica na home"
 
 ---
 
+## Desvios de execução (2026-07-28)
+
+Dois defeitos apareceram durante a implementação e mudaram o código em relação ao plano escrito.
+
+**1. `resolveMapMode` saiu do efeito.** O plano mandava chamar `setMapMode(...)` dentro do `useEffect` de mount. A regra `react-hooks/set-state-in-effect` do eslint barrou: `setState` síncrono em efeito gera render em cascata. Como o componente entra via `dynamic(..., { ssr: false })`, `window` já existe no primeiro render — então o modo passou a ser computado uma única vez no inicializador do `useState`, sem efeito nenhum.
+
+**2. A órbita cancelava o mergulho do `fitBounds`.** Verificado na fonte da `maplibre-gl` 5.24.0: `jumpTo(e,i){this.stop()...}`, e `setBearing()` chama `jumpTo()`. Como o plano iniciava a órbita assim que `setMapInstance` rodava — antes do `load` e durante a transição de 3s —, o primeiro frame da órbita executaria `stop()` e mataria o mergulho cinematográfico. Correções:
+
+- `createOrbitController` acumula giro por **delta de tempo**, não por tempo absoluto, para retomar sem salto após pausas
+- passou a aceitar `isBusy`, e o componente injeta `() => map.isEasing()`
+- a órbita só inicia **após o evento `load`**
+
+**Limite de verificação.** O passo 10 (conferência visual no navegador) **não pôde ser executado**: no painel deste ambiente `document.hidden` é `true` e `requestAnimationFrame` nunca dispara. Como o MapLibre renderiza e requisita tiles via rAF, o mapa fica parado, o evento `load` não ocorre e nada 3D se materializa. Isso é artefato do ambiente, não do código.
+
+O que **foi** verificado em runtime, por não depender de rAF:
+
+| Cenário | Resultado observado |
+|---|---|
+| Com chave | estilo `api.maptiler.com/maps/hybrid/style.json` requisitado, zero requests ao Carto |
+| `NEXT_PUBLIC_MAP_2D=1` | zero requests ao MapTiler, 4 ao Carto, estilo `dark-matter` (tema preservado) |
+| Sem chave | zero requests ao MapTiler, Carto carregado, sem erro de console |
+
+Os critérios 2, 4 e 6 (relevo/satélite/órbita visíveis, cena estática com `prefers-reduced-motion`, rota e marcadores) **seguem pendentes de conferência num navegador real**.
+
 ## Ações do PO (fora do alcance do agente)
 
 Estas duas dependem de acesso a painéis de conta e **precisam ser feitas por Leonardo**. A primeira é bloqueante para o deploy; a segunda é bloqueante para a segurança da chave.
