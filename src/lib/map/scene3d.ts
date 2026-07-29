@@ -42,6 +42,17 @@ export const RN_BOUNDS: [[number, number], [number, number]] = [
 ];
 
 /**
+ * Centro e zoom de partida do mapa. O mapa PRECISA nascer aqui, nao no
+ * atrativo sorteado: antes ele abria fechado no destino e, quando o 'load'
+ * finalmente disparava, saltava para o estado inteiro para so entao mergulhar
+ * de volta. O usuario via um close, um estouro e um mergulho — a leitura era
+ * de mapa torto. O fitBounds do 'load' refina este enquadramento; estes
+ * valores so precisam ser proximos o bastante para o salto sumir.
+ */
+export const RN_CENTER: [number, number] = [-36.775, -5.905];
+export const RN_OVERVIEW_ZOOM = 6.4;
+
+/**
  * No plano aberto a camera olha de cima, sem inclinacao nenhuma. O objetivo
  * deste plano e uma coisa so: a plateia reconhecer o contorno do RN. Qualquer
  * pitch aplica perspectiva, o estado afunila no topo e a forma — que e o

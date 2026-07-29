@@ -21,6 +21,8 @@ import {
   DESTINATION_ZOOM,
   DESTINATION_FLY_MS,
   overviewPadding,
+  RN_CENTER,
+  RN_OVERVIEW_ZOOM,
 } from '@/lib/map/scene3d';
 import {
   createOrbitController,
@@ -48,7 +50,9 @@ import {
   RN_ACCENT,
   zoomRamp,
   fadeByZoom,
+  RN_FADE_END_ZOOM,
 } from '@/lib/map/rnHighlight';
+import { createFallbackWatcher, type MapErrorLike } from '@/lib/map/fallback';
 import {
   heroSpots,
   pickHeroSpot,
@@ -131,9 +135,13 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
 
   const heroCenter = heroSpot?.center ?? GENIPABU_CENTER;
   const heroZoom = heroSpot?.zoom ?? GENIPABU_ZOOM;
+
+  // hasRoute so decide a camera INICIAL. Se entrasse nas dependencias do init,
+  // gerar um roteiro recriaria o mapa inteiro.
+  const [rotaAoMontar] = useState(hasRoute);
   // Computado uma unica vez: o componente entra via dynamic(..., { ssr: false }),
   // entao window ja existe no primeiro render. O guard cobre import direto.
-  const [mapMode] = useState<MapMode>(() =>
+  const [modoResolvido] = useState<MapMode>(() =>
     resolveMapMode({
       maptilerKey: process.env.NEXT_PUBLIC_MAPTILER_KEY,
       force2d: process.env.NEXT_PUBLIC_MAP_2D === '1',
@@ -142,6 +150,16 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
         window.matchMedia('(prefers-reduced-motion: reduce)').matches,
     })
   );
+
+  /**
+   * O MapTiler falhou (chave invalida, revogada ou cota estourada) e o mapa
+   * degradou para o 2D. Como styleUrl e dependencia do efeito de init, virar
+   * esta chave recria o mapa no Carto e as camadas de rota e do RN sao
+   * reinstaladas pelo mesmo 'load' de sempre — sem setStyle e sem restauracao
+   * manual de camada nenhuma.
+   */
+  const [degradou, setDegradou] = useState(false);
+  const mapMode: MapMode = degradou ? 'flat' : modoResolvido;
   const { resolvedTheme } = useTheme();
 
   // No modo 3D o estilo e satelite, entao nao ha variante clara/escura e
@@ -176,13 +194,25 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
       style: styleUrl,
-      // Abre direto em Genipabu: nao ha voo de entrada porque a home nao
-      // comeca em lugar nenhum antes de chegar la.
-      center: heroCenter,
-      zoom: heroZoom,
+      // Nasce no plano aberto do estado, nao no atrativo. Com roteiro gerado
+      // o fitBounds da rota assume logo em seguida.
+      center: rotaAoMontar ? heroCenter : RN_CENTER,
+      zoom: rotaAoMontar ? heroZoom : RN_OVERVIEW_ZOOM,
+      pitch: rotaAoMontar ? CINEMATIC_PITCH : RN_OVERVIEW_PITCH,
       interactive: isInteractive,
       attributionControl: false
     });
+
+    // Vigia de degradacao. Classificacao medida no browser: falha de estilo
+    // vem sem sourceId e com error.status 403, e o 'load' nunca dispara —
+    // sem isto a home ficava vazia em vez de virar o mapa 2D.
+    const vigia = createFallbackWatcher((motivo) => {
+      console.warn(
+        `MapTiler indisponivel (${motivo}). Degradando para o mapa 2D.`
+      );
+      setDegradou(true);
+    });
+    map.on('error', (e) => vigia.handle(e as unknown as MapErrorLike));
 
     setMapInstance(map);
 
@@ -303,7 +333,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       map.remove();
       setMapInstance(null);
     };
-  }, [mounted, isInteractive, styleUrl, mapMode, heroCenter, heroZoom]);
+  }, [mounted, isInteractive, styleUrl, mapMode, heroCenter, heroZoom, rotaAoMontar]);
 
   // Update Markers and Fit Bounds when destinations change or mapInstance changes
   useEffect(() => {
@@ -402,12 +432,35 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     };
   }, [mapInstance]);
 
+  /**
+   * Perto o bastante para o pin do atrativo fazer sentido. Abaixo disso o
+   * quadro e o estado inteiro, e um cartao de 240px sobre ele nao aponta nada
+   * — e o mesmo limiar em que o destaque do RN termina de sumir.
+   */
+  const [zoomProximo, setZoomProximo] = useState(false);
+  useEffect(() => {
+    const map = mapInstance;
+    if (!map) return;
+
+    const atualizar = () => {
+      const perto = map.getZoom() >= RN_FADE_END_ZOOM;
+      setZoomProximo((antes) => (antes === perto ? antes : perto));
+    };
+
+    map.on('zoom', atualizar);
+    map.once('idle', atualizar);
+    return () => {
+      map.off('zoom', atualizar);
+      map.off('idle', atualizar);
+    };
+  }, [mapInstance]);
+
   // Pin do atrativo sorteado, com o ISA. So existe no hero: com roteiro
   // gerado quem manda sao os marcadores numerados da rota, e com destino
   // buscado o pin apontaria para o lugar errado.
   useEffect(() => {
     const map = mapInstance;
-    if (!map || !heroSpot || hasRoute || focusTarget) return;
+    if (!map || !heroSpot || hasRoute || focusTarget || !zoomProximo) return;
 
     const cor = ISA_BAND_COLOR[isaBand(heroSpot.isa)];
     const el = document.createElement('div');
@@ -437,7 +490,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     return () => {
       marker.remove();
     };
-  }, [mapInstance, heroSpot, hasRoute, focusTarget]);
+  }, [mapInstance, heroSpot, hasRoute, focusTarget, zoomProximo]);
 
   // Abertura em dois tempos: plano aberto no estado inteiro, para a plateia
   // reconhecer o RN pelo contorno, e so entao o mergulho ate as dunas.
@@ -729,6 +782,25 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       <div ref={mapContainerRef} className="w-full h-full" />
       {/* Dynamic Overlay styling for Dark Map theme */}
       <div className="absolute inset-0 pointer-events-none border border-slate-800/10 rounded-2xl" />
+
+      {/* Nome do estado no plano aberto. Some exatamente quando o pin do
+          atrativo entra: um substitui o outro, nunca convivem. Fica na area
+          visivel a esquerda do painel, nao no centro do canvas. */}
+      {!hasRoute && !zoomProximo && (
+        <div
+          className="pointer-events-none absolute inset-y-0 left-0 z-10 hidden flex-col justify-center pl-14 lg:flex"
+          style={{ width: 'calc(100% - min(30rem, 42vw) - 3rem)' }}
+        >
+          <span className="text-[11px] font-bold uppercase tracking-[0.32em] text-white/70 [text-shadow:0_1px_10px_rgba(0,0,0,0.7)]">
+            Observatório
+          </span>
+          <span className="mt-1 font-[family-name:var(--font-heading)] text-4xl font-bold leading-[0.95] tracking-[-0.03em] text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.65)] xl:text-5xl">
+            Rio Grande
+            <br />
+            do Norte
+          </span>
+        </div>
+      )}
 
       {hasRoute && routeReady && pathDestinations.length > 1 && (
         <button
