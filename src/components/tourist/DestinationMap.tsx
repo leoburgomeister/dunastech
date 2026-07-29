@@ -124,11 +124,6 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
     const centerEl = document.createElement('div');
     centerEl.className = 'marker-wrapper';
 
-    const centerPulse = document.createElement('div');
-    centerPulse.className = 'marker-pulse';
-    centerPulse.style.backgroundColor = centerStyle.color;
-    centerEl.appendChild(centerPulse);
-
     const centerPin = document.createElement('div');
     centerPin.className = 'marker-custom';
     centerPin.style.backgroundColor = centerStyle.color;
@@ -157,11 +152,6 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
       const style = getPartnerIconStyle(partner.tipo);
       const el = document.createElement('div');
       el.className = 'marker-wrapper';
-
-      const pulse = document.createElement('div');
-      pulse.className = 'marker-pulse';
-      pulse.style.backgroundColor = style.color;
-      el.appendChild(pulse);
 
       const pin = document.createElement('div');
       pin.className = 'marker-custom';

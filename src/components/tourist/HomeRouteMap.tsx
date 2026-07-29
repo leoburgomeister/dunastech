@@ -97,6 +97,12 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
 
     setMapInstance(map);
 
+    // Ponta de inspecao em dev: permite conferir terreno, sky e projecao no
+    // console sem instrumentar o componente a cada investigacao.
+    if (process.env.NODE_ENV === 'development') {
+      (window as unknown as { __potiMap?: maplibregl.Map }).__potiMap = map;
+    }
+
     map.on('load', () => {
       if (is3D(mapMode) && maptilerKey) {
         try {
@@ -176,11 +182,6 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       
       const el = document.createElement('div');
       el.className = 'marker-wrapper';
-
-      const pulse = document.createElement('div');
-      pulse.className = 'marker-pulse';
-      pulse.style.backgroundColor = markerColor;
-      el.appendChild(pulse);
 
       const pin = document.createElement('div');
       pin.className = 'marker-custom';

@@ -73,11 +73,17 @@
   --sidebar-width: 280px;
   --sidebar-collapsed: 72px;
   
-  /* Transitions */
-  --transition-fast: 150ms ease-out;
-  --transition-base: 200ms ease-out;
-  --transition-slow: 300ms ease-out;
-  --transition-spring: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Transitions
+     Uma unica curva no produto inteiro, variando so a duracao. Medimos os
+     sites do showcase da GSAP: Kononenko usa cubic-bezier(0.17,0.84,0.44,1)
+     em todas as transicoes; Noomo usa uma so em 0.3/0.4/0.5s. Nenhum deles
+     usa overshoot — overshoot le como "template alegre", nao como caro.
+     A antiga --transition-spring passava de 1 (0.34, 1.56, 0.64, 1). */
+  --ease: cubic-bezier(0.17, 0.84, 0.44, 1);
+  --transition-fast: 150ms var(--ease);
+  --transition-base: 200ms var(--ease);
+  --transition-slow: 300ms var(--ease);
+  --transition-spring: 400ms var(--ease);
 }
 
 /* ── Dark Theme ─────────────────────────────────────── */
@@ -245,11 +251,17 @@ body {
   transition: background-color var(--transition-slow), color var(--transition-slow);
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
+/* Em @layer base de proposito. Fora de layer, esta regra vencia TODOS os
+   utilitarios de peso do Tailwind aplicados a titulo (utilities e uma layer
+   posterior, e CSS sem layer ganha de qualquer layer): um
+   <h1 class="font-extrabold"> computava 700 em vez de 800. */
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
 }
 
 /* ── Scrollbar ──────────────────────────────────────── */
@@ -377,7 +389,7 @@ h1, h2, h3, h4, h5, h6 {
 .animate-scale-in { animation: scaleIn 300ms ease-out; }
 .animate-slide-in-right { animation: slideInRight 300ms ease-out; }
 .animate-slide-in-left { animation: slideInLeft 300ms ease-out; }
-.animate-slide-up { animation: slideUp 400ms cubic-bezier(0.34, 1.56, 0.64, 1); }
+.animate-slide-up { animation: slideUp 400ms var(--ease); }
 .animate-shimmer { 
   background: linear-gradient(90deg, transparent 25%, var(--color-surface-hover) 50%, transparent 75%);
   background-size: 200% 100%;
@@ -542,7 +554,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .animate-slide-in-right {
-  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slideInRight 400ms var(--ease) forwards;
 }
 
 /* ── Leaflet Popup Style Corrections for Google Style ── */
@@ -588,7 +600,7 @@ input[type="number"]::-webkit-outer-spin-button {
   border: 3px solid white;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   transform: rotate(-45deg);
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: transform 200ms var(--ease);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -608,28 +620,10 @@ input[type="number"]::-webkit-outer-spin-button {
   justify-content: center;
 }
 
-.marker-pulse {
-  position: absolute;
-  width: 44px;
-  height: 44px;
-  border-radius: 50% 50% 50% 0;
-  background: rgba(232, 184, 109, 0.5);
-  transform: rotate(-45deg) scale(1);
-  animation: markerPulse 2s infinite ease-out;
-  pointer-events: none;
-  z-index: -1;
-}
-
-@keyframes markerPulse {
-  0% {
-    transform: rotate(-45deg) scale(1);
-    opacity: 0.6;
-  }
-  100% {
-    transform: rotate(-45deg) scale(1.8);
-    opacity: 0;
-  }
-}
+/* markerPulse removido: era uma animacao infinita por marcador rodando em
+   cima do canvas WebGL, competindo com a orbita da camera por frame budget
+   sem carregar nenhuma informacao — todo marcador pulsava igual, entao o
+   pulso nao distinguia nada. */
 
 /* MapLibre Popup Styling */
 .maplibregl-popup-content {
