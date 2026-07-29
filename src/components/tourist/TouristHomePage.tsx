@@ -404,22 +404,25 @@ export default function TouristHomePage() {
   return (
     <div className="animate-fade-in space-y-12">
       {/* ═══ Smart Route Planner & Map Split-Pane Hero Section ═══ */}
-      <section className="relative w-full border-b border-[var(--color-border)] bg-[var(--color-bg)] overflow-hidden">
-        <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[calc(100vh-4rem)] lg:h-[calc(100vh-4rem)] w-full">
-          
-          {/* Left Column: Cena 3D sempre limpa, sem blur nem overlay */}
-          <div className="lg:col-span-7 relative h-[380px] lg:h-full w-full bg-[var(--color-surface-alt)] order-2 lg:order-1 border-b lg:border-b-0 lg:border-r border-[var(--color-border)] overflow-hidden">
+      <section className="relative w-full h-[calc(100vh-4rem)] border-b border-[var(--color-border)] bg-[var(--color-bg)] overflow-hidden">
+
+          {/* Cena 3D ocupando o hero inteiro, atras de tudo. Sem interacao:
+              a camera e uma tomada fixa orbitando Genipabu, nao uma ferramenta
+              de navegacao — arrastar o mapa so quebraria o enquadramento. */}
+          <div className="absolute inset-0">
             <HomeRouteMap
               destinations={mapDestinations}
               activeDay={expandedDay}
-              isInteractive={true}
+              isInteractive={false}
               hasRoute={suggestedRoute !== null}
               routeDestinations={suggestedRoute?.destinations}
             />
           </div>
 
-          {/* Right Column: Title + Smart Unified Form OR Generated Itinerary */}
-          <div className="lg:col-span-5 flex flex-col p-6 sm:p-8 lg:p-10 overflow-y-auto max-h-full custom-scrollbar z-10 justify-between bg-[var(--color-surface)] order-1 lg:order-2">
+          {/* Painel flutuante. No mobile ocupa a metade de baixo e deixa a
+              duna aparecer em cima; no desktop encosta a direita com margem,
+              para o mapa respirar em volta. */}
+          <div className="absolute inset-x-0 bottom-0 top-[42vh] lg:inset-y-6 lg:left-auto lg:right-6 lg:top-6 lg:bottom-6 lg:w-[min(30rem,42vw)] flex flex-col p-6 sm:p-8 overflow-y-auto custom-scrollbar z-10 justify-between bg-[var(--color-surface)] rounded-t-3xl lg:rounded-3xl shadow-2xl ring-1 ring-[var(--color-border)]">
             {(step === 1 || step === 2) ? (
               <div className="space-y-6 animate-fade-in my-auto">
                 {/* Header Info */}
@@ -1793,18 +1796,18 @@ export default function TouristHomePage() {
             )}
           </div>
 
-          {/* Floating Scroll Down Button */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden lg:flex flex-col items-center gap-1.5 z-20 cursor-pointer group"
+          {/* Floating Scroll Down Button — agora pousa sobre o satelite, entao
+              precisa de cor propria: os tokens de superficie sumiriam na foto. */}
+          <div className="absolute bottom-6 left-6 hidden lg:flex flex-col items-center gap-1.5 z-20 cursor-pointer group [text-shadow:0_1px_8px_rgba(0,0,0,0.6)]"
                onClick={() => document.getElementById('recommended-destinations')?.scrollIntoView({ behavior: 'smooth' })}>
-            <span className="text-[10px] font-black uppercase tracking-wider text-[var(--color-text-muted)] group-hover:text-[var(--color-text)] transition-colors">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-white/80 group-hover:text-white transition-colors">
               Explorar Destinos
             </span>
-            <div className="h-9 w-6 rounded-full border-2 border-[var(--color-border)] group-hover:border-[var(--color-primary)] flex items-start justify-center p-1.5 transition-colors">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-text-muted)] group-hover:bg-[var(--color-primary)] transition-colors animate-bounce" />
+            <div className="h-9 w-6 rounded-full border-2 border-white/50 group-hover:border-white flex items-start justify-center p-1.5 transition-colors">
+              <span className="h-1.5 w-1.5 rounded-full bg-white/80 group-hover:bg-white transition-colors animate-bounce" />
             </div>
           </div>
 
-        </div>
       </section>
 
       {/* ═══ Popular Destinations (Larger Clickable Cards) ═══ */}

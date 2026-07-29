@@ -12,7 +12,8 @@ import {
   CINEMATIC_PITCH,
   CINEMATIC_FLY_DURATION_MS,
   PLAIN_FIT_DURATION_MS,
-  OPENING_ZOOM,
+  GENIPABU_CENTER,
+  GENIPABU_ZOOM,
 } from '@/lib/map/scene3d';
 import {
   createOrbitController,
@@ -35,9 +36,6 @@ import {
   RN_MASK_LAYER_ID,
   RN_OUTLINE_LAYER_ID,
 } from '@/lib/map/rnHighlight';
-
-/** Fallback quando ainda nao ha destino: centro de Natal. */
-const NATAL_CENTER: [number, number] = [-35.2009, -5.7945];
 
 /** Constante de modulo para nao criar array novo a cada render. */
 const SEM_ROTA: DestinoInfo[] = [];
@@ -87,16 +85,6 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
   );
   const { resolvedTheme } = useTheme();
 
-  // Capturado so na montagem: dai em diante quem enquadra e o fitBounds.
-  // Enquanto o centro vivia nas dependencias do init, cada tecla digitada na
-  // busca refiltrava destinations e recriava o mapa inteiro — com o 3D isso
-  // passaria a refazer o fetch dos tiles de satelite e do terreno.
-  const [initialCenter] = useState<[number, number]>(() =>
-    destinations[0]
-      ? [destinations[0].longitude, destinations[0].latitude]
-      : NATAL_CENTER
-  );
-
   // No modo 3D o estilo e satelite, entao nao ha variante clara/escura e
   // trocar de tema tambem nao recria o mapa. A alternancia so vale no 2D.
   const styleUrl = useMemo(() => {
@@ -129,8 +117,10 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
       style: styleUrl,
-      center: initialCenter,
-      zoom: OPENING_ZOOM,
+      // Abre direto em Genipabu: nao ha voo de entrada porque a home nao
+      // comeca em lugar nenhum antes de chegar la.
+      center: GENIPABU_CENTER,
+      zoom: GENIPABU_ZOOM,
       interactive: isInteractive,
       attributionControl: false
     });
@@ -232,8 +222,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       map.remove();
       setMapInstance(null);
     };
-    // initialCenter vem de useState: e estavel, entra so para satisfazer o lint.
-  }, [mounted, isInteractive, styleUrl, mapMode, initialCenter]);
+  }, [mounted, isInteractive, styleUrl, mapMode]);
 
   // Update Markers and Fit Bounds when destinations change or mapInstance changes
   useEffect(() => {
@@ -295,17 +284,11 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       curve: 1.2,
     };
 
-    // Sem rota o mapa e cenario, entao enquadrar TODOS os destinos jogava a
-    // camera para zoom ~8.8 e a costa virava um fio. Com rota, quem manda e o
-    // enquadramento da rota — cortar parada do roteiro seria pior que zoom baixo.
-    const camera = map.cameraForBounds(bounds, {
-      padding: { top: 60, bottom: 60, left: 60, right: 60 },
-      maxZoom: 13,
-      pitch: flight.pitch,
-    });
-
-    if (!hasRoute && camera?.zoom !== undefined && camera.zoom < OPENING_ZOOM) {
-      map.flyTo({ ...camera, zoom: OPENING_ZOOM, ...flight });
+    // Sem roteiro a home nao e ferramenta, e cartao-postal: a camera fica
+    // parada em Genipabu orbitando, em vez de enquadrar todos os destinos
+    // (o que jogava o zoom para ~8.8 e transformava a costa num fio).
+    if (!hasRoute) {
+      map.flyTo({ center: GENIPABU_CENTER, zoom: GENIPABU_ZOOM, ...flight });
       return;
     }
 

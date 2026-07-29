@@ -21,6 +21,16 @@ export const CINEMATIC_PITCH = 60;
  */
 export const OPENING_ZOOM = 10.4;
 
+/**
+ * Alvo fixo da abertura: Dunas de Genipabu (Extremoz), as mesmas coordenadas
+ * do destino em mockData. E o cartao-postal mais reconhecivel do RN, e a
+ * unica coisa na home que a plateia do CONETUR identifica sem legenda.
+ */
+export const GENIPABU_CENTER: [number, number] = [-35.1967, -5.7089];
+
+/** Perto o bastante para o campo de dunas preencher o quadro. */
+export const GENIPABU_ZOOM = 13.2;
+
 /** Duracao do mergulho ate a rota no modo cinematografico. */
 export const CINEMATIC_FLY_DURATION_MS = 5500;
 
