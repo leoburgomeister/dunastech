@@ -16,7 +16,11 @@ describe('heroSpots', () => {
     const genipabu = spots.find(s => s.nome === 'Dunas de Genipabu');
     expect(genipabu).toBeDefined();
     expect(genipabu!.center).toEqual([-35.1967, -5.7089]);
-    expect(genipabu!.isa).toBe(73);
+    // Valor fixo de proposito: serve de canario da escala do ISA. Genipabu tem
+    // investimento 4000 mil (bonus 16) e saturacao 62 (sem penalidade), logo
+    // 74 + 16 = 90. Se a escala mudar, este teste cai antes de a home exibir
+    // um numero diferente do que o painel do gestor mostra.
+    expect(genipabu!.isa).toBe(90);
     expect(genipabu!.municipio).toBe('Extremoz');
   });
 

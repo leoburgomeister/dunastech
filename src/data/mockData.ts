@@ -1170,25 +1170,25 @@ export const transporteData: TransporteData[] = [
 
 export const investimentosData: InvestimentoData[] = [
   { destino: "Ponta Negra e Morro do Careca", investimento_infraestrutura_mil: 2400, investimento_saneamento_mil: 1800, investimento_turismo_mil: 1200, total_mil: 5400, ano: 2026 },
-  { destino: "Praia da Pipa", investimento_infraestrutura_mil: 1200, investimento_saneamento_mil: 950, investimento_turismo_mil: 800, total_mil: 2950, ano: 2026 },
-  { destino: "Dunas de Genipabu", investimento_infraestrutura_mil: 600, investimento_saneamento_mil: 300, investimento_turismo_mil: 400, total_mil: 1300, ano: 2026 },
-  { destino: "Parrachos de Maracajaú", investimento_infraestrutura_mil: 350, investimento_saneamento_mil: 200, investimento_turismo_mil: 150, total_mil: 700, ano: 2026 },
-  { destino: "São Miguel do Gostoso", investimento_infraestrutura_mil: 800, investimento_saneamento_mil: 500, investimento_turismo_mil: 600, total_mil: 1900, ano: 2026 },
-  { destino: "Forte dos Reis Magos", investimento_infraestrutura_mil: 400, investimento_saneamento_mil: 100, investimento_turismo_mil: 300, total_mil: 800, ano: 2026 },
-  { destino: "Galinhos", investimento_infraestrutura_mil: 500, investimento_saneamento_mil: 200, investimento_turismo_mil: 150, total_mil: 850, ano: 2026 },
-  { destino: "Maior Cajueiro do Mundo", investimento_infraestrutura_mil: 300, investimento_saneamento_mil: 100, investimento_turismo_mil: 200, total_mil: 600, ano: 2026 },
-  { destino: "Praia do Madeiro", investimento_infraestrutura_mil: 200, investimento_saneamento_mil: 100, investimento_turismo_mil: 150, total_mil: 450, ano: 2026 },
-  { destino: "Lagoa de Pitangui", investimento_infraestrutura_mil: 150, investimento_saneamento_mil: 80, investimento_turismo_mil: 100, total_mil: 330, ano: 2026 },
-  { destino: "Barreira do Inferno", investimento_infraestrutura_mil: 100, investimento_saneamento_mil: 50, investimento_turismo_mil: 100, total_mil: 250, ano: 2026 },
-  { destino: "Barra de Cunhaú", investimento_infraestrutura_mil: 300, investimento_saneamento_mil: 150, investimento_turismo_mil: 150, total_mil: 600, ano: 2026 },
-  { destino: "Parque das Dunas", investimento_infraestrutura_mil: 250, investimento_saneamento_mil: 100, investimento_turismo_mil: 150, total_mil: 500, ano: 2026 },
+  { destino: "Praia da Pipa", investimento_infraestrutura_mil: 1900, investimento_saneamento_mil: 1300, investimento_turismo_mil: 1000, total_mil: 4200, ano: 2026 },
+  { destino: "Dunas de Genipabu", investimento_infraestrutura_mil: 1800, investimento_saneamento_mil: 1200, investimento_turismo_mil: 1000, total_mil: 4000, ano: 2026 },
+  { destino: "Parrachos de Maracajaú", investimento_infraestrutura_mil: 1600, investimento_saneamento_mil: 1100, investimento_turismo_mil: 900, total_mil: 3600, ano: 2026 },
+  { destino: "São Miguel do Gostoso", investimento_infraestrutura_mil: 1500, investimento_saneamento_mil: 1000, investimento_turismo_mil: 900, total_mil: 3400, ano: 2026 },
+  { destino: "Forte dos Reis Magos", investimento_infraestrutura_mil: 1200, investimento_saneamento_mil: 800, investimento_turismo_mil: 750, total_mil: 2750, ano: 2026 },
+  { destino: "Galinhos", investimento_infraestrutura_mil: 1100, investimento_saneamento_mil: 750, investimento_turismo_mil: 650, total_mil: 2500, ano: 2026 },
+  { destino: "Maior Cajueiro do Mundo", investimento_infraestrutura_mil: 1250, investimento_saneamento_mil: 800, investimento_turismo_mil: 700, total_mil: 2750, ano: 2026 },
+  { destino: "Praia do Madeiro", investimento_infraestrutura_mil: 1250, investimento_saneamento_mil: 750, investimento_turismo_mil: 750, total_mil: 2750, ano: 2026 },
+  { destino: "Lagoa de Pitangui", investimento_infraestrutura_mil: 1625, investimento_saneamento_mil: 1100, investimento_turismo_mil: 900, total_mil: 3625, ano: 2026 },
+  { destino: "Barreira do Inferno", investimento_infraestrutura_mil: 1000, investimento_saneamento_mil: 650, investimento_turismo_mil: 600, total_mil: 2250, ano: 2026 },
+  { destino: "Barra de Cunhaú", investimento_infraestrutura_mil: 1000, investimento_saneamento_mil: 700, investimento_turismo_mil: 550, total_mil: 2250, ano: 2026 },
+  { destino: "Parque das Dunas", investimento_infraestrutura_mil: 1350, investimento_saneamento_mil: 900, investimento_turismo_mil: 750, total_mil: 3000, ano: 2026 },
   { destino: "Cidade Histórica de Mossoró", investimento_infraestrutura_mil: 1800, investimento_saneamento_mil: 1200, investimento_turismo_mil: 900, total_mil: 3900, ano: 2026 },
-  { destino: "Lajedo de Soledade", investimento_infraestrutura_mil: 200, investimento_saneamento_mil: 50, investimento_turismo_mil: 150, total_mil: 400, ano: 2026 },
-  { destino: "Salinas e Indústria Salineira de Macau", investimento_infraestrutura_mil: 450, investimento_saneamento_mil: 200, investimento_turismo_mil: 150, total_mil: 800, ano: 2026 },
-  { destino: "Salinas de Galinhos e Fábrica de Sal", investimento_infraestrutura_mil: 150, investimento_saneamento_mil: 50, investimento_turismo_mil: 100, total_mil: 300, ano: 2026 },
-  { destino: "Canyon dos Apertados", investimento_infraestrutura_mil: 300, investimento_saneamento_mil: 100, investimento_turismo_mil: 200, total_mil: 600, ano: 2026 },
-  { destino: "Estátua de Santa Rita de Cássia", investimento_infraestrutura_mil: 800, investimento_saneamento_mil: 400, investimento_turismo_mil: 600, total_mil: 1800, ano: 2026 },
-  { destino: "Castelo de Bivar", investimento_infraestrutura_mil: 200, investimento_saneamento_mil: 80, investimento_turismo_mil: 120, total_mil: 400, ano: 2026 }
+  { destino: "Lajedo de Soledade", investimento_infraestrutura_mil: 900, investimento_saneamento_mil: 600, investimento_turismo_mil: 500, total_mil: 2000, ano: 2026 },
+  { destino: "Salinas e Indústria Salineira de Macau", investimento_infraestrutura_mil: 1000, investimento_saneamento_mil: 650, investimento_turismo_mil: 600, total_mil: 2250, ano: 2026 },
+  { destino: "Salinas de Galinhos e Fábrica de Sal", investimento_infraestrutura_mil: 900, investimento_saneamento_mil: 600, investimento_turismo_mil: 500, total_mil: 2000, ano: 2026 },
+  { destino: "Canyon dos Apertados", investimento_infraestrutura_mil: 900, investimento_saneamento_mil: 550, investimento_turismo_mil: 550, total_mil: 2000, ano: 2026 },
+  { destino: "Estátua de Santa Rita de Cássia", investimento_infraestrutura_mil: 1250, investimento_saneamento_mil: 800, investimento_turismo_mil: 700, total_mil: 2750, ano: 2026 },
+  { destino: "Castelo de Bivar", investimento_infraestrutura_mil: 900, investimento_saneamento_mil: 600, investimento_turismo_mil: 500, total_mil: 2000, ano: 2026 }
 ];
 
 export const fluxoData: FluxoData[] = [
@@ -1226,12 +1226,22 @@ export const avaliacaoOptions = [
 ];
 
 // --- ISA (Índice de Saúde do Atrativo) Calculator V2 ---
+
+// Escala do baseline estático. Teto = ISA_BASE + ISA_INVESTMENT_CAP = 95.
+// A saturação só pesa acima de ISA_SATURATION_FREE: até lá o destino comporta o fluxo
+// que recebe, e penalizar antes disso puniria destino movimentado e saudável.
+const ISA_BASE = 74;
+const ISA_INVESTMENT_CAP = 21;
+const ISA_INVESTMENT_DIVISOR = 250; // R$ mil investidos por ponto de bônus
+const ISA_SATURATION_FREE = 70; // % de saturação sem penalidade
+const ISA_SATURATION_WEIGHT = 0.5; // pontos perdidos por ponto percentual acima do limite
+
 export function calcularISA(destino: string, feedbacks: Feedback[]): number {
   const fluxo = fluxoData.find((f) => f.destino === destino);
   const investimento = investimentosData.find((i) => i.destino === destino);
   if (!fluxo || !investimento) return 70;
 
-  let baseScore = 65; // Base starting point
+  let baseScore = ISA_BASE;
 
   // Filter feedbacks for this destination
   const destFeedbacks = feedbacks.filter((f) => f.destino === destino);
@@ -1265,14 +1275,18 @@ export function calcularISA(destino: string, feedbacks: Feedback[]): number {
 
     baseScore = feedbackBonus / feedbackCount;
   } else {
-    // Default score based on static metrics
-    // Investment bonus
-    if (investimento.total_mil > 3000) baseScore += 15;
-    else if (investimento.total_mil > 1000) baseScore += 8;
-
-    // Saturation penalty
-    if (fluxo.saturacao_turistica > 85) baseScore -= 18;
-    else if (fluxo.saturacao_turistica > 65) baseScore -= 8;
+    // Baseline estático, usado enquanto o destino não tem nenhuma avaliação.
+    // Termos contínuos em vez de degraus fixos: o indicador ganha resolução fina e os
+    // destinos deixam de empatar em três valores possíveis.
+    const investmentBonus = Math.min(
+      ISA_INVESTMENT_CAP,
+      investimento.total_mil / ISA_INVESTMENT_DIVISOR
+    );
+    const saturationPenalty = Math.max(
+      0,
+      (fluxo.saturacao_turistica - ISA_SATURATION_FREE) * ISA_SATURATION_WEIGHT
+    );
+    baseScore = ISA_BASE + investmentBonus - saturationPenalty;
   }
 
   return Math.max(0, Math.min(100, Math.round(baseScore)));
