@@ -25,6 +25,8 @@ import {
   RN_CENTER,
   RN_OVERVIEW_ZOOM,
 } from '@/lib/map/scene3d';
+import { FLY_CURVE } from '@/lib/map/camera';
+import { createMarkerElement } from '@/lib/map/marker';
 import {
   createOrbitController,
   browserOrbitDeps,
@@ -364,20 +366,12 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       const markerColor = isStart ? '#10B981' : isEnd ? '#EF4444' : '#F59E0B'; // emerald, red, amber
       const markerLabel = isStart ? 'Início' : isEnd ? 'Fim' : `Dia ${dest.dia || index + 1}`;
       
-      const el = document.createElement('div');
-      el.className = 'marker-wrapper';
-
-      const pin = document.createElement('div');
-      pin.className = 'marker-custom';
-      pin.style.backgroundColor = markerColor;
-      el.appendChild(pin);
-
       // Numeral no lugar do emoji: alem de nao depender da fonte de emoji do
       // sistema, a ordem da parada e informacao — o emoji nao era.
-      const labelEl = document.createElement('span');
-      labelEl.className = 'marker-label';
-      labelEl.innerText = String(dest.dia ?? index + 1);
-      pin.appendChild(labelEl);
+      const el = createMarkerElement({
+        color: markerColor,
+        label: String(dest.dia ?? index + 1),
+      });
 
       const popupHtml = `
         <div style="font-family: var(--font-heading), var(--font-body), sans-serif; padding: 4px; min-width: 140px; color: var(--color-text);">
@@ -405,7 +399,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       duration: mapMode === 'cinematic' ? CINEMATIC_FLY_DURATION_MS : PLAIN_FIT_DURATION_MS,
       pitch: is3D(mapMode) ? CINEMATIC_PITCH : 0,
       // curve baixa suaviza o arco de zoom: o voo sobe menos e chega mais macio.
-      curve: 1.2,
+      curve: FLY_CURVE,
     };
 
     // Sem roteiro quem comanda a camera e a sequencia de abertura (efeito

@@ -65,6 +65,14 @@ describe('apply3DScene', () => {
     expect(map.setProjection).toHaveBeenCalledWith({ type: 'globe' });
   });
 
+  it('aceita mercator quando o enquadramento e fechado', () => {
+    const map = fakeMap();
+    apply3DScene(map, 'abc123', { projection: 'mercator' });
+
+    expect(map.setProjection).toHaveBeenCalledWith({ type: 'mercator' });
+    expect(map.setTerrain).toHaveBeenCalledOnce();
+  });
+
   it('nao duplica o source de terreno quando ele ja existe', () => {
     const map = fakeMap({ hasSource: true });
     apply3DScene(map, 'abc123');
