@@ -59,7 +59,7 @@ Ponto mais alto do estado ~800m; dunas de Genipabu ~30-50m; falésias de Pipa ~5
 
 O mapa é **cenário**, não ferramenta (decisão do PO).
 
-- **Entrada:** globo → `flyTo` mergulhando no litoral do RN, pitch ~65°
+- **Entrada:** globo → `flyTo` mergulhando no litoral do RN, pitch 60° (máximo suportado pelo MapLibre sem entrar em modo experimental)
 - **Repouso:** órbita lenta em torno da rota, ~40s/volta, quase imperceptível
 - **Pausa automática** quando a aba perde foco (`visibilitychange`) — poupa GPU/bateria
 
@@ -88,7 +88,7 @@ A API do componente não muda, então `TouristHomePage.tsx` não é tocado.
 | Chave ausente ou inválida | Fallback para o estilo vetorial Carto atual. O mapa nunca some. |
 | Usuário com `prefers-reduced-motion` | Cena 3D **estática**: relevo, satélite e céu permanecem; órbita e `flyTo` não rodam. Não é fallback para 2D. |
 | GPU fraca no auditório | Fallback manual para o mapa 2D atual via `NEXT_PUBLIC_MAP_2D=1`, acionável em segundos se a máquina do evento engasgar |
-| Tiles lentos na rede do evento | Manter o Carto como estilo inicial e promover a cena 3D só após `load` dos tiles |
+| Erro ao montar a cena 3D (tiles indisponíveis, terreno falho) | `apply3DScene` dentro de `try/catch`: loga `console.warn` e a home segue com o mapa plano em vez de quebrar |
 
 O caminho de fallback é o comportamento que já está em produção hoje, ou seja, o pior caso é o estado atual.
 
