@@ -1,5 +1,8 @@
-/** Uma volta completa a cada 40s: perceptivel como "vivo", nunca como enjoativo. */
-export const ORBIT_PERIOD_MS = 40000;
+/**
+ * Uma volta completa a cada 100s (3.6 graus/s). O mapa e cenario de fundo:
+ * o movimento tem que ser percebido como "vivo", nao como camera girando.
+ */
+export const ORBIT_PERIOD_MS = 100000;
 
 export interface OrbitTarget {
   getBearing(): number;

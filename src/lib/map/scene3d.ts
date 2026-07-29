@@ -14,6 +14,12 @@ export const TERRAIN_EXAGGERATION = 2.5;
  */
 export const CINEMATIC_PITCH = 60;
 
+/** Duracao do mergulho ate a rota no modo cinematografico. */
+export const CINEMATIC_FLY_DURATION_MS = 5500;
+
+/** Duracao do enquadramento quando nao ha camera cinematografica. */
+export const PLAIN_FIT_DURATION_MS = 1500;
+
 export function buildStyleUrl(key: string): string {
   return `https://api.maptiler.com/maps/hybrid/style.json?key=${encodeURIComponent(key)}`;
 }

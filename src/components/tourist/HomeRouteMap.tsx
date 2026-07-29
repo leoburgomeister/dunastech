@@ -5,7 +5,13 @@ import maplibregl from 'maplibre-gl';
 import { useTheme } from 'next-themes';
 import { type DestinoInfo } from '@/data/mockData';
 import { resolveMapMode, is3D, type MapMode } from '@/lib/map/mapMode';
-import { buildStyleUrl, apply3DScene, CINEMATIC_PITCH } from '@/lib/map/scene3d';
+import {
+  buildStyleUrl,
+  apply3DScene,
+  CINEMATIC_PITCH,
+  CINEMATIC_FLY_DURATION_MS,
+  PLAIN_FIT_DURATION_MS,
+} from '@/lib/map/scene3d';
 import {
   createOrbitController,
   browserOrbitDeps,
@@ -201,8 +207,10 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     map.fitBounds(bounds, {
       padding: { top: 60, bottom: 60, left: 60, right: 60 },
       maxZoom: 13,
-      duration: mapMode === 'cinematic' ? 3000 : 1500,
-      pitch: is3D(mapMode) ? CINEMATIC_PITCH : 0
+      duration: mapMode === 'cinematic' ? CINEMATIC_FLY_DURATION_MS : PLAIN_FIT_DURATION_MS,
+      pitch: is3D(mapMode) ? CINEMATIC_PITCH : 0,
+      // curve baixa suaviza o arco de zoom: o voo sobe menos e chega mais macio.
+      curve: 1.2
     });
   }, [destinations, activeDay, mapInstance, mapMode]);
 

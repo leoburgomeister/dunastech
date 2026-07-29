@@ -137,8 +137,11 @@ describe('createOrbitController', () => {
     expect(clock.pendingCount()).toBe(0);
   });
 
-  it('usa 40s por volta como padrao', () => {
-    expect(ORBIT_PERIOD_MS).toBe(40000);
+  it('gira devagar o bastante para ser ambiente, nao camera girando', () => {
+    // Afirma a intencao, nao o numero exato, para nao quebrar em ajuste fino.
+    expect(ORBIT_PERIOD_MS).toBeGreaterThanOrEqual(60000);
+    const grausPorSegundo = 360 / (ORBIT_PERIOD_MS / 1000);
+    expect(grausPorSegundo).toBeLessThan(6);
   });
 });
 
