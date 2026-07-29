@@ -620,6 +620,22 @@ input[type="number"]::-webkit-outer-spin-button {
   justify-content: center;
 }
 
+/* Marcador numerado da rota da home. O pin e girado -45deg, entao o rotulo
+   precisa desgirar para ficar de pe. */
+.marker-label {
+  transform: rotate(45deg);
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #fff;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* markerPulse removido: era uma animacao infinita por marcador rodando em
    cima do canvas WebGL, competindo com a orbita da camera por frame budget
    sem carregar nenhuma informacao — todo marcador pulsava igual, entao o

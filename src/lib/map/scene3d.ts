@@ -14,6 +14,13 @@ export const TERRAIN_EXAGGERATION = 2.5;
  */
 export const CINEMATIC_PITCH = 60;
 
+/**
+ * Zoom de abertura. Em 9 a camera enquadrava o estado inteiro e a costa virava
+ * um fio: o que vende o RN e a cor da agua e o desenho das dunas, e isso so
+ * aparece mais perto.
+ */
+export const OPENING_ZOOM = 10.4;
+
 /** Duracao do mergulho ate a rota no modo cinematografico. */
 export const CINEMATIC_FLY_DURATION_MS = 5500;
 

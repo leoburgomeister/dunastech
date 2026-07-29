@@ -9,7 +9,9 @@ import {
   MapPin, Star, Users, ArrowRight, Shield, Sparkles,
   ShieldAlert, CheckCircle, Navigation, Eye, Search, X,
   ChevronDown, ChevronUp, Clock, Info, Printer, Share2,
-  ClipboardCheck, Send, ThumbsUp, ThumbsDown
+  ClipboardCheck, Send, ThumbsUp, ThumbsDown,
+  Waves, Shell, Leaf, Landmark, UtensilsCrossed,
+  Car, Bus, Footprints, Route, ShieldCheck, BarChart3
 } from 'lucide-react';
 import { StarRating } from '@/components/ui/StarRating';
 import { addFeedback } from '@/lib/firebase';
@@ -63,19 +65,22 @@ export default function TouristHomePage() {
   const tRanking = useTranslations('ranking');
 
   // Questionnaire Options
+  // Icones de traco no lugar dos emoji que viviam nos rotulos de i18n: emoji
+  // renderizam diferente em cada sistema, nao herdam a cor do texto e nao
+  // escalam com o peso tipografico.
   const styles = useMemo(() => [
-    { id: 'adventure', label: t('styles.adventure.label'), desc: t('styles.adventure.desc') },
-    { id: 'relax', label: t('styles.relax.label'), desc: t('styles.relax.desc') },
-    { id: 'ecotourism', label: t('styles.ecotourism.label'), desc: t('styles.ecotourism.desc') },
-    { id: 'culture', label: t('styles.culture.label'), desc: t('styles.culture.desc') },
-    { id: 'gastronomy', label: t('styles.gastronomy.label'), desc: t('styles.gastronomy.desc') },
-    { id: 'family', label: t('styles.family.label'), desc: t('styles.family.desc') },
+    { id: 'adventure', icon: Waves, label: t('styles.adventure.label'), desc: t('styles.adventure.desc') },
+    { id: 'relax', icon: Shell, label: t('styles.relax.label'), desc: t('styles.relax.desc') },
+    { id: 'ecotourism', icon: Leaf, label: t('styles.ecotourism.label'), desc: t('styles.ecotourism.desc') },
+    { id: 'culture', icon: Landmark, label: t('styles.culture.label'), desc: t('styles.culture.desc') },
+    { id: 'gastronomy', icon: UtensilsCrossed, label: t('styles.gastronomy.label'), desc: t('styles.gastronomy.desc') },
+    { id: 'family', icon: Users, label: t('styles.family.label'), desc: t('styles.family.desc') },
   ], [t]);
 
   const transports = useMemo(() => [
-    { id: 'buggy', label: t('transports.buggy.label') },
-    { id: 'shuttle', label: t('transports.shuttle.label') },
-    { id: 'hike', label: t('transports.hike.label') },
+    { id: 'buggy', icon: Car, label: t('transports.buggy.label') },
+    { id: 'shuttle', icon: Bus, label: t('transports.shuttle.label') },
+    { id: 'hike', icon: Footprints, label: t('transports.hike.label') },
   ], [t]);
 
   // Questionnaire States
@@ -408,6 +413,7 @@ export default function TouristHomePage() {
               destinations={mapDestinations}
               activeDay={expandedDay}
               isInteractive={true}
+              hasRoute={suggestedRoute !== null}
             />
           </div>
 
@@ -439,35 +445,24 @@ export default function TouristHomePage() {
                       <span className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
                         O que oferecemos:
                       </span>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
-                        <div className="flex gap-2.5 items-start">
-                          <span className="text-sm mt-0.5">🗺️</span>
-                          <div>
-                            <span className="text-[11px] font-extrabold text-[var(--color-text)] block leading-tight">Roteiros Inteligentes</span>
-                            <span className="text-[9px] text-[var(--color-text-secondary)] block mt-0.5 leading-normal">Rotas otimizadas por IA para os paraísos do RN.</span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-left">
+                        {[
+                          { icon: Route, title: 'Roteiros Inteligentes', desc: 'Rotas otimizadas por IA para os paraísos do RN.' },
+                          { icon: ShieldCheck, title: 'Guias com Cadastur', desc: 'Conexão direta com operadores 100% legalizados.' },
+                          { icon: Leaf, title: 'Zeladoria Ecológica', desc: 'Auditoria social de preservação em 3 cliques.' },
+                          { icon: BarChart3, title: 'Painel Observatório', desc: 'Dados em tempo real para controle sustentável.' },
+                        ].map(({ icon: Icon, title, desc }) => (
+                          <div key={title} className="flex gap-2.5 items-start">
+                            <Icon
+                              className="h-4 w-4 mt-0.5 shrink-0 text-[var(--color-primary)]"
+                              strokeWidth={1.75}
+                            />
+                            <div>
+                              <span className="text-xs font-bold text-[var(--color-text)] block leading-tight">{title}</span>
+                              <span className="text-[11px] text-[var(--color-text-secondary)] block mt-1 leading-snug">{desc}</span>
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex gap-2.5 items-start">
-                          <span className="text-sm mt-0.5">🛡️</span>
-                          <div>
-                            <span className="text-[11px] font-extrabold text-[var(--color-text)] block leading-tight">Guias com Cadastur</span>
-                            <span className="text-[9px] text-[var(--color-text-secondary)] block mt-0.5 leading-normal">Conexão direta com operadores 100% legalizados.</span>
-                          </div>
-                        </div>
-                        <div className="flex gap-2.5 items-start">
-                          <span className="text-sm mt-0.5">🌱</span>
-                          <div>
-                            <span className="text-[11px] font-extrabold text-[var(--color-text)] block leading-tight">Zeladoria Ecológica</span>
-                            <span className="text-[9px] text-[var(--color-text-secondary)] block mt-0.5 leading-normal">Auditoria social de preservação em 3 cliques.</span>
-                          </div>
-                        </div>
-                        <div className="flex gap-2.5 items-start">
-                          <span className="text-sm mt-0.5">📊</span>
-                          <div>
-                            <span className="text-[11px] font-extrabold text-[var(--color-text)] block leading-tight">Painel Observatório</span>
-                            <span className="text-[9px] text-[var(--color-text-secondary)] block mt-0.5 leading-normal">Dados em tempo real para controle sustentável.</span>
-                          </div>
-                        </div>
+                        ))}
                       </div>
                     </div>
                     {/* Destination Search */}
@@ -519,6 +514,7 @@ export default function TouristHomePage() {
                                   : "bg-[var(--color-surface-alt)]/40 border-[var(--color-border-light)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text)]"
                               )}
                             >
+                              <s.icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
                               {s.label}
                             </button>
                           );
@@ -566,12 +562,13 @@ export default function TouristHomePage() {
                               type="button"
                               onClick={() => setSelectedTransport(tInfo.id)}
                               className={cn(
-                                "flex-1 py-1.5 text-center rounded-lg font-extrabold text-[10px] transition-all cursor-pointer truncate select-none border border-transparent",
+                                "flex-1 py-1.5 text-center rounded-lg font-extrabold text-[10px] transition-all cursor-pointer truncate select-none border border-transparent flex items-center justify-center gap-1.5",
                                 isActive
                                   ? "bg-[var(--color-surface)] text-[var(--color-primary)] shadow-sm border-[var(--color-border)]/20"
                                   : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
                               )}
                             >
+                              <tInfo.icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
                               {tInfo.label}
                             </button>
                           );

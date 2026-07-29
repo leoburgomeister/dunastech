@@ -11,6 +11,7 @@ import {
   CINEMATIC_PITCH,
   CINEMATIC_FLY_DURATION_MS,
   PLAIN_FIT_DURATION_MS,
+  OPENING_ZOOM,
 } from '@/lib/map/scene3d';
 import {
   createOrbitController,
@@ -25,9 +26,11 @@ interface HomeRouteMapProps {
   destinations: (DestinoInfo & { dia?: number; emoji?: string })[];
   activeDay?: number | null;
   isInteractive?: boolean;
+  /** Ha roteiro gerado. Muda o enquadramento: sem rota o mapa e cenario. */
+  hasRoute?: boolean;
 }
 
-export default function HomeRouteMap({ destinations, activeDay = null, isInteractive = true }: HomeRouteMapProps) {
+export default function HomeRouteMap({ destinations, activeDay = null, isInteractive = true, hasRoute = false }: HomeRouteMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
@@ -90,7 +93,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       container: mapContainerRef.current,
       style: styleUrl,
       center: initialCenter,
-      zoom: 9,
+      zoom: OPENING_ZOOM,
       interactive: isInteractive,
       attributionControl: false
     });
@@ -188,10 +191,12 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       pin.style.backgroundColor = markerColor;
       el.appendChild(pin);
 
-      const emojiEl = document.createElement('span');
-      emojiEl.className = 'marker-emoji';
-      emojiEl.innerText = dest.emoji || '📍';
-      pin.appendChild(emojiEl);
+      // Numeral no lugar do emoji: alem de nao depender da fonte de emoji do
+      // sistema, a ordem da parada e informacao — o emoji nao era.
+      const labelEl = document.createElement('span');
+      labelEl.className = 'marker-label';
+      labelEl.innerText = String(dest.dia ?? index + 1);
+      pin.appendChild(labelEl);
 
       const popupHtml = `
         <div style="font-family: var(--font-heading), var(--font-body), sans-serif; padding: 4px; min-width: 140px; color: var(--color-text);">
@@ -212,18 +217,36 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       markersRef.current.push(marker);
     });
 
-    // Fit bounds
     const bounds = new maplibregl.LngLatBounds();
     destinations.forEach(d => bounds.extend([d.longitude, d.latitude]));
-    map.fitBounds(bounds, {
-      padding: { top: 60, bottom: 60, left: 60, right: 60 },
-      maxZoom: 13,
+
+    const flight = {
       duration: mapMode === 'cinematic' ? CINEMATIC_FLY_DURATION_MS : PLAIN_FIT_DURATION_MS,
       pitch: is3D(mapMode) ? CINEMATIC_PITCH : 0,
       // curve baixa suaviza o arco de zoom: o voo sobe menos e chega mais macio.
-      curve: 1.2
+      curve: 1.2,
+    };
+
+    // Sem rota o mapa e cenario, entao enquadrar TODOS os destinos jogava a
+    // camera para zoom ~8.8 e a costa virava um fio. Com rota, quem manda e o
+    // enquadramento da rota — cortar parada do roteiro seria pior que zoom baixo.
+    const camera = map.cameraForBounds(bounds, {
+      padding: { top: 60, bottom: 60, left: 60, right: 60 },
+      maxZoom: 13,
+      pitch: flight.pitch,
     });
-  }, [destinations, activeDay, mapInstance, mapMode]);
+
+    if (!hasRoute && camera?.zoom !== undefined && camera.zoom < OPENING_ZOOM) {
+      map.flyTo({ ...camera, zoom: OPENING_ZOOM, ...flight });
+      return;
+    }
+
+    map.fitBounds(bounds, {
+      padding: { top: 60, bottom: 60, left: 60, right: 60 },
+      maxZoom: 13,
+      ...flight,
+    });
+  }, [destinations, activeDay, mapInstance, mapMode, hasRoute]);
 
   // Orbita lenta: so no modo cinematografico, so apos o load, e so com a aba visivel.
   useEffect(() => {
