@@ -84,12 +84,6 @@ describe('cobertura do cache gravado', () => {
     fs.readFileSync(path.join(process.cwd(), 'public/routes/osrm-cache.json'), 'utf8')
   );
 
-  const coordsDe = (nomes: string[]): Coord[] =>
-    nomes.map((n) => {
-      const d = destinosInfo.find((x) => x.nome === n)!;
-      return [d.longitude, d.latitude];
-    });
-
   it('TODA geometria que a home pode gerar tem rota gravada', () => {
     // Este e o teste que importa: se alguem mexer na tabela de roteiros, no
     // planejador ou nos dados dos destinos e nao rodar o gerador de novo, a

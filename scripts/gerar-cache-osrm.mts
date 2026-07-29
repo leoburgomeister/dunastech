@@ -20,9 +20,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { TRAVEL_STYLES, TRANSPORTS } from '../src/lib/routePresets';
-import { MAX_ROUTE_DAYS } from '../src/lib/route-planner';
 import { osrmUrl, type Coord } from '../src/lib/map/routeCache';
-import { trechosNecessarios } from '../src/lib/map/routeCoverage';
+import { trechosNecessarios, MAX_CACHED_DAYS } from '../src/lib/map/routeCoverage';
 
 const SAIDA = path.join(process.cwd(), 'public', 'routes', 'osrm-cache.json');
 const ESPERA_MS = 1200; // o OSRM publico tem rate limit
@@ -30,10 +29,46 @@ const SECO = process.argv.includes('--dry');
 
 const espera = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/**
+ * Ralea a geometria mantendo a fidelidade em TELA, nao em metros.
+ *
+ * O OSRM devolve um ponto a cada poucos metros. Numa rota que cruza o estado
+ * isso da 12 mil pontos para um traco que o mapa desenha com ~800 pixels de
+ * largura — 15 pontos por pixel, invisiveis e caros. A tolerancia sai do
+ * proprio tamanho da rota (span/1200), entao o trecho curto de um dia continua
+ * detalhado e o traco de estado inteiro emagrece.
+ */
+function ralear(rota: Coord[]): Coord[] {
+  if (rota.length < 3) return rota;
+
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+  for (const [x, y] of rota) {
+    if (x < minX) minX = x;
+    if (x > maxX) maxX = x;
+    if (y < minY) minY = y;
+    if (y > maxY) maxY = y;
+  }
+
+  const span = Math.max(maxX - minX, maxY - minY);
+  const tolerancia = Math.min(0.004, Math.max(0.0001, span / 1200));
+
+  const out: Coord[] = [rota[0]];
+  for (let i = 1; i < rota.length - 1; i++) {
+    const [x, y] = out[out.length - 1];
+    const [a, b] = rota[i];
+    if (Math.abs(a - x) > tolerancia || Math.abs(b - y) > tolerancia) out.push(rota[i]);
+  }
+  out.push(rota[rota.length - 1]);
+  return out;
+}
+
 async function main() {
   const necessarios = trechosNecessarios();
   console.log(
-    `${TRAVEL_STYLES.length} estilos x ${TRANSPORTS.length} transportes x ${MAX_ROUTE_DAYS} duracoes`
+    `${TRAVEL_STYLES.length} estilos x ${TRANSPORTS.length} transportes x ${MAX_CACHED_DAYS} duracoes`
   );
   console.log(`geometrias distintas a cachear: ${necessarios.size}`);
   console.log(`tempo estimado: ~${Math.ceil((necessarios.size * ESPERA_MS) / 60000)} min\n`);
@@ -86,12 +121,34 @@ async function main() {
     await espera(ESPERA_MS);
   }
 
+  // Grava SO o que a home pode pedir, raleado. Chave orfa — de uma versao
+  // anterior do planejador — sairia carregando peso morto no navegador do
+  // apresentador sem nunca ser consultada.
+  const final: Record<string, Coord[]> = {};
+  let pontosBrutos = 0;
+  let pontosFinais = 0;
+  for (const chave of necessarios.keys()) {
+    const rota = cache[chave];
+    if (!Array.isArray(rota) || rota.length < 2) continue;
+    const enxuta = ralear(rota);
+    pontosBrutos += rota.length;
+    pontosFinais += enxuta.length;
+    final[chave] = enxuta;
+  }
+
+  const orfas = Object.keys(cache).length - Object.keys(final).length;
+
   fs.mkdirSync(path.dirname(SAIDA), { recursive: true });
-  fs.writeFileSync(SAIDA, JSON.stringify(cache));
+  fs.writeFileSync(SAIDA, JSON.stringify(final));
   const kb = (fs.statSync(SAIDA).size / 1024).toFixed(1);
   console.log(`\ngravado ${SAIDA}`);
   console.log(
-    `novas: ${novas} | reaproveitadas: ${reaproveitadas} | falhas: ${falhas} | tamanho: ${kb} KB`
+    `novas: ${novas} | reaproveitadas: ${reaproveitadas} | falhas: ${falhas} | orfas descartadas: ${orfas}`
+  );
+  console.log(
+    `pontos: ${pontosBrutos} -> ${pontosFinais} (${Math.round(
+      (100 * pontosFinais) / Math.max(1, pontosBrutos)
+    )}%) | tamanho: ${kb} KB`
   );
   if (falhas > 0) process.exitCode = 1;
 }
