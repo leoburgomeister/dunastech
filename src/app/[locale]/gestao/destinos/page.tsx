@@ -5,9 +5,10 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card } from "@/components/ui/Card";
-import { destinosInfo, fluxoData, ibgeData, transporteData, calcularISA, type Feedback } from "@/data/mockData";
+import { Modal } from "@/components/ui/Modal";
+import { destinosInfo, fluxoData, ibgeData, transporteData, calcularISA, type Feedback, type DestinoInfo } from "@/data/mockData";
 import { Badge } from "@/components/ui/Badge";
-import { MapPin, Users, Activity, ChevronDown, ChevronUp } from "lucide-react";
+import { MapPin, Users, Activity, Maximize2 } from "lucide-react";
 import { cn, slugify } from "@/lib/utils";
 import { subscribeFeedbacks } from "@/lib/firebase";
 import { useSupabaseSync } from "@/lib/supabase-data";
@@ -26,8 +27,22 @@ export default function DestinosGestaoPage() {
     }
     return destinosInfo.filter(d => d.monitorado !== false).map(d => d.nome);
   });
-  const [expandedSpotName, setExpandedSpotName] = useState<string | null>(null);
+  // detailSpot nunca zera: mantém o conteúdo em tela enquanto o popup faz a animação de saída.
+  const [detailSpot, setDetailSpot] = useState<DestinoInfo>(destinosInfo[0]);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  // Centro do card clicado: o popup nasce de lá, em vez de surgir no meio da tela.
+  const [popupOrigin, setPopupOrigin] = useState<{ x: number; y: number } | null>(null);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+
+  const openDetail = (d: DestinoInfo) => {
+    const card = document.getElementById(slugify(d.nome));
+    if (card) {
+      const rect = card.getBoundingClientRect();
+      setPopupOrigin({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    }
+    setDetailSpot(d);
+    setIsDetailOpen(true);
+  };
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -78,15 +93,17 @@ export default function DestinosGestaoPage() {
             {activeSpots.map((d) => {
               const fluxo = fluxoData.find((f) => f.destino === d.nome);
               const ibge = ibgeData.find((i) => i.destino === d.nome);
-              const isExpanded = expandedSpotName === d.nome;
-              
+              const isOpen = isDetailOpen && detailSpot.nome === d.nome;
+
               return (
-                <Card 
-                  key={d.nome} 
-                  id={slugify(d.nome)} 
+                <Card
+                  key={d.nome}
+                  id={slugify(d.nome)}
+                  onClick={() => openDetail(d)}
+                  asButton={false}
                   className={cn(
-                    "overflow-hidden flex flex-col justify-between hover:border-[var(--color-primary)] transition-all scroll-mt-20 border",
-                    isExpanded ? "border-[var(--color-primary)] shadow-md" : "border-[var(--color-border-light)]"
+                    "overflow-hidden flex flex-col justify-between hover:border-[var(--color-primary)] hover:shadow-md transition-all scroll-mt-20 border cursor-pointer",
+                    isOpen ? "border-[var(--color-primary)] shadow-md" : "border-[var(--color-border-light)]"
                   )}
                 >
                   <div>
@@ -108,11 +125,17 @@ export default function DestinosGestaoPage() {
                           </span>
                         </div>
                         <button
-                          onClick={() => setExpandedSpotName(isExpanded ? null : d.nome)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openDetail(d);
+                          }}
+                          aria-haspopup="dialog"
+                          aria-expanded={isOpen}
+                          aria-label={`Ver detalhes de ${d.nome}`}
                           className="p-1 rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-surface-alt)] transition-colors focus:outline-none cursor-pointer flex-shrink-0"
-                          title={isExpanded ? "Recolher informações detalhadas" : "Expandir informações detalhadas"}
+                          title="Ver métricas de acesso e índice de saúde"
                         >
-                          {isExpanded ? <ChevronUp className="w-4 h-4 text-[var(--color-primary)]" /> : <ChevronDown className="w-4 h-4" />}
+                          <Maximize2 className={cn("w-4 h-4", isOpen && "text-[var(--color-primary)]")} />
                         </button>
                       </div>
 
@@ -134,52 +157,6 @@ export default function DestinosGestaoPage() {
                         </div>
                       </div>
 
-                      {/* Expanded Section inside Card */}
-                      {isExpanded && (
-                        <div className="pt-3 border-t border-[var(--color-border-light)] mt-2 space-y-3 animate-fade-in text-[10px]">
-                          {/* Transportation Stats */}
-                          <div>
-                            <span className="font-bold text-[var(--color-text)] uppercase tracking-wider block mb-1">Métricas de Acesso (Transporte)</span>
-                            {(() => {
-                              const t = transporteData.find(tr => tr.destino === d.nome);
-                              return (
-                                <div className="grid grid-cols-2 gap-1.5 bg-[var(--color-surface-alt)] p-2 rounded-lg text-[var(--color-text-secondary)]">
-                                  <div>Voos: <strong className="text-[var(--color-text)]">{t?.voos_mensais || 0}/mês</strong></div>
-                                  <div>Ônibus: <strong className="text-[var(--color-text)]">{t?.onibus_mensais || 0}/mês</strong></div>
-                                  <div className="col-span-2">Veículos terrestres: <strong className="text-[var(--color-text)]">{t?.veiculos_terrestres_mensais.toLocaleString("pt-BR") || 0}</strong></div>
-                                  <div className="col-span-2">Modal Principal: <strong className="text-[var(--color-text)]">{t?.modal_principal || "N/A"}</strong></div>
-                                </div>
-                              );
-                            })()}
-                          </div>
-
-                          {/* Live Health Diagnosis (ISA) */}
-                          <div>
-                            <span className="font-bold text-[var(--color-text)] uppercase tracking-wider block mb-1">Índice de Saúde (ISA)</span>
-                            {(() => {
-                              const isaVal = calcularISA(d.nome, feedbacks);
-                              return (
-                                <div className="flex items-center gap-2 bg-[var(--color-surface-alt)] p-2 rounded-lg">
-                                  <Activity className="h-4.5 w-4.5 text-[var(--color-primary)] animate-pulse" />
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-1.5">
-                                      <span className="font-bold text-xs text-[var(--color-text)]">ISA {isaVal}</span>
-                                      <span className={cn(
-                                        "px-1.5 py-0.5 rounded text-[8px] font-bold uppercase",
-                                        isaVal >= 80 ? "bg-[var(--color-success-soft)] text-[var(--color-success)]" :
-                                        isaVal >= 60 ? "bg-[var(--color-warning-soft)] text-[var(--color-warning)]" :
-                                        "bg-[var(--color-danger-soft)] text-[var(--color-danger)] animate-pulse"
-                                      )}>
-                                        {isaVal >= 80 ? "Saudável" : isaVal >= 60 ? "Atenção" : "Crítico"}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              );
-                            })()}
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
 
@@ -205,15 +182,17 @@ export default function DestinosGestaoPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
               {inactiveSpots.map((d) => {
                 const ibge = ibgeData.find((i) => i.destino === d.nome);
-                const isExpanded = expandedSpotName === d.nome;
-                
+                const isOpen = isDetailOpen && detailSpot.nome === d.nome;
+
                 return (
-                  <Card 
-                    key={d.nome} 
-                    id={slugify(d.nome)} 
+                  <Card
+                    key={d.nome}
+                    id={slugify(d.nome)}
+                    onClick={() => openDetail(d)}
+                    asButton={false}
                     className={cn(
-                      "overflow-hidden flex flex-col justify-between hover:border-[var(--color-border)] opacity-85 transition-all scroll-mt-20 border",
-                      isExpanded ? "border-[var(--color-primary)] shadow-md" : "border-[var(--color-border-light)]"
+                      "overflow-hidden flex flex-col justify-between hover:border-[var(--color-border)] hover:opacity-100 hover:shadow-md opacity-85 transition-all scroll-mt-20 border cursor-pointer",
+                      isOpen ? "border-[var(--color-primary)] shadow-md opacity-100" : "border-[var(--color-border-light)]"
                     )}
                   >
                     <div>
@@ -233,11 +212,17 @@ export default function DestinosGestaoPage() {
                             </span>
                           </div>
                           <button
-                            onClick={() => setExpandedSpotName(isExpanded ? null : d.nome)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openDetail(d);
+                            }}
+                            aria-haspopup="dialog"
+                            aria-expanded={isOpen}
+                            aria-label={`Ver detalhes de ${d.nome}`}
                             className="p-1 rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-surface-alt)] transition-colors focus:outline-none cursor-pointer flex-shrink-0"
-                            title={isExpanded ? "Recolher informações detalhadas" : "Expandir informações detalhadas"}
+                            title="Ver métricas de acesso e índice de saúde"
                           >
-                            {isExpanded ? <ChevronUp className="w-4 h-4 text-[var(--color-primary)]" /> : <ChevronDown className="w-4 h-4" />}
+                            <Maximize2 className={cn("w-4 h-4", isOpen && "text-[var(--color-primary)]")} />
                           </button>
                         </div>
 
@@ -258,52 +243,6 @@ export default function DestinosGestaoPage() {
                           </div>
                         </div>
 
-                        {/* Expanded Section inside Card */}
-                        {isExpanded && (
-                          <div className="pt-3 border-t border-[var(--color-border-light)] mt-2 space-y-3 animate-fade-in text-[10px]">
-                            {/* Transportation Stats */}
-                            <div>
-                              <span className="font-bold text-[var(--color-text)] uppercase tracking-wider block mb-1">Métricas de Acesso (Transporte)</span>
-                              {(() => {
-                                const t = transporteData.find(tr => tr.destino === d.nome);
-                                return (
-                                  <div className="grid grid-cols-2 gap-1.5 bg-[var(--color-surface-alt)] p-2 rounded-lg text-[var(--color-text-secondary)]">
-                                    <div>Voos: <strong className="text-[var(--color-text)]">{t?.voos_mensais || 0}/mês</strong></div>
-                                    <div>Ônibus: <strong className="text-[var(--color-text)]">{t?.onibus_mensais || 0}/mês</strong></div>
-                                    <div className="col-span-2">Veículos terrestres: <strong className="text-[var(--color-text)]">{t?.veiculos_terrestres_mensais.toLocaleString("pt-BR") || 0}</strong></div>
-                                    <div className="col-span-2">Modal Principal: <strong className="text-[var(--color-text)]">{t?.modal_principal || "N/A"}</strong></div>
-                                  </div>
-                                );
-                              })()}
-                            </div>
-
-                            {/* Live Health Diagnosis (ISA) */}
-                            <div>
-                              <span className="font-bold text-[var(--color-text)] uppercase tracking-wider block mb-1">Índice de Saúde (ISA)</span>
-                              {(() => {
-                                const isaVal = calcularISA(d.nome, feedbacks);
-                                return (
-                                  <div className="flex items-center gap-2 bg-[var(--color-surface-alt)] p-2 rounded-lg">
-                                    <Activity className="h-4.5 w-4.5 text-[var(--color-primary)] animate-pulse" />
-                                    <div className="flex-1">
-                                      <div className="flex items-center gap-1.5">
-                                        <span className="font-bold text-xs text-[var(--color-text)]">ISA {isaVal}</span>
-                                        <span className={cn(
-                                          "px-1.5 py-0.5 rounded text-[8px] font-bold uppercase",
-                                          isaVal >= 80 ? "bg-[var(--color-success-soft)] text-[var(--color-success)]" :
-                                          isaVal >= 60 ? "bg-[var(--color-warning-soft)] text-[var(--color-warning)]" :
-                                          "bg-[var(--color-danger-soft)] text-[var(--color-danger)] animate-pulse"
-                                        )}>
-                                          {isaVal >= 80 ? "Saudável" : isaVal >= 60 ? "Atenção" : "Crítico"}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                );
-                              })()}
-                            </div>
-                          </div>
-                        )}
                       </div>
                     </div>
 
@@ -319,6 +258,66 @@ export default function DestinosGestaoPage() {
             </div>
           </div>
         )}
+
+        {/* Spot Detail Popup */}
+        <Modal
+          open={isDetailOpen}
+          onClose={() => setIsDetailOpen(false)}
+          origin={popupOrigin}
+          title={detailSpot.nome}
+          subtitle={detailSpot.municipio}
+          icon={
+            <Image
+              src={detailSpot.imagem}
+              alt=""
+              width={44}
+              height={44}
+              className="h-11 w-11 rounded-xl object-cover flex-shrink-0"
+            />
+          }
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[11px]">
+            {/* Transportation Stats */}
+            <div>
+              <span className="text-[10px] font-bold text-[var(--color-text)] uppercase tracking-wider block mb-1.5">Métricas de acesso</span>
+              {(() => {
+                const t = transporteData.find(tr => tr.destino === detailSpot.nome);
+                return (
+                  <div className="grid grid-cols-2 gap-2 bg-[var(--color-surface-alt)] p-3 rounded-xl text-[var(--color-text-secondary)]">
+                    <div>Voos: <strong className="text-[var(--color-text)]">{t?.voos_mensais || 0}/mês</strong></div>
+                    <div>Ônibus: <strong className="text-[var(--color-text)]">{t?.onibus_mensais || 0}/mês</strong></div>
+                    <div className="col-span-2">Veículos terrestres: <strong className="text-[var(--color-text)]">{t?.veiculos_terrestres_mensais.toLocaleString("pt-BR") || 0}</strong></div>
+                    <div className="col-span-2">Modal principal: <strong className="text-[var(--color-text)]">{t?.modal_principal || "N/A"}</strong></div>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Live Health Diagnosis (ISA) */}
+            <div>
+              <span className="text-[10px] font-bold text-[var(--color-text)] uppercase tracking-wider block mb-1.5">Índice de saúde</span>
+              {(() => {
+                const isaVal = calcularISA(detailSpot.nome, feedbacks);
+                return (
+                  <div className="flex items-center gap-3 bg-[var(--color-surface-alt)] p-3 rounded-xl">
+                    <Activity className="h-5 w-5 text-[var(--color-primary)] animate-pulse flex-shrink-0" />
+                    <div className="flex items-center gap-2">
+                      <span className="font-black text-sm text-[var(--color-text)]">ISA {isaVal}</span>
+                      <span className={cn(
+                        "px-1.5 py-0.5 rounded text-[9px] font-bold uppercase",
+                        isaVal >= 80 ? "bg-[var(--color-success-soft)] text-[var(--color-success)]" :
+                        isaVal >= 60 ? "bg-[var(--color-warning-soft)] text-[var(--color-warning)]" :
+                        "bg-[var(--color-danger-soft)] text-[var(--color-danger)] animate-pulse"
+                      )}>
+                        {isaVal >= 80 ? "Saudável" : isaVal >= 60 ? "Atenção" : "Crítico"}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        </Modal>
       </div>
     </AdminLayout>
   );
