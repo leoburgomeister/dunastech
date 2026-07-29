@@ -402,31 +402,13 @@ export default function TouristHomePage() {
       <section className="relative w-full border-b border-[var(--color-border)] bg-[var(--color-bg)] overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[calc(100vh-4rem)] lg:h-[calc(100vh-4rem)] w-full">
           
-          {/* Left Column: Blurred Map initially, clear on route generation */}
+          {/* Left Column: Cena 3D sempre limpa, sem blur nem overlay */}
           <div className="lg:col-span-7 relative h-[380px] lg:h-full w-full bg-[var(--color-surface-alt)] order-2 lg:order-1 border-b lg:border-b-0 lg:border-r border-[var(--color-border)] overflow-hidden">
-            <div className={cn(
-              "w-full h-full transition-all duration-1000",
-              (step === 1 || step === 2) ? "blur-[6px] scale-105" : "blur-0 scale-100"
-            )}>
-              <HomeRouteMap 
-                destinations={mapDestinations} 
-                activeDay={expandedDay} 
-                isInteractive={true}
-              />
-            </div>
-            
-            {/* Overlay Logo/Name on Map initially */}
-            {(step === 1 || step === 2) && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/10 transition-all duration-700 animate-fade-in pointer-events-none z-20">
-                <div className="bg-[var(--color-surface)]/90 backdrop-blur-sm border border-[var(--color-border)]/50 px-6 py-4 rounded-3xl shadow-2xl flex flex-col items-center gap-2">
-                  <div className="h-12 w-12 rounded-2xl bg-[var(--color-primary-soft)] flex items-center justify-center">
-                    <Sparkles className="h-6 w-6 text-[var(--color-primary)] animate-pulse" />
-                  </div>
-                  <span className="text-xl font-black tracking-wider text-[var(--color-text)]">POTI</span>
-                  <span className="text-[10px] uppercase font-bold text-[var(--color-text-muted)] tracking-widest">Observatório Potiguar</span>
-                </div>
-              </div>
-            )}
+            <HomeRouteMap
+              destinations={mapDestinations}
+              activeDay={expandedDay}
+              isInteractive={true}
+            />
           </div>
 
           {/* Right Column: Title + Smart Unified Form OR Generated Itinerary */}
