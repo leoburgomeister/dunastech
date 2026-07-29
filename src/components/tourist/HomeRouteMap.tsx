@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import { useTheme } from 'next-themes';
 import { type DestinoInfo } from '@/data/mockData';
@@ -17,6 +17,9 @@ import {
   browserOrbitDeps,
   type OrbitController,
 } from '@/lib/map/cinematic';
+
+/** Fallback quando ainda nao ha destino: centro de Natal. */
+const NATAL_CENTER: [number, number] = [-35.2009, -5.7945];
 
 interface HomeRouteMapProps {
   destinations: (DestinoInfo & { dia?: number; emoji?: string })[];
@@ -43,8 +46,26 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     })
   );
   const { resolvedTheme } = useTheme();
-  const firstLatitude = destinations[0]?.latitude;
-  const firstLongitude = destinations[0]?.longitude;
+
+  // Capturado so na montagem: dai em diante quem enquadra e o fitBounds.
+  // Enquanto o centro vivia nas dependencias do init, cada tecla digitada na
+  // busca refiltrava destinations e recriava o mapa inteiro — com o 3D isso
+  // passaria a refazer o fetch dos tiles de satelite e do terreno.
+  const [initialCenter] = useState<[number, number]>(() =>
+    destinations[0]
+      ? [destinations[0].longitude, destinations[0].latitude]
+      : NATAL_CENTER
+  );
+
+  // No modo 3D o estilo e satelite, entao nao ha variante clara/escura e
+  // trocar de tema tambem nao recria o mapa. A alternancia so vale no 2D.
+  const styleUrl = useMemo(() => {
+    const maptilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
+    if (is3D(mapMode) && maptilerKey) return buildStyleUrl(maptilerKey);
+    return resolvedTheme === 'dark'
+      ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
+      : 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json';
+  }, [mapMode, resolvedTheme]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -63,19 +84,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
   useEffect(() => {
     if (!mounted || !mapContainerRef.current) return;
 
-    const initialCenter: [number, number] = firstLongitude !== undefined && firstLatitude !== undefined
-      ? [firstLongitude, firstLatitude]
-      : [-35.2009, -5.7945]; // Natal Central
-
     const maptilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
-
-    // No modo 3D o estilo e satelite, entao nao ha variante clara/escura.
-    // A alternancia de tema segue valendo apenas no fallback 2D.
-    const styleUrl = is3D(mapMode) && maptilerKey
-      ? buildStyleUrl(maptilerKey)
-      : resolvedTheme === 'dark'
-        ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
-        : 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json';
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
@@ -146,7 +155,8 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       map.remove();
       setMapInstance(null);
     };
-  }, [mounted, isInteractive, destinations.length, firstLatitude, firstLongitude, resolvedTheme, mapMode]);
+    // initialCenter vem de useState: e estavel, entra so para satisfazer o lint.
+  }, [mounted, isInteractive, styleUrl, mapMode, initialCenter]);
 
   // Update Markers and Fit Bounds when destinations change or mapInstance changes
   useEffect(() => {
