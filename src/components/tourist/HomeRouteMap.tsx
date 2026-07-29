@@ -244,16 +244,6 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
 
         if (endIndex < coordinates.length) {
           animationFrameRef.current = requestAnimationFrame(step);
-        } else {
-          // Finished! Trigger confetti celebration
-          import('canvas-confetti').then((confettiModule) => {
-            confettiModule.default({
-              particleCount: 100,
-              spread: 70,
-              origin: { y: 0.6 },
-              colors: ['#F59E0B', '#38BDF8', '#10B981']
-            });
-          });
         }
       };
 
