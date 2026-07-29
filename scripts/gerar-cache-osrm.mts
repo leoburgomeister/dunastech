@@ -1,60 +1,72 @@
 /**
- * Grava a geometria das 18 rotas que a home sabe gerar em
+ * Grava a geometria de TODAS as rotas que a home sabe gerar em
  * public/routes/osrm-cache.json.
  *
  * Rode com internet, antes de apresentar:
  *   npx tsx scripts/gerar-cache-osrm.mts
+ *   npx tsx scripts/gerar-cache-osrm.mts --dry   (so conta, nao vai a rede)
  *
  * Nao roda no build de proposito: um build sem rede, ou com o OSRM publico
  * fora do ar, passaria a falhar o deploy inteiro por causa de um enfeite.
+ *
+ * O conjunto a cachear NAO e mais a tabela de presets. Desde que o roteiro
+ * passou a respeitar a duracao pedida, os destinos de uma rota dependem de
+ * (estilo, transporte, dias) e vem ordenados pelo planejador -- entao a chave
+ * do cache muda com a duracao. Alem da rota inteira, o mapa desenha o trecho
+ * do DIA expandido (o dia 1 abre sozinho ao gerar), logo cada dia com duas ou
+ * mais paradas tambem precisa de geometria propria.
  */
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { destinosInfo } from '../src/data/mockData';
-import { todasAsCombinacoes } from '../src/lib/routePresets';
-import { routeKey, osrmUrl, type Coord } from '../src/lib/map/routeCache';
+import { TRAVEL_STYLES, TRANSPORTS } from '../src/lib/routePresets';
+import { MAX_ROUTE_DAYS } from '../src/lib/route-planner';
+import { osrmUrl, type Coord } from '../src/lib/map/routeCache';
+import { trechosNecessarios } from '../src/lib/map/routeCoverage';
 
 const SAIDA = path.join(process.cwd(), 'public', 'routes', 'osrm-cache.json');
 const ESPERA_MS = 1200; // o OSRM publico tem rate limit
-
-function coordsDe(nomes: string[]): Coord[] | null {
-  const out: Coord[] = [];
-  for (const nome of nomes) {
-    const d = destinosInfo.find((x) => x.nome === nome);
-    if (!d) {
-      console.error(`  ! destino inexistente em mockData: "${nome}"`);
-      return null;
-    }
-    out.push([d.longitude, d.latitude]);
-  }
-  return out;
-}
+const SECO = process.argv.includes('--dry');
 
 const espera = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function main() {
-  const cache: Record<string, Coord[]> = {};
-  const combinacoes = todasAsCombinacoes();
-  let ok = 0;
+  const necessarios = trechosNecessarios();
+  console.log(
+    `${TRAVEL_STYLES.length} estilos x ${TRANSPORTS.length} transportes x ${MAX_ROUTE_DAYS} duracoes`
+  );
+  console.log(`geometrias distintas a cachear: ${necessarios.size}`);
+  console.log(`tempo estimado: ~${Math.ceil((necessarios.size * ESPERA_MS) / 60000)} min\n`);
+
+  if (SECO) {
+    const porTamanho = new Map<number, number>();
+    for (const { coords } of necessarios.values()) {
+      porTamanho.set(coords.length, (porTamanho.get(coords.length) ?? 0) + 1);
+    }
+    console.log('distribuicao por numero de paradas:');
+    for (const n of [...porTamanho.keys()].sort((a, b) => a - b)) {
+      console.log(`  ${n} paradas: ${porTamanho.get(n)}`);
+    }
+    return;
+  }
+
+  // Preserva o que ja esta gravado: uma rodada interrompida no meio nao joga
+  // fora as geometrias que ja custaram requisicao.
+  const cache: Record<string, Coord[]> = fs.existsSync(SAIDA)
+    ? (JSON.parse(fs.readFileSync(SAIDA, 'utf8')) as Record<string, Coord[]>)
+    : {};
+
+  let novas = 0;
+  let reaproveitadas = 0;
   let falhas = 0;
+  let vistas = 0;
 
-  // Combinacoes distintas pela geometria: varias celulas da tabela repetem o
-  // mesmo par de destinos, e nao ha por que pedir duas vezes ao OSRM.
-  const vistos = new Set<string>();
-
-  for (const { style, transport, destinos } of combinacoes) {
-    const coords = coordsDe(destinos);
-    if (!coords) {
-      falhas++;
+  for (const [chave, { coords, rotulo }] of necessarios) {
+    vistas++;
+    if (Array.isArray(cache[chave]) && cache[chave].length > 1) {
+      reaproveitadas++;
       continue;
     }
-    const chave = routeKey(coords);
-    if (vistos.has(chave)) {
-      console.log(`= ${style}/${transport} (mesma geometria ja obtida)`);
-      continue;
-    }
-    vistos.add(chave);
 
     try {
       const r = await fetch(osrmUrl(coords));
@@ -65,11 +77,11 @@ async function main() {
       // 5 casas ~ 1 m. O OSRM devolve 6-7, precisao de centimetro que so
       // engorda o arquivo — arredondar corta ~10% do peso sem efeito visivel.
       cache[chave] = geo.map(([lng, lat]) => [+lng.toFixed(5), +lat.toFixed(5)] as Coord);
-      ok++;
-      console.log(`+ ${style}/${transport}: ${geo.length} pontos — ${destinos.join(' > ')}`);
+      novas++;
+      if (novas % 25 === 0) console.log(`  ... ${vistas}/${necessarios.size}`);
     } catch (e) {
       falhas++;
-      console.error(`! ${style}/${transport}: ${(e as Error).message}`);
+      console.error(`! ${rotulo}: ${(e as Error).message}`);
     }
     await espera(ESPERA_MS);
   }
@@ -78,7 +90,9 @@ async function main() {
   fs.writeFileSync(SAIDA, JSON.stringify(cache));
   const kb = (fs.statSync(SAIDA).size / 1024).toFixed(1);
   console.log(`\ngravado ${SAIDA}`);
-  console.log(`rotas: ${ok} | falhas: ${falhas} | tamanho: ${kb} KB`);
+  console.log(
+    `novas: ${novas} | reaproveitadas: ${reaproveitadas} | falhas: ${falhas} | tamanho: ${kb} KB`
+  );
   if (falhas > 0) process.exitCode = 1;
 }
 
