@@ -18,6 +18,8 @@ import {
   RN_OVERVIEW_PITCH,
   INTRO_HOLD_MS,
   INTRO_DIVE_MS,
+  DESTINATION_ZOOM,
+  DESTINATION_FLY_MS,
 } from '@/lib/map/scene3d';
 import {
   createOrbitController,
@@ -56,9 +58,14 @@ interface HomeRouteMapProps {
    * viagem inteira.
    */
   routeDestinations?: DestinoInfo[];
+  /**
+   * Destino que o usuario buscou e confirmou com Enter. Muda o alvo da camera:
+   * a tomada deixa de ser Genipabu e passa a orbitar o lugar pedido.
+   */
+  focusTarget?: { longitude: number; latitude: number; nome: string } | null;
 }
 
-export default function HomeRouteMap({ destinations, activeDay = null, isInteractive = true, hasRoute = false, routeDestinations = SEM_ROTA }: HomeRouteMapProps) {
+export default function HomeRouteMap({ destinations, activeDay = null, isInteractive = true, hasRoute = false, routeDestinations = SEM_ROTA, focusTarget = null }: HomeRouteMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
@@ -312,7 +319,9 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
   // e contorno dourado — nunca chegava a ser visto.
   useEffect(() => {
     const map = mapInstance;
-    if (!map || hasRoute) return;
+    // Se o usuario ja buscou um destino, a abertura perdeu a vez: a limpeza
+    // deste efeito cancela os timers pendentes sozinha.
+    if (!map || hasRoute || focusTarget) return;
 
     // Com movimento reduzido nao ha mergulho: vai direto ao destino final.
     // Nao mexe em introDone — fora do modo cinematografico a orbita ja sai
@@ -363,7 +372,23 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       clearTimeout(diveTimer);
       map.off('load', comecar);
     };
-  }, [mapInstance, mapMode, hasRoute]);
+  }, [mapInstance, mapMode, hasRoute, focusTarget]);
+
+  // Busca confirmada com Enter: a camera voa ate o lugar pedido e a orbita
+  // retoma la. Nao reagimos a cada tecla de proposito — reenquadrar a cada
+  // letra digitada tornaria a tomada instavel e brigaria com a abertura.
+  useEffect(() => {
+    const map = mapInstance;
+    if (!map || !focusTarget || hasRoute) return;
+
+    map.flyTo({
+      center: [focusTarget.longitude, focusTarget.latitude],
+      zoom: DESTINATION_ZOOM,
+      pitch: is3D(mapMode) ? CINEMATIC_PITCH : 0,
+      duration: mapMode === 'cinematic' ? DESTINATION_FLY_MS : 0,
+      curve: 1.3,
+    });
+  }, [mapInstance, mapMode, hasRoute, focusTarget]);
 
   // Orbita lenta: so no modo cinematografico, so apos o load, e so com a aba visivel.
   useEffect(() => {
@@ -382,7 +407,8 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     let ready = map.loaded();
 
     const syncOrbit = () => {
-      if (ready && introDone && !document.hidden) {
+      // Com destino buscado a orbita nao espera a abertura: ela foi cancelada.
+      if (ready && (introDone || !!focusTarget) && !document.hidden) {
         orbit.start();
       } else {
         orbit.stop();
@@ -407,7 +433,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       orbit.destroy();
       orbitRef.current = null;
     };
-  }, [mapInstance, mapMode, introDone]);
+  }, [mapInstance, mapMode, introDone, focusTarget]);
 
   // A linha desenhada e o caminho do voo seguem o roteiro completo; os
   // marcadores continuam sendo os do dia aberto.

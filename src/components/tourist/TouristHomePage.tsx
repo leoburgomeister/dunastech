@@ -19,7 +19,7 @@ import { cn, slugify } from '@/lib/utils';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { destinosInfo, fluxoData, cadasturData, calcularISA } from '@/data/mockData';
-import type { Feedback } from '@/data/mockData';
+import type { Feedback, DestinoInfo } from '@/data/mockData';
 import { useSupabaseSync } from '@/lib/supabase-data';
 
 // Dynamically load Map component to prevent SSR window error on homepage
@@ -95,6 +95,23 @@ export default function TouristHomePage() {
     setExpandedPartners(prev => ({ ...prev, [id]: !prev[id] }));
   };
   const [searchQuery, setSearchQuery] = useState('');
+  // Destino confirmado com Enter. Digitar apenas filtra a lista; so o Enter
+  // move a camera, senao a tomada se reenquadraria a cada letra.
+  const [focusedDest, setFocusedDest] = useState<DestinoInfo | null>(null);
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) {
+      setFocusedDest(null);
+      return;
+    }
+    const match =
+      destinosInfo.find(d => d.nome.toLowerCase().includes(q)) ??
+      destinosInfo.find(d => d.municipio.toLowerCase().includes(q));
+    if (match) setFocusedDest(match);
+  };
 
   // Detailed Questionnaire States
   const [selectedGroupProfile, setSelectedGroupProfile] = useState('couple');
@@ -416,6 +433,7 @@ export default function TouristHomePage() {
               isInteractive={false}
               hasRoute={suggestedRoute !== null}
               routeDestinations={suggestedRoute?.destinations}
+              focusTarget={focusedDest}
             />
           </div>
 
@@ -481,13 +499,14 @@ export default function TouristHomePage() {
                           type="text"
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          placeholder="Ex: Pipa, Genipabu, Natal..."
+                          onKeyDown={handleSearchKeyDown}
+                          placeholder="Ex: Pipa, Genipabu, Natal... (Enter para ver no mapa)"
                           className="w-full h-9 pl-9 pr-8 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-alt)]/40 text-xs text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-border-focus)]"
                         />
                         {searchQuery && (
                           <button
                             type="button"
-                            onClick={() => setSearchQuery('')}
+                            onClick={() => { setSearchQuery(''); setFocusedDest(null); }}
                             aria-label="Limpar busca"
                             className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
                           >

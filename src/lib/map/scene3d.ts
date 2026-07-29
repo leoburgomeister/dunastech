@@ -54,6 +54,12 @@ export const INTRO_HOLD_MS = 2600;
 /** Duracao do mergulho do estado ate as dunas. */
 export const INTRO_DIVE_MS = 5200;
 
+/** Enquadramento de um destino buscado. Mesma altura da abertura. */
+export const DESTINATION_ZOOM = 13.2;
+
+/** Voo ate o destino buscado. Mais curto que a abertura: aqui o usuario pediu. */
+export const DESTINATION_FLY_MS = 3400;
+
 /** Duracao do mergulho ate a rota no modo cinematografico. */
 export const CINEMATIC_FLY_DURATION_MS = 5500;
 
