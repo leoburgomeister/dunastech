@@ -53,11 +53,24 @@ export interface Scene3DTarget {
   setProjection(projection: { type: 'globe' | 'mercator' }): unknown;
 }
 
-export function apply3DScene(map: Scene3DTarget, key: string): void {
+export interface Scene3DOptions {
+  /**
+   * O globo so compensa em enquadramento largo. De perto o MapLibre avisa
+   * "terrain is not fully supported on vertical perspective projection" e o
+   * relevo sai achatado — em mercator o terreno renderiza certo.
+   */
+  projection?: 'globe' | 'mercator';
+}
+
+export function apply3DScene(
+  map: Scene3DTarget,
+  key: string,
+  { projection = 'globe' }: Scene3DOptions = {}
+): void {
   if (!map.getSource(TERRAIN_SOURCE_ID)) {
     map.addSource(TERRAIN_SOURCE_ID, buildTerrainSource(key));
   }
   map.setTerrain({ source: TERRAIN_SOURCE_ID, exaggeration: TERRAIN_EXAGGERATION });
   map.setSky(buildSky());
-  map.setProjection({ type: 'globe' });
+  map.setProjection({ type: projection });
 }

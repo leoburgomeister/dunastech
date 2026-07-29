@@ -12,6 +12,8 @@ import {
   CINEMATIC_FLY_DURATION_MS,
   PLAIN_FIT_DURATION_MS,
 } from '@/lib/map/scene3d';
+import { rnOverview, FLY_CURVE } from '@/lib/map/camera';
+import { createMarkerElement } from '@/lib/map/marker';
 import {
   createOrbitController,
   browserOrbitDeps,
@@ -43,8 +45,6 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     })
   );
   const { resolvedTheme } = useTheme();
-  const firstLatitude = destinations[0]?.latitude;
-  const firstLongitude = destinations[0]?.longitude;
 
   useEffect(() => {
     setTimeout(() => {
@@ -63,9 +63,9 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
   useEffect(() => {
     if (!mounted || !mapContainerRef.current) return;
 
-    const initialCenter: [number, number] = firstLongitude !== undefined && firstLatitude !== undefined
-      ? [firstLongitude, firstLatitude]
-      : [-35.2009, -5.7945]; // Natal Central
+    // Abre no estado inteiro e so depois mergulha na rota: comecar ja em cima
+    // de um destino tira do usuario a nocao de onde ele esta no RN.
+    const opening = rnOverview();
 
     const maptilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
 
@@ -80,8 +80,10 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
       style: styleUrl,
-      center: initialCenter,
-      zoom: 9,
+      center: opening.center,
+      zoom: opening.zoom,
+      pitch: opening.pitch,
+      bearing: opening.bearing,
       interactive: isInteractive,
       attributionControl: false
     });
@@ -146,7 +148,10 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       map.remove();
       setMapInstance(null);
     };
-  }, [mounted, isInteractive, destinations.length, firstLatitude, firstLongitude, resolvedTheme, mapMode]);
+    // Sem os destinos nas dependencias: trocar de filtro reenquadra a camera
+    // (efeito abaixo) em vez de destruir e remontar o mapa, que cortava a
+    // transicao e recarregava os tiles do zero.
+  }, [mounted, isInteractive, resolvedTheme, mapMode]);
 
   // Update Markers and Fit Bounds when destinations change or mapInstance changes
   useEffect(() => {
@@ -164,23 +169,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       const markerColor = isStart ? '#10B981' : isEnd ? '#EF4444' : '#F59E0B'; // emerald, red, amber
       const markerLabel = isStart ? 'Início' : isEnd ? 'Fim' : `Dia ${dest.dia || index + 1}`;
       
-      const el = document.createElement('div');
-      el.className = 'marker-wrapper';
-
-      const pulse = document.createElement('div');
-      pulse.className = 'marker-pulse';
-      pulse.style.backgroundColor = markerColor;
-      el.appendChild(pulse);
-
-      const pin = document.createElement('div');
-      pin.className = 'marker-custom';
-      pin.style.backgroundColor = markerColor;
-      el.appendChild(pin);
-
-      const emojiEl = document.createElement('span');
-      emojiEl.className = 'marker-emoji';
-      emojiEl.innerText = dest.emoji || '📍';
-      pin.appendChild(emojiEl);
+      const el = createMarkerElement({ color: markerColor, glyph: dest.emoji || '📍' });
 
       const popupHtml = `
         <div style="font-family: var(--font-heading), var(--font-body), sans-serif; padding: 4px; min-width: 140px; color: var(--color-text);">
@@ -210,7 +199,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       duration: mapMode === 'cinematic' ? CINEMATIC_FLY_DURATION_MS : PLAIN_FIT_DURATION_MS,
       pitch: is3D(mapMode) ? CINEMATIC_PITCH : 0,
       // curve baixa suaviza o arco de zoom: o voo sobe menos e chega mais macio.
-      curve: 1.2
+      curve: FLY_CURVE
     });
   }, [destinations, activeDay, mapInstance, mapMode]);
 

@@ -1795,16 +1795,20 @@ export default function TouristHomePage() {
             )}
           </div>
 
-          {/* Floating Scroll Down Button */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden lg:flex flex-col items-center gap-1.5 z-20 cursor-pointer group"
-               onClick={() => document.getElementById('recommended-destinations')?.scrollIntoView({ behavior: 'smooth' })}>
-            <span className="text-[10px] font-black uppercase tracking-wider text-[var(--color-text-muted)] group-hover:text-[var(--color-text)] transition-colors">
+          {/* Indicador de scroll: um trilho fino com o ponto descendo, em vez
+              do desenho de mouse — a cena 3D ja e o elemento pesado do hero. */}
+          <button
+            type="button"
+            onClick={() => document.getElementById('recommended-destinations')?.scrollIntoView({ behavior: 'smooth' })}
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden lg:flex flex-col items-center gap-2.5 z-20 cursor-pointer group bg-transparent border-0 p-1 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-border-focus)] rounded-lg"
+          >
+            <span className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--color-text-muted)] group-hover:text-[var(--color-text)] transition-colors">
               Explorar Destinos
             </span>
-            <div className="h-9 w-6 rounded-full border-2 border-[var(--color-border)] group-hover:border-[var(--color-primary)] flex items-start justify-center p-1.5 transition-colors">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-text-muted)] group-hover:bg-[var(--color-primary)] transition-colors animate-bounce" />
-            </div>
-          </div>
+            <span className="relative block h-10 w-px overflow-hidden bg-[var(--color-border)] group-hover:bg-[var(--color-primary)]/40 transition-colors">
+              <span className="scroll-hint-dot absolute left-1/2 h-2.5 w-[3px] rounded-full bg-[var(--color-text-muted)] group-hover:bg-[var(--color-primary)] transition-colors" />
+            </span>
+          </button>
 
         </div>
       </section>
