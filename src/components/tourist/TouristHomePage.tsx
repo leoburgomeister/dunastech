@@ -414,6 +414,7 @@ export default function TouristHomePage() {
               activeDay={expandedDay}
               isInteractive={true}
               hasRoute={suggestedRoute !== null}
+              routeDestinations={suggestedRoute?.destinations}
             />
           </div>
 

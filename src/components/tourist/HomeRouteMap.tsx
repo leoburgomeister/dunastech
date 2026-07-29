@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
+import { Play, Square } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { type DestinoInfo } from '@/data/mockData';
 import { resolveMapMode, is3D, type MapMode } from '@/lib/map/mapMode';
@@ -18,9 +19,28 @@ import {
   browserOrbitDeps,
   type OrbitController,
 } from '@/lib/map/cinematic';
+import {
+  createFollowController,
+  browserFollowDeps,
+  type FollowController,
+  type Coord,
+} from '@/lib/map/follow';
+import {
+  extractRings,
+  buildMaskFeature,
+  buildOutlineFeature,
+  RN_GEOJSON_URL,
+  RN_MASK_SOURCE_ID,
+  RN_OUTLINE_SOURCE_ID,
+  RN_MASK_LAYER_ID,
+  RN_OUTLINE_LAYER_ID,
+} from '@/lib/map/rnHighlight';
 
 /** Fallback quando ainda nao ha destino: centro de Natal. */
 const NATAL_CENTER: [number, number] = [-35.2009, -5.7945];
+
+/** Constante de modulo para nao criar array novo a cada render. */
+const SEM_ROTA: DestinoInfo[] = [];
 
 interface HomeRouteMapProps {
   destinations: (DestinoInfo & { dia?: number; emoji?: string })[];
@@ -28,15 +48,32 @@ interface HomeRouteMapProps {
   isInteractive?: boolean;
   /** Ha roteiro gerado. Muda o enquadramento: sem rota o mapa e cenario. */
   hasRoute?: boolean;
+  /**
+   * Roteiro completo. `destinations` mostra so o dia aberto — que muitas vezes
+   * tem uma parada so — enquanto a linha e o voo "seguir rota" precisam da
+   * viagem inteira.
+   */
+  routeDestinations?: DestinoInfo[];
 }
 
-export default function HomeRouteMap({ destinations, activeDay = null, isInteractive = true, hasRoute = false }: HomeRouteMapProps) {
+export default function HomeRouteMap({ destinations, activeDay = null, isInteractive = true, hasRoute = false, routeDestinations = SEM_ROTA }: HomeRouteMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const animationFrameRef = useRef<number | null>(null);
   const [mounted, setMounted] = useState(false);
   const orbitRef = useRef<OrbitController | null>(null);
+  const followRef = useRef<FollowController | null>(null);
+  const followingRef = useRef(false);
+  const routeCoordsRef = useRef<Coord[]>([]);
+  const cameraBeforeFollowRef = useRef<{
+    center: maplibregl.LngLat;
+    zoom: number;
+    bearing: number;
+    pitch: number;
+  } | null>(null);
+  const [routeReady, setRouteReady] = useState(false);
+  const [following, setFollowing] = useState(false);
   // Computado uma unica vez: o componente entra via dynamic(..., { ssr: false }),
   // entao window ja existe no primeiro render. O guard cobre import direto.
   const [mapMode] = useState<MapMode>(() =>
@@ -115,6 +152,37 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
           console.warn('Cena 3D indisponivel, mantendo mapa plano:', e);
         }
       }
+
+      // Destaque do RN. Assincrono, entao entra abaixo da rota via beforeId —
+      // senao a mascara pousaria por cima da linha do roteiro.
+      fetch(RN_GEOJSON_URL)
+        .then((r) => r.json())
+        .then((raw) => {
+          const rings = extractRings(raw);
+          if (!rings.length || !map.getStyle() || map.getSource(RN_MASK_SOURCE_ID)) return;
+          const abaixoDaRota = map.getLayer('route-line-bg') ? 'route-line-bg' : undefined;
+
+          map.addSource(RN_MASK_SOURCE_ID, { type: 'geojson', data: buildMaskFeature(rings) });
+          map.addLayer({
+            id: RN_MASK_LAYER_ID,
+            type: 'fill',
+            source: RN_MASK_SOURCE_ID,
+            paint: { 'fill-color': '#04121E', 'fill-opacity': 0.55 },
+          }, abaixoDaRota);
+
+          map.addSource(RN_OUTLINE_SOURCE_ID, { type: 'geojson', data: buildOutlineFeature(rings) });
+          map.addLayer({
+            id: RN_OUTLINE_LAYER_ID,
+            type: 'line',
+            source: RN_OUTLINE_SOURCE_ID,
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: { 'line-color': '#F0C75E', 'line-width': 2, 'line-opacity': 0.9 },
+          }, abaixoDaRota);
+        })
+        .catch((e) => {
+          // Destaque e enfeite: sem ele o mapa segue funcionando.
+          console.warn('Contorno do RN indisponivel:', e);
+        });
 
       // Add route source and layer for animation
       map.addSource('route', {
@@ -255,8 +323,10 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
 
     // isBusy evita que a orbita cancele o mergulho do fitBounds: setBearing()
     // chama jumpTo(), que faz stop() em qualquer transicao em curso.
+    // Enquanto a camera segue a rota, a orbita tambem cede: os dois escrevem
+    // bearing no mesmo frame e o resultado seria tremor.
     const orbit = createOrbitController(map, browserOrbitDeps(), {
-      isBusy: () => map.isEasing(),
+      isBusy: () => map.isEasing() || followingRef.current,
     });
     orbitRef.current = orbit;
 
@@ -290,10 +360,19 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     };
   }, [mapInstance, mapMode]);
 
+  // A linha desenhada e o caminho do voo seguem o roteiro completo; os
+  // marcadores continuam sendo os do dia aberto.
+  const pathDestinations = useMemo(
+    () => (routeDestinations.length > 1 ? routeDestinations : destinations),
+    [routeDestinations, destinations]
+  );
+
   // Fetch and animate OSRM Route
   useEffect(() => {
     const map = mapInstance;
+    const destinations = pathDestinations;
     if (!map || destinations.length < 2) {
+      routeCoordsRef.current = [];
       if (map && map.isStyleLoaded() && map.getSource('route')) {
         const source = map.getSource('route') as maplibregl.GeoJSONSource;
         source.setData({
@@ -335,6 +414,17 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     };
 
     const animateRoute = (coordinates: [number, number][]) => {
+      // Guardadas para o voo "seguir rota": e a mesma geometria do OSRM que
+      // acabou de ser desenhada, entao a camera percorre exatamente o traçado
+      // que o usuario esta vendo, e nao uma reta entre paradas.
+      // Trocou de roteiro no meio de um voo? O voo antigo morre aqui.
+      followRef.current?.stop();
+      followRef.current = null;
+      followingRef.current = false;
+      setFollowing(false);
+      routeCoordsRef.current = coordinates;
+      setRouteReady(coordinates.length > 1);
+
       if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
@@ -382,13 +472,75 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [destinations, mapInstance]);
+  }, [pathDestinations, mapInstance]);
+
+  // Encerra o voo devolvendo a camera exatamente de onde ela saiu, em vez de
+  // largar onde o ultimo ponto caiu ou reenquadrar a rota inteira — o usuario
+  // pediu um voo, nao uma mudanca de enquadramento.
+  const stopFollowing = useCallback(() => {
+    followRef.current?.stop();
+    followRef.current = null;
+    followingRef.current = false;
+    setFollowing(false);
+
+    const map = mapInstance;
+    const volta = cameraBeforeFollowRef.current;
+    cameraBeforeFollowRef.current = null;
+    if (!map || !volta) return;
+    map.easeTo({ ...volta, duration: 2200 });
+  }, [mapInstance]);
+
+  const toggleFollow = useCallback(() => {
+    if (following) {
+      stopFollowing();
+      return;
+    }
+    const map = mapInstance;
+    if (!map || routeCoordsRef.current.length < 2) return;
+
+    cameraBeforeFollowRef.current = {
+      center: map.getCenter(),
+      zoom: map.getZoom(),
+      bearing: map.getBearing(),
+      pitch: map.getPitch(),
+    };
+
+    const controller = createFollowController(map, browserFollowDeps(), {
+      coordinates: routeCoordsRef.current,
+      pitch: is3D(mapMode) ? CINEMATIC_PITCH : 0,
+      onFinish: stopFollowing,
+    });
+    followRef.current = controller;
+    followingRef.current = true;
+    setFollowing(true);
+    controller.start();
+  }, [following, mapInstance, mapMode, stopFollowing]);
+
+  useEffect(() => () => {
+    followRef.current?.destroy();
+  }, []);
 
   return (
     <div className="w-full h-full relative overflow-hidden">
       <div ref={mapContainerRef} className="w-full h-full" />
       {/* Dynamic Overlay styling for Dark Map theme */}
       <div className="absolute inset-0 pointer-events-none border border-slate-800/10 rounded-2xl" />
+
+      {hasRoute && routeReady && pathDestinations.length > 1 && (
+        <button
+          type="button"
+          onClick={toggleFollow}
+          aria-pressed={following}
+          className="absolute bottom-4 left-4 z-10 flex items-center gap-2 rounded-full bg-[var(--color-surface)]/92 px-3.5 py-2 text-xs font-semibold text-[var(--color-text)] shadow-lg ring-1 ring-[var(--color-border)] transition-colors hover:bg-[var(--color-surface)] cursor-pointer"
+        >
+          {following ? (
+            <Square className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+          ) : (
+            <Play className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+          )}
+          {following ? 'Parar' : 'Seguir rota'}
+        </button>
+      )}
     </div>
   );
 }
