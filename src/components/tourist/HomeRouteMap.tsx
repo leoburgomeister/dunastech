@@ -4,6 +4,19 @@ import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import { useTheme } from 'next-themes';
 import { type DestinoInfo } from '@/data/mockData';
+import { resolveMapMode, is3D, type MapMode } from '@/lib/map/mapMode';
+import {
+  buildStyleUrl,
+  apply3DScene,
+  CINEMATIC_PITCH,
+  CINEMATIC_FLY_DURATION_MS,
+  PLAIN_FIT_DURATION_MS,
+} from '@/lib/map/scene3d';
+import {
+  createOrbitController,
+  browserOrbitDeps,
+  type OrbitController,
+} from '@/lib/map/cinematic';
 
 interface HomeRouteMapProps {
   destinations: (DestinoInfo & { dia?: number; emoji?: string })[];
@@ -17,6 +30,18 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const animationFrameRef = useRef<number | null>(null);
   const [mounted, setMounted] = useState(false);
+  const orbitRef = useRef<OrbitController | null>(null);
+  // Computado uma unica vez: o componente entra via dynamic(..., { ssr: false }),
+  // entao window ja existe no primeiro render. O guard cobre import direto.
+  const [mapMode] = useState<MapMode>(() =>
+    resolveMapMode({
+      maptilerKey: process.env.NEXT_PUBLIC_MAPTILER_KEY,
+      force2d: process.env.NEXT_PUBLIC_MAP_2D === '1',
+      prefersReducedMotion:
+        typeof window !== 'undefined' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    })
+  );
   const { resolvedTheme } = useTheme();
   const firstLatitude = destinations[0]?.latitude;
   const firstLongitude = destinations[0]?.longitude;
@@ -25,10 +50,12 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     setTimeout(() => {
       setMounted(true);
     }, 0);
+
     return () => {
       if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current);
       }
+      orbitRef.current?.destroy();
     };
   }, []);
 
@@ -40,9 +67,15 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       ? [firstLongitude, firstLatitude]
       : [-35.2009, -5.7945]; // Natal Central
 
-    const styleUrl = resolvedTheme === 'dark'
-      ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
-      : 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json';
+    const maptilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
+
+    // No modo 3D o estilo e satelite, entao nao ha variante clara/escura.
+    // A alternancia de tema segue valendo apenas no fallback 2D.
+    const styleUrl = is3D(mapMode) && maptilerKey
+      ? buildStyleUrl(maptilerKey)
+      : resolvedTheme === 'dark'
+        ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
+        : 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json';
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
@@ -56,6 +89,15 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     setMapInstance(map);
 
     map.on('load', () => {
+      if (is3D(mapMode) && maptilerKey) {
+        try {
+          apply3DScene(map, maptilerKey);
+        } catch (e) {
+          // Tiles ou terreno indisponiveis: seguimos com o mapa plano em vez de quebrar a home.
+          console.warn('Cena 3D indisponivel, mantendo mapa plano:', e);
+        }
+      }
+
       // Add route source and layer for animation
       map.addSource('route', {
         type: 'geojson',
@@ -104,7 +146,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       map.remove();
       setMapInstance(null);
     };
-  }, [mounted, isInteractive, destinations.length, firstLatitude, firstLongitude, resolvedTheme]);
+  }, [mounted, isInteractive, destinations.length, firstLatitude, firstLongitude, resolvedTheme, mapMode]);
 
   // Update Markers and Fit Bounds when destinations change or mapInstance changes
   useEffect(() => {
@@ -165,9 +207,54 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     map.fitBounds(bounds, {
       padding: { top: 60, bottom: 60, left: 60, right: 60 },
       maxZoom: 13,
-      duration: 1500
+      duration: mapMode === 'cinematic' ? CINEMATIC_FLY_DURATION_MS : PLAIN_FIT_DURATION_MS,
+      pitch: is3D(mapMode) ? CINEMATIC_PITCH : 0,
+      // curve baixa suaviza o arco de zoom: o voo sobe menos e chega mais macio.
+      curve: 1.2
     });
-  }, [destinations, activeDay, mapInstance]);
+  }, [destinations, activeDay, mapInstance, mapMode]);
+
+  // Orbita lenta: so no modo cinematografico, so apos o load, e so com a aba visivel.
+  useEffect(() => {
+    const map = mapInstance;
+    if (!map || mapMode !== 'cinematic') return;
+
+    // isBusy evita que a orbita cancele o mergulho do fitBounds: setBearing()
+    // chama jumpTo(), que faz stop() em qualquer transicao em curso.
+    const orbit = createOrbitController(map, browserOrbitDeps(), {
+      isBusy: () => map.isEasing(),
+    });
+    orbitRef.current = orbit;
+
+    let ready = map.loaded();
+
+    const syncOrbit = () => {
+      if (ready && !document.hidden) {
+        orbit.start();
+      } else {
+        orbit.stop();
+      }
+    };
+
+    const handleLoad = () => {
+      ready = true;
+      syncOrbit();
+    };
+
+    if (ready) {
+      syncOrbit();
+    } else {
+      map.once('load', handleLoad);
+    }
+    document.addEventListener('visibilitychange', syncOrbit);
+
+    return () => {
+      document.removeEventListener('visibilitychange', syncOrbit);
+      map.off('load', handleLoad);
+      orbit.destroy();
+      orbitRef.current = null;
+    };
+  }, [mapInstance, mapMode]);
 
   // Fetch and animate OSRM Route
   useEffect(() => {
@@ -244,16 +331,6 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
 
         if (endIndex < coordinates.length) {
           animationFrameRef.current = requestAnimationFrame(step);
-        } else {
-          // Finished! Trigger confetti celebration
-          import('canvas-confetti').then((confettiModule) => {
-            confettiModule.default({
-              particleCount: 100,
-              spread: 70,
-              origin: { y: 0.6 },
-              colors: ['#F59E0B', '#38BDF8', '#10B981']
-            });
-          });
         }
       };
 
