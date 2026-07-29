@@ -445,11 +445,17 @@ export default function TouristHomePage() {
               <div className="space-y-6 animate-fade-in my-auto">
                 {/* Header Info */}
                 <div className="space-y-2.5">
-                  <Badge variant="accent" size="sm" className="px-2.5 py-0.5 text-[9px] font-bold tracking-wider uppercase">
+                  <Badge variant="accent" size="sm" className="px-2.5 py-0.5 text-[11px] font-bold tracking-wider uppercase">
                     <Sparkles className="h-3 w-3 animate-pulse text-[var(--color-accent)] shrink-0" />
                     {t('title')}
                   </Badge>
-                  <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-[var(--color-text)] leading-[1.15] tracking-tight">
+                  {/* Entrelinha abaixo de 1 e tracking negativo: e daqui que
+                      vem a sensacao de titulo "puxado", nao de deformar a
+                      fonte. Medido nos sites do showcase da GSAP — Kononenko
+                      usa leading 0.70, TRIONN 0.90, ambos com tracking
+                      negativo. Peso 800 so passou a valer depois de h1-h6 ir
+                      para @layer base. */}
+                  <h1 className="text-[28px] sm:text-4xl lg:text-[40px] font-extrabold text-[var(--color-text)] leading-[0.98] tracking-[-0.03em]">
                     {t('heading')} <br />
                     <span className="gradient-ocean gradient-text">{t('subheading')}</span>
                   </h1>
@@ -464,7 +470,7 @@ export default function TouristHomePage() {
                   <div className="space-y-4">
                     {/* What we offer checklist */}
                     <div className="space-y-2.5 pb-2 border-b border-[var(--color-border-light)] bg-[var(--color-surface-alt)]/30 p-3.5 rounded-2xl">
-                      <span className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
+                      <span className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
                         O que oferecemos:
                       </span>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-left">
@@ -489,7 +495,7 @@ export default function TouristHomePage() {
                     </div>
                     {/* Destination Search */}
                     <div className="space-y-1.5">
-                      <label htmlFor="home-search" className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
+                      <label htmlFor="home-search" className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
                         Buscar destino específico
                       </label>
                       <div className="relative">
@@ -518,7 +524,7 @@ export default function TouristHomePage() {
 
                     {/* Travel Style Selection */}
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
+                      <label className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
                         {t('travelStyleLabel')}
                       </label>
                       <div className="flex flex-wrap gap-1.5">
@@ -531,7 +537,7 @@ export default function TouristHomePage() {
                               onClick={() => setSelectedStyle(s.id)}
                               title={s.desc}
                               className={cn(
-                                "px-3 py-1.5 rounded-full border text-left transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-[10.5px] font-bold",
+                                "px-3 py-1.5 rounded-full border text-left transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-xs font-bold",
                                 isActive
                                   ? "bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-sm"
                                   : "bg-[var(--color-surface-alt)]/40 border-[var(--color-border-light)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text)]"
@@ -547,24 +553,24 @@ export default function TouristHomePage() {
 
                     {/* Duration Selection (Plus/Minus Counter) */}
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
+                      <label className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
                         Duração do Roteiro
                       </label>
                       <div className="flex items-center justify-between bg-[var(--color-surface-alt)] p-1.5 rounded-xl border border-[var(--color-border-light)] max-w-[220px]">
                         <button 
                           type="button"
                           onClick={() => setDurationDays(prev => Math.max(1, prev - 1))}
-                          className="h-8 w-10 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-black flex items-center justify-center cursor-pointer select-none transition-all"
+                          className="h-8 w-10 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-bold flex items-center justify-center cursor-pointer select-none transition-all"
                         >
                           -
                         </button>
-                        <span className="font-black text-xs text-[var(--color-text)]">
+                        <span className="font-bold text-xs text-[var(--color-text)]">
                           {durationDays} {durationDays === 1 ? 'Dia' : 'Dias'}
                         </span>
                         <button 
                           type="button"
                           onClick={() => setDurationDays(prev => Math.min(15, prev + 1))}
-                          className="h-8 w-10 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-black flex items-center justify-center cursor-pointer select-none transition-all"
+                          className="h-8 w-10 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-bold flex items-center justify-center cursor-pointer select-none transition-all"
                         >
                           +
                         </button>
@@ -573,7 +579,7 @@ export default function TouristHomePage() {
 
                     {/* Transport Selection */}
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
+                      <label className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
                         {t('transportLabel')}
                       </label>
                       <div className="flex bg-[var(--color-surface-alt)] p-1 rounded-xl border border-[var(--color-border-light)] gap-1">
@@ -585,7 +591,7 @@ export default function TouristHomePage() {
                               type="button"
                               onClick={() => setSelectedTransport(tInfo.id)}
                               className={cn(
-                                "flex-1 py-1.5 text-center rounded-lg font-extrabold text-[10px] transition-all cursor-pointer truncate select-none border border-transparent flex items-center justify-center gap-1.5",
+                                "flex-1 py-1.5 text-center rounded-lg font-bold text-[11px] transition-all cursor-pointer truncate select-none border border-transparent flex items-center justify-center gap-1.5",
                                 isActive
                                   ? "bg-[var(--color-surface)] text-[var(--color-primary)] shadow-sm border-[var(--color-border)]/20"
                                   : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
@@ -603,7 +609,7 @@ export default function TouristHomePage() {
                     <button
                       type="button"
                       onClick={() => setStep(2)}
-                      className="w-full mt-3 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg hover:shadow-[var(--color-primary)]/10 active:scale-[0.98] transform flex items-center justify-center gap-2 cursor-pointer text-[10.5px]"
+                      className="w-full mt-3 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg hover:shadow-[var(--color-primary)]/10 active:scale-[0.98] transform flex items-center justify-center gap-2 cursor-pointer text-xs"
                     >
                       <span>{t('nextStep')}</span>
                       <ArrowRight className="h-3.5 w-3.5 shrink-0" />
@@ -614,7 +620,7 @@ export default function TouristHomePage() {
                   <div className="space-y-4 animate-fade-in">
                     {/* Traveler Profile Selection */}
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
+                      <label className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
                         {t('groupProfileLabel')}
                       </label>
                       <div className="flex flex-wrap gap-1.5">
@@ -632,7 +638,7 @@ export default function TouristHomePage() {
                               type="button"
                               onClick={() => setSelectedGroupProfile(profileId)}
                               className={cn(
-                                "px-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-[10.5px] font-bold",
+                                "px-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-xs font-bold",
                                 isActive
                                   ? "bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-sm"
                                   : "bg-[var(--color-surface-alt)]/40 border-[var(--color-border-light)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text)]"
@@ -647,7 +653,7 @@ export default function TouristHomePage() {
 
                     {/* Budget Selection */}
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
+                      <label className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
                         {t('budgetLabel')}
                       </label>
                       <div className="flex bg-[var(--color-surface-alt)] p-1 rounded-xl border border-[var(--color-border-light)] gap-1">
@@ -659,7 +665,7 @@ export default function TouristHomePage() {
                               type="button"
                               onClick={() => setSelectedBudget(budgetId)}
                               className={cn(
-                                "flex-1 py-1.5 text-center rounded-lg font-extrabold text-[10px] transition-all cursor-pointer truncate select-none border border-transparent",
+                                "flex-1 py-1.5 text-center rounded-lg font-bold text-[11px] transition-all cursor-pointer truncate select-none border border-transparent",
                                 isActive
                                   ? "bg-[var(--color-surface)] text-[var(--color-primary)] shadow-sm border-[var(--color-border)]/20"
                                   : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
@@ -674,7 +680,7 @@ export default function TouristHomePage() {
 
                     {/* Stay Preference Selection */}
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
+                      <label className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
                         {t('stayPreferenceLabel')}
                       </label>
                       <div className="flex flex-wrap gap-1.5">
@@ -687,7 +693,7 @@ export default function TouristHomePage() {
                               type="button"
                               onClick={() => setSelectedStayPreference(stayId)}
                               className={cn(
-                                "px-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-[10.5px] font-bold",
+                                "px-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-xs font-bold",
                                 isActive
                                   ? "bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-sm"
                                   : "bg-[var(--color-surface-alt)]/40 border-[var(--color-border-light)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text)]"
@@ -705,14 +711,14 @@ export default function TouristHomePage() {
                       <button
                         type="button"
                         onClick={() => setStep(1)}
-                        className="flex-1 py-2 border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] rounded-xl font-bold text-[10.5px] transition-all text-[var(--color-text)] cursor-pointer"
+                        className="flex-1 py-2 border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] rounded-xl font-bold text-xs transition-all text-[var(--color-text)] cursor-pointer"
                       >
                         {t('prevStep')}
                       </button>
                       <button
                         type="button"
                         onClick={handleGenerateRoute}
-                        className="flex-[2] py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer text-[10.5px]"
+                        className="flex-[2] py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer text-xs"
                       >
                         <Sparkles className="h-3.5 w-3.5 shrink-0" />
                         {t('generateButton')}
@@ -722,7 +728,7 @@ export default function TouristHomePage() {
                 )}
 
                 {/* Footer Certifications */}
-                <div className="flex items-center gap-4 text-[10px] text-[var(--color-text-muted)] justify-center pt-2">
+                <div className="flex items-center gap-4 text-[11px] text-[var(--color-text-muted)] justify-center pt-2">
                   <span className="flex items-center gap-1"><Shield className="h-3.5 w-3.5 text-[var(--color-success)]" /> {t('cadasturCert')}</span>
                   <span className="flex items-center gap-1"><Navigation className="h-3.5 w-3.5 text-[var(--color-primary)]" /> {t('activeGps')}</span>
                 </div>

@@ -52,8 +52,10 @@ export function SearchBar({ placeholder = 'Buscar destinos...', suggestions = []
     <div ref={ref} className={cn('relative w-full', className)}>
       <div className={cn(
         'relative flex items-center transition-all duration-200',
+        // Sem vidro: sobre foto de satelite o desfoque lavava o campo e
+        // deixava o texto ilegivel. Superficie solida nas duas variantes.
         isHero
-          ? 'glass-strong rounded-2xl shadow-xl'
+          ? 'bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-lg'
           : 'bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl',
         open && 'rounded-b-none',
       )}>
@@ -90,7 +92,7 @@ export function SearchBar({ placeholder = 'Buscar destinos...', suggestions = []
         <div className={cn(
           'absolute left-0 right-0 top-full z-50 overflow-hidden animate-fade-in',
           isHero
-            ? 'glass-strong rounded-b-2xl shadow-xl border-t border-[var(--color-border)]'
+            ? 'bg-[var(--color-surface)] rounded-b-2xl shadow-lg border-t border-[var(--color-border)]'
             : 'bg-[var(--color-surface)] border border-t-0 border-[var(--color-border)] rounded-b-xl shadow-lg',
         )}>
           {filtered.map((item: string, i: number) => (

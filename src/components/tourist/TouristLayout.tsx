@@ -29,7 +29,10 @@ export default function TouristLayout({ children }: { children: React.ReactNode 
   return (
     <div className="min-h-screen bg-[var(--color-bg)] flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-40 glass-strong border-b border-[var(--color-border)]">
+      {/* Superficie solida, nao vidro. O hero abaixo e foto de satelite: com
+          backdrop-filter o header ficava lavado e ilegivel sobre a imagem, e
+          o desfoque ainda rodava em cima do canvas WebGL a cada frame. */}
+      <header className="sticky top-0 z-40 bg-[var(--color-surface)] border-b border-[var(--color-border)]">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-3">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
@@ -80,7 +83,7 @@ export default function TouristLayout({ children }: { children: React.ReactNode 
       </main>
 
       {/* Bottom Navigation — Mobile */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden glass-strong border-t border-[var(--color-border)]">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-[var(--color-surface)] border-t border-[var(--color-border)]">
         <div className="flex items-center justify-around h-16 px-2">
           {bottomTabs.map((tab) => {
             const isActive = tab.href === '/' 
