@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { destinosInfo } from '../data/mockData';
 import { planRoute, optimizeOrder, haversineKm, routeLengthKm, MAX_ROUTE_DAYS } from './route-planner';
 import type { PlanRouteOptions } from './route-planner';
-import { destinosDoRoteiro } from './routePresets';
+import { destinosDoRoteiro, limitesDeDuracao } from './routePresets';
 import { MAX_CACHED_DAYS } from './map/routeCoverage';
 
 const base = {
@@ -25,17 +25,37 @@ describe('planRoute — duração', () => {
   });
 
   it('nunca devolve um dia sem destino', () => {
-    for (let dias = 1; dias <= MAX_ROUTE_DAYS; dias++) {
-      for (const estilo of ['adventure', 'relax', 'ecotourism', 'culture', 'gastronomy', 'family'] as const) {
-        for (const transporte of ['buggy', 'shuttle', 'hike'] as const) {
+    for (const estilo of ['adventure', 'relax', 'ecotourism', 'culture', 'gastronomy', 'family'] as const) {
+      for (const transporte of ['buggy', 'shuttle', 'hike'] as const) {
+        const { min, max } = limitesDeDuracao(estilo, transporte);
+        for (let dias = min; dias <= max; dias++) {
           const plano = planRoute({ catalogue: destinosInfo, style: estilo, transport: transporte, days: dias });
-          expect(plano.days).toHaveLength(dias);
+          expect(plano.days, `${estilo}/${transporte}/${dias}d`).toHaveLength(dias);
           for (const dia of plano.days) {
             expect(dia.destinations.length).toBeGreaterThan(0);
           }
         }
       }
     }
+  });
+
+  it('nao passa do teto de duracao do transporte', () => {
+    // Pedir 15 dias de caminhada devolvia 15 dias, com dia de 70 km a pe.
+    expect(planRoute({ ...base, transport: 'hike', days: 15 }).days).toHaveLength(3);
+    expect(planRoute({ ...base, transport: 'buggy', days: 15 }).days).toHaveLength(12);
+    expect(planRoute({ ...base, transport: 'shuttle', days: 15 }).days).toHaveLength(15);
+  });
+
+  it('sobe a duracao ate o minimo da combinacao', () => {
+    // cultura/van em 1 dia empilhava Forte + Mossoro + Lajedo: 313 km.
+    const plano = planRoute({
+      catalogue: destinosInfo,
+      style: 'culture',
+      transport: 'shuttle',
+      days: 1,
+    });
+    expect(plano.days).toHaveLength(3);
+    expect(plano.days.every((d) => d.destinations.length > 0)).toBe(true);
   });
 
   it('numera os dias em sequência, sem buracos', () => {
@@ -153,7 +173,7 @@ describe('planRoute — coerência com o transporte', () => {
   });
 
   it('não empilha destinos no mesmo dia quando o passeio é a pé', () => {
-    const aPe = planRoute({ ...base, transport: 'hike', days: 5 });
+    const aPe = planRoute({ ...base, transport: 'hike', days: 3 });
     for (const dia of aPe.days) {
       expect(dia.destinations).toHaveLength(1);
     }

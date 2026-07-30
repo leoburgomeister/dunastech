@@ -10,7 +10,7 @@
 // ============================================================
 
 import type { DestinoInfo } from '../data/mockData';
-import { destinosDoRoteiro } from './routePresets';
+import { destinosDoRoteiro, limitesDeDuracao } from './routePresets';
 import type { TravelStyle, Transport } from './routePresets';
 
 export type { TravelStyle } from './routePresets';
@@ -237,11 +237,24 @@ function twoOpt(path: DestinoInfo[]): DestinoInfo[] {
   return result;
 }
 
-function clampDays(requested: number, catalogueSize: number): number {
+/**
+ * Aperta a duracao pedida contra tres tetos: o do transporte, o global e o tamanho
+ * do catalogo. `piso` desce junto com o teto porque catalogo pequeno (ou teto baixo)
+ * nao pode ser vencido pelo minimo da combinacao — o roteiro precisa de pelo menos
+ * um destino por dia.
+ */
+function clampDays(
+  requested: number,
+  catalogueSize: number,
+  style: TravelStyle,
+  transport: TransportMode
+): number {
   if (catalogueSize === 0) return 0;
-  if (!Number.isFinite(requested)) return 1;
-  const rounded = Math.round(requested);
-  return Math.max(1, Math.min(rounded, MAX_ROUTE_DAYS, catalogueSize));
+  const { min, max } = limitesDeDuracao(style, transport);
+  const teto = Math.min(max, MAX_ROUTE_DAYS, catalogueSize);
+  const piso = Math.min(min, teto);
+  if (!Number.isFinite(requested)) return piso;
+  return Math.max(piso, Math.min(Math.round(requested), teto));
 }
 
 /**
@@ -356,7 +369,7 @@ function splitIntoDays(ordered: DestinoInfo[], days: number): DestinoInfo[][] {
 export function planRoute(options: PlanRouteOptions): PlannedRoute {
   const { catalogue, style, transport, days, anchorName } = options;
 
-  const totalDays = clampDays(days, catalogue.length);
+  const totalDays = clampDays(days, catalogue.length, style, transport);
   if (totalDays === 0) {
     return { destinations: [], days: [], totalKm: 0 };
   }
