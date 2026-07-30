@@ -335,6 +335,15 @@ export default function PitchPage() {
             {t('prompter')}
           </button>
 
+          {/* Página rosto — projetada durante a abertura falada (0:00–0:20) */}
+          <Link
+            href="./pitch/abertura"
+            className="px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider text-[#7E9798] border border-[#0F6B6D]/40 hover:bg-[#0F6B6D]/30 hover:text-[#F7F4EE] transition-all"
+            title="Página rosto (projeção)"
+          >
+            Abertura
+          </Link>
+
           {/* Cartão de palco — referência lida no celular antes de subir */}
           <Link
             href="./pitch/cartao"
