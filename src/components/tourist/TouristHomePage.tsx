@@ -368,7 +368,14 @@ export default function TouristHomePage() {
   return (
     <div className="animate-fade-in space-y-12">
       {/* ═══ Smart Route Planner & Map Split-Pane Hero Section ═══ */}
-      <section className="relative w-full h-[calc(100vh-4rem)] border-b border-[var(--color-border)] bg-[var(--color-bg)] overflow-hidden">
+      {/* Altura em dvh, nao vh, e descontando a tab bar no mobile. Com
+          `100vh` o hero media a viewport GRANDE (barra do navegador
+          escondida) e ainda ia por baixo da nav fixa de 4rem: os 65px de
+          baixo do painel ficavam atras dela. No passo 3 isso escondia o
+          "Aceitar e Planejar Viagem" inteiro (787-820 contra a nav em 779) e
+          o painel nao rolava naquele passo, entao o CTA era inalcancavel. No
+          lg a nav e `lg:hidden`, por isso so o mobile desconta as duas. */}
+      <section className="relative w-full h-[calc(100dvh-8rem)] lg:h-[calc(100dvh-4rem)] border-b border-[var(--color-border)] bg-[var(--color-bg)] overflow-hidden">
 
           {/* Cena 3D ocupando o hero inteiro, atras de tudo. Sem interacao:
               a camera e uma tomada fixa orbitando Genipabu, nao uma ferramenta
@@ -390,7 +397,11 @@ export default function TouristHomePage() {
           {/* Painel flutuante. `p-6` tambem no desktop (era sm:p-8): 16px de
               padding a menos e 16px de conteudo a mais, e num painel que precisa
               caber sem rolar isso conta. */}
-          <div className="absolute inset-x-0 bottom-0 top-[42vh] lg:inset-y-6 lg:left-auto lg:right-6 lg:top-6 lg:bottom-6 lg:w-[min(30rem,42vw)] flex flex-col p-6 overflow-y-auto custom-scrollbar z-10 justify-between bg-[var(--color-surface)] rounded-t-3xl lg:rounded-3xl shadow-2xl ring-1 ring-[var(--color-border)]">
+          {/* `top` em dvh e um pouco mais alto que os 42vh antigos: o hero
+              mobile perdeu 4rem para a tab bar, e o painel precisa da mesma
+              altura util de antes para o roteiro do passo 3 caber sem rolar.
+              A duna continua aparecendo acima. */}
+          <div className="absolute inset-x-0 bottom-0 top-[36dvh] lg:inset-y-6 lg:left-auto lg:right-6 lg:top-6 lg:bottom-6 lg:w-[min(30rem,42vw)] flex flex-col p-6 overflow-y-auto custom-scrollbar z-10 justify-between bg-[var(--color-surface)] rounded-t-3xl lg:rounded-3xl shadow-2xl ring-1 ring-[var(--color-border)]">
             {(step === 1 || step === 2) ? (
               <div className="space-y-3 animate-fade-in my-auto">
                 {/* Header Info */}
@@ -451,7 +462,9 @@ export default function TouristHomePage() {
                               onClick={() => setSelectedStyle(s.id)}
                               title={s.desc}
                               className={cn(
-                                "px-2.5 py-1 rounded-full border text-left transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-xs font-bold",
+                                // py maior ate sm: com `py-1` a pilula tinha 26px
+                                // de altura, metade do alvo de toque recomendado.
+                                "px-3 py-2 sm:px-2.5 sm:py-1 rounded-full border text-left transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-xs font-bold",
                                 isActive
                                   ? "bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-sm"
                                   : "bg-[var(--color-surface-alt)]/40 border-[var(--color-border-light)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text)]"
@@ -469,7 +482,13 @@ export default function TouristHomePage() {
                         blocos de ~66px cada, e o painel nao pode rolar. Lado a
                         lado eles somam um: a duracao e um contador estreito e o
                         transporte cresce no espaco que sobra. */}
-                    <div className="grid grid-cols-[auto_1fr] gap-2.5 items-end">
+                    {/* Lado a lado so a partir de sm. Em 390px os tres botoes
+                        de transporte ficavam com 43px uteis cada e TODOS os
+                        rotulos eram cortados pelo truncate — "Translado /
+                        Vans" pede 86px, "Caminhada / Trilha" pede 96px. O
+                        painel mobile rola, entao aqui a altura extra e barata;
+                        no desktop, que nao rola, a linha unica se mantem. */}
+                    <div className="grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-2.5 items-end">
                       {/* Duration Selection (Plus/Minus Counter) */}
                       <div className="space-y-1.5">
                         <label className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
@@ -480,7 +499,7 @@ export default function TouristHomePage() {
                             type="button"
                             onClick={() => setDurationDays(prev => Math.max(1, prev - 1))}
                             aria-label={t('durationMinus')}
-                            className="h-7 w-7 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-bold flex items-center justify-center cursor-pointer select-none transition-all"
+                            className="h-9 w-9 sm:h-7 sm:w-7 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-bold flex items-center justify-center cursor-pointer select-none transition-all"
                           >
                             -
                           </button>
@@ -494,7 +513,7 @@ export default function TouristHomePage() {
                             type="button"
                             onClick={() => setDurationDays(prev => Math.min(MAX_ROUTE_DAYS, prev + 1))}
                             aria-label={t('durationPlus')}
-                            className="h-7 w-7 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-bold flex items-center justify-center cursor-pointer select-none transition-all"
+                            className="h-9 w-9 sm:h-7 sm:w-7 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-bold flex items-center justify-center cursor-pointer select-none transition-all"
                           >
                             +
                           </button>
@@ -516,14 +535,33 @@ export default function TouristHomePage() {
                                 onClick={() => setSelectedTransport(tInfo.id)}
                                 title={tInfo.label}
                                 className={cn(
-                                  "flex-1 min-w-0 h-7 text-center rounded-lg font-bold text-[10.5px] transition-all cursor-pointer select-none border border-transparent flex items-center justify-center gap-1",
+                                  // Ate sm o botao e um bloco: icone em cima,
+                                  // rotulo embaixo podendo quebrar em duas
+                                  // linhas. Em linha unica nao cabe — sobram
+                                  // ~86px de texto por botao e "Caminhada /
+                                  // Trilha" pede 96px, entao os tres rotulos
+                                  // saiam truncados ("Trans...", "Cami..."). E
+                                  // nao da para resolver no pixel: os rotulos
+                                  // em es/en tem outro comprimento. Quebrar a
+                                  // linha vale para os tres idiomas.
+                                  "flex-1 min-w-0 text-center rounded-lg font-bold transition-all cursor-pointer select-none border border-transparent flex items-center justify-center gap-1",
+                                  // No desktop a linha unica se mantem, mas com
+                                  // altura livre: o painel tem ~137px de folga
+                                  // vertical no passo 1 mesmo em 1280x720, e
+                                  // deixar o rotulo quebrar em duas linhas custa
+                                  // ~2px. Era la que "Translado / Vans" e
+                                  // "Caminhada / Trilha" tambem apareciam
+                                  // truncados — inclusive na tela do pitch.
+                                  "flex-col py-1.5 min-h-11 text-[11px] leading-tight sm:flex-row sm:py-1 sm:min-h-7 sm:text-[10.5px]",
                                   isActive
                                     ? "bg-[var(--color-surface)] text-[var(--color-primary)] shadow-sm border-[var(--color-border)]/20"
                                     : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
                                 )}
                               >
                                 <tInfo.icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
-                                <span className="truncate">{tInfo.label}</span>
+                                {/* Sem `truncate` em nenhum tamanho: o nome do
+                                    transporte e a escolha, cortado nao serve. */}
+                                <span>{tInfo.label}</span>
                               </button>
                             );
                           })}
@@ -605,7 +643,7 @@ export default function TouristHomePage() {
                               type="button"
                               onClick={() => setSelectedGroupProfile(profileId)}
                               className={cn(
-                                "px-2.5 py-1 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-xs font-bold",
+                                "px-3 py-2 sm:px-2.5 sm:py-1 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-xs font-bold",
                                 isActive
                                   ? "bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-sm"
                                   : "bg-[var(--color-surface-alt)]/40 border-[var(--color-border-light)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text)]"
@@ -660,7 +698,7 @@ export default function TouristHomePage() {
                               type="button"
                               onClick={() => setSelectedStayPreference(stayId)}
                               className={cn(
-                                "px-2.5 py-1 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-xs font-bold",
+                                "px-3 py-2 sm:px-2.5 sm:py-1 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-xs font-bold",
                                 isActive
                                   ? "bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-sm"
                                   : "bg-[var(--color-surface-alt)]/40 border-[var(--color-border-light)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text)]"

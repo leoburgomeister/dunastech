@@ -197,7 +197,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* ═══ Main Content ═══ */}
-      <div className={cn('flex-1 transition-all duration-300', collapsed ? 'lg:ml-[72px]' : 'lg:ml-[280px]')}>
+      {/* `min-w-0` e obrigatorio aqui. Item de flex nasce com
+          `min-width: auto`, ou seja, nao encolhe abaixo da largura min-content
+          do conteudo: a tabela de 925px de /gestao/cidades esticava esta
+          coluna e, com ela, a pagina toda — 999px de scroll horizontal num
+          viewport de 390px, com o `overflow-x-auto` da tabela inutil porque o
+          proprio wrapper tinha sido esticado. Mesmo efeito em /cadastur (892px)
+          e /social (530px). Com min-w-0 a coluna encolhe e a tabela volta a
+          rolar dentro do wrapper dela. */}
+      <div className={cn('flex-1 min-w-0 transition-all duration-300', collapsed ? 'lg:ml-[72px]' : 'lg:ml-[280px]')}>
         {/* Top bar */}
         <header className="sticky top-0 z-30 h-16 glass-strong border-b border-[var(--color-border)] flex items-center px-6">
           {/* Mobile menu button */}
@@ -225,6 +233,38 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </div>
         </header>
+
+        {/* ═══ Navegacao das secoes — Mobile ═══ */}
+        {/* A sidebar e `hidden lg:flex`, e o unico botao que restava no header
+            do mobile era o logo, que leva para "/". Resultado: quem abria o
+            painel no celular ficava preso na Visao Geral, sem alcancar as
+            outras 7 secoes. Faixa rolavel em vez de drawer: fica sempre
+            visivel, sem estado nem overlay para dar errado no palco. */}
+        <div className="lg:hidden sticky top-16 z-20 bg-[var(--color-surface)] border-b border-[var(--color-border)]">
+          <nav className="flex gap-1 overflow-x-auto px-3 py-2 no-scrollbar" aria-label="Seções do painel">
+            {navItems.map((item) => {
+              const isActive = item.href === '/gestao'
+                ? pathname === '/gestao'
+                : pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={cn(
+                    'flex items-center gap-1.5 shrink-0 whitespace-nowrap rounded-full px-3 py-2 text-xs font-bold transition-colors',
+                    isActive
+                      ? 'bg-[var(--color-primary)] text-white'
+                      : 'bg-[var(--color-surface-alt)] text-[var(--color-text-secondary)]',
+                  )}
+                >
+                  <item.icon className="h-3.5 w-3.5 shrink-0" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
 
         {/* Page Content */}
         <main className="p-4 lg:p-6">
