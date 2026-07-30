@@ -12,8 +12,10 @@
 
 ## Global Constraints
 
-- Branch: `leoburgo/rotas-generation-issues-a1b624`, worktree `C:/Users/Leobu/dev/DunasTech/.claude/worktrees/superpowers-brainstorming-planning-a3b295`.
-- **Baseline: `aaf3ed3`.** Os números deste plano foram medidos aí. `1af29e6` pôs `perDay = 1` nos três transportes; medições feitas contra `4fa2aaf` (onde buggy e van pediam 1,5) não valem mais. Se o `git log` mostrar commits acima de `aaf3ed3` ao começar, **parar e remedir** antes de tocar nos tetos de regressão.
+- Branch: `leoburgo/alcance-transporte-presets`, worktree `C:/Users/Leobu/dev/DunasTech/.claude/worktrees/clickable-cards-97e230`. Ramificada de `5788bd6`.
+- **Não commitar em `leoburgo/rotas-generation-issues-a1b624`.** Uma sessão paralela trabalha nela e no worktree `superpowers-brainstorming-planning-a3b295`, e vai mexer em `routePresets.ts`. Foi por isso que esta branch existe.
+- **Baseline dos números: `aaf3ed3`.** `1af29e6` pôs `perDay = 1` nos três transportes; medições contra `4fa2aaf` (buggy e van pediam 1,5) não valem mais. `5788bd6` e `aaf3ed3` só tocaram `HomeRouteMap.tsx`, `scene3d.ts` e `overviewPadding.test.ts` — nenhum arquivo deste plano —, então a medição vale aqui. Se `route-planner.ts`, `routePresets.ts` ou `mockData.ts` mudarem, **parar e remedir** antes de tocar nos tetos de regressão.
+- Suíte verde na baseline: **185 testes, 13 arquivos**. Qualquer contagem menor no fim é regressão.
 - **Não alterar** `TRANSPORT_PROFILE` (`perDay`, `comfortableLegKm`, `distanceWeight`), as listas `STYLE_AFFINITY` nem coordenadas em `mockData.ts`.
 - Comentário em código é em português sem acentos, como o resto do repositório. Cópia de usuário (i18n) leva acento normal.
 - Comentário explica **por que**, não o que — o padrão dos arquivos tocados.
