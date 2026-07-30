@@ -174,17 +174,17 @@ describe('planRoute — coerência com o transporte', () => {
 
   it('nenhum dia da faixa demonstrável piora o que a assinatura já pedia', () => {
     // Teto por transporte na faixa que o cache do OSRM cobre (MAX_CACHED_DAYS = 7), que e
-    // a faixa que a apresentacao usa. Estes numeros sao os PIORES dias que sobraram, e
-    // todos vem de trechos da propria tabela de presets -- ecoturismo/buggy liga Maracajau
-    // a Galinhos (112 km), cultura/van vai a Mossoro e ao Lajedo (313 km no roteiro de um
-    // dia), familia/caminhada liga Ponta Negra a Pipa (40 km a pe). Ou seja: nao ha mais
-    // dia longo criado pelo PREENCHIMENTO.
+    // a faixa que a apresentacao usa. Estes numeros sao os PIORES dias que sobraram, e os
+    // tres vem da mesma situacao: roteiro de UM dia, em que a assinatura inteira precisa
+    // caber num dia so -- ecoturismo/buggy liga Maracajau a Galinhos (112 km),
+    // cultura/van vai a Mossoro e ao Lajedo (313 km), familia/caminhada liga Ponta Negra a
+    // Pipa (40 km a pe). Nenhum dia longo vem do PREENCHIMENTO.
     //
     // Nao e teto de conforto, e trava de regressao: baixar estes numeros exige mexer na
     // tabela de presets (e regerar o cache do OSRM), nao no planejador.
     const teto: Record<'hike' | 'buggy' | 'shuttle', number> = {
       hike: 39.7,
-      buggy: 138.9,
+      buggy: 112.6,
       shuttle: 313.1,
     };
 
@@ -210,10 +210,42 @@ describe('planRoute — coerência com o transporte', () => {
     }
   });
 
-  it('aproveita a van para visitar mais de um destino por dia', () => {
-    const deVan = planRoute({ ...base, transport: 'shuttle', days: 5 });
-    expect(deVan.destinations.length).toBeGreaterThan(deVan.days.length);
-    expect(deVan.days.some((d) => d.destinations.length > 1)).toBe(true);
+  it('entrega um destino por dia quando a duração alcança a assinatura', () => {
+    // Um destino por dia em TODO transporte, decisao de produto. Van e buggy ja pediram 1,5
+    // — dias mais cheios —, mas entao 5 dias rendiam 8 destinos e o painel deixava de
+    // espelhar a duracao pedida.
+    for (const estilo of ['adventure', 'relax', 'ecotourism', 'culture', 'gastronomy', 'family'] as const) {
+      for (const transporte of ['buggy', 'shuttle', 'hike'] as const) {
+        const assinatura = destinosDoRoteiro(estilo, transporte).length;
+
+        for (let dias = assinatura; dias <= MAX_ROUTE_DAYS; dias++) {
+          const plano = planRoute({
+            catalogue: destinosInfo,
+            style: estilo,
+            transport: transporte,
+            days: dias,
+          });
+
+          for (const dia of plano.days) {
+            expect(
+              dia.destinations,
+              `${estilo}/${transporte}/${dias}d dia ${dia.day}: ` +
+                dia.destinations.map((d) => d.nome).join(' + ')
+            ).toHaveLength(1);
+          }
+        }
+      }
+    }
+  });
+
+  it('duração menor que a assinatura empilha em vez de quebrar a promessa do título', () => {
+    // Aventura/buggy nomeia tres destinos na descricao. Pedindo 2 dias, um deles tem duas
+    // paradas — cortar um destino para caber um por dia desmentiria a copia.
+    const plano = planRoute({ catalogue: destinosInfo, style: 'adventure', transport: 'buggy', days: 2 });
+
+    expect(plano.days).toHaveLength(2);
+    expect(plano.destinations).toHaveLength(destinosDoRoteiro('adventure', 'buggy').length);
+    expect(plano.days.some((d) => d.destinations.length > 1)).toBe(true);
   });
 });
 

@@ -112,18 +112,23 @@ const STYLE_AFFINITY: Record<TravelStyle, string[]> = {
   ],
 };
 
-// Quantos destinos cabem num dia e o quanto a distância pesa na escolha do próximo
-// destino. A pé o roteiro precisa ficar colado; de van pode cruzar o estado.
-// `perDay` fracionário é de propósito: numa viagem longa alguns dias rendem dois
-// atrativos e outros rendem um só — encher todos os dias com dois obriga o roteiro a
-// buscar destinos cada vez mais distantes só para preencher a agenda.
+// Quantos destinos o preenchimento pede por dia e o quanto a distância pesa na escolha do
+// próximo destino. A pé o roteiro precisa ficar colado; de van pode cruzar o estado.
+//
+// `perDay` é 1 em todo transporte: um destino por dia, decisão de produto. Van e buggy já
+// pediram 1,5 — dias mais cheios —, mas o roteiro ficava com mais paradas que dias (5 dias
+// rendiam 8 destinos) e o painel deixava de espelhar a duração pedida.
+//
+// Duração MENOR que a assinatura ainda empilha: a descrição da combinação nomeia todos os
+// destinos-assinatura, e cortar um para caber um por dia desmentiria a própria cópia. Aí o
+// certo é o dia com duas paradas, não a promessa quebrada.
 const TRANSPORT_PROFILE: Record<
   TransportMode,
   { perDay: number; comfortableLegKm: number; distanceWeight: number }
 > = {
   hike: { perDay: 1, comfortableLegKm: 8, distanceWeight: 4 },
-  buggy: { perDay: 1.5, comfortableLegKm: 60, distanceWeight: 1.5 },
-  shuttle: { perDay: 1.5, comfortableLegKm: 180, distanceWeight: 0.6 },
+  buggy: { perDay: 1, comfortableLegKm: 60, distanceWeight: 1.5 },
+  shuttle: { perDay: 1, comfortableLegKm: 180, distanceWeight: 0.6 },
 };
 
 const AFFINITY_STEP = 10;
