@@ -16,9 +16,15 @@
 
 ### GANCHO · 0:00–0:20 · *tela: home, mapa 3D orbitando*
 
-**"Bom dia. O Rio Grande do Norte tem hoje 11 polos turísticos e 81 municípios no mapa do turismo. O estado decidiu interiorizar — e está estruturando a governança regional para isso.**
+**"Bom dia, conselheiros. É um prazer estar aqui. Eu sou o Leonardo, da DunasTech.**
+
+**O Rio Grande do Norte tem hoje 11 polos turísticos e 81 municípios no mapa do turismo. O estado decidiu interiorizar — e está estruturando a governança regional para isso.**
 
 **Toda política pública boa esbarra na mesma pergunta: como a gente prova que está funcionando?"**
+
+> **Por que a apresentação é curta e o nome POTI não aparece aqui:** o nome entra aos 0:50, logo depois do problema — quando a sala já quer uma resposta. Dito no segundo 5, é arquivado como "mais uma plataforma" antes de existir necessidade.
+>
+> **Nada de "tudo bem com vocês?".** Duas perguntas em 20 segundos competem entre si, e a que precisa ecoar é "como a gente prova que está funcionando?". Uma pergunta de cortesia às 9h30 ou não é respondida — três segundos de silêncio na abertura — ou vira murmúrio disperso que você tem que esperar terminar. "É um prazer estar aqui" entrega o mesmo calor sem abrir esse espaço.
 
 ### PROBLEMA · 0:20–0:50 · *mesma tela*
 

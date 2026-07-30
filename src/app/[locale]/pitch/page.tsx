@@ -335,6 +335,15 @@ export default function PitchPage() {
             {t('prompter')}
           </button>
 
+          {/* Cartão de palco — referência lida no celular antes de subir */}
+          <Link
+            href="./pitch/cartao"
+            className="px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider text-[#7E9798] border border-[#0F6B6D]/40 hover:bg-[#0F6B6D]/30 hover:text-[#F7F4EE] transition-all"
+            title="Cartão de palco (celular)"
+          >
+            Cartão
+          </Link>
+
           <button
             onClick={toggleFullscreen}
             className="p-1 hover:text-[#F7F4EE] text-[#7E9798] rounded-lg transition-colors cursor-pointer"
