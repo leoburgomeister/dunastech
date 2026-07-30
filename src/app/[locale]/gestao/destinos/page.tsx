@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import Image from "next/image";
 import dynamic from "next/dynamic";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
+import { PlaceImage } from "@/components/ui/PlaceImage";
 import { destinosInfo, fluxoData, ibgeData, transporteData, calcularISA, type Feedback, type DestinoInfo } from "@/data/mockData";
 import { Badge } from "@/components/ui/Badge";
 import { MapPin, Users, Activity, Maximize2 } from "lucide-react";
@@ -108,7 +108,17 @@ export default function DestinosGestaoPage() {
                 >
                   <div>
                     <div className="relative h-44">
-                      <Image src={d.imagem} alt={d.nome} fill sizes="(max-width: 768px) 100vw, 400px" className="object-cover rounded-t-xl" />
+                      <PlaceImage
+                        src={d.imagem}
+                        alt={d.nome}
+                        local={d.nome}
+                        latitude={d.latitude}
+                        longitude={d.longitude}
+                        variant="card"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 400px"
+                        className="object-cover rounded-t-xl"
+                      />
                       <div className="absolute top-2 right-2 flex gap-1">
                         <Badge variant={fluxo && fluxo.saturacao_turistica > 75 ? "danger" : "success"} size="sm">
                           Saturação: {fluxo?.saturacao_turistica || 0}%
@@ -197,7 +207,17 @@ export default function DestinosGestaoPage() {
                   >
                     <div>
                       <div className="relative h-44">
-                        <Image src={d.imagem} alt={d.nome} fill sizes="(max-width: 768px) 100vw, 400px" className="object-cover rounded-t-xl grayscale-[15%]" />
+                        <PlaceImage
+                          src={d.imagem}
+                          alt={d.nome}
+                          local={d.nome}
+                          latitude={d.latitude}
+                          longitude={d.longitude}
+                          variant="card"
+                          fill
+                          sizes="(max-width: 768px) 100vw, 400px"
+                          className="object-cover rounded-t-xl grayscale-[15%]"
+                        />
                         <div className="absolute top-2 right-2">
                           <Badge variant="warning" size="sm">Sensores Inativos</Badge>
                         </div>
@@ -267,13 +287,19 @@ export default function DestinosGestaoPage() {
           title={detailSpot.nome}
           subtitle={detailSpot.municipio}
           icon={
-            <Image
-              src={detailSpot.imagem}
-              alt=""
-              width={44}
-              height={44}
-              className="h-11 w-11 rounded-xl object-cover flex-shrink-0"
-            />
+            <div className="relative h-11 w-11 rounded-xl overflow-hidden flex-shrink-0">
+              <PlaceImage
+                src={detailSpot.imagem}
+                alt=""
+                local={detailSpot.nome}
+                latitude={detailSpot.latitude}
+                longitude={detailSpot.longitude}
+                variant="thumb"
+                fill
+                sizes="44px"
+                className="object-cover"
+              />
+            </div>
           }
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[11px]">

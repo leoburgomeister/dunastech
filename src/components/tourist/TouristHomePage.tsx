@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
@@ -18,6 +17,7 @@ import { addFeedback } from '@/lib/firebase';
 import { cn, slugify } from '@/lib/utils';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { PlaceImage } from '@/components/ui/PlaceImage';
 import { destinosInfo, fluxoData, cadasturData, calcularISA } from '@/data/mockData';
 import type { Feedback, DestinoInfo } from '@/data/mockData';
 import { useSupabaseSync } from '@/lib/supabase-data';
@@ -1807,19 +1807,31 @@ export default function TouristHomePage() {
           {/* Indicador de scroll: trilho fino com o ponto descendo, no lugar do
               desenho de mouse — a cena 3D ja e o elemento pesado do hero.
               Pousa sobre o satelite, entao usa branco proprio em vez dos tokens
-              de superficie, que sumiriam na foto. */}
-          <button
-            type="button"
-            onClick={() => document.getElementById('recommended-destinations')?.scrollIntoView({ behavior: 'smooth' })}
-            className="absolute bottom-6 left-6 hidden lg:flex flex-col items-center gap-2.5 z-20 cursor-pointer group bg-transparent border-0 p-1 rounded-lg [text-shadow:0_1px_8px_rgba(0,0,0,0.6)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
-          >
-            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/80 group-hover:text-white transition-colors">
-              Explorar Destinos
-            </span>
-            <span className="relative block h-10 w-px overflow-hidden bg-white/35 group-hover:bg-white/60 transition-colors">
-              <span className="scroll-hint-dot absolute left-1/2 h-2.5 w-[3px] rounded-full bg-white/80 group-hover:bg-white transition-colors" />
-            </span>
-          </button>
+              de superficie, que sumiriam na foto.
+
+              Centrado na AREA DO MAPA, nao no hero inteiro: o painel come a
+              direita, e centralizar em 50% da tela jogaria o indicador contra a
+              borda dele. A largura e a mesma conta que o painel usa
+              (min(30rem,42vw) + a margem de 1.5rem), entao ele fica no meio da
+              faixa de mapa que sobra — a ~16px do eixo otico da camera, que
+              tambem desconta o padding esquerdo de 56px.
+
+              O wrapper posiciona e o botao continua do tamanho do conteudo: um
+              botao de 1400px de largura interceptaria clique de toda a faixa. */}
+          <div className="pointer-events-none absolute bottom-6 left-0 z-20 hidden w-[calc(100%-min(30rem,42vw)-1.5rem)] justify-center lg:flex">
+            <button
+              type="button"
+              onClick={() => document.getElementById('recommended-destinations')?.scrollIntoView({ behavior: 'smooth' })}
+              className="pointer-events-auto flex flex-col items-center gap-2.5 cursor-pointer group bg-transparent border-0 p-1 rounded-lg [text-shadow:0_1px_8px_rgba(0,0,0,0.6)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            >
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/80 group-hover:text-white transition-colors">
+                Explorar Destinos
+              </span>
+              <span className="relative block h-10 w-px overflow-hidden bg-white/35 group-hover:bg-white/60 transition-colors">
+                <span className="scroll-hint-dot absolute left-1/2 h-2.5 w-[3px] rounded-full bg-white/80 group-hover:bg-white transition-colors" />
+              </span>
+            </button>
+          </div>
 
       </section>
 
@@ -1848,9 +1860,15 @@ export default function TouristHomePage() {
                   
                   {/* Larger Image Section */}
                   <div className="relative h-64 w-full overflow-hidden">
-                    <Image
-                      src={dest.imagem || '/images/destinations/hero_ponta_negra.png'}
+                    <PlaceImage
+                      src={dest.imagem}
                       alt={dest.nome}
+                      local={dest.nome}
+                      latitude={dest.latitude}
+                      longitude={dest.longitude}
+                      mapLabel={dest.municipio}
+                      variant="card"
+                      showMapLabel={false}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -1934,9 +1952,13 @@ export default function TouristHomePage() {
                 <div className="surface-card-interactive p-4 flex flex-col sm:flex-row items-center gap-4 text-left">
                   {/* Left: Image */}
                   <div className="relative h-20 w-20 sm:h-24 sm:w-24 rounded-2xl overflow-hidden flex-shrink-0">
-                    <Image
-                      src={dest.imagem || '/images/destinations/hero_ponta_negra.png'}
+                    <PlaceImage
+                      src={dest.imagem}
                       alt={dest.nome}
+                      local={dest.nome}
+                      latitude={dest.latitude}
+                      longitude={dest.longitude}
+                      variant="thumb"
                       fill
                       className="object-cover transition-transform duration-300 group-hover:scale-105"
                       sizes="96px"

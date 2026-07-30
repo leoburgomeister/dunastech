@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "cache:rotas": "tsx scripts/gerar-cache-osrm.mts"
+    "cache:rotas": "tsx scripts/gerar-cache-osrm.mts",
+    "gerar:contorno-rn": "node scripts/gerar-contorno-rn.mjs public/geo/rn.geojson src/data/rnOutline.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
