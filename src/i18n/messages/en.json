@@ -388,6 +388,9 @@
       "stewardship": "Eco stewardship",
       "liveData": "Live data"
     },
-    "clearSearch": "Clear search"
+    "clearSearch": "Clear search",
+    "durationMinus": "Remove one day",
+    "durationPlus": "Add one day",
+    "daysCount": "{count, plural, one {# Day} other {# Days}}"
   }
 }

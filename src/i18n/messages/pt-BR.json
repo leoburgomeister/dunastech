@@ -388,6 +388,9 @@
       "stewardship": "Zeladoria ecológica",
       "liveData": "Dados em tempo real"
     },
-    "clearSearch": "Limpar busca"
+    "clearSearch": "Limpar busca",
+    "durationMinus": "Diminuir um dia",
+    "durationPlus": "Aumentar um dia",
+    "daysCount": "{count, plural, one {# Dia} other {# Dias}}"
   }
 }

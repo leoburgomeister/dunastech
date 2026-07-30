@@ -606,7 +606,11 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
 
   useEffect(() => {
     const map = mapInstance;
-    if (!map || hasRoute) return;
+    // So sobre satelite. A etiqueta e branca porque a imagem de satelite do RN
+    // e escura (agua, mata, asfalto); no fallback 2D o estilo do Carto e claro e
+    // ela sumiria. Ali o contorno dourado do estado e o badge do painel ja dizem
+    // onde estamos.
+    if (!map || hasRoute || !is3D(mapMode)) return;
 
     const el = document.createElement('div');
     el.className = 'rn-label';
@@ -632,7 +636,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       marker.remove();
       rnLabelRef.current = null;
     };
-  }, [mapInstance, hasRoute]);
+  }, [mapInstance, hasRoute, mapMode]);
 
   // Pin do atrativo sorteado, com o ISA. So existe no hero: com roteiro
   // gerado quem manda sao os marcadores numerados da rota, e com destino

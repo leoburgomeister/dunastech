@@ -388,6 +388,9 @@
       "stewardship": "Cuidado ecológico",
       "liveData": "Datos en vivo"
     },
-    "clearSearch": "Limpiar búsqueda"
+    "clearSearch": "Limpiar búsqueda",
+    "durationMinus": "Quitar un día",
+    "durationPlus": "Añadir un día",
+    "daysCount": "{count, plural, one {# Día} other {# Días}}"
   }
 }
