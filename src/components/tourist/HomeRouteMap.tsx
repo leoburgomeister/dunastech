@@ -5,25 +5,24 @@ import maplibregl from 'maplibre-gl';
 import { Play, Square } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { type DestinoInfo } from '@/data/mockData';
-import { cn, slugify } from '@/lib/utils';
+import { slugify } from '@/lib/utils';
 import { resolveMapMode, is3D, type MapMode } from '@/lib/map/mapMode';
 import {
   buildStyleUrl,
-  apply3DScene,
+  applySky,
+  applyTerrain,
+  applyOpeningFraming,
+  OPENING_FALLBACK_CAMERA,
   CINEMATIC_PITCH,
   CINEMATIC_FLY_DURATION_MS,
   PLAIN_FIT_DURATION_MS,
   GENIPABU_CENTER,
   GENIPABU_ZOOM,
-  RN_BOUNDS,
-  RN_OVERVIEW_PITCH,
   INTRO_HOLD_MS,
   INTRO_DIVE_MS,
   DESTINATION_ZOOM,
   DESTINATION_FLY_MS,
   overviewPadding,
-  RN_CENTER,
-  RN_OVERVIEW_ZOOM,
 } from '@/lib/map/scene3d';
 import {
   createOrbitController,
@@ -40,18 +39,13 @@ import {
   extractRings,
   buildMaskFeature,
   buildOutlineFeature,
+  highlightLayers,
   RN_GEOJSON_URL,
   RN_MASK_SOURCE_ID,
   RN_OUTLINE_SOURCE_ID,
-  RN_MASK_LAYER_ID,
-  RN_OUTLINE_LAYER_ID,
-  RN_GLOW_OUTER_LAYER_ID,
-  RN_GLOW_INNER_LAYER_ID,
-  RN_GLOW,
-  RN_ACCENT,
-  zoomRamp,
-  fadeByZoom,
+  RN_LABEL_ANCHOR,
   RN_FADE_END_ZOOM,
+  type Ring,
 } from '@/lib/map/rnHighlight';
 import { createFallbackWatcher, type MapErrorLike } from '@/lib/map/fallback';
 import {
@@ -70,6 +64,39 @@ import {
 
 /** Constante de modulo para nao criar array novo a cada render. */
 const SEM_ROTA: DestinoInfo[] = [];
+
+/**
+ * Chave do MapTiler. Constante de modulo porque o Next inlineia
+ * process.env.NEXT_PUBLIC_* no build: ler em tres lugares diferentes so
+ * espalhava a mesma string literal pelo arquivo.
+ */
+const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY;
+
+/**
+ * Malha do RN, buscada uma vez e compartilhada por qualquer instancia do mapa.
+ *
+ * Antes o fetch morava dentro do 'load', ou seja, so COMECAVA depois de o
+ * estilo inteiro do MapTiler chegar — e as camadas do destaque pousavam num
+ * momento imprevisivel, sempre depois do primeiro quadro. Disparado no mount,
+ * o arquivo (estatico, em /public) quase sempre ja chegou quando o 'load'
+ * acontece, e o destaque nasce junto com o mapa.
+ */
+let malhaRN: Promise<Ring[]> | null = null;
+
+function carregarMalhaRN(): Promise<Ring[]> {
+  malhaRN ??= fetch(RN_GEOJSON_URL)
+    .then((r) => r.json())
+    .then(extractRings)
+    .catch((e) => {
+      // Destaque e enfeite: sem ele o mapa segue funcionando. Zera o cache
+      // para uma falha de rede momentanea nao condenar a sessao inteira — uma
+      // promise rejeitada memoizada faria toda tentativa seguinte falhar.
+      console.warn('Contorno do RN indisponivel:', e);
+      malhaRN = null;
+      return [];
+    });
+  return malhaRN;
+}
 
 interface HomeRouteMapProps {
   destinations: (DestinoInfo & { dia?: number; emoji?: string })[];
@@ -110,6 +137,16 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
   const [following, setFollowing] = useState(false);
   /** Abertura concluida: so entao a orbita assume a camera. */
   const [introDone, setIntroDone] = useState(false);
+  /**
+   * O evento 'load' do mapa ja passou.
+   *
+   * Estado proprio porque nao ha como perguntar isso ao MapLibre: `loaded()` e
+   * `isStyleLoaded()` voltam false enquanto houver tile em voo, e nao apenas
+   * antes do estilo ficar pronto. Usar um dos dois como porta num efeito e
+   * armadilha — quando a condicao e falsa o efeito desiste, e se as
+   * dependencias nao mudarem mais ele nunca roda de novo.
+   */
+  const [estiloCarregado, setEstiloCarregado] = useState(false);
 
   /**
    * Destino da abertura, sorteado uma vez por carregamento. Lazy initializer
@@ -149,7 +186,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
   // entao window ja existe no primeiro render. O guard cobre import direto.
   const [modoResolvido] = useState<MapMode>(() =>
     resolveMapMode({
-      maptilerKey: process.env.NEXT_PUBLIC_MAPTILER_KEY,
+      maptilerKey: MAPTILER_KEY,
       force2d: process.env.NEXT_PUBLIC_MAP_2D === '1',
       prefersReducedMotion:
         typeof window !== 'undefined' &&
@@ -171,17 +208,33 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
   // No modo 3D o estilo e satelite, entao nao ha variante clara/escura e
   // trocar de tema tambem nao recria o mapa. A alternancia so vale no 2D.
   const styleUrl = useMemo(() => {
-    const maptilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
-    if (is3D(mapMode) && maptilerKey) return buildStyleUrl(maptilerKey);
+    if (is3D(mapMode) && MAPTILER_KEY) return buildStyleUrl(MAPTILER_KEY);
     return resolvedTheme === 'dark'
       ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
       : 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json';
   }, [mapMode, resolvedTheme]);
 
+  /**
+   * Da para criar o mapa sem que styleUrl mude logo depois?
+   *
+   * No 2D o estilo depende do tema, e resolvedTheme nasce `undefined` no
+   * primeiro render do cliente: criar o mapa ali significava recriar o mapa
+   * inteiro alguns milissegundos depois, quando o next-themes resolvesse — um
+   * flash. No 3D o estilo e satelite e nao olha o tema, entao nao ha o que
+   * esperar. Booleano em vez de resolvedTheme na dependencia do init de
+   * proposito: a string muda no 3D tambem, e isso recriaria o mapa a troco de
+   * nada.
+   */
+  const styleReady = is3D(mapMode) || !!resolvedTheme;
+
   useEffect(() => {
     setTimeout(() => {
       setMounted(true);
     }, 0);
+
+    // Adiantado de proposito: o destaque do RN depende deste arquivo e o mapa
+    // ainda vai levar centenas de milissegundos para carregar o estilo.
+    carregarMalhaRN();
 
     return () => {
       if (animationFrameRef.current !== null) {
@@ -193,21 +246,36 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
 
   // Initialize Map
   useEffect(() => {
-    if (!mounted || !mapContainerRef.current) return;
-
-    const maptilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
+    const container = mapContainerRef.current;
+    if (!mounted || !styleReady || !container) return;
 
     const map = new maplibregl.Map({
-      container: mapContainerRef.current,
+      container,
       style: styleUrl,
-      // Nasce no plano aberto do estado, nao no atrativo. Com roteiro gerado
-      // o fitBounds da rota assume logo em seguida.
-      center: rotaAoMontar ? heroCenter : RN_CENTER,
-      zoom: rotaAoMontar ? heroZoom : RN_OVERVIEW_ZOOM,
-      pitch: rotaAoMontar ? CINEMATIC_PITCH : RN_OVERVIEW_PITCH,
+      // Com roteiro gerado a camera nasce no atrativo e o fitBounds da rota
+      // assume logo em seguida. Sem roteiro nasce no plano aberto do estado —
+      // quadro de partida seguro, refinado na linha seguinte.
+      ...(rotaAoMontar
+        ? { center: heroCenter, zoom: heroZoom, pitch: CINEMATIC_PITCH, bearing: 0 }
+        : OPENING_FALLBACK_CAMERA),
       interactive: isInteractive,
       attributionControl: false
     });
+
+    // Sincrono, antes do primeiro paint: o padding do painel vai para o
+    // transform e o estado e enquadrado na area que sobra. Isso ANTES ficava
+    // num fitBounds dentro do 'load', ou seja, depois do primeiro quadro — e o
+    // salto entre um quadro e outro era a piscada da abertura.
+    if (!rotaAoMontar) {
+      applyOpeningFraming(map, container.clientWidth, container.clientHeight);
+    }
+
+    /**
+     * O mapa foi destruido? Os callbacks assincronos abaixo (fetch da malha e o
+     * requestAnimationFrame do fade) podem chegar depois do unmount, e tocar em
+     * getStyle/addLayer num mapa removido estoura.
+     */
+    let removido = false;
 
     // Vigia de degradacao. Classificacao medida no browser: falha de estilo
     // vem sem sourceId e com error.status 403, e o 'load' nunca dispara —
@@ -231,67 +299,50 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     }
 
     map.on('load', () => {
-      if (is3D(mapMode) && maptilerKey) {
+      setEstiloCarregado(true);
+
+      // Ceu e atmosfera. O terreno NAO entra aqui: ele so faz sentido perto e
+      // ligado agora empilharia um reajuste de geometria no primeiro quadro.
+      // Quem liga e o efeito do relevo, quando a camera chega.
+      if (is3D(mapMode) && MAPTILER_KEY) {
         try {
-          apply3DScene(map, maptilerKey);
+          applySky(map);
         } catch (e) {
-          // Tiles ou terreno indisponiveis: seguimos com o mapa plano em vez de quebrar a home.
-          console.warn('Cena 3D indisponivel, mantendo mapa plano:', e);
+          // Ceu indisponivel: seguimos com o mapa sem atmosfera em vez de
+          // quebrar a home.
+          console.warn('Ceu indisponivel, seguindo sem atmosfera:', e);
         }
       }
 
       // Destaque do RN. Assincrono, entao entra abaixo da rota via beforeId —
       // senao a mascara pousaria por cima da linha do roteiro.
-      fetch(RN_GEOJSON_URL)
-        .then((r) => r.json())
-        .then((raw) => {
-          const rings = extractRings(raw);
-          if (!rings.length || !map.getStyle() || map.getSource(RN_MASK_SOURCE_ID)) return;
-          const abaixoDaRota = map.getLayer('route-line-bg') ? 'route-line-bg' : undefined;
+      carregarMalhaRN().then((rings) => {
+        if (removido || !rings.length) return;
+        if (!map.getStyle() || map.getSource(RN_MASK_SOURCE_ID)) return;
+        const abaixoDaRota = map.getLayer('route-line-bg') ? 'route-line-bg' : undefined;
 
-          map.addSource(RN_MASK_SOURCE_ID, { type: 'geojson', data: buildMaskFeature(rings) });
-          map.addLayer({
-            id: RN_MASK_LAYER_ID,
-            type: 'fill',
-            source: RN_MASK_SOURCE_ID,
-            paint: { 'fill-color': '#04121E', 'fill-opacity': fadeByZoom(0.55) },
-          } as maplibregl.LayerSpecification, abaixoDaRota);
+        map.addSource(RN_MASK_SOURCE_ID, { type: 'geojson', data: buildMaskFeature(rings) });
+        map.addSource(RN_OUTLINE_SOURCE_ID, { type: 'geojson', data: buildOutlineFeature(rings) });
 
-          map.addSource(RN_OUTLINE_SOURCE_ID, { type: 'geojson', data: buildOutlineFeature(rings) });
+        const camadas = highlightLayers();
+        for (const { id, type, source, layout, paint } of camadas) {
+          map.addLayer(
+            { id, type, source, ...(layout ? { layout } : {}), paint } as maplibregl.LayerSpecification,
+            abaixoDaRota
+          );
+        }
 
-          // Aura: da mais larga e difusa para a mais fechada, e so entao a
-          // linha nitida. A ordem importa — invertida, o borrao lava o traco.
-          const halo = { 'line-join': 'round', 'line-cap': 'round' } as const;
-          for (const [id, cfg] of [
-            [RN_GLOW_OUTER_LAYER_ID, RN_GLOW.outer],
-            [RN_GLOW_INNER_LAYER_ID, RN_GLOW.inner],
-          ] as const) {
-            map.addLayer({
-              id,
-              type: 'line',
-              source: RN_OUTLINE_SOURCE_ID,
-              layout: halo,
-              paint: {
-                'line-color': RN_ACCENT,
-                'line-width': zoomRamp(cfg.width),
-                'line-blur': zoomRamp(cfg.blur),
-                'line-opacity': fadeByZoom(cfg.opacity),
-              },
-            } as maplibregl.LayerSpecification, abaixoDaRota);
+        // Opacidade real so no quadro seguinte. As camadas nascem em zero com a
+        // transicao declarada na paint, entao esta troca vira um fade de 900ms
+        // — antes a mascara pousava opaca de uma vez e tudo fora do estado
+        // escurecia num piscar.
+        requestAnimationFrame(() => {
+          if (removido || !map.getStyle()) return;
+          for (const { id, opacityProp, finalOpacity } of camadas) {
+            if (map.getLayer(id)) map.setPaintProperty(id, opacityProp, finalOpacity);
           }
-
-          map.addLayer({
-            id: RN_OUTLINE_LAYER_ID,
-            type: 'line',
-            source: RN_OUTLINE_SOURCE_ID,
-            layout: halo,
-            paint: { 'line-color': RN_ACCENT, 'line-width': 1.6, 'line-opacity': fadeByZoom(0.95) },
-          } as maplibregl.LayerSpecification, abaixoDaRota);
-        })
-        .catch((e) => {
-          // Destaque e enfeite: sem ele o mapa segue funcionando.
-          console.warn('Contorno do RN indisponivel:', e);
         });
+      });
 
       // Add route source and layer for animation
       map.addSource('route', {
@@ -338,10 +389,15 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     });
 
     return () => {
+      removido = true;
       map.remove();
       setMapInstance(null);
+      // O mapa que renasce (degradacao para 2D, troca de estilo) dispara o seu
+      // proprio 'load'. Sem zerar aqui, o efeito do relevo veria o flag do mapa
+      // anterior e tentaria ligar terreno num estilo ainda sem fontes.
+      setEstiloCarregado(false);
     };
-  }, [mounted, isInteractive, styleUrl, mapMode, heroCenter, heroZoom, rotaAoMontar]);
+  }, [mounted, styleReady, isInteractive, styleUrl, mapMode, heroCenter, heroZoom, rotaAoMontar]);
 
   // Update Markers and Fit Bounds when destinations change or mapInstance changes
   useEffect(() => {
@@ -463,6 +519,121 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     };
   }, [mapInstance]);
 
+  /**
+   * Relevo. Entra quando a camera chega perto, nao no 'load'.
+   *
+   * O relevo do RN e baixo (dunas de 30-50m, falesias de ~50m) e simplesmente
+   * nao e legivel no plano aberto do estado. Ligado junto com o resto no 'load',
+   * ele so servia para deslocar a geometria do primeiro quadro — parte do
+   * "torto" que aparecia na abertura.
+   *
+   * Amarrado ao mesmo limiar do fade do destaque (RN_FADE_END_ZOOM): um conceito
+   * unico de "perto o bastante para o relevo significar algo", e isso cobre de
+   * graca todos os caminhos de camera — abertura, destino buscado, roteiro
+   * gerado e o modo de movimento reduzido, que salta direto para o destino.
+   */
+  /**
+   * Instala o relevo, se ainda nao estiver instalado.
+   *
+   * Chamado ANTES de cada voo que termina perto — nao no meio dele. O MapLibre
+   * so fixa a referencia de elevacao se `map.terrain` ja existir quando a
+   * transicao comeca: `flyTo` faz `if (this.terrain) this._prepareElevation(targetCenter)`.
+   * Ligar o terreno com o voo em curso cai no auto-conserto de
+   * `_updateElevation`, que chama `_prepareElevation(transform.center)` — o
+   * centro INSTANTANEO da camera em vez do destino — e a altura da camera passa a
+   * convergir para a elevacao de um ponto de passagem, nao a do lugar onde ela
+   * vai parar.
+   *
+   * Idempotente pelo guard de `applyTerrain`, entao pode ser chamado de varios
+   * lugares sem alocar Terrain duas vezes.
+   */
+  // Depende so de mapMode de proposito. `estiloCarregado` fora das dependencias
+  // porque esta funcao entra nas dependencias de EFEITOS, e uma identidade que
+  // muda quando o estilo carrega faria o efeito de abertura remontar no meio da
+  // propria abertura. Quem chama garante que o estilo ja esta pronto; se nao
+  // estiver, applyTerrain lanca e o catch registra. mapMode so muda junto com a
+  // recriacao do mapa, quando remontar e o certo.
+  const garantirRelevo = useCallback((map: maplibregl.Map) => {
+    if (!is3D(mapMode) || !MAPTILER_KEY) return;
+    try {
+      applyTerrain(map, MAPTILER_KEY);
+    } catch (e) {
+      // Estilo ainda cru ou tiles de terreno indisponiveis: seguimos com o mapa
+      // plano. A rede de seguranca abaixo tenta de novo quando o zoom fecha.
+      console.warn('Relevo indisponivel, mantendo o mapa plano:', e);
+    }
+  }, [mapMode]);
+
+  // Rede de seguranca: os caminhos que nao passam por um voo nosso — roteiro ja
+  // gerado ao montar, movimento reduzido (que salta direto) — chegam perto sem
+  // nunca ter chamado garantirRelevo. Aqui o limiar de zoom cobre todos eles.
+  useEffect(() => {
+    const map = mapInstance;
+    if (!map || !estiloCarregado || !zoomProximo) return;
+    garantirRelevo(map);
+  }, [mapInstance, estiloCarregado, zoomProximo, garantirRelevo]);
+
+  /**
+   * Etiqueta do estado, ancorada na terra que ela nomeia.
+   *
+   * Era um overlay fixo em `pl-14 pt-16`, ou seja, grudado no canto superior
+   * esquerdo da tela: colava no header do site e competia com o logo, e ficava
+   * parado enquanto o mapa se movia embaixo. Como marcador, ele desliza junto
+   * com o terreno no mergulho, que e como rotulo de mapa se comporta.
+   */
+  const rnLabelRef = useRef<HTMLDivElement | null>(null);
+  const zoomProximoRef = useRef(false);
+
+  /**
+   * Saida da etiqueta no mergulho.
+   *
+   * Efeito separado do que cria o marcador porque `zoomProximo` nas dependencias
+   * da criacao recriaria o elemento a cada virada — e elemento novo nasce no
+   * estado final, sem transicao, o que e justamente o corte que queremos evitar.
+   * Aqui a classe muda no elemento que JA existe e o CSS anima.
+   *
+   * Declarado ANTES da criacao de proposito: no mesmo commit os efeitos rodam na
+   * ordem de declaracao, entao o espelho em `zoomProximoRef` esta sempre fresco
+   * quando a criacao o le. Sem esse espelho a etiqueta renascia opaca por cima
+   * do close: basta o usuario gerar um roteiro (marcador desmontado, camera em
+   * zoom fechado) e clicar em "Refazer", que zera o roteiro e remonta a etiqueta
+   * com `zoomProximo` ja em true.
+   */
+  useEffect(() => {
+    zoomProximoRef.current = zoomProximo;
+    rnLabelRef.current?.classList.toggle('rn-label--out', zoomProximo);
+  }, [zoomProximo]);
+
+  useEffect(() => {
+    const map = mapInstance;
+    if (!map || hasRoute) return;
+
+    const el = document.createElement('div');
+    el.className = 'rn-label';
+    // Decorativo: o nome do estado ja esta no badge do painel, e um leitor de
+    // tela anunciando-o de novo aqui seria repeticao.
+    el.setAttribute('aria-hidden', 'true');
+    // O texto mora num filho porque o raiz e territorio do MapLibre: ele escreve
+    // transform (posicao) e opacity (Marker._updateOpacity) inline ali a cada
+    // movimento do mapa, e inline vence classe — a saida nao aconteceria.
+    const texto = document.createElement('span');
+    texto.className = 'rn-label-text';
+    texto.textContent = 'Rio Grande do Norte';
+    el.appendChild(texto);
+    // Nasce no estado que a camera pede, nao sempre visivel.
+    el.classList.toggle('rn-label--out', zoomProximoRef.current);
+    rnLabelRef.current = el;
+
+    const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+      .setLngLat(RN_LABEL_ANCHOR)
+      .addTo(map);
+
+    return () => {
+      marker.remove();
+      rnLabelRef.current = null;
+    };
+  }, [mapInstance, hasRoute]);
+
   // Pin do atrativo sorteado, com o ISA. So existe no hero: com roteiro
   // gerado quem manda sao os marcadores numerados da rota, e com destino
   // buscado o pin apontaria para o lugar errado.
@@ -509,12 +680,19 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     const map = mapInstance;
     // Se o usuario ja buscou um destino, a abertura perdeu a vez: a limpeza
     // deste efeito cancela os timers pendentes sozinha.
-    if (!map || hasRoute || focusTarget) return;
+    // Espera o estilo pelo ESTADO, nao por evento. Este efeito rodava
+    // `if (map.loaded()) comecar(); else map.once('load', comecar)`, e as duas
+    // metades tinham defeito: `loaded()` volta false enquanto houver tile em voo,
+    // e o `once('load')` de uma reexecucao posterior nunca dispara, porque o
+    // 'load' aconteceu uma vez so, no comeco. Com `estiloCarregado` na dependencia
+    // o efeito simplesmente roda de novo quando o estilo fica pronto.
+    if (!map || !estiloCarregado || hasRoute || focusTarget) return;
 
     // Com movimento reduzido nao ha mergulho: vai direto ao destino final.
     // Nao mexe em introDone — fora do modo cinematografico a orbita ja sai
     // cedo e ninguem le esse estado.
     if (mapMode !== 'cinematic') {
+      garantirRelevo(map);
       map.jumpTo({ center: heroCenter, zoom: heroZoom });
       return;
     }
@@ -523,19 +701,18 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     let diveTimer: ReturnType<typeof setTimeout> | undefined;
     let cancelled = false;
 
+    // O enquadramento do plano aberto nao e feito aqui: o construtor do mapa ja
+    // nasceu nos bounds do estado. O fitBounds de duracao zero que morava neste
+    // ponto era exatamente o corte seco da abertura — dois quadros diferentes,
+    // um no lugar do outro, sem transicao. Agora a abertura faz uma coisa so:
+    // esperar a plateia ler o contorno e mergulhar.
     const comecar = () => {
-      if (cancelled) return;
-
-      const canvas = map.getCanvas();
-      map.fitBounds(RN_BOUNDS, {
-        padding: overviewPadding(canvas.clientWidth, canvas.clientHeight),
-        pitch: RN_OVERVIEW_PITCH,
-        bearing: 0,
-        duration: 0,
-      });
-
       holdTimer = setTimeout(() => {
         if (cancelled) return;
+        // Relevo ANTES do voo: e o unico momento em que o MapLibre calcula a
+        // elevacao do DESTINO. E o salto de geometria fica escondido pelo
+        // proprio inicio do movimento, no mesmo frame.
+        garantirRelevo(map);
         map.flyTo({
           center: heroCenter,
           zoom: heroZoom,
@@ -552,16 +729,23 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       }, INTRO_HOLD_MS);
     };
 
-    if (map.loaded()) comecar();
-    else map.once('load', comecar);
+    comecar();
 
     return () => {
       cancelled = true;
       clearTimeout(holdTimer);
       clearTimeout(diveTimer);
-      map.off('load', comecar);
     };
-  }, [mapInstance, mapMode, hasRoute, focusTarget, heroCenter, heroZoom]);
+  }, [
+    mapInstance,
+    estiloCarregado,
+    mapMode,
+    hasRoute,
+    focusTarget,
+    heroCenter,
+    heroZoom,
+    garantirRelevo,
+  ]);
 
   // Busca confirmada com Enter: a camera voa ate o lugar pedido e a orbita
   // retoma la. Nao reagimos a cada tecla de proposito — reenquadrar a cada
@@ -570,6 +754,9 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     const map = mapInstance;
     if (!map || !focusTarget || hasRoute) return;
 
+    // Mesmo motivo do mergulho: o relevo entra antes, para a elevacao ser medida
+    // no destino pedido e nao num ponto do caminho.
+    garantirRelevo(map);
     map.flyTo({
       center: [focusTarget.longitude, focusTarget.latitude],
       zoom: DESTINATION_ZOOM,
@@ -577,7 +764,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       duration: mapMode === 'cinematic' ? DESTINATION_FLY_MS : 0,
       curve: 1.3,
     });
-  }, [mapInstance, mapMode, hasRoute, focusTarget]);
+  }, [mapInstance, mapMode, hasRoute, focusTarget, garantirRelevo]);
 
   // Orbita lenta: so no modo cinematografico, so apos o load, e so com a aba visivel.
   useEffect(() => {
@@ -593,36 +780,29 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     });
     orbitRef.current = orbit;
 
-    let ready = map.loaded();
-
+    // Prontidao vem de `estiloCarregado`, nao de `map.loaded()` + once('load').
+    // O par antigo tinha a mesma armadilha dos outros efeitos: `loaded()` volta
+    // false enquanto houver tile em voo, e este efeito reexecuta quando
+    // `introDone` vira — numa reexecucao o `once('load')` nunca dispara, porque o
+    // 'load' ja passou, e a orbita nunca comecava.
     const syncOrbit = () => {
       // Com destino buscado a orbita nao espera a abertura: ela foi cancelada.
-      if (ready && (introDone || !!focusTarget) && !document.hidden) {
+      if (estiloCarregado && (introDone || !!focusTarget) && !document.hidden) {
         orbit.start();
       } else {
         orbit.stop();
       }
     };
 
-    const handleLoad = () => {
-      ready = true;
-      syncOrbit();
-    };
-
-    if (ready) {
-      syncOrbit();
-    } else {
-      map.once('load', handleLoad);
-    }
+    syncOrbit();
     document.addEventListener('visibilitychange', syncOrbit);
 
     return () => {
       document.removeEventListener('visibilitychange', syncOrbit);
-      map.off('load', handleLoad);
       orbit.destroy();
       orbitRef.current = null;
     };
-  }, [mapInstance, mapMode, introDone, focusTarget]);
+  }, [mapInstance, estiloCarregado, mapMode, introDone, focusTarget]);
 
   // A linha desenhada e o caminho do voo seguem o roteiro completo; os
   // marcadores continuam sendo os do dia aberto.
@@ -637,9 +817,13 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     const destinations = pathDestinations;
     // Sem roteiro nao ha rota: no hero a camera e um plano fixo sobre as dunas,
     // e uma linha ligando destinos cruzaria o quadro sem significar nada.
-    if (!map || !hasRoute || destinations.length < 2) {
+    if (!map || !estiloCarregado || !hasRoute || destinations.length < 2) {
       routeCoordsRef.current = [];
-      if (map && map.isStyleLoaded() && map.getSource('route')) {
+      // getSource em vez de isStyleLoaded: apagar a linha antiga nao pode
+      // depender de nao haver tile em voo, que e o que isStyleLoaded mede. Com
+      // esse guard, trocar de roteiro enquanto tiles carregavam deixava o traco
+      // anterior no mapa.
+      if (map && estiloCarregado && map.getSource('route')) {
         const source = map.getSource('route') as maplibregl.GeoJSONSource;
         source.setData({
           type: 'Feature',
@@ -740,18 +924,25 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       step();
     };
 
-    if (map.isStyleLoaded()) {
-      fetchAndAnimateRoute();
-    } else {
-      map.on('style.load', fetchAndAnimateRoute);
-    }
+    // O efeito so chega aqui com `estiloCarregado` verdadeiro, entao as fontes e
+    // camadas de rota criadas no 'load' ja existem e da para desenhar direto.
+    //
+    // Antes isto era `if (map.isStyleLoaded()) desenha(); else map.on('style.load',
+    // desenha)`, e as duas metades tinham defeito. `isStyleLoaded()` volta false
+    // enquanto QUALQUER tile esta em voo, nao apenas antes do estilo ficar
+    // pronto — entao gerar um roteiro com a rede ocupada caia no else. E o else
+    // era pior: 'style.load' dispara uma vez so, na criacao do mapa, e nessa
+    // altura ja passou — o handler nunca rodava (e nunca era removido na
+    // limpeza). Resultado: roteiro gerado e nenhuma linha desenhada, sem erro
+    // nenhum no console.
+    fetchAndAnimateRoute();
 
     return () => {
       if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [pathDestinations, mapInstance, hasRoute]);
+  }, [pathDestinations, mapInstance, estiloCarregado, hasRoute]);
 
   // Encerra o voo devolvendo a camera exatamente de onde ela saiu, em vez de
   // largar onde o ultimo ponto caiu ou reenquadrar a rota inteira — o usuario
@@ -805,30 +996,9 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       {/* Dynamic Overlay styling for Dark Map theme */}
       <div className="absolute inset-0 pointer-events-none border border-slate-800/10 rounded-2xl" />
 
-      {/* Nome do estado no plano aberto. Fica no ALTO da area visivel, nao no
-          meio: centralizado ele pousava em cima do proprio contorno do estado
-          e os dois competiam. Sempre montado, so mudando opacidade — assim a
-          saida e um fade e nao um corte seco. */}
-      {!hasRoute && (
-        <div
-          className={cn(
-            'pointer-events-none absolute inset-x-0 top-0 z-10 hidden flex-col pl-14 pt-16 lg:flex',
-            'transition-opacity duration-700 ease-[cubic-bezier(0.17,0.84,0.44,1)]',
-            zoomProximo ? 'opacity-0' : 'opacity-100'
-          )}
-          style={{ width: 'calc(100% - min(30rem, 42vw) - 3rem)' }}
-          aria-hidden={zoomProximo}
-        >
-          <span className="text-[11px] font-bold uppercase tracking-[0.32em] text-white/70 [text-shadow:0_1px_10px_rgba(0,0,0,0.7)]">
-            Observatório
-          </span>
-          <span className="mt-1 font-[family-name:var(--font-heading)] text-4xl font-bold leading-[0.95] tracking-[-0.03em] text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.65)] xl:text-5xl">
-            Rio Grande
-            <br />
-            do Norte
-          </span>
-        </div>
-      )}
+      {/* A etiqueta do estado nao vive mais aqui: virou um marcador ancorado na
+          malha do RN, montado no efeito acima. Como overlay fixo ela colava no
+          header do site e ficava parada enquanto o mapa se movia. */}
 
       {hasRoute && routeReady && pathDestinations.length > 1 && (
         <button

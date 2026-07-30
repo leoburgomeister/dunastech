@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import {
   MapPin, Star, Users, ArrowRight, Shield, Sparkles,
-  ShieldAlert, CheckCircle, Navigation, Eye, Search, X,
+  ShieldAlert, CheckCircle, Eye, Search, X,
   ChevronDown, ChevronUp, Clock, Info, Printer, Share2,
   ClipboardCheck, Send, ThumbsUp, ThumbsDown,
   Waves, Shell, Leaf, Landmark, UtensilsCrossed,
@@ -422,59 +422,16 @@ export default function TouristHomePage() {
                 {step === 1 ? (
                   /* STEP 1: Basic Route Options */
                   <div className="space-y-4">
-                    {/* What we offer checklist */}
-                    <div className="space-y-2.5 pb-2 border-b border-[var(--color-border-light)] bg-[var(--color-surface-alt)]/30 p-3.5 rounded-2xl">
-                      <span className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
-                        O que oferecemos:
-                      </span>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-left">
-                        {[
-                          { icon: Route, title: 'Roteiros Inteligentes', desc: 'Rotas otimizadas por IA para os paraísos do RN.' },
-                          { icon: ShieldCheck, title: 'Guias com Cadastur', desc: 'Conexão direta com operadores 100% legalizados.' },
-                          { icon: Leaf, title: 'Zeladoria Ecológica', desc: 'Auditoria social de preservação em 3 cliques.' },
-                          { icon: BarChart3, title: 'Painel Observatório', desc: 'Dados em tempo real para controle sustentável.' },
-                        ].map(({ icon: Icon, title, desc }) => (
-                          <div key={title} className="flex gap-2.5 items-start">
-                            <Icon
-                              className="h-4 w-4 mt-0.5 shrink-0 text-[var(--color-primary)]"
-                              strokeWidth={1.75}
-                            />
-                            <div>
-                              <span className="text-xs font-bold text-[var(--color-text)] block leading-tight">{title}</span>
-                              <span className="text-[11px] text-[var(--color-text-secondary)] block mt-1 leading-snug">{desc}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    {/* Destination Search */}
-                    <div className="space-y-1.5">
-                      <label htmlFor="home-search" className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
-                        Buscar destino específico
-                      </label>
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--color-text-muted)] pointer-events-none" />
-                        <input
-                          id="home-search"
-                          type="text"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          onKeyDown={handleSearchKeyDown}
-                          placeholder="Ex: Pipa, Genipabu, Natal... (Enter para ver no mapa)"
-                          className="w-full h-9 pl-9 pr-8 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-alt)]/40 text-xs text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-border-focus)]"
-                        />
-                        {searchQuery && (
-                          <button
-                            type="button"
-                            onClick={() => { setSearchQuery(''); setFocusedDest(null); }}
-                            aria-label="Limpar busca"
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
-                          >
-                            <X className="h-3.5 w-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
+                    {/* O card "O que oferecemos" saiu daqui. Eram 4 itens com
+                        titulo E descricao — ~70 palavras de argumento
+                        institucional (Cadastur, Zeladoria, Painel) empurrando a
+                        primeira pergunta de verdade para o sexto bloco do
+                        painel. Virou a faixa de selos no pe, so icone e rotulo.
+
+                        A busca por destino tambem desceu, para depois do CTA: o
+                        painel abre com "como voce viaja?", que e o que a POTI
+                        faz de diferente. Quem ja sabe o destino acha o campo
+                        logo abaixo. */}
 
                     {/* Travel Style Selection */}
                     <div className="space-y-1.5">
@@ -568,6 +525,46 @@ export default function TouristHomePage() {
                       <span>{t('nextStep')}</span>
                       <ArrowRight className="h-3.5 w-3.5 shrink-0" />
                     </button>
+
+                    {/* Atalho para quem ja tem destino em mente. Fica DEPOIS do
+                        CTA e sem label em caixa alta: e caminho alternativo, nao
+                        campo do formulario. Enter leva a camera ao lugar. */}
+                    <div className="pt-1">
+                      <label htmlFor="home-search" className="text-[11px] text-[var(--color-text-muted)] block mb-1.5">
+                        {t('searchNudge')}
+                      </label>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--color-text-muted)] pointer-events-none" />
+                        <input
+                          id="home-search"
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          onKeyDown={handleSearchKeyDown}
+                          placeholder={t('startPointPlaceholder')}
+                          aria-describedby="home-search-hint"
+                          className="w-full h-9 pl-9 pr-8 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-alt)]/40 text-xs text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-border-focus)]"
+                        />
+                        {searchQuery && (
+                          <button
+                            type="button"
+                            onClick={() => { setSearchQuery(''); setFocusedDest(null); }}
+                            aria-label={t('clearSearch')}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
+                      {/* Visivel, nao sr-only: Enter e a UNICA forma de
+                          disparar a busca — a lupa e decorativa e nao ha
+                          submit. Escondida, o usuario digita, nada se move e a
+                          leitura e de campo quebrado. O aria-describedby segue
+                          apontando para ca, entao serve aos dois publicos. */}
+                      <span id="home-search-hint" className="mt-1 block text-[10px] text-[var(--color-text-muted)]">
+                        {t('searchHint')}
+                      </span>
+                    </div>
                   </div>
                 ) : (
                   /* STEP 2: Advanced/Detailed Profile & Budget */
@@ -681,10 +678,26 @@ export default function TouristHomePage() {
                   </div>
                 )}
 
-                {/* Footer Certifications */}
-                <div className="flex items-center gap-4 text-[11px] text-[var(--color-text-muted)] justify-center pt-2">
-                  <span className="flex items-center gap-1"><Shield className="h-3.5 w-3.5 text-[var(--color-success)]" /> {t('cadasturCert')}</span>
-                  <span className="flex items-center gap-1"><Navigation className="h-3.5 w-3.5 text-[var(--color-primary)]" /> {t('activeGps')}</span>
+                {/* Selos. Herdeiros do card "O que oferecemos" e do rodape de
+                    certificacoes, que diziam a mesma coisa duas vezes ("100%
+                    Cadastur" logo abaixo de "Guias com Cadastur"). Aqui provam
+                    o diferencial sem gastar frase: icone e rotulo, e o
+                    argumento longo fica para quem rolar a pagina. */}
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 pt-3 border-t border-[var(--color-border-light)]">
+                  {[
+                    { icon: Route, label: t('seals.ai') },
+                    { icon: ShieldCheck, label: t('seals.cadastur') },
+                    { icon: Leaf, label: t('seals.stewardship') },
+                    { icon: BarChart3, label: t('seals.liveData') },
+                  ].map(({ icon: Icon, label }) => (
+                    <span
+                      key={label}
+                      className="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--color-text-secondary)]"
+                    >
+                      <Icon className="h-3.5 w-3.5 shrink-0 text-[var(--color-primary)]" strokeWidth={1.75} />
+                      {label}
+                    </span>
+                  ))}
                 </div>
               </div>
             ) : (

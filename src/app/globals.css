@@ -641,6 +641,62 @@ input[type="number"]::-webkit-outer-spin-button {
    sem carregar nenhuma informacao — todo marcador pulsava igual, entao o
    pulso nao distinguia nada. */
 
+/* ── Etiqueta do estado no plano aberto da home ────────────────────── */
+/* Rotulo de mapa, nao titulo de pagina: pequeno, em caixa alta espacada, sobre
+   a terra que nomeia. Antes era um h1 de 48px no canto superior esquerdo, que
+   competia com o logo do header e com o proprio contorno do estado.
+
+   A opacidade NAO mora no elemento raiz. Duas razoes independentes:
+
+   1. O Marker do MapLibre escreve `style.opacity` INLINE no raiz a cada
+      movimento do mapa (Marker._updateOpacity), e declaracao inline vence regra
+      de classe sem !important — a saida simplesmente nao aconteceria.
+   2. O raiz tambem recebe `transform` do MapLibre para posicionamento, entao ja
+      e territorio da biblioteca. Mesma divisao que o .hero-pin usa.
+
+   Por isso o texto vive num filho, e e nele que a opacidade transita. */
+.rn-label {
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* Estado base VISIVEL, e a saida por transicao — nunca o contrario.
+   A etiqueta ja nasceu invisivel uma vez, quando a entrada era
+   `opacity: 0` + `@keyframes`: em aba sem composicao de frames o relogio da
+   animacao nao avança, ela congela na fase de atraso e o rotulo nunca aparece.
+   Visibilidade nao pode depender de animacao rodar. */
+.rn-label-text {
+  display: block;
+  font-family: var(--font-heading), sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.92);
+  /* Duas sombras: uma fechada para separar da imagem de satelite e uma larga
+     para o texto sobreviver sobre areia clara. */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85), 0 2px 18px rgba(0, 0, 0, 0.65);
+  opacity: 1;
+  transition: opacity 700ms var(--ease);
+}
+
+/* Saida no mergulho, no mesmo limiar de zoom em que o contorno do estado
+   termina de sumir. Sem transicao disponivel o valor apenas salta para 0, que
+   e o resultado correto — so menos suave. */
+.rn-label--out .rn-label-text {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rn-label-text { transition: none; }
+}
+
+/* Em tela estreita o painel do turista come a metade de baixo e o estado fica
+   apertado: a etiqueta viraria ruido sobre o pouco mapa que sobra. */
+@media (max-width: 1023px) {
+  .rn-label { display: none; }
+}
+
 /* ── Pin do atrativo sorteado na abertura da home ─────────────────── */
 /* O elemento raiz do marcador NUNCA pode receber transform: o MapLibre usa
    essa propriedade para posicionar o marcador na coordenada, e sobrescreve-la
