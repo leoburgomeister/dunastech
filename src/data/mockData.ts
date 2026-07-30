@@ -1,6 +1,16 @@
 // ============================================================
 // MOCK DATA V2 — Plataforma de Observatório do Turismo Inteligente (POTI)
 // ============================================================
+//
+// ATENÇÃO ao campo `imagem`: ele é só um CANDIDATO, não uma imagem que
+// vai ao ar. Quem decide é a curadoria em `src/data/photoCuration.ts`.
+//
+// Os caminhos preenchidos apontam para fotos do acervo do Ministério do
+// Turismo, conferidas uma a uma. Os campos vazios são os locais para os
+// quais ainda não há foto aprovada — esses caem no mapa.
+//
+// Renderize sempre por <PlaceImage>, nunca com <Image src={x.imagem}>
+// direto — é o <PlaceImage> que aplica a curadoria e o crédito.
 
 export interface AttractionActivity {
   id: string;
@@ -96,7 +106,7 @@ export const destinosInfo: DestinoInfo[] = [
     nome: "Ponta Negra e Morro do Careca",
     municipio: "Natal",
     descricao: "O principal cartão-postal de Natal, famoso pela icônica duna de 120 metros cercada por Mata Atlântica e uma enseada de águas calmas. O local possui excelente infraestrutura de lazer, gastronomia e hotelaria à beira-mar, atraindo milhares de banhistas e entusiastas de esportes aquáticos.",
-    imagem: "/images/destinations/hero_ponta_negra.png",
+    imagem: "/images/destinations/ponta_negra_morro_careca.jpg",
     latitude: -5.8884,
     longitude: -35.1596,
     hashtag: "pontanegranatal",
@@ -106,14 +116,14 @@ export const destinosInfo: DestinoInfo[] = [
         id: "act-pn-1",
         nome: "Passeio de Jangada no Morro",
         descricao: "Navegação tradicional contornando a enseada de Ponta Negra com vista do Morro do Careca.",
-        imagem: "/images/destinations/hero_ponta_negra.png",
+        imagem: "",
         parceiroId: "cad-pn-3"
       },
       {
         id: "act-pn-2",
         nome: "Stand Up Paddle na Enseada",
         descricao: "Prática esportiva em águas calmas perto do morro.",
-        imagem: "/images/destinations/hero_ponta_negra.png",
+        imagem: "",
         parceiroId: "cad-pn-3"
       }
     ]
@@ -122,7 +132,7 @@ export const destinosInfo: DestinoInfo[] = [
     nome: "Praia da Pipa",
     municipio: "Tibau do Sul",
     descricao: "Destino de renome internacional situado no município de Tibau do Sul. Famoso por suas imponentes falésias coloridas de arenito, mar calmo com águas cristalinas propícias ao surf e a frequente presença de golfinhos na Baía dos Golfinhos. À noite, a vila se transforma com um vibrante polo gastronômico e boêmio.",
-    imagem: "/images/destinations/pipa.png",
+    imagem: "/images/destinations/praia_da_pipa.jpg",
     latitude: -6.2275,
     longitude: -35.0475,
     hashtag: "praiadapipa",
@@ -132,14 +142,14 @@ export const destinosInfo: DestinoInfo[] = [
         id: "act-pipa-1",
         nome: "Observação de Golfinhos",
         descricao: "Passeio de barco para avistar golfinhos em seu habitat natural.",
-        imagem: "/images/destinations/pipa.png",
+        imagem: "",
         parceiroId: "cad-pipa-3"
       },
       {
         id: "act-pipa-2",
         nome: "Trilha no Santuário Ecológico",
         descricao: "Caminhadas sob a Mata Atlântica preservada com mirantes para as praias.",
-        imagem: "/images/destinations/pipa.png",
+        imagem: "",
         parceiroId: "cad-pipa-3"
       }
     ]
@@ -148,7 +158,7 @@ export const destinosInfo: DestinoInfo[] = [
     nome: "Dunas de Genipabu",
     municipio: "Extremoz",
     descricao: "Complexo monumental de dunas móveis e lagoas cristalinas em Extremoz. É o berço dos clássicos passeios de buggy regados a 'emoção' no Rio Grande do Norte, onde turistas desfrutam de vistas panorâmicas espetaculares da costa potiguar.",
-    imagem: "/images/destinations/genipabu.png",
+    imagem: "/images/destinations/dunas_de_genipabu.jpg",
     latitude: -5.7089,
     longitude: -35.1967,
     hashtag: "genipabu",
@@ -158,14 +168,14 @@ export const destinosInfo: DestinoInfo[] = [
         id: "act-gen-1",
         nome: "Passeio de Buggy com Emoção",
         descricao: "Aventura pelas dunas móveis com paradas para fotos e lagoa.",
-        imagem: "/images/destinations/genipabu.png",
+        imagem: "",
         parceiroId: "cad-gen-3"
       },
       {
         id: "act-gen-2",
         nome: "Esquibunda nas Dunas",
         descricao: "Descida em prancha de madeira direto na lagoa de Genipabu.",
-        imagem: "/images/destinations/genipabu.png",
+        imagem: "",
         parceiroId: "cad-gen-3"
       }
     ]
@@ -174,7 +184,7 @@ export const destinosInfo: DestinoInfo[] = [
     nome: "Parrachos de Maracajaú",
     municipio: "Maxaranguape",
     descricao: "Famosas piscinas naturais a sete quilômetros da costa de Maxaranguape. Os corais formam um aquário natural de águas mornas e transparentes, ideal para a prática de snorkel e mergulho livre entre peixes coloridos.",
-    imagem: "/images/destinations/maracajau.png",
+    imagem: "",
     latitude: -5.4116,
     longitude: -35.3098,
     hashtag: "maracajau",
@@ -184,7 +194,7 @@ export const destinosInfo: DestinoInfo[] = [
         id: "act-mar-1",
         nome: "Mergulho nos Parrachos",
         descricao: "Exploração dos corais em águas mornas e translúcidas guiada.",
-        imagem: "/images/destinations/maracajau.png",
+        imagem: "",
         parceiroId: "cad-mar-3"
       }
     ]
@@ -193,7 +203,7 @@ export const destinosInfo: DestinoInfo[] = [
     nome: "São Miguel do Gostoso",
     municipio: "São Miguel do Gostoso",
     descricao: "Uma das vilas de pescadores mais charmosas e preservadas do litoral norte potiguar. Conhecida mundialmente por seus ventos constantes que atraem velejadores de kitesurf e windsurf, além de pousadas aconchegantes e praias desertas propícias para descanso.",
-    imagem: "/images/destinations/sao_miguel.png",
+    imagem: "/images/destinations/sao_miguel_do_gostoso.jpg",
     latitude: -5.1247,
     longitude: -35.6392,
     hashtag: "saomigueldogostoso",
@@ -203,7 +213,7 @@ export const destinosInfo: DestinoInfo[] = [
         id: "act-gost-1",
         nome: "Kitesurf e Windsurf",
         descricao: "Aprenda a velejar com campeões locais nos ventos mais constantes do país.",
-        imagem: "/images/destinations/sao_miguel.png",
+        imagem: "",
         parceiroId: "cad-gost-2"
       }
     ]
@@ -212,7 +222,7 @@ export const destinosInfo: DestinoInfo[] = [
     nome: "Forte dos Reis Magos",
     municipio: "Natal",
     descricao: "Fortaleza histórica de pedra datada de 1598, em formato de estrela, localizada na foz do Rio Potengi. É o marco inicial da fundação de Natal, abrigando canhões e relíquias do período colonial sob preservação histórica.",
-    imagem: "/images/destinations/forte_dos_reis_magos.png",
+    imagem: "/images/destinations/forte_dos_reis_magos.jpg",
     latitude: -5.7564,
     longitude: -35.1947,
     hashtag: "fortedosreismagos",
@@ -222,7 +232,7 @@ export const destinosInfo: DestinoInfo[] = [
         id: "act-forte-1",
         nome: "Visita Histórica",
         descricao: "Descubra marcos coloniais e canhões históricos da fundação de Natal.",
-        imagem: "/images/destinations/forte_dos_reis_magos.png",
+        imagem: "",
         parceiroId: "cad-forte-2"
       }
     ]
@@ -231,7 +241,7 @@ export const destinosInfo: DestinoInfo[] = [
     nome: "Galinhos",
     municipio: "Galinhos",
     descricao: "Uma deslumbrante península de pescadores isolada do turismo de massa, cercada de dunas gigantes, salinas naturais e manguezais intocados. O acesso é feito apenas de barco ou veículo tracionado 4x4.",
-    imagem: "/images/destinations/galinhos.png",
+    imagem: "/images/destinations/galinhos_farol.jpg",
     latitude: -5.0917,
     longitude: -36.2742,
     hashtag: "galinhos",
@@ -241,7 +251,7 @@ export const destinosInfo: DestinoInfo[] = [
         id: "act-gal-1",
         nome: "Passeio de Barco pelo Rio",
         descricao: "Navegação por manguezais e salinas desfrutando do silêncio da península.",
-        imagem: "/images/destinations/galinhos.png",
+        imagem: "",
         parceiroId: "cad-gal-2"
       }
     ]
@@ -250,7 +260,7 @@ export const destinosInfo: DestinoInfo[] = [
     nome: "Maior Cajueiro do Mundo",
     municipio: "Parnamirim",
     descricao: "Patrimônio natural situado em Pirangi, no município de Parnamirim. Registrado no Guinness Book por cobrir uma área colossal de mais de 8.500 metros quadrados, resultado de uma anomalia genética que faz seus galhos crescerem para os lados e criarem novas raízes.",
-    imagem: "/images/destinations/maior_caju.png",
+    imagem: "/images/destinations/maior_cajueiro_do_mundo.jpg",
     latitude: -5.9786,
     longitude: -35.1234,
     hashtag: "maiorcajueiro",
@@ -260,7 +270,7 @@ export const destinosInfo: DestinoInfo[] = [
         id: "act-caju-1",
         nome: "Trilha Suspensa do Cajueiro",
         descricao: "Caminhada sob a copa gigante do maior cajueiro do mundo.",
-        imagem: "/images/destinations/maior_caju.png",
+        imagem: "",
         parceiroId: "cad-caju-2"
       }
     ]
@@ -269,7 +279,7 @@ export const destinosInfo: DestinoInfo[] = [
     nome: "Praia do Madeiro",
     municipio: "Tibau do Sul",
     descricao: "Um verdadeiro refúgio ecológico em Tibau do Sul, cercado por imensas falésias avermelhadas e Mata Atlântica. É muito procurado para caminhadas, aulas de surf para iniciantes e avistamento frequente de golfinhos bem próximos à orla.",
-    imagem: "/images/destinations/pipa.png",
+    imagem: "/images/destinations/praia_do_madeiro.jpg",
     latitude: -6.2137,
     longitude: -35.0774,
     hashtag: "praiadomadeiro",
@@ -279,7 +289,7 @@ export const destinosInfo: DestinoInfo[] = [
         id: "act-mad-1",
         nome: "Escola de Surf do Madeiro",
         descricao: "Aulas práticas com instrutores nas ondas perfeitas do Madeiro.",
-        imagem: "/images/destinations/pipa.png",
+        imagem: "",
         parceiroId: "cad-mad-2"
       }
     ]
@@ -288,7 +298,7 @@ export const destinosInfo: DestinoInfo[] = [
     nome: "Lagoa de Pitangui",
     municipio: "Extremoz",
     descricao: "Oásis de águas calmas, mornas e doce no coração de dunas em Extremoz. Equipada com estruturas de lazer como redários dentro da água e tirolesas, é um destino familiar imperdível para relaxamento completo.",
-    imagem: "/images/destinations/genipabu.png",
+    imagem: "",
     latitude: -5.6466,
     longitude: -35.2297,
     hashtag: "lagoadepitangui",
@@ -298,7 +308,7 @@ export const destinosInfo: DestinoInfo[] = [
         id: "act-pit-1",
         nome: "Redário e Tirolesa na Lagoa",
         descricao: "Redes na água e diversão em tirolesas na lagoa cristalina.",
-        imagem: "/images/destinations/genipabu.png",
+        imagem: "",
         parceiroId: "cad-pit-2"
       }
     ]
@@ -307,7 +317,7 @@ export const destinosInfo: DestinoInfo[] = [
     nome: "Barreira do Inferno",
     municipio: "Parnamirim",
     descricao: "Primeira base de lançamento de foguetes da América do Sul, inaugurada em 1965 em Parnamirim. O local integra pesquisas aeroespaciais com um museu de aviação e exibe belíssimas falésias vermelhas à beira-mar.",
-    imagem: "/images/destinations/hero_ponta_negra.png",
+    imagem: "/images/destinations/barreira_do_inferno.jpg",
     latitude: -5.8915,
     longitude: -35.1797,
     hashtag: "barreiradoinferno",
@@ -317,7 +327,7 @@ export const destinosInfo: DestinoInfo[] = [
         id: "act-clbi-1",
         nome: "Museu Aeroespacial Potiguar",
         descricao: "Exposição de foguetes reais, radares e aviões de combate.",
-        imagem: "/images/destinations/hero_ponta_negra.png",
+        imagem: "",
         parceiroId: "cad-clbi-1"
       }
     ]
@@ -326,7 +336,7 @@ export const destinosInfo: DestinoInfo[] = [
     nome: "Barra de Cunhaú",
     municipio: "Canguaretama",
     descricao: "Onde o Rio Curimataú encontra as águas salgadas do oceano em Canguaretama. Um destino exuberante cercado por manguezais, ideal para saborear pratos típicos à base de caranguejos e curtir praias de águas calmas.",
-    imagem: "/images/destinations/galinhos.png",
+    imagem: "/images/destinations/barra_de_cunhau.jpg",
     latitude: -6.3103,
     longitude: -35.0553,
     hashtag: "barradecunhau",
@@ -336,7 +346,7 @@ export const destinosInfo: DestinoInfo[] = [
         id: "act-cun-1",
         nome: "Passeio do Manguezal",
         descricao: "Pesquisa ecológica pelos rios, mangues e captura ecológica de caranguejos.",
-        imagem: "/images/destinations/galinhos.png",
+        imagem: "",
         parceiroId: "cad-cun-2"
       }
     ]
@@ -345,7 +355,7 @@ export const destinosInfo: DestinoInfo[] = [
     nome: "Parque das Dunas",
     municipio: "Natal",
     descricao: "Maior reserva de Mata Atlântica urbana do Rio Grande do Norte, localizada no centro de Natal. Oferece trilhas ecológicas monitoradas sob a copa de árvores nativas, além de áreas de lazer infantil e piqueniques.",
-    imagem: "/images/destinations/genipabu.png",
+    imagem: "/images/destinations/parque_das_dunas.jpg",
     latitude: -5.8400,
     longitude: -35.1970,
     hashtag: "parquedasdunas",
@@ -355,7 +365,7 @@ export const destinosInfo: DestinoInfo[] = [
         id: "act-dunas-1",
         nome: "Trilha Ecológica da Peroba",
         descricao: "Caminhada na mata densa das dunas com guias ambientais.",
-        imagem: "/images/destinations/genipabu.png",
+        imagem: "",
         parceiroId: "cad-dunas-2"
       }
     ]
@@ -364,7 +374,7 @@ export const destinosInfo: DestinoInfo[] = [
     nome: "Cidade Histórica de Mossoró",
     municipio: "Mossoró",
     descricao: "O coração cultural e histórico da segunda maior cidade do estado. Famosa por seu protagonismo na abolição precoce da escravidão em 1883 e pela heróica resistência popular que afugentou o bando de cangaço do temido Lampião em 1927.",
-    imagem: "/images/destinations/mossoro_historico.png",
+    imagem: "/images/destinations/mossoro_museu_historico.jpg",
     latitude: -5.1878,
     longitude: -37.3444,
     hashtag: "mossoro",
@@ -374,7 +384,7 @@ export const destinosInfo: DestinoInfo[] = [
         id: "act-mos-1",
         nome: "Memorial da Resistência ao Cangaço",
         descricao: "Roteiro histórico pelos murais e trincheiras da batalha contra Lampião.",
-        imagem: "/images/destinations/mossoro_historico.png",
+        imagem: "/images/destinations/memorial_da_resistencia.jpg",
         parceiroId: "cad-mos-2"
       }
     ]
@@ -383,7 +393,7 @@ export const destinosInfo: DestinoInfo[] = [
     nome: "Lajedo de Soledade",
     municipio: "Apodi",
     descricao: "Um impressionante sítio arqueológico em Apodi, composto por uma vasta planície de rocha calcária esculpida por rios subterrâneos pré-históricos. Abriga desfiladeiros repletos de fósseis de animais da megafauna e intrigantes pinturas rupestres.",
-    imagem: "/images/destinations/lajedo_soledade.png",
+    imagem: "/images/destinations/lajedo_de_soledade.jpg",
     latitude: -5.5833,
     longitude: -37.8000,
     hashtag: "lajedodesoledade",
@@ -393,7 +403,7 @@ export const destinosInfo: DestinoInfo[] = [
         id: "act-apo-1",
         nome: "Passeio Arqueológico Soledade",
         descricao: "Pesquisa arqueológica guiada por desfiladeiros de fósseis.",
-        imagem: "/images/destinations/lajedo_soledade.png",
+        imagem: "",
         parceiroId: "cad-apo-2"
       }
     ]
@@ -402,7 +412,7 @@ export const destinosInfo: DestinoInfo[] = [
     nome: "Salinas e Indústria Salineira de Macau",
     municipio: "Macau",
     descricao: "Principal polo salineiro do país. Oferece uma paisagem industrial e natural fascinante com imensas pirâmides de sal marinho branco que se assemelham a dunas de neve sob o sol forte do litoral norte potiguar.",
-    imagem: "/images/destinations/galinhos.png",
+    imagem: "",
     latitude: -5.1114,
     longitude: -36.6344,
     hashtag: "salinasmacau",
@@ -412,7 +422,7 @@ export const destinosInfo: DestinoInfo[] = [
         id: "act-macau-1",
         nome: "Visita às Salinas de Macau",
         descricao: "Passeio guiado pelas montanhas de sal marinho e canais de maré.",
-        imagem: "/images/destinations/galinhos.png",
+        imagem: "",
         parceiroId: "cad-apo-2"
       }
     ]
@@ -421,7 +431,7 @@ export const destinosInfo: DestinoInfo[] = [
     nome: "Salinas de Galinhos e Fábrica de Sal",
     municipio: "Galinhos",
     descricao: "Uma incrível jornada pela extração artesanal do sal marinho. O atrativo conecta o ecossistema de manguezais potiguares à história da produção de sal tradicional, oferecendo passeios ecológicos de barco.",
-    imagem: "/images/destinations/galinhos.png",
+    imagem: "",
     latitude: -5.0990,
     longitude: -36.2650,
     hashtag: "salinasgalinhos",
@@ -431,7 +441,7 @@ export const destinosInfo: DestinoInfo[] = [
         id: "act-sg-1",
         nome: "Trilha Ecológica do Sal",
         descricao: "Observação do processo de colheita manual do sal e vida selvagem local.",
-        imagem: "/images/destinations/galinhos.png",
+        imagem: "",
         parceiroId: "cad-gal-2"
       }
     ]
@@ -440,7 +450,7 @@ export const destinosInfo: DestinoInfo[] = [
     nome: "Canyon dos Apertados",
     municipio: "Currais Novos",
     descricao: "Uma das joias geológicas mais espetaculares do Geoparque Seridó. O cânion apresenta imponentes desfiladeiros de rocha quartzítica esculpidos pela força das águas no semiárido potiguar, cercados por vegetação intocada de caatinga.",
-    imagem: "/images/destinations/lajedo_soledade.png",
+    imagem: "/images/destinations/canyon_dos_apertados.jpg",
     latitude: -6.2600,
     longitude: -36.5160,
     hashtag: "canyondosapertados",
@@ -450,7 +460,7 @@ export const destinosInfo: DestinoInfo[] = [
         id: "act-apertados-1",
         nome: "Trekking no Cânion",
         descricao: "Caminhada guiada por dentro do desfiladeiro de rocha quartzítica.",
-        imagem: "/images/destinations/lajedo_soledade.png",
+        imagem: "",
         parceiroId: "cad-apo-2"
       }
     ]
@@ -459,7 +469,7 @@ export const destinosInfo: DestinoInfo[] = [
     nome: "Estátua de Santa Rita de Cássia",
     municipio: "Santa Cruz",
     descricao: "O maior monumento religioso católico do mundo, com 56 metros de altura, superando o Cristo Redentor. Situada no alto do Monte Carmelo, é o centro do turismo religioso potiguar e atrai milhares de romeiros todos os anos.",
-    imagem: "/images/destinations/forte_dos_reis_magos.png",
+    imagem: "/images/destinations/estatua_santa_rita.jpg",
     latitude: -6.2300,
     longitude: -36.0200,
     hashtag: "santaritadecassia",
@@ -469,7 +479,7 @@ export const destinosInfo: DestinoInfo[] = [
         id: "act-srita-1",
         nome: "Mirante do Monte Carmelo",
         descricao: "Subida até a base da estátua com vista panorâmica do vale do Trairi.",
-        imagem: "/images/destinations/forte_dos_reis_magos.png",
+        imagem: "",
         parceiroId: "cad-forte-2"
       }
     ]
@@ -478,7 +488,7 @@ export const destinosInfo: DestinoInfo[] = [
     nome: "Castelo de Bivar",
     municipio: "Carnaúba dos Dantas",
     descricao: "Inspirado nos castelos medievais europeus da Renascença, esta imponente construção de pedra destaca-se na paisagem árida do Seridó. É um importante atrativo histórico que preserva a cultura e arquitetura local.",
-    imagem: "/images/destinations/forte_dos_reis_magos.png",
+    imagem: "",
     latitude: -6.5500,
     longitude: -36.5800,
     hashtag: "castelodebivar",
@@ -488,7 +498,7 @@ export const destinosInfo: DestinoInfo[] = [
         id: "act-bivar-1",
         nome: "Tour Histórico do Castelo",
         descricao: "Visitação interna guiada pela arquitetura inspirada nos castelos europeus.",
-        imagem: "/images/destinations/forte_dos_reis_magos.png",
+        imagem: "",
         parceiroId: "cad-mos-2"
       }
     ]
@@ -510,7 +520,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.8795,
     longitude: -35.1725,
     descricao: "Hotel de frente para o mar na orla de Ponta Negra com piscina panorâmica e serviços de alto padrão.",
-    imagem: "/images/destinations/hero_ponta_negra.png"
+    imagem: ""
   },
   {
     id: "cad-pn-2",
@@ -524,7 +534,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.8778,
     longitude: -35.1742,
     descricao: "Uma referência gastronômica internacional em Natal. Especialidade em pratos de camarão sofisticados.",
-    imagem: "/images/destinations/hero_ponta_negra.png"
+    imagem: ""
   },
   {
     id: "cad-pn-3",
@@ -538,7 +548,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.8820,
     longitude: -35.1715,
     descricao: "Agência credenciada para passeios de barco, stand-up paddle e caiaques na enseada.",
-    imagem: "/images/destinations/hero_ponta_negra.png"
+    imagem: ""
   },
   // Pipa
   {
@@ -553,7 +563,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -6.2325,
     longitude: -35.0450,
     descricao: "Hotel de luxo no alto das falésias da Praia do Amor com vistas espetaculares da Mata Atlântica.",
-    imagem: "/images/destinations/pipa.png"
+    imagem: ""
   },
   {
     id: "cad-pipa-2",
@@ -567,7 +577,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -6.2268,
     longitude: -35.0482,
     descricao: "Restaurante e bar à beira da praia com petiscos, drinques refinados e música ao vivo frente ao mar.",
-    imagem: "/images/destinations/pipa.png"
+    imagem: ""
   },
   {
     id: "cad-pipa-3",
@@ -581,7 +591,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -6.2272,
     longitude: -35.0490,
     descricao: "Agência certificada organizadora de barcos de golfinhos e passeios florestais no Santuário.",
-    imagem: "/images/destinations/pipa.png"
+    imagem: ""
   },
   // Genipabu
   {
@@ -596,7 +606,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.7065,
     longitude: -35.1985,
     descricao: "Pousada acolhedora colada no Parque das Dunas e no mar de Genipabu.",
-    imagem: "/images/destinations/genipabu.png"
+    imagem: ""
   },
   {
     id: "cad-gen-3",
@@ -610,7 +620,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.7090,
     longitude: -35.1955,
     descricao: "Associação oficial credenciada pelo governo com pilotos profissionais autorizados nas dunas móveis.",
-    imagem: "/images/destinations/genipabu.png"
+    imagem: ""
   },
   // Maracajaú
   {
@@ -625,7 +635,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.4150,
     longitude: -35.3780,
     descricao: "Parque aquático e hotelaria integrados com saída direta para lanchas e catamarãs em direção aos corais.",
-    imagem: "/images/destinations/maracajau.png"
+    imagem: ""
   },
   {
     id: "cad-mar-3",
@@ -639,7 +649,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.4100,
     longitude: -35.3740,
     descricao: "Operadora profissional de mergulho nos Parrachos, fornecendo snorkel, coletes e lanchas credenciadas.",
-    imagem: "/images/destinations/maracajau.png"
+    imagem: ""
   },
   // Gostoso
   {
@@ -654,7 +664,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.1235,
     longitude: -35.6375,
     descricao: "Pousada boutique pé na areia na ponta de Gostoso, favorita de praticantes de Kitesurf.",
-    imagem: "/images/destinations/sao_miguel.png"
+    imagem: ""
   },
   {
     id: "cad-gost-2",
@@ -668,7 +678,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.1245,
     longitude: -35.6385,
     descricao: "Escola internacional de vela fundada por campeões, certificada e credenciada pelo Cadastur.",
-    imagem: "/images/destinations/sao_miguel.png"
+    imagem: ""
   },
   // Forte
   {
@@ -683,7 +693,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.7560,
     longitude: -35.1950,
     descricao: "Guias turísticos profissionais especializados em história colonial potiguar.",
-    imagem: "/images/destinations/forte_dos_reis_magos.png"
+    imagem: ""
   },
   // Galinhos
   {
@@ -698,7 +708,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.0910,
     longitude: -36.2735,
     descricao: "Navegações seguras pelo rio e dunas do capim em Galinhos com guias nativos.",
-    imagem: "/images/destinations/galinhos.png"
+    imagem: ""
   },
   // Cajueiro
   {
@@ -713,7 +723,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.9735,
     longitude: -35.1285,
     descricao: "Agência oficial que organiza visitas ao cajueiro gigante e passeios de barco nas marinas de Pirangi.",
-    imagem: "/images/destinations/maior_caju.png"
+    imagem: ""
   },
   // Madeiro
   {
@@ -728,7 +738,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -6.2140,
     longitude: -35.0770,
     descricao: "Instrutor credenciado de surf e guia florestal para caminhadas em falésias.",
-    imagem: "/images/destinations/pipa.png"
+    imagem: ""
   },
   // Pitangui
   {
@@ -743,7 +753,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.7245,
     longitude: -35.2095,
     descricao: "Complexo de lazer na lagoa, oferecendo pratos de peixes e tirolesa aquática segura.",
-    imagem: "/images/destinations/genipabu.png"
+    imagem: ""
   },
   // CLBI Barreira do Inferno
   {
@@ -758,7 +768,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.8910,
     longitude: -35.1790,
     descricao: "Divisão de educação pública e turismo histórico da Aeronáutica brasileira.",
-    imagem: "/images/destinations/hero_ponta_negra.png"
+    imagem: ""
   },
   // Cunhaú
   {
@@ -773,7 +783,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -6.3100,
     longitude: -35.0550,
     descricao: "Navegação turística pelos mangues com parada nas praias fluviais e caranguejadas.",
-    imagem: "/images/destinations/pipa.png"
+    imagem: ""
   },
   // Bosque Namorados
   {
@@ -788,7 +798,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.8405,
     longitude: -35.1975,
     descricao: "Guias ambientais oficiais do IDEMA-RN para educação ecológica em trilhas.",
-    imagem: "/images/destinations/hero_ponta_negra.png"
+    imagem: ""
   },
   // Mossoró
   {
@@ -803,7 +813,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.1870,
     longitude: -37.3440,
     descricao: "Agência que realiza city tours detalhados pelos memoriais de resistência ao cangaço.",
-    imagem: "/images/destinations/mossoro_historico.png"
+    imagem: ""
   },
   // Apodi
   {
@@ -818,7 +828,7 @@ const staticCadasturData: CadasturBusiness[] = [
     latitude: -5.5830,
     longitude: -37.8010,
     descricao: "Associação local de guias protetores do Lajedo de Soledade treinados em geologia e pintura rupestre.",
-    imagem: "/images/destinations/lajedo_soledade.png"
+    imagem: ""
   }
 ];
 
@@ -908,31 +918,11 @@ const agenciaClassifiers = ["Agência", "Turismo", "Viagens", "Expedições", "E
 
 const businessTypes: CadasturBusiness['tipo'][] = ["Hotel", "Restaurante", "Guia", "Pousada", "Agência"];
 
-const hotelImages = [
-  "/images/destinations/hero_ponta_negra.png",
-  "/images/destinations/pipa.png",
-  "/images/destinations/sao_miguel.png"
-];
-const restauranteImages = [
-  "/images/destinations/maracajau.png",
-  "/images/destinations/galinhos.png",
-  "/images/destinations/forte_dos_reis_magos.png"
-];
-const pousadaImages = [
-  "/images/destinations/genipabu.png",
-  "/images/destinations/lajedo_soledade.png",
-  "/images/destinations/maior_caju.png"
-];
-const guiaImages = [
-  "/images/destinations/mossoro_historico.png",
-  "/images/destinations/hero_ponta_negra.png",
-  "/images/destinations/pipa.png"
-];
-const agenciaImages = [
-  "/images/destinations/sao_miguel.png",
-  "/images/destinations/genipabu.png",
-  "/images/destinations/maracajau.png"
-];
+// As pools de imagem por tipo de negócio foram removidas junto com as
+// imagens de IA. Sorteavam paisagem de destino para ilustrar hotel,
+// restaurante e guia — 800 negócios com CNPJ real recebendo foto de um
+// lugar que não é o deles. Negócio sem foto própria vai de mapa.
+// Ver src/data/photoCuration.ts.
 
 function generateMockBusinesses(): CadasturBusiness[] {
   const list: CadasturBusiness[] = [];
@@ -1074,14 +1064,9 @@ function generateMockBusinesses(): CadasturBusiness[] {
     const descIdx = Math.floor(pseudoRandom(seed * 16.1) * descTemplates.length);
     const descricao = descTemplates[descIdx];
 
-    // Image
-    let imageList = hotelImages;
-    if (tipo === "Restaurante") imageList = restauranteImages;
-    else if (tipo === "Pousada") imageList = pousadaImages;
-    else if (tipo === "Guia") imageList = guiaImages;
-    else if (tipo === "Agência") imageList = agenciaImages;
-    const imgIdx = Math.floor(pseudoRandom(seed * 17.5) * imageList.length);
-    const imagem = imageList[imgIdx];
+    // Sem foto: negócio gerado não tem imagem própria, então renderiza
+    // como ponto no mapa. Ver src/data/photoCuration.ts.
+    const imagem = "";
 
     // Pick 5 unique experiences deterministically using pseudoRandom
     const pool = experiencesPool[tipo];
