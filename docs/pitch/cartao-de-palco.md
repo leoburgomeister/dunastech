@@ -52,7 +52,7 @@
 
 ### CTA · 2:45–3:05
 
-**"Não viemos pedir cheque. Viemos pedir duas coisas que o estado já tem: acesso às bases oficiais e uma reunião técnica com a SETUR. O resto a gente constrói.**
+**"Hoje, a gente precisa de duas coisas: acesso às bases oficiais, para o projeto seguir. E o apoio de vocês, que é quem pode abrir essa porta.**
 
 *(pausa — um segundo de silêncio antes da última frase)*
 
@@ -61,6 +61,8 @@
 **Obrigado."**
 
 > **Entrega:** pedido concreto primeiro, levante depois. Nessa ordem, porque pedir após inspirar transforma o pedido em anticlímax.
+>
+> **"O apoio de vocês" é deliberado:** amplia quem pode dizer sim. Na sala há ABAV, entidades e municípios — nenhum controla as bases da SETUR, mas todos podem manifestar apoio. E amarrar o apoio ao acesso ("quem pode abrir essa porta") evita o pedido vago, que colhe sim vago.
 >
 > A pergunta final é retórica e existe para provocar o aceno de cabeça coletivo — é esse aceno que abre os 10 minutos de Comentários a seu favor. **Não espere resposta:** diga "Obrigado" logo após, com meio segundo de intervalo, senão o silêncio vira constrangimento.
 
@@ -103,6 +105,16 @@
 → "Os destinos, o Cadastur, o IBGE e as avaliações são reais, no banco, em tempo real. As projeções preditivas são o próximo release — hoje entregamos o indicador e a base."
 
 **Regra de ouro:** número que você não tem certeza → **"trago o dado"**. Nunca invente na frente do conselho.
+
+### O pedido agendável — use quando alguém morder a isca
+
+A reunião técnica saiu do palco de propósito: anunciada no plenário vira intenção genérica, e ninguém se sente responsável por marcá-la. Perguntada a alguém que **já demonstrou interesse**, ela vira compromisso com nome e rosto.
+
+Assim que um conselheiro elogiar, perguntar detalhe ou se oferecer para ajudar:
+
+> **"Posso levar isso numa conversa técnica com a equipe da SETUR?"**
+
+É o pedido mais agendável que vocês têm — e é ele que transforma um bom pitch em próximo passo real. **Saia da sala com uma data ou um nome.**
 
 ### A frase guardada para os Comentários
 

@@ -102,7 +102,7 @@ Princípio: **mostrar, não narrar.** Cada bloco = uma tela. O pico é a avalia�
 
 ### 2:45–3:05 · CTA (degrau 1) + fechamento
 
-> "Não viemos pedir cheque. Viemos pedir **duas coisas que o estado já tem**: acesso às bases oficiais e uma reunião técnica com a SETUR. O resto a gente constrói.
+> "Hoje, a gente precisa de duas coisas: **acesso às bases oficiais**, para o projeto seguir. E o **apoio de vocês**, que é quem pode abrir essa porta.
 >
 > *(pausa)*
 >
@@ -111,6 +111,12 @@ Princípio: **mostrar, não narrar.** Cada bloco = uma tela. O pico é a avalia�
 > Obrigado."
 
 **Ordem deliberada: pedido concreto primeiro, levante depois.** Inspirar e então pedir transforma o pedido em anticlímax; pedir e então inspirar deixa o levante como última coisa no ar. A pergunta final é retórica e serve para provocar o aceno coletivo que abre os Comentários a favor — não se espera resposta.
+
+**Descartado: "Não viemos pedir cheque".** A negação planta a ideia de dinheiro justamente ao negá-la — ninguém na sala pensava em cheque até a palavra ser dita — e presume que o conselho esperava um pedido de verba.
+
+**"O apoio de vocês" é escolha estratégica, não suavização.** Amplia quem pode dizer sim: na sala há ABAV, entidades e municípios que não controlam as bases da SETUR mas podem manifestar apoio. Amarrar o apoio ao acesso ("quem pode abrir essa porta") evita o pedido vago, que colhe sim vago.
+
+**A reunião técnica saiu do CTA e virou pedido de bastidor.** Anunciada no plenário, vira intenção genérica sem dono; perguntada nos Comentários a quem já demonstrou interesse ("posso levar isso numa conversa técnica com a equipe da SETUR?"), vira compromisso com nome e rosto. É o pedido mais agendável do dia e a métrica real de sucesso: sair com uma data ou um nome.
 
 **Descartado: "transformar o turismo inteligente no RN e no Brasil".** Duas razões. (a) "e no Brasil" posiciona o RN como degrau de uma ambição nacional da empresa, quando o mandato daquele conselho é o estado — a leitura possível é "RN como mercado de teste". (b) "transformar" é o verbo mais saturado do vocabulário de pitch; gasta o segundo mais valioso dos três minutos em familiaridade.
 
