@@ -6,14 +6,14 @@
 
 ## Problema
 
-O commit `4fa2aaf` fechou o buraco do **preenchimento**: distância virou barreira dura (`comfortableLegKm`), então a afinidade de estilo não arrasta mais o roteiro para fora do alcance do transporte. O que sobrou são trechos da **própria tabela de presets** — e a assinatura, por decisão, não passa pela barreira.
+O commit `4fa2aaf` fechou o buraco do **preenchimento**: distância virou barreira dura (`comfortableLegKm`), então a afinidade de estilo não arrasta mais o roteiro para fora do alcance do transporte. Depois dele, `1af29e6` pôs `perDay = 1` nos três transportes, o que tirou do caminho o último dia longo amplificado por preenchimento na faixa demonstrável. O que sobrou são trechos da **própria tabela de presets** — e a assinatura, por decisão, não passa pela barreira.
 
-Medido contra o catálogo real (20 destinos), com o planejador em `4fa2aaf`:
+Medido contra o catálogo real (20 destinos), com o planejador em `aaf3ed3`:
 
 | Combinação | Pior dia | Origem |
 |---|---|---|
 | `culture/shuttle` 1d | 313,1 km | preset (Forte → Mossoró 246,2 + Mossoró → Lajedo 66,9) |
-| `ecotourism/buggy` 3d | 138,9 km | preset (Maracajaú ↔ Galinhos 112,6, contado como chegada do dia) |
+| `ecotourism/buggy` 1d | 112,6 km | preset (Maracajaú ↔ Galinhos) |
 | `family/hike` 1-3d | 39,7 km **a pé** | preset (Ponta Negra → Pipa) |
 | `ecotourism/hike` 1-5d | 27,6 km **a pé** | preset (Pitangui → Maracajaú) |
 | `adventure/hike` 13d | 70,4 km a pé | preenchimento (São Miguel do Gostoso) |
@@ -48,10 +48,10 @@ As duas últimas linhas são o mesmo defeito visto de outro ângulo: o catálogo
 | Transporte | Teto | Pior dia | No teto seguinte |
 |---|---|---|---|
 | `hike` | **3** | 9,2 km | teto 4 → 26,6 km |
-| `buggy` | **12** | 55,6 km | teto 13 → 189 km |
+| `buggy` | **12** | 54,6 km | teto 13 → 189 km |
 | `shuttle` | **15** | 246,2 km | — |
 
-O corte do `hike` é abrupto entre 3 e 4 dias; o do `buggy`, entre 12 e 13. Tetos 8, 10 e 12 dão o mesmo pior dia para buggy (55,6 km), então 12 é o mais generoso que não custa nada.
+O corte do `hike` é abrupto entre 3 e 4 dias; o do `buggy`, entre 12 e 13. Tetos 8, 10 e 12 dão o mesmo pior dia para buggy (54,6 km), então 12 é o mais generoso que não custa nada.
 
 ## Desenho
 
@@ -125,7 +125,7 @@ Invariante 2 do planejador (`[[rotas-planejador-invariantes]]`) é exatamente is
 | Transporte | Teto hoje | Novo |
 |---|---|---|
 | `hike` | 39,7 | **9,2** |
-| `buggy` | 138,9 | **55,6** |
+| `buggy` | 112,6 | **54,6** |
 | `shuttle` | 313,1 | **246,2** |
 
 Os 246,2 km que sobram são o trecho Forte → Mossoró da assinatura de `culture/shuttle`: um dia de transfer de van, honesto e prometido pela cópia.

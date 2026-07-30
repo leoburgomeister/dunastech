@@ -13,6 +13,7 @@
 ## Global Constraints
 
 - Branch: `leoburgo/rotas-generation-issues-a1b624`, worktree `C:/Users/Leobu/dev/DunasTech/.claude/worktrees/superpowers-brainstorming-planning-a3b295`.
+- **Baseline: `aaf3ed3`.** Os números deste plano foram medidos aí. `1af29e6` pôs `perDay = 1` nos três transportes; medições feitas contra `4fa2aaf` (onde buggy e van pediam 1,5) não valem mais. Se o `git log` mostrar commits acima de `aaf3ed3` ao começar, **parar e remedir** antes de tocar nos tetos de regressão.
 - **Não alterar** `TRANSPORT_PROFILE` (`perDay`, `comfortableLegKm`, `distanceWeight`), as listas `STYLE_AFFINITY` nem coordenadas em `mockData.ts`.
 - Comentário em código é em português sem acentos, como o resto do repositório. Cópia de usuário (i18n) leva acento normal.
 - Comentário explica **por que**, não o que — o padrão dos arquivos tocados.
@@ -185,7 +186,7 @@ EOF
 ### Task 2: `clampDays` aperta contra os limites
 
 **Files:**
-- Modify: `src/lib/route-planner.ts` (função `clampDays`, ~linha 235; chamada em `planRoute`, ~linha 354)
+- Modify: `src/lib/route-planner.ts` (função `clampDays`, linha 240; chamada em `planRoute`, linha 359)
 - Test: `src/lib/route-planner.test.ts`
 
 **Interfaces:**
@@ -518,7 +519,7 @@ Em `src/lib/route-planner.test.ts`, no teste `'nenhum dia da faixa demonstrável
     // tabela de presets (e regerar o cache do OSRM), nao no planejador.
     const teto: Record<'hike' | 'buggy' | 'shuttle', number> = {
       hike: 9.2,
-      buggy: 55.6,
+      buggy: 54.6,
       shuttle: 246.2,
     };
 ```
@@ -741,7 +742,7 @@ Copia i18n atualizada nos tres idiomas: os titulos nomeiam os destinos, entao
 trocar destino sem trocar copia quebraria a invariante de que o roteiro nao
 inventa parada que o titulo nao prometeu.
 
-Tetos de regressao caem de 39,7 / 138,9 / 313,1 para 9,2 / 55,6 / 246,2 km.
+Tetos de regressao caem de 39,7 / 112,6 / 313,1 para 9,2 / 54,6 / 246,2 km.
 Os 246,2 que sobram sao o trecho Forte -> Mossoro da assinatura de cultura/van,
 que a copia da "Grande Rota Historica" promete.
 
