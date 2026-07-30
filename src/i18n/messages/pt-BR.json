@@ -140,7 +140,7 @@
     "title": "POTI - Observatório do Turismo Inteligente",
     "heading": "Roteiros com Alma Potiguar,",
     "subheading": "Turismo Seguro e Sustentável",
-    "description": "A POTI é a plataforma de observatório inteligente que conecta você ao melhor do Rio Grande do Norte. Planeje rotas sob medida, contrate guias credenciados no Cadastur e ajude a monitorar o estado dos nossos destinos. Orgulho de valorizar nossa cultura e preservar os nossos paraísos naturais!",
+    "description": "Diga como você viaja. A POTI monta o roteiro no Rio Grande do Norte, com guias credenciados e dados reais de cada destino.",
     "startPointLabel": "Ponto de Partida ou Foco (Opcional)",
     "startPointPlaceholder": "Ex: Pipa, Genipabu, Natal...",
     "travelStyleLabel": "Estilo de Viagem",
@@ -379,6 +379,18 @@
     "routeSummary": "Resumo do Planejamento",
     "budgetLevel": "Nível de Orçamento",
     "groupProfile": "Perfil do Grupo",
-    "stayPreference": "Hospedagem Preferencial"
+    "stayPreference": "Hospedagem Preferencial",
+    "searchNudge": "Já sabe para onde vai?",
+    "searchHint": "Enter para ver no mapa",
+    "seals": {
+      "ai": "Roteiros por IA",
+      "cadastur": "Guias Cadastur",
+      "stewardship": "Zeladoria ecológica",
+      "liveData": "Dados em tempo real"
+    },
+    "clearSearch": "Limpar busca",
+    "durationMinus": "Diminuir um dia",
+    "durationPlus": "Aumentar um dia",
+    "daysCount": "{count, plural, one {# Dia} other {# Dias}}"
   }
 }

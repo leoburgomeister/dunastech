@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import {
   MapPin, Star, Users, ArrowRight, Shield, Sparkles,
-  ShieldAlert, CheckCircle, Navigation, Eye, Search, X,
+  ShieldAlert, CheckCircle, Eye, Search, X,
   ChevronDown, ChevronUp, Clock, Info, Printer, Share2,
   ClipboardCheck, Send, ThumbsUp, ThumbsDown,
   Waves, Shell, Leaf, Landmark, UtensilsCrossed,
@@ -394,11 +394,14 @@ export default function TouristHomePage() {
           {/* Painel flutuante. No mobile ocupa a metade de baixo e deixa a
               duna aparecer em cima; no desktop encosta a direita com margem,
               para o mapa respirar em volta. */}
-          <div className="absolute inset-x-0 bottom-0 top-[42vh] lg:inset-y-6 lg:left-auto lg:right-6 lg:top-6 lg:bottom-6 lg:w-[min(30rem,42vw)] flex flex-col p-6 sm:p-8 overflow-y-auto custom-scrollbar z-10 justify-between bg-[var(--color-surface)] rounded-t-3xl lg:rounded-3xl shadow-2xl ring-1 ring-[var(--color-border)]">
+          {/* Painel flutuante. `p-6` tambem no desktop (era sm:p-8): 16px de
+              padding a menos e 16px de conteudo a mais, e num painel que precisa
+              caber sem rolar isso conta. */}
+          <div className="absolute inset-x-0 bottom-0 top-[42vh] lg:inset-y-6 lg:left-auto lg:right-6 lg:top-6 lg:bottom-6 lg:w-[min(30rem,42vw)] flex flex-col p-6 overflow-y-auto custom-scrollbar z-10 justify-between bg-[var(--color-surface)] rounded-t-3xl lg:rounded-3xl shadow-2xl ring-1 ring-[var(--color-border)]">
             {(step === 1 || step === 2) ? (
-              <div className="space-y-6 animate-fade-in my-auto">
+              <div className="space-y-3 animate-fade-in my-auto">
                 {/* Header Info */}
-                <div className="space-y-2.5">
+                <div className="space-y-2">
                   <Badge variant="accent" size="sm" className="px-2.5 py-0.5 text-[11px] font-bold tracking-wider uppercase">
                     <Sparkles className="h-3 w-3 animate-pulse text-[var(--color-accent)] shrink-0" />
                     {t('title')}
@@ -408,12 +411,19 @@ export default function TouristHomePage() {
                       fonte. Medido nos sites do showcase da GSAP — Kononenko
                       usa leading 0.70, TRIONN 0.90, ambos com tracking
                       negativo. Peso 800 so passou a valer depois de h1-h6 ir
-                      para @layer base. */}
-                  <h1 className="text-[28px] sm:text-4xl lg:text-[40px] font-extrabold text-[var(--color-text)] leading-[0.98] tracking-[-0.03em]">
+                      para @layer base.
+
+                      O corpo escala por ALTURA de viewport, nao por largura. O
+                      painel nao pode rolar, e o que estoura a altura dele e este
+                      titulo: em 40px ele ocupava 157px em quatro linhas, 27% do
+                      espaco disponivel num viewport de 695px. Com vh ele fica
+                      grande em tela alta e compacto em tela baixa, que e onde o
+                      aperto existe. */}
+                  <h1 className="text-[28px] sm:text-4xl lg:text-[clamp(22px,3.1vh,40px)] font-extrabold text-[var(--color-text)] leading-[1.02] tracking-[-0.03em]">
                     {t('heading')} <br />
                     <span className="gradient-ocean gradient-text">{t('subheading')}</span>
                   </h1>
-                  <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                  <p className="text-[11.5px] text-[var(--color-text-secondary)] leading-snug">
                     {t('description')}
                   </p>
                 </div>
@@ -421,60 +431,17 @@ export default function TouristHomePage() {
                 {/* Smart Form Panel */}
                 {step === 1 ? (
                   /* STEP 1: Basic Route Options */
-                  <div className="space-y-4">
-                    {/* What we offer checklist */}
-                    <div className="space-y-2.5 pb-2 border-b border-[var(--color-border-light)] bg-[var(--color-surface-alt)]/30 p-3.5 rounded-2xl">
-                      <span className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
-                        O que oferecemos:
-                      </span>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-left">
-                        {[
-                          { icon: Route, title: 'Roteiros Inteligentes', desc: 'Rotas otimizadas por IA para os paraísos do RN.' },
-                          { icon: ShieldCheck, title: 'Guias com Cadastur', desc: 'Conexão direta com operadores 100% legalizados.' },
-                          { icon: Leaf, title: 'Zeladoria Ecológica', desc: 'Auditoria social de preservação em 3 cliques.' },
-                          { icon: BarChart3, title: 'Painel Observatório', desc: 'Dados em tempo real para controle sustentável.' },
-                        ].map(({ icon: Icon, title, desc }) => (
-                          <div key={title} className="flex gap-2.5 items-start">
-                            <Icon
-                              className="h-4 w-4 mt-0.5 shrink-0 text-[var(--color-primary)]"
-                              strokeWidth={1.75}
-                            />
-                            <div>
-                              <span className="text-xs font-bold text-[var(--color-text)] block leading-tight">{title}</span>
-                              <span className="text-[11px] text-[var(--color-text-secondary)] block mt-1 leading-snug">{desc}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    {/* Destination Search */}
-                    <div className="space-y-1.5">
-                      <label htmlFor="home-search" className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
-                        Buscar destino específico
-                      </label>
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--color-text-muted)] pointer-events-none" />
-                        <input
-                          id="home-search"
-                          type="text"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          onKeyDown={handleSearchKeyDown}
-                          placeholder="Ex: Pipa, Genipabu, Natal... (Enter para ver no mapa)"
-                          className="w-full h-9 pl-9 pr-8 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-alt)]/40 text-xs text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-border-focus)]"
-                        />
-                        {searchQuery && (
-                          <button
-                            type="button"
-                            onClick={() => { setSearchQuery(''); setFocusedDest(null); }}
-                            aria-label="Limpar busca"
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
-                          >
-                            <X className="h-3.5 w-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
+                  <div className="space-y-3">
+                    {/* O card "O que oferecemos" saiu daqui. Eram 4 itens com
+                        titulo E descricao — ~70 palavras de argumento
+                        institucional (Cadastur, Zeladoria, Painel) empurrando a
+                        primeira pergunta de verdade para o sexto bloco do
+                        painel. Virou a faixa de selos no pe, so icone e rotulo.
+
+                        A busca por destino tambem desceu, para depois do CTA: o
+                        painel abre com "como voce viaja?", que e o que a POTI
+                        faz de diferente. Quem ja sabe o destino acha o campo
+                        logo abaixo. */}
 
                     {/* Travel Style Selection */}
                     <div className="space-y-1.5">
@@ -491,7 +458,7 @@ export default function TouristHomePage() {
                               onClick={() => setSelectedStyle(s.id)}
                               title={s.desc}
                               className={cn(
-                                "px-3 py-1.5 rounded-full border text-left transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-xs font-bold",
+                                "px-2.5 py-1 rounded-full border text-left transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-xs font-bold",
                                 isActive
                                   ? "bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-sm"
                                   : "bg-[var(--color-surface-alt)]/40 border-[var(--color-border-light)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text)]"
@@ -505,57 +472,69 @@ export default function TouristHomePage() {
                       </div>
                     </div>
 
-                    {/* Duration Selection (Plus/Minus Counter) */}
-                    <div className="space-y-1.5">
-                      <label className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
-                        Duração do Roteiro
-                      </label>
-                      <div className="flex items-center justify-between bg-[var(--color-surface-alt)] p-1.5 rounded-xl border border-[var(--color-border-light)] max-w-[220px]">
-                        <button 
-                          type="button"
-                          onClick={() => setDurationDays(prev => Math.max(1, prev - 1))}
-                          className="h-8 w-10 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-bold flex items-center justify-center cursor-pointer select-none transition-all"
-                        >
-                          -
-                        </button>
-                        <span className="font-bold text-xs text-[var(--color-text)]">
-                          {durationDays} {durationDays === 1 ? 'Dia' : 'Dias'}
-                        </span>
-                        <button 
-                          type="button"
-                          onClick={() => setDurationDays(prev => Math.min(15, prev + 1))}
-                          className="h-8 w-10 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-bold flex items-center justify-center cursor-pointer select-none transition-all"
-                        >
-                          +
-                        </button>
+                    {/* Duracao e transporte na MESMA linha. Empilhados eram dois
+                        blocos de ~66px cada, e o painel nao pode rolar. Lado a
+                        lado eles somam um: a duracao e um contador estreito e o
+                        transporte cresce no espaco que sobra. */}
+                    <div className="grid grid-cols-[auto_1fr] gap-2.5 items-end">
+                      {/* Duration Selection (Plus/Minus Counter) */}
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
+                          {t('durationLabel')}
+                        </label>
+                        <div className="flex items-center gap-1 bg-[var(--color-surface-alt)] p-1 rounded-xl border border-[var(--color-border-light)]">
+                          <button
+                            type="button"
+                            onClick={() => setDurationDays(prev => Math.max(1, prev - 1))}
+                            aria-label={t('durationMinus')}
+                            className="h-7 w-7 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-bold flex items-center justify-center cursor-pointer select-none transition-all"
+                          >
+                            -
+                          </button>
+                          {/* Plural por ICU, nao por ternario com string fixa:
+                              "3 Dias" aparecia em portugues no meio da UI em
+                              ingles. */}
+                          <span className="font-bold text-[11px] text-[var(--color-text)] tabular-nums text-center min-w-[46px]">
+                            {t('daysCount', { count: durationDays })}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setDurationDays(prev => Math.min(15, prev + 1))}
+                            aria-label={t('durationPlus')}
+                            className="h-7 w-7 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-bold flex items-center justify-center cursor-pointer select-none transition-all"
+                          >
+                            +
+                          </button>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Transport Selection */}
-                    <div className="space-y-1.5">
-                      <label className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
-                        {t('transportLabel')}
-                      </label>
-                      <div className="flex bg-[var(--color-surface-alt)] p-1 rounded-xl border border-[var(--color-border-light)] gap-1">
-                        {transports.map(tInfo => {
-                          const isActive = selectedTransport === tInfo.id;
-                          return (
-                            <button
-                              key={tInfo.id}
-                              type="button"
-                              onClick={() => setSelectedTransport(tInfo.id)}
-                              className={cn(
-                                "flex-1 py-1.5 text-center rounded-lg font-bold text-[11px] transition-all cursor-pointer truncate select-none border border-transparent flex items-center justify-center gap-1.5",
-                                isActive
-                                  ? "bg-[var(--color-surface)] text-[var(--color-primary)] shadow-sm border-[var(--color-border)]/20"
-                                  : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
-                              )}
-                            >
-                              <tInfo.icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
-                              {tInfo.label}
-                            </button>
-                          );
-                        })}
+                      {/* Transport Selection */}
+                      <div className="space-y-1.5 min-w-0">
+                        <label className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
+                          {t('transportLabel')}
+                        </label>
+                        <div className="flex bg-[var(--color-surface-alt)] p-1 rounded-xl border border-[var(--color-border-light)] gap-1">
+                          {transports.map(tInfo => {
+                            const isActive = selectedTransport === tInfo.id;
+                            return (
+                              <button
+                                key={tInfo.id}
+                                type="button"
+                                onClick={() => setSelectedTransport(tInfo.id)}
+                                title={tInfo.label}
+                                className={cn(
+                                  "flex-1 min-w-0 h-7 text-center rounded-lg font-bold text-[10.5px] transition-all cursor-pointer select-none border border-transparent flex items-center justify-center gap-1",
+                                  isActive
+                                    ? "bg-[var(--color-surface)] text-[var(--color-primary)] shadow-sm border-[var(--color-border)]/20"
+                                    : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
+                                )}
+                              >
+                                <tInfo.icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
+                                <span className="truncate">{tInfo.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
 
@@ -568,10 +547,51 @@ export default function TouristHomePage() {
                       <span>{t('nextStep')}</span>
                       <ArrowRight className="h-3.5 w-3.5 shrink-0" />
                     </button>
+
+                    {/* Atalho para quem ja tem destino em mente. Fica DEPOIS do
+                        CTA e sem label em caixa alta: e caminho alternativo, nao
+                        campo do formulario. Enter leva a camera ao lugar. */}
+                    <div>
+                      {/* Rotulo e dica na MESMA linha: a dica ocupava uma linha
+                          inteira embaixo do campo, e o painel nao pode rolar.
+                          Aqui ela continua visivel — Enter e a unica forma de
+                          disparar a busca — sem custar altura. */}
+                      <div className="flex items-baseline justify-between gap-2 mb-1.5">
+                        <label htmlFor="home-search" className="text-[11px] text-[var(--color-text-muted)]">
+                          {t('searchNudge')}
+                        </label>
+                        <span id="home-search-hint" className="text-[10px] text-[var(--color-text-muted)] shrink-0">
+                          {t('searchHint')}
+                        </span>
+                      </div>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--color-text-muted)] pointer-events-none" />
+                        <input
+                          id="home-search"
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          onKeyDown={handleSearchKeyDown}
+                          placeholder={t('startPointPlaceholder')}
+                          aria-describedby="home-search-hint"
+                          className="w-full h-9 pl-9 pr-8 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-alt)]/40 text-xs text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-border-focus)]"
+                        />
+                        {searchQuery && (
+                          <button
+                            type="button"
+                            onClick={() => { setSearchQuery(''); setFocusedDest(null); }}
+                            aria-label={t('clearSearch')}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   /* STEP 2: Advanced/Detailed Profile & Budget */
-                  <div className="space-y-4 animate-fade-in">
+                  <div className="space-y-3 animate-fade-in">
                     {/* Traveler Profile Selection */}
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
@@ -592,7 +612,7 @@ export default function TouristHomePage() {
                               type="button"
                               onClick={() => setSelectedGroupProfile(profileId)}
                               className={cn(
-                                "px-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-xs font-bold",
+                                "px-2.5 py-1 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-xs font-bold",
                                 isActive
                                   ? "bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-sm"
                                   : "bg-[var(--color-surface-alt)]/40 border-[var(--color-border-light)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text)]"
@@ -619,7 +639,7 @@ export default function TouristHomePage() {
                               type="button"
                               onClick={() => setSelectedBudget(budgetId)}
                               className={cn(
-                                "flex-1 py-1.5 text-center rounded-lg font-bold text-[11px] transition-all cursor-pointer truncate select-none border border-transparent",
+                                "flex-1 h-7 text-center rounded-lg font-bold text-[11px] transition-all cursor-pointer truncate select-none border border-transparent flex items-center justify-center",
                                 isActive
                                   ? "bg-[var(--color-surface)] text-[var(--color-primary)] shadow-sm border-[var(--color-border)]/20"
                                   : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
@@ -647,7 +667,7 @@ export default function TouristHomePage() {
                               type="button"
                               onClick={() => setSelectedStayPreference(stayId)}
                               className={cn(
-                                "px-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-xs font-bold",
+                                "px-2.5 py-1 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-xs font-bold",
                                 isActive
                                   ? "bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-sm"
                                   : "bg-[var(--color-surface-alt)]/40 border-[var(--color-border-light)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text)]"
@@ -681,10 +701,26 @@ export default function TouristHomePage() {
                   </div>
                 )}
 
-                {/* Footer Certifications */}
-                <div className="flex items-center gap-4 text-[11px] text-[var(--color-text-muted)] justify-center pt-2">
-                  <span className="flex items-center gap-1"><Shield className="h-3.5 w-3.5 text-[var(--color-success)]" /> {t('cadasturCert')}</span>
-                  <span className="flex items-center gap-1"><Navigation className="h-3.5 w-3.5 text-[var(--color-primary)]" /> {t('activeGps')}</span>
+                {/* Selos. Herdeiros do card "O que oferecemos" e do rodape de
+                    certificacoes, que diziam a mesma coisa duas vezes ("100%
+                    Cadastur" logo abaixo de "Guias com Cadastur"). Aqui provam
+                    o diferencial sem gastar frase: icone e rotulo, e o
+                    argumento longo fica para quem rolar a pagina. */}
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 pt-3 border-t border-[var(--color-border-light)]">
+                  {[
+                    { icon: Route, label: t('seals.ai') },
+                    { icon: ShieldCheck, label: t('seals.cadastur') },
+                    { icon: Leaf, label: t('seals.stewardship') },
+                    { icon: BarChart3, label: t('seals.liveData') },
+                  ].map(({ icon: Icon, label }) => (
+                    <span
+                      key={label}
+                      className="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--color-text-secondary)]"
+                    >
+                      <Icon className="h-3.5 w-3.5 shrink-0 text-[var(--color-primary)]" strokeWidth={1.75} />
+                      {label}
+                    </span>
+                  ))}
                 </div>
               </div>
             ) : (
@@ -1775,16 +1811,33 @@ export default function TouristHomePage() {
             )}
           </div>
 
-          {/* Floating Scroll Down Button — agora pousa sobre o satelite, entao
-              precisa de cor propria: os tokens de superficie sumiriam na foto. */}
-          <div className="absolute bottom-6 left-6 hidden lg:flex flex-col items-center gap-1.5 z-20 cursor-pointer group [text-shadow:0_1px_8px_rgba(0,0,0,0.6)]"
-               onClick={() => document.getElementById('recommended-destinations')?.scrollIntoView({ behavior: 'smooth' })}>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-white/80 group-hover:text-white transition-colors">
-              Explorar Destinos
-            </span>
-            <div className="h-9 w-6 rounded-full border-2 border-white/50 group-hover:border-white flex items-start justify-center p-1.5 transition-colors">
-              <span className="h-1.5 w-1.5 rounded-full bg-white/80 group-hover:bg-white transition-colors animate-bounce" />
-            </div>
+          {/* Indicador de scroll: trilho fino com o ponto descendo, no lugar do
+              desenho de mouse — a cena 3D ja e o elemento pesado do hero.
+              Pousa sobre o satelite, entao usa branco proprio em vez dos tokens
+              de superficie, que sumiriam na foto.
+
+              Centrado na AREA DO MAPA, nao no hero inteiro: o painel come a
+              direita, e centralizar em 50% da tela jogaria o indicador contra a
+              borda dele. A largura e a mesma conta que o painel usa
+              (min(30rem,42vw) + a margem de 1.5rem), entao ele fica no meio da
+              faixa de mapa que sobra — a ~16px do eixo otico da camera, que
+              tambem desconta o padding esquerdo de 56px.
+
+              O wrapper posiciona e o botao continua do tamanho do conteudo: um
+              botao de 1400px de largura interceptaria clique de toda a faixa. */}
+          <div className="pointer-events-none absolute bottom-6 left-0 z-20 hidden w-[calc(100%-min(30rem,42vw)-1.5rem)] justify-center lg:flex">
+            <button
+              type="button"
+              onClick={() => document.getElementById('recommended-destinations')?.scrollIntoView({ behavior: 'smooth' })}
+              className="pointer-events-auto flex flex-col items-center gap-2.5 cursor-pointer group bg-transparent border-0 p-1 rounded-lg [text-shadow:0_1px_8px_rgba(0,0,0,0.6)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            >
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/80 group-hover:text-white transition-colors">
+                Explorar Destinos
+              </span>
+              <span className="relative block h-10 w-px overflow-hidden bg-white/35 group-hover:bg-white/60 transition-colors">
+                <span className="scroll-hint-dot absolute left-1/2 h-2.5 w-[3px] rounded-full bg-white/80 group-hover:bg-white transition-colors" />
+              </span>
+            </button>
           </div>
 
       </section>

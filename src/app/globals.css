@@ -581,51 +581,89 @@ input[type="number"]::-webkit-outer-spin-button {
   background: transparent !important;
 }
 
-/* ── MapLibre Custom Markers & Popups ── */
+/* ── MapLibre Custom Markers & Popups ──────────────────────────────
+   A cena e satelite com pitch de 60deg. Um simbolo chapado por cima
+   flutua; por isso o marcador e montado em camadas: sombra no chao,
+   anel que expande no plano do chao e cabeca suspensa por uma haste.
+   A ponta da haste — nao o centro da cabeca — marca a coordenada.
+   ------------------------------------------------------------------ */
 .marker-wrapper {
+  --marker-color: #0A6EBD;
   position: relative;
-  width: 48px;
-  height: 48px;
-  transform: translate(-50%, -100%); /* Center pin tip on coordinates */
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 36px;
+  height: 50px;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
 }
 
-.marker-custom {
-  width: 44px;
-  height: 44px;
-  border-radius: 50% 50% 50% 0;
-  background: #E8B86D;
-  border: 3px solid white;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  transform: rotate(-45deg);
-  transition: transform 200ms var(--ease);
+/* Sombra projetada: ancora o pin no terreno em vez de deixa-lo boiando.
+   Estatica de proposito — pelo mesmo motivo que o markerPulse saiu, nada
+   aqui pode ficar animando por marcador em cima do canvas WebGL. */
+.marker-ground {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 20px;
+  height: 7px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(2, 6, 23, 0.55), rgba(2, 6, 23, 0));
+}
+
+.marker-stem {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  width: 2px;
+  height: 15px;
+  transform: translateX(-50%);
+  border-radius: 1px;
+  background: linear-gradient(to bottom, var(--marker-color), rgba(255, 255, 255, 0.65));
+  box-shadow: 0 0 0 0.5px rgba(2, 6, 23, 0.25);
+}
+
+.marker-head {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: var(--marker-color);
+  border: 2.5px solid #fff;
+  box-shadow:
+    0 6px 14px rgba(2, 6, 23, 0.38),
+    0 0 0 1px rgba(2, 6, 23, 0.14);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  pointer-events: auto;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
-.marker-custom:hover {
-  transform: rotate(-45deg) scale(1.18);
+.marker-head:hover,
+.marker-head:focus-visible {
+  transform: translateX(-50%) translateY(-3px) scale(1.1);
+  box-shadow:
+    0 12px 22px rgba(2, 6, 23, 0.45),
+    0 0 0 1px rgba(2, 6, 23, 0.14);
 }
 
-.marker-emoji {
-  transform: rotate(45deg);
-  font-size: 20px;
+.marker-glyph {
+  font-size: 15px;
+  line-height: 1;
   user-select: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-/* Marcador numerado da rota da home. O pin e girado -45deg, entao o rotulo
-   precisa desgirar para ficar de pe. */
+/* Marcador numerado da rota da home. A cabeca do pin nao gira mais, entao o
+   rotulo tambem nao precisa desgirar. */
 .marker-label {
-  transform: rotate(45deg);
   font-family: var(--font-heading);
-  font-size: 17px;
+  /* Cabe nos 27px internos da cabeca. Era 17px, dimensionado para a gota de
+     44px que saiu. */
+  font-size: 14px;
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -640,6 +678,62 @@ input[type="number"]::-webkit-outer-spin-button {
    cima do canvas WebGL, competindo com a orbita da camera por frame budget
    sem carregar nenhuma informacao — todo marcador pulsava igual, entao o
    pulso nao distinguia nada. */
+
+/* ── Etiqueta do estado no plano aberto da home ────────────────────── */
+/* Rotulo de mapa, nao titulo de pagina: pequeno, em caixa alta espacada, sobre
+   a terra que nomeia. Antes era um h1 de 48px no canto superior esquerdo, que
+   competia com o logo do header e com o proprio contorno do estado.
+
+   A opacidade NAO mora no elemento raiz. Duas razoes independentes:
+
+   1. O Marker do MapLibre escreve `style.opacity` INLINE no raiz a cada
+      movimento do mapa (Marker._updateOpacity), e declaracao inline vence regra
+      de classe sem !important — a saida simplesmente nao aconteceria.
+   2. O raiz tambem recebe `transform` do MapLibre para posicionamento, entao ja
+      e territorio da biblioteca. Mesma divisao que o .hero-pin usa.
+
+   Por isso o texto vive num filho, e e nele que a opacidade transita. */
+.rn-label {
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* Estado base VISIVEL, e a saida por transicao — nunca o contrario.
+   A etiqueta ja nasceu invisivel uma vez, quando a entrada era
+   `opacity: 0` + `@keyframes`: em aba sem composicao de frames o relogio da
+   animacao nao avança, ela congela na fase de atraso e o rotulo nunca aparece.
+   Visibilidade nao pode depender de animacao rodar. */
+.rn-label-text {
+  display: block;
+  font-family: var(--font-heading), sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.92);
+  /* Duas sombras: uma fechada para separar da imagem de satelite e uma larga
+     para o texto sobreviver sobre areia clara. */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85), 0 2px 18px rgba(0, 0, 0, 0.65);
+  opacity: 1;
+  transition: opacity 700ms var(--ease);
+}
+
+/* Saida no mergulho, no mesmo limiar de zoom em que o contorno do estado
+   termina de sumir. Sem transicao disponivel o valor apenas salta para 0, que
+   e o resultado correto — so menos suave. */
+.rn-label--out .rn-label-text {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rn-label-text { transition: none; }
+}
+
+/* Em tela estreita o painel do turista come a metade de baixo e o estado fica
+   apertado: a etiqueta viraria ruido sobre o pouco mapa que sobra. */
+@media (max-width: 1023px) {
+  .rn-label { display: none; }
+}
 
 /* ── Pin do atrativo sorteado na abertura da home ─────────────────── */
 /* O elemento raiz do marcador NUNCA pode receber transform: o MapLibre usa
@@ -729,6 +823,35 @@ input[type="number"]::-webkit-outer-spin-button {
 
 @media (prefers-reduced-motion: reduce) {
   .hero-pin-inner { animation: none; }
+}
+
+/* Ponto que desce o trilho do indicador de scroll do hero. Fora do canvas
+   WebGL, entao nao disputa frame budget com a orbita. */
+.scroll-hint-dot {
+  transform: translateX(-50%);
+  animation: scrollHint 2.2s infinite var(--ease);
+}
+
+@keyframes scrollHint {
+  0% {
+    transform: translateX(-50%) translateY(-12px);
+    opacity: 0;
+  }
+  30%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50%) translateY(40px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-hint-dot {
+    animation: none;
+    transform: translateX(-50%) translateY(14px);
+  }
 }
 
 /* MapLibre Popup Styling */
