@@ -69,6 +69,41 @@ export function normalizeStyle(id: string): TravelStyle {
 }
 
 /**
+ * Teto do contador de duracao por transporte.
+ *
+ * O catalogo tem 20 destinos e so ~10 na Grande Natal. Passado o teto, o
+ * preenchimento esgota o que esta perto e cai no escape `escolher(Infinity)` do
+ * planejador — que ignora a barreira de distancia de proposito, para nao devolver
+ * dia vazio. Dai sairam os 70 km a pe em 13 dias e os 189 km de buggy.
+ *
+ * Os cortes sao medidos, nao arbitrados: caminhada da 9,2 km de pior dia com teto
+ * 3 e 26,6 km com teto 4; buggy da 55,6 km ate o teto 12 e 189 km no 13.
+ */
+export const MAX_DIAS_POR_TRANSPORTE: Record<Transport, number> = {
+  hike: 3,
+  buggy: 12,
+  shuttle: 15,
+};
+
+/**
+ * Combinacoes que so fazem sentido a partir de N dias. Chave: `${estilo}/${transporte}`.
+ *
+ * A "Grande Rota Historica" de van vai a Mossoro e ao Lajedo porque a descricao os
+ * nomeia — ali o deslocamento longo E o roteiro. O defeito era oferece-la em 1 dia,
+ * o que empilhava Forte + Mossoro + Lajedo num dia so: 313 km.
+ */
+export const MIN_DIAS_POR_COMBINACAO: Record<string, number> = {
+  'culture/shuttle': 3,
+};
+
+/** Faixa de duracao valida para uma combinacao. Planejador, UI e cache usam esta. */
+export function limitesDeDuracao(style: string, transport: string): { min: number; max: number } {
+  const t = normalizeTransport(transport);
+  const s = normalizeStyle(style);
+  return { min: MIN_DIAS_POR_COMBINACAO[`${s}/${t}`] ?? 1, max: MAX_DIAS_POR_TRANSPORTE[t] };
+}
+
+/**
  * Devolve COPIA: a home muta a lista (a busca injeta ou substitui um destino),
  * e devolver a referencia da tabela corromperia os presets para sempre — o
  * cache do OSRM passaria a errar a chave a partir da primeira busca.
