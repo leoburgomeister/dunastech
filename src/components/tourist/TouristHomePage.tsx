@@ -284,11 +284,22 @@ export default function TouristHomePage() {
   // Memoized destinations for the map based on active day/route state or active filters
   const mapDestinations = useMemo(() => {
     if (suggestedRoute) {
-      if (expandedDay === null) return suggestedRoute.destinations;
+      // O dia de cada parada vai JUNTO para o mapa. Sem isso o pino caia no indice da
+      // parada e o mapa passava a contradizer o painel: 5 dias com 8 destinos numerava os
+      // pinos de 1 a 8 e o popup anunciava "Dia 8", dia que nao existe. O campo sempre
+      // existiu em HomeRouteMap — o que faltava era alguem preenche-lo.
+      const diaDaParada = new Map<string, number>();
+      for (const d of suggestedRoute.days) {
+        for (const dest of d.destinations) diaDaParada.set(dest.nome, d.day);
+      }
+      const comDia = (lista: typeof suggestedRoute.destinations) =>
+        lista.map(d => ({ ...d, dia: diaDaParada.get(d.nome) }));
+
+      if (expandedDay === null) return comDia(suggestedRoute.destinations);
       const dayItem = suggestedRoute.days.find(d => d.day === expandedDay);
-      return dayItem && dayItem.destinations.length > 0 
-        ? dayItem.destinations 
-        : suggestedRoute.destinations;
+      return dayItem && dayItem.destinations.length > 0
+        ? comDia(dayItem.destinations)
+        : comDia(suggestedRoute.destinations);
     }
 
     // Dynamic filtering for map markers when planning/configuring

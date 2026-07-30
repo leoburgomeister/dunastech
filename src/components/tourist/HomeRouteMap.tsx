@@ -420,13 +420,26 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
       const isStart = index === 0;
       const isEnd = index === destinations.length - 1;
       const markerColor = isStart ? '#10B981' : isEnd ? '#EF4444' : '#F59E0B'; // emerald, red, amber
-      const markerLabel = isStart ? 'Início' : isEnd ? 'Fim' : `Dia ${dest.dia || index + 1}`;
-      
+
+      /**
+       * O pino mostra o DIA, nao a posicao da parada.
+       *
+       * O painel organiza a viagem por dia, e o numero do pino e o que o usuario cruza com
+       * ele. Numerando a parada, um roteiro de 5 dias com 8 destinos punha pinos de 1 a 8 no
+       * mapa e o popup anunciava "Dia 8" — o mapa dizia 8 dias e o painel, 5. Dois pinos com
+       * o mesmo numero agora sao informacao: aquele dia tem duas paradas.
+       *
+       * O fallback para o indice cobre so a chamada sem dia (filtros da home, sem roteiro).
+       */
+      const diaDaParada = dest.dia ?? index + 1;
+      const papel = isStart ? ' · Início' : isEnd ? ' · Fim' : '';
+      const markerLabel = `Dia ${diaDaParada}${papel}`;
+
       // Numeral no lugar do emoji: alem de nao depender da fonte de emoji do
-      // sistema, a ordem da parada e informacao — o emoji nao era.
+      // sistema, o dia da parada e informacao — o emoji nao era.
       const el = createMarkerElement({
         color: markerColor,
-        label: String(dest.dia ?? index + 1),
+        label: String(diaDaParada),
       });
 
       const popupHtml = `
