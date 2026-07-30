@@ -200,8 +200,8 @@ Trabalho gratuito prolongado cria dependência sem contrato — e quando a licit
 | 1 | Combinar com **Rafael Abreu (Komune)** como a DunasTech entra dentro do bloco dele | Leonardo | **Alta** — sem isso a entrada é improvisada |
 | 2 | Validar valores de preço contra o custo real da equipe | Leonardo + Antônio | **Alta** — números da §6 são âncoras |
 | 3 | Confirmar status do **CNPJ (LTDA)** — Q&A pergunta provável | Ari / Leonardo | Média |
-| 4 | Gravar **vídeo de backup** da demo (R-09, ainda não feito) | Equipe | **Alta** — rede do CCN é risco |
-| 5 | Testar demo na rede do local / 4G | Leonardo | Alta |
+| 4 | ~~Gravar vídeo de backup da demo~~ **Descartado por decisão do usuário (29/07)** — plano B vira 4G/hotspot + degradação estática | — | — |
+| 5 | Testar demo na rede do local / 4G | Leonardo | **Alta** — virou o único plano B sem o vídeo |
 | 6 | Confirmar dado do investimento em governança das IGRs em fonte primária | Leonardo | Média — usado no Q&A, não no palco |
 | 7 | Ensaiar cronometrado: 3:00 é curto e a demo consome tempo | Leonardo | Alta |
 
@@ -209,7 +209,7 @@ Trabalho gratuito prolongado cria dependência sem contrato — e quando a licit
 
 | Risco | Mitigação |
 |---|---|
-| Internet do CCN falha durante a demo | Vídeo de backup + app degrada para dados estáticos sem quebrar tela (verificado em produção) |
+| Internet do CCN falha durante a demo | 4G/hotspot do celular como rota alternativa + app degrada para dados estáticos sem quebrar tela (verificado em produção). *Vídeo de backup descartado por decisão do usuário em 29/07.* |
 | Estourar os 3 minutos | Ensaio cronometrado; cortar o bloco 2:20–2:45 se necessário (é o mais dispensável) |
 | Pergunta hostil sobre CPC | Resposta pronta: "patrocínio compra visibilidade, não compra nota" |
 | Pergunta sobre número não verificado | Regra de ouro: "trago o dado" — nunca inventar diante do conselho |
