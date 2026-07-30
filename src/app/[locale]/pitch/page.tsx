@@ -271,8 +271,10 @@ export default function PitchPage() {
     "É um ecossistema que une todo mundo. O turista se torna um parceiro na preservação. O gestor público enxerga a saúde dos destinos e antecipa ações. O trade local regularizado ganha visibilidade — um convite à formalização. E tudo isso com segurança e respeito à privacidade, com as informações do turista tratadas de forma anonimizada.",
     // Slide 4 — Sustentabilidade + Impacto
     "O modelo se sustenta de forma equilibrada: gratuito para o turista, com destaque opcional para o trade credenciado, e assinatura para a gestão pública. E o impacto é territorial: ajudar o estado a levar mais visitantes para o interior, distribuindo oportunidades, e a fortalecer quem faz o turismo com regularidade.",
-    // Slide 5 — Fecho (CTA colaborativo)
-    "Mais do que uma ferramenta, propomos uma parceria: caminhar junto com a Secretaria de Turismo para colocar a inteligência a serviço dos nossos destinos. POTI, da DunasTech. Vamos juntos transformar o turismo do RN — e do Brasil?"
+    // Slide 5 — Fecho (pedido concreto + levante). Alinhado ao cartão de palco:
+    // sem "e do Brasil" — diante de um conselho cujo mandato é o estado, isso
+    // posiciona o RN como degrau de ambição nacional da empresa.
+    "Hoje, a gente precisa de duas coisas: acesso às bases oficiais, para o projeto seguir. E o apoio de vocês, que é quem pode abrir essa porta. (pausa) O Rio Grande do Norte já tem os destinos. Vamos juntos torná-los inteligentes? Obrigado."
   ];
 
   // Custom tooltip style for charts
@@ -341,6 +343,24 @@ export default function PitchPage() {
           >
             {t('prompter')}
           </button>
+
+          {/* Página rosto — projetada durante a abertura falada (0:00–0:20) */}
+          <Link
+            href="./pitch/abertura"
+            className="px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider text-[#7E9798] border border-[#0F6B6D]/40 hover:bg-[#0F6B6D]/30 hover:text-[#F7F4EE] transition-all"
+            title="Página rosto (projeção)"
+          >
+            Abertura
+          </Link>
+
+          {/* Cartão de palco — referência lida no celular antes de subir */}
+          <Link
+            href="./pitch/cartao"
+            className="px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider text-[#7E9798] border border-[#0F6B6D]/40 hover:bg-[#0F6B6D]/30 hover:text-[#F7F4EE] transition-all"
+            title="Cartão de palco (celular)"
+          >
+            Cartão
+          </Link>
 
           <button
             onClick={toggleFullscreen}
