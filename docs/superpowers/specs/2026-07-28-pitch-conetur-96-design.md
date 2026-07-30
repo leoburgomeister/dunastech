@@ -100,9 +100,21 @@ Princípio: **mostrar, não narrar.** Cada bloco = uma tela. O pico é a avalia�
 
 > "Isso não é maquete. Está no ar, em dunastech.com.br, com dado real do Cadastur e do IBGE, **gerando roteiro para o estado inteiro**. O que propomos pilotar é o painel de gestão: **três polos**, com acesso próprio para cada governança. É a ideia vencedora geral do Hackathon do Sol — e virou produto."
 
-### 2:45–3:00 · CTA (degrau 1)
+### 2:45–3:05 · CTA (degrau 1) + fechamento
 
-> "Não viemos pedir cheque. Viemos pedir **duas coisas que o estado já tem**: acesso às bases oficiais e uma reunião técnica com a SETUR. O resto a gente constrói. Obrigado."
+> "Não viemos pedir cheque. Viemos pedir **duas coisas que o estado já tem**: acesso às bases oficiais e uma reunião técnica com a SETUR. O resto a gente constrói.
+>
+> *(pausa)*
+>
+> **O Rio Grande do Norte já tem os destinos. Vamos juntos torná-los inteligentes?**
+>
+> Obrigado."
+
+**Ordem deliberada: pedido concreto primeiro, levante depois.** Inspirar e então pedir transforma o pedido em anticlímax; pedir e então inspirar deixa o levante como última coisa no ar. A pergunta final é retórica e serve para provocar o aceno coletivo que abre os Comentários a favor — não se espera resposta.
+
+**Descartado: "transformar o turismo inteligente no RN e no Brasil".** Duas razões. (a) "e no Brasil" posiciona o RN como degrau de uma ambição nacional da empresa, quando o mandato daquele conselho é o estado — a leitura possível é "RN como mercado de teste". (b) "transformar" é o verbo mais saturado do vocabulário de pitch; gasta o segundo mais valioso dos três minutos em familiaridade.
+
+**A versão de legado — "fazer do RN a referência nacional em turismo inteligente" — foi movida para os Comentários** (ver `docs/pitch/cartao-de-palco.md`). No palco soaria pretensiosa vindo de empresa em constituição; dita em resposta a entusiasmo já manifestado, ecoa o que a sala sentiu.
 
 ### Decisões de conteúdo
 

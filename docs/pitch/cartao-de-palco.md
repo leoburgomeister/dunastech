@@ -50,9 +50,19 @@
 
 **"Isso não é maquete. Está no ar, em dunastech.com.br, com dado real do Cadastur e do IBGE, gerando roteiro para o estado inteiro. O que propomos pilotar é o painel de gestão: três polos, com acesso próprio para cada governança. É a ideia vencedora geral do Hackathon do Sol — e virou produto."**
 
-### CTA · 2:45–3:00
+### CTA · 2:45–3:05
 
-**"Não viemos pedir cheque. Viemos pedir duas coisas que o estado já tem: acesso às bases oficiais e uma reunião técnica com a SETUR. O resto a gente constrói. Obrigado."**
+**"Não viemos pedir cheque. Viemos pedir duas coisas que o estado já tem: acesso às bases oficiais e uma reunião técnica com a SETUR. O resto a gente constrói.**
+
+*(pausa — um segundo de silêncio antes da última frase)*
+
+**O Rio Grande do Norte já tem os destinos. Vamos juntos torná-los inteligentes?**
+
+**Obrigado."**
+
+> **Entrega:** pedido concreto primeiro, levante depois. Nessa ordem, porque pedir após inspirar transforma o pedido em anticlímax.
+>
+> A pergunta final é retórica e existe para provocar o aceno de cabeça coletivo — é esse aceno que abre os 10 minutos de Comentários a seu favor. **Não espere resposta:** diga "Obrigado" logo após, com meio segundo de intervalo, senão o silêncio vira constrangimento.
 
 ---
 
@@ -93,6 +103,16 @@
 → "Os destinos, o Cadastur, o IBGE e as avaliações são reais, no banco, em tempo real. As projeções preditivas são o próximo release — hoje entregamos o indicador e a base."
 
 **Regra de ouro:** número que você não tem certeza → **"trago o dado"**. Nunca invente na frente do conselho.
+
+### A frase guardada para os Comentários
+
+Quando alguém demonstrar entusiasmo — elogiar, dizer que faz sentido, perguntar como ajudar — é o momento de subir a régua:
+
+> **"É por isso que a gente acredita que dá para fazer do Rio Grande do Norte a referência nacional em turismo inteligente."**
+
+Guardada para os Comentários de propósito: no palco ela soaria pretensiosa vindo de empresa em constituição. Dita em resposta a um entusiasmo já manifestado, ela ecoa o que a sala acabou de sentir — e vira frase de legado para quem preside a mesa. Secretário não compra ferramenta; compra aquilo pelo que a gestão dele será lembrada.
+
+Evite afirmar "primeiro estado do Brasil a fazer X": observatórios de turismo existem em outros estados e alguém na plateia pode contestar. "Referência nacional" é aspiração — não é fato verificável.
 
 ---
 
