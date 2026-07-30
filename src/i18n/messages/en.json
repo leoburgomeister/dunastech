@@ -75,14 +75,14 @@
     "selectDestination": "Select destination",
     "overallRating": "Overall rating",
     "criteria": {
-      "clean": "🧹 Clean and maintained",
-      "signage": "🪧 Good signage",
-      "preserved": "🌿 Well preserved",
-      "accessible": "♿ Accessible",
-      "safe": "🔒 Safe",
-      "hospitality": "😊 Good hospitality",
-      "infrastructure": "🏗️ Good infrastructure",
-      "overcrowded": "🚫 Overcrowded"
+      "clean": "Clean and maintained",
+      "signage": "Good signage",
+      "preserved": "Well preserved",
+      "accessible": "Accessible",
+      "safe": "Safe",
+      "hospitality": "Good hospitality",
+      "infrastructure": "Good infrastructure",
+      "overcrowded": "Overcrowded"
     },
     "comment": "Comment (optional)",
     "commentPlaceholder": "Tell us about your experience...",
@@ -140,31 +140,34 @@
     "title": "POTI - Smart Tourism Observatory",
     "heading": "Routes with Potiguar Soul,",
     "subheading": "Safe and Sustainable Tourism",
-    "description": "POTI is the smart observatory platform that connects you to the best of Rio Grande do Norte. Plan tailored routes, hire Cadastur-certified guides, and help monitor the state of our destinations. Proud to value our culture and preserve our natural paradises!",
-    "startPointLabel": "📍 Starting Point or Focus (Optional)",
+    "description": "Tell us how you travel. POTI builds your route through Rio Grande do Norte, with certified guides and real data on every destination.",
+    "startPointLabel": "Starting Point or Focus (Optional)",
     "startPointPlaceholder": "E.g., Pipa, Genipabu, Natal...",
-    "travelStyleLabel": "🎭 Travel Style",
-    "durationLabel": "📅 Route Duration",
-    "transportLabel": "🚗 Mode of Transportation",
-    "generateButton": "Generate Smart Itinerary ✨",
+    "travelStyleLabel": "Travel Style",
+    "durationLabel": "Route Duration",
+    "transportLabel": "Mode of Transportation",
+    "generateButton": "Generate Smart Itinerary",
     "cadasturCert": "100% Cadastur",
     "activeGps": "Active GPS",
     "optimizedItinerary": "Optimized Itinerary",
     "redo": "Redo",
     "itinerarySchedule": "Itinerary Schedule",
     "day": "Day {day}",
-    "routeAndMobility": "🚗 Route & Logistics",
+    "dayPlanSingle": "A full day in {destination}, {city}. Plenty of time for the local activities and to explore the surroundings unhurried.",
+    "dayPlanSingleTransfer": "A {distance} km transfer to {destination}, {city}. The rest of the day is free for the local activities.",
+    "dayPlanMulti": "An itinerary combining {destinations}. Around {distance} km of travel during the day.",
+    "routeAndMobility": "Route & Logistics",
     "from": "From",
     "to": "to",
     "with": "with",
-    "distance": "📍 {distance} km",
+    "distance": "{distance} km",
     "timeMin": "{time} min by {transport}",
     "timeHr": "{hours}h {minutes}m by {transport}",
     "timeHrOnly": "{hours}h by {transport}",
     "warning": "Warning:",
     "walkingWarning": "The distance is {distance} km, which is too long to walk. Consider renting a buggy or hiring a certified shuttle.",
     "localRoute": "Local itinerary. Does not require road travel between destinations today.",
-    "detailedSchedule": "🚩 Detailed Schedule",
+    "detailedSchedule": "Detailed Schedule",
     "viewDestination": "View destination",
     "noAttractions": "No specific attractions listed. Enjoy exploring the place freely!",
     "doneThisRoute": "Have you done this route?",
@@ -194,42 +197,42 @@
     "hike": "hike",
     "styles": {
       "adventure": {
-        "label": "Adventure & Dunes 🏄‍♂️",
+        "label": "Adventure & Dunes",
         "desc": "For those seeking adrenaline, buggy rides, and shifting dunes."
       },
       "relax": {
-        "label": "Relax & Nature 🐚",
+        "label": "Relax & Nature",
         "desc": "Deserted beaches, natural pools, and calm freshwater lagoons."
       },
       "culture": {
-        "label": "History & Culture 🏰",
+        "label": "History & Culture",
         "desc": "Colonial forts, historic mansions, and craft centers."
       },
       "gastronomy": {
-        "label": "Gastronomy 🦐",
+        "label": "Gastronomy",
         "desc": "Seafood restaurants, hinterland cuisine, and regional drinks."
       },
       "ecotourism": {
-        "label": "Ecotourism 🌿",
+        "label": "Ecotourism",
         "desc": "Nature trails, wildlife watching, and environmental reserves."
       },
       "family": {
-        "label": "Family & Leisure 👨‍👩‍👧‍👦",
+        "label": "Family & Leisure",
         "desc": "Water parks, child-friendly resorts, and calm shallow beaches."
       }
     },
     "durations": {
       "1day": {
-        "label": "1 Day (Day trip) 📅",
+        "label": "1 Day (Day trip)",
         "description": "Exploration of the destination's main tourist attractions in a day trip."
       },
       "weekend": {
-        "label": "Weekend 🌅",
+        "label": "Weekend",
         "day1": "Arrival, check-in with a certified partner, and initial visit to the main landmark.",
         "day2": "Day of guided adventure and return in the late afternoon with a spectacular sunset."
       },
       "1week": {
-        "label": "1 Week or more backpacking 🎒",
+        "label": "1 Week or more backpacking",
         "day1": "Acclimatization day, short walks, and relaxation nearby.",
         "day2": "Day reserved for eco-sports and guided snorkeling.",
         "day3": "Cultural tour and shopping for certified crafts in the historic center."
@@ -237,13 +240,13 @@
     },
     "transports": {
       "buggy": {
-        "label": "Buggy / 4x4 🚗"
+        "label": "Buggy / 4x4"
       },
       "shuttle": {
-        "label": "Shuttle / Vans 🚌"
+        "label": "Shuttle / Vans"
       },
       "hike": {
-        "label": "Hike / Trail 🥾"
+        "label": "Hike / Trail"
       }
     },
     "routes": {
@@ -332,9 +335,9 @@
         }
       }
     },
-    "groupProfileLabel": "👥 Traveler Profile",
-    "budgetLabel": "💰 Estimated Daily Budget",
-    "stayPreferenceLabel": "🏨 Accommodation Preference",
+    "groupProfileLabel": "Traveler Profile",
+    "budgetLabel": "Estimated Daily Budget",
+    "stayPreferenceLabel": "Accommodation Preference",
     "groupProfiles": {
       "solo": "Solo",
       "couple": "Couple",
@@ -354,19 +357,19 @@
     },
     "nextStep": "Next",
     "prevStep": "Back",
-    "acceptAndPlan": "Accept & Plan Trip ✈️",
+    "acceptAndPlan": "Accept & Plan Trip",
     "planTripTitle": "Personalize your Trip",
     "planTripDesc": "Choose experiences and insert the required details to generate your complete travel dossier.",
     "selectExperiences": "Choose your Experiences",
     "experienciasTitle": "Recommended Attractions and Experiences",
-    "cadasturBadge": "🛡️ Cadastur Certified",
+    "cadasturBadge": "Cadastur Certified",
     "rating": "Rating: {nota}",
     "tripDetails": "Trip Information",
     "startDate": "Start Date",
     "endDate": "End Date",
     "travelersPlaceholder": "Enter traveler names (one per line)",
     "specialReqsPlaceholder": "e.g., Accessibility needs, dietary restrictions, etc.",
-    "generateSummaryButton": "Generate Full Dossier 📋",
+    "generateSummaryButton": "Generate Full Dossier",
     "travelDossier": "Complete Travel Dossier",
     "bookingCode": "Locator / Booking Code",
     "sustainabilityShield": "Environmental Conformity & Security Shield",
@@ -379,7 +382,18 @@
     "routeSummary": "Planning Summary",
     "budgetLevel": "Budget Level",
     "groupProfile": "Group Profile",
-    "stayPreference": "Preferred Accommodation"
+    "stayPreference": "Preferred Accommodation",
+    "searchNudge": "Already know where you are going?",
+    "searchHint": "Press Enter to see it on the map",
+    "seals": {
+      "ai": "AI-built routes",
+      "cadastur": "Cadastur guides",
+      "stewardship": "Eco stewardship",
+      "liveData": "Live data"
+    },
+    "clearSearch": "Clear search",
+    "durationMinus": "Remove one day",
+    "durationPlus": "Add one day",
+    "daysCount": "{count, plural, one {# Day} other {# Days}}"
   }
 }
-

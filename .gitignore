@@ -43,3 +43,15 @@ next-env.d.ts
 
 .vercel
 .env*.local
+
+# Superpowers brainstorm sessions
+.superpowers/
+# claude code (worktrees e config local de dev)
+/.claude/
+
+# Acervos de imagem brutos: os ZIPs do MTur passam de 1 GB e ficariam
+# servidos publicamente pelo Next se entrassem em public/. Extraia,
+# selecione pela curadoria (src/data/photoCuration.ts) e versione apenas
+# os arquivos otimizados em public/images/destinations/.
+/public/images/*.zip
+/public/images/*.ZIP

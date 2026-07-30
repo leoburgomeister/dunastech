@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import Image from 'next/image';
+import { useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import dynamic from 'next/dynamic';
@@ -10,16 +9,23 @@ import {
   ArrowLeft, ArrowRight, ShieldAlert, Award, Compass, ThumbsUp, ThumbsDown
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
+import DestinationPhotos from './DestinationPhotos';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { PlaceImage } from '@/components/ui/PlaceImage';
 import { type DestinoInfo, cadasturData, fluxoData } from '@/data/mockData';
 import { useAuth } from '@/providers/AuthProvider';
 import { addFeedback } from '@/lib/firebase';
 import { cn } from '@/lib/utils';
 
-// Dynamically load Map component to prevent SSR window error
+// Dynamically load Map components to prevent SSR window error
 const DestinationMap = dynamic(
   () => import('./DestinationMap'),
+  { ssr: false }
+);
+
+const DestinationHeroMap = dynamic(
+  () => import('./DestinationHeroMap'),
   { ssr: false }
 );
 
@@ -38,6 +44,10 @@ export default function DestinationDetailPage({ destination }: DestinationDetail
   const [comments, setComments] = useState('');
   const [isAudited, setIsAudited] = useState(false);
   const [loading, setLoading] = useState(false);
+  // A foto fica atras do mapa ate a cena carregar: sem isso o topo da pagina
+  // pisca cinza enquanto os tiles chegam.
+  const [heroMapReady, setHeroMapReady] = useState(false);
+  const handleHeroMapReady = useCallback(() => setHeroMapReady(true), []);
 
   const auditQuestions: { key: string; label: string; value: string; setValue: (v: string) => void }[] = [
     { key: 'infra', label: 'Infraestrutura condiz com o anunciado?', value: infraMatches, setValue: setInfraMatches },
@@ -119,16 +129,27 @@ export default function DestinationDetailPage({ destination }: DestinationDetail
         </Link>
       </div>
 
-      {/* Header Banner */}
-      <div className="relative h-96 w-full rounded-3xl overflow-hidden shadow-xl">
-        <Image
-          src={destination.imagem || '/images/destinations/hero_ponta_negra.png'}
+      {/* Header Banner — cena 3D mergulhando do estado ate o destino */}
+      <div className="relative h-96 sm:h-[460px] w-full rounded-3xl overflow-hidden shadow-xl bg-slate-900">
+        <PlaceImage
+          src={destination.imagem}
           alt={destination.nome}
+          local={destination.nome}
+          latitude={destination.latitude}
+          longitude={destination.longitude}
+          mapLabel={destination.municipio}
+          variant="hero"
+          showMapLabel={false}
           fill
-          className="object-cover brightness-[0.85]"
+          sizes="100vw"
+          className={cn(
+            'object-cover brightness-[0.85] transition-opacity duration-700',
+            heroMapReady ? 'opacity-0' : 'opacity-100'
+          )}
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+        <DestinationHeroMap destination={destination} onReady={handleHeroMapReady} />
+        <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/80 via-black/25 to-black/10" />
         <div className="absolute bottom-6 left-6 right-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div className="space-y-2 text-left">
             <Badge variant="accent" size="md">
@@ -187,6 +208,9 @@ export default function DestinationDetailPage({ destination }: DestinationDetail
         </div>
       </div>
 
+      {/* Fotos do destino, logo abaixo da cena */}
+      <DestinationPhotos destination={destination} />
+
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left 2 Columns */}
@@ -223,9 +247,14 @@ export default function DestinationDetailPage({ destination }: DestinationDetail
               {destination.atracoes.map((act) => (
                 <Card key={act.id} className="overflow-hidden !p-0 flex flex-col h-full hover:shadow-lg transition-shadow">
                   <div className="relative h-44 w-full">
-                    <Image
+                    <PlaceImage
                       src={act.imagem}
                       alt={act.nome}
+                      local={act.nome}
+                      latitude={destination.latitude}
+                      longitude={destination.longitude}
+                      mapLabel={destination.municipio}
+                      variant="card"
                       fill
                       className="object-cover"
                     />
@@ -272,9 +301,13 @@ export default function DestinationDetailPage({ destination }: DestinationDetail
                     className="flex items-center gap-3 p-3 rounded-xl bg-[var(--color-surface-alt)] border border-[var(--color-border-light)] hover:border-[var(--color-primary)]/40 transition-all duration-200"
                   >
                     <div className="relative h-12 w-12 rounded-lg overflow-hidden flex-shrink-0">
-                      <Image
+                      <PlaceImage
                         src={partner.imagem}
                         alt={partner.nome}
+                        local={partner.nome}
+                        latitude={partner.latitude}
+                        longitude={partner.longitude}
+                        variant="thumb"
                         fill
                         className="object-cover"
                       />

@@ -3,7 +3,7 @@
 import { use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { LocalImage } from '@/components/ui/LocalImage';
+import { PlaceImage } from '@/components/ui/PlaceImage';
 import {
   ArrowLeft, Star, Phone, ShieldCheck, MapPin, Award, CheckCircle, Sparkles
 } from 'lucide-react';
@@ -143,10 +143,14 @@ export default function VitrinePage({ params }: { params: Promise<{ id: string }
           <div className="md:col-span-5 space-y-6">
             {/* Storefront Image */}
             <div className="relative h-64 w-full rounded-2xl overflow-hidden border border-[var(--color-border)] shadow-md">
-              <LocalImage
+              <PlaceImage
                 src={negocio.imagem}
                 alt={negocio.nome}
-                fallbackLabel={negocio.nome}
+                local={negocio.nome}
+                latitude={negocio.latitude}
+                longitude={negocio.longitude}
+                mapLabel={negocio.destino}
+                variant="card"
                 fill
                 className="object-cover"
               />

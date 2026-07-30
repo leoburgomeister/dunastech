@@ -1,24 +1,29 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import {
   MapPin, Star, Users, ArrowRight, Shield, Sparkles,
-  ShieldAlert, CheckCircle, Navigation, Eye, Search, X,
+  ShieldAlert, CheckCircle, Eye, Search, X,
   ChevronDown, ChevronUp, Clock, Info, Printer, Share2,
-  ClipboardCheck, Send, ThumbsUp, ThumbsDown
+  ClipboardCheck, Send, ThumbsUp, ThumbsDown,
+  Waves, Shell, Leaf, Landmark, UtensilsCrossed,
+  Car, Bus, Footprints, Route, ShieldCheck, BarChart3
 } from 'lucide-react';
 import { StarRating } from '@/components/ui/StarRating';
 import { addFeedback } from '@/lib/firebase';
 import { cn, slugify } from '@/lib/utils';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { PlaceImage } from '@/components/ui/PlaceImage';
 import { destinosInfo, fluxoData, cadasturData, calcularISA } from '@/data/mockData';
-import type { Feedback } from '@/data/mockData';
+import type { Feedback, DestinoInfo } from '@/data/mockData';
 import { useSupabaseSync } from '@/lib/supabase-data';
+import { normalizeStyle, normalizeTransport } from '@/lib/routePresets';
+import { planRoute, haversineKm, MAX_ROUTE_DAYS } from '@/lib/route-planner';
+import type { PlannedDay } from '@/lib/route-planner';
 
 // Dynamically load Map component to prevent SSR window error on homepage
 const HomeRouteMap = dynamic(
@@ -36,25 +41,7 @@ interface RouteDay {
   day: number;
   destinations: typeof destinosInfo;
   description: string;
-}
-
-function getHaversineDistance(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number
-): number {
-  const R = 6371; // km
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+  travelKm: number;
 }
 
 export default function TouristHomePage() {
@@ -63,19 +50,22 @@ export default function TouristHomePage() {
   const tRanking = useTranslations('ranking');
 
   // Questionnaire Options
+  // Icones de traco no lugar dos emoji que viviam nos rotulos de i18n: emoji
+  // renderizam diferente em cada sistema, nao herdam a cor do texto e nao
+  // escalam com o peso tipografico.
   const styles = useMemo(() => [
-    { id: 'adventure', label: t('styles.adventure.label'), desc: t('styles.adventure.desc') },
-    { id: 'relax', label: t('styles.relax.label'), desc: t('styles.relax.desc') },
-    { id: 'ecotourism', label: t('styles.ecotourism.label'), desc: t('styles.ecotourism.desc') },
-    { id: 'culture', label: t('styles.culture.label'), desc: t('styles.culture.desc') },
-    { id: 'gastronomy', label: t('styles.gastronomy.label'), desc: t('styles.gastronomy.desc') },
-    { id: 'family', label: t('styles.family.label'), desc: t('styles.family.desc') },
+    { id: 'adventure', icon: Waves, label: t('styles.adventure.label'), desc: t('styles.adventure.desc') },
+    { id: 'relax', icon: Shell, label: t('styles.relax.label'), desc: t('styles.relax.desc') },
+    { id: 'ecotourism', icon: Leaf, label: t('styles.ecotourism.label'), desc: t('styles.ecotourism.desc') },
+    { id: 'culture', icon: Landmark, label: t('styles.culture.label'), desc: t('styles.culture.desc') },
+    { id: 'gastronomy', icon: UtensilsCrossed, label: t('styles.gastronomy.label'), desc: t('styles.gastronomy.desc') },
+    { id: 'family', icon: Users, label: t('styles.family.label'), desc: t('styles.family.desc') },
   ], [t]);
 
   const transports = useMemo(() => [
-    { id: 'buggy', label: t('transports.buggy.label') },
-    { id: 'shuttle', label: t('transports.shuttle.label') },
-    { id: 'hike', label: t('transports.hike.label') },
+    { id: 'buggy', icon: Car, label: t('transports.buggy.label') },
+    { id: 'shuttle', icon: Bus, label: t('transports.shuttle.label') },
+    { id: 'hike', icon: Footprints, label: t('transports.hike.label') },
   ], [t]);
 
   // Questionnaire States
@@ -84,12 +74,29 @@ export default function TouristHomePage() {
   const [durationDays, setDurationDays] = useState(3);
   const [expandedPartners, setExpandedPartners] = useState<Record<string, boolean>>({});
   const [selectedTransport, setSelectedTransport] = useState('buggy');
-  const [expandedDay, setExpandedDay] = useState<number | null>(1);
+  const [expandedDay, setExpandedDay] = useState<number | null>(null);
 
   const togglePartner = (id: string) => {
     setExpandedPartners(prev => ({ ...prev, [id]: !prev[id] }));
   };
   const [searchQuery, setSearchQuery] = useState('');
+  // Destino confirmado com Enter. Digitar apenas filtra a lista; so o Enter
+  // move a camera, senao a tomada se reenquadraria a cada letra.
+  const [focusedDest, setFocusedDest] = useState<DestinoInfo | null>(null);
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) {
+      setFocusedDest(null);
+      return;
+    }
+    const match =
+      destinosInfo.find(d => d.nome.toLowerCase().includes(q)) ??
+      destinosInfo.find(d => d.municipio.toLowerCase().includes(q));
+    if (match) setFocusedDest(match);
+  };
 
   // Detailed Questionnaire States
   const [selectedGroupProfile, setSelectedGroupProfile] = useState('couple');
@@ -171,130 +178,78 @@ export default function TouristHomePage() {
 
   const topDestinations = destinations.slice(0, 3); // Top 3 largest cards
 
-  // Process questionnaire answers and suggest a route
-  const handleGenerateRoute = () => {
-    let selectedDestNames: string[] = [];
-
-    if (selectedStyle === 'adventure') {
-      if (selectedTransport === 'hike') {
-        selectedDestNames = ['Dunas de Genipabu', 'Lagoa de Pitangui'];
-      } else if (selectedTransport === 'buggy') {
-        selectedDestNames = ['Dunas de Genipabu', 'Lagoa de Pitangui', 'Parrachos de Maracajaú'];
-      } else {
-        selectedDestNames = ['Ponta Negra e Morro do Careca', 'Dunas de Genipabu', 'Praia da Pipa'];
-      }
-    } else if (selectedStyle === 'relax') {
-      if (selectedTransport === 'hike') {
-        selectedDestNames = ['Praia da Pipa', 'Praia do Madeiro'];
-      } else if (selectedTransport === 'buggy') {
-        selectedDestNames = ['Parrachos de Maracajaú', 'São Miguel do Gostoso'];
-      } else {
-        selectedDestNames = ['Parrachos de Maracajaú', 'Galinhos', 'São Miguel do Gostoso'];
-      }
-    } else if (selectedStyle === 'culture') {
-      if (selectedTransport === 'hike') {
-        selectedDestNames = ['Ponta Negra e Morro do Careca', 'Barreira do Inferno'];
-      } else if (selectedTransport === 'buggy') {
-        selectedDestNames = ['Forte dos Reis Magos', 'Dunas de Genipabu'];
-      } else {
-        selectedDestNames = ['Forte dos Reis Magos', 'Cidade Histórica de Mossoró', 'Lajedo de Soledade'];
-      }
-    } else if (selectedStyle === 'ecotourism') {
-      if (selectedTransport === 'hike') {
-        selectedDestNames = ['Lagoa de Pitangui', 'Parrachos de Maracajaú'];
-      } else if (selectedTransport === 'buggy') {
-        selectedDestNames = ['Parrachos de Maracajaú', 'Galinhos'];
-      } else {
-        selectedDestNames = ['Lagoa de Pitangui', 'Parrachos de Maracajaú', 'Galinhos'];
-      }
-    } else if (selectedStyle === 'family') {
-      if (selectedTransport === 'hike') {
-        selectedDestNames = ['Ponta Negra e Morro do Careca', 'Praia da Pipa'];
-      } else if (selectedTransport === 'buggy') {
-        selectedDestNames = ['Forte dos Reis Magos', 'Dunas de Genipabu'];
-      } else {
-        selectedDestNames = ['Ponta Negra e Morro do Careca', 'Forte dos Reis Magos', 'Praia da Pipa'];
-      }
-    } else { // gastronomy
-      if (selectedTransport === 'hike') {
-        selectedDestNames = ['Praia da Pipa', 'Praia do Madeiro'];
-      } else if (selectedTransport === 'buggy') {
-        selectedDestNames = ['Praia da Pipa', 'Barra de Cunhaú'];
-      } else {
-        selectedDestNames = ['Ponta Negra e Morro do Careca', 'Praia da Pipa', 'Barra de Cunhaú'];
-      }
+  // Turns a planned day into a readable summary. Lives here (not in the planner) so the
+  // copy follows the active locale instead of being hardcoded in Portuguese.
+  const describeDay = (day: PlannedDay): string => {
+    if (day.destinations.length > 1) {
+      return t('dayPlanMulti', {
+        destinations: day.destinations.map(d => d.nome).join(' • '),
+        distance: day.travelKm,
+      });
     }
 
-    const transportKey = selectedTransport === 'buggy' ? 'buggy' : selectedTransport === 'hike' ? 'hike' : 'shuttle';
+    const only = day.destinations[0];
+    if (day.travelKm > 0) {
+      return t('dayPlanSingleTransfer', {
+        destination: only.nome,
+        city: only.municipio,
+        distance: day.travelKm,
+      });
+    }
+
+    return t('dayPlanSingle', { destination: only.nome, city: only.municipio });
+  };
+
+  // Process questionnaire answers and suggest a route
+  const handleGenerateRoute = () => {
+    const transportKey = normalizeTransport(selectedTransport);
     let title = t(`routes.${selectedStyle}.${transportKey}.title`);
     const description = t(`routes.${selectedStyle}.${transportKey}.description`);
 
-    // Smart search query injection
+    // The search box is the trip's starting point, so a match anchors the route instead of
+    // replacing one of the destinations the translated title promises.
     let matchedQueryDest: string | null = null;
     if (searchQuery.trim() !== '') {
       const q = searchQuery.toLowerCase();
-      const match = destinosInfo.find(d => 
-        d.nome.toLowerCase().includes(q) || 
+      const match = destinosInfo.find(d =>
+        d.nome.toLowerCase().includes(q) ||
         d.municipio.toLowerCase().includes(q)
       );
       if (match) {
         matchedQueryDest = match.nome;
-      }
-    }
 
-    if (matchedQueryDest && !selectedDestNames.includes(matchedQueryDest)) {
-      if (selectedDestNames.length >= 3) {
-        selectedDestNames[selectedDestNames.length - 1] = matchedQueryDest;
-      } else {
-        selectedDestNames.push(matchedQueryDest);
-      }
-      
-      const cleanName = matchedQueryDest.replace(/ e .*/g, '').replace(/ e Morro.*/g, '');
-      if (!title.includes(cleanName)) {
-        title = `${title} ${t('with')} ${cleanName}`;
-      }
-    }
-
-    const matchedDestinations = selectedDestNames
-      .map(name => destinosInfo.find(d => d.nome === name))
-      .filter(Boolean) as typeof destinosInfo;
-    
-    // Create day-by-day itineraries dynamically based on durationDays selected
-    const routeDays: RouteDay[] = [];
-    const numDays = durationDays;
-    
-    // Distribute matchedDestinations into numDays
-    for (let dayIndex = 1; dayIndex <= numDays; dayIndex++) {
-      let dayDests: typeof destinosInfo = [];
-      if (numDays === 1) {
-        dayDests = matchedDestinations.slice(0, 3); // 1-day trip gets up to 3 destinations
-      } else {
-        if (dayIndex === numDays) {
-          // Last day gets the remainder
-          dayDests = matchedDestinations.slice(dayIndex - 1);
-        } else {
-          // Other days get one destination each
-          dayDests = [matchedDestinations[dayIndex - 1]].filter(Boolean);
+        const cleanName = matchedQueryDest.replace(/ e .*/g, '').replace(/ e Morro.*/g, '');
+        if (!title.includes(cleanName)) {
+          title = `${title} ${t('with')} ${cleanName}`;
         }
       }
-      
-      routeDays.push({
-        day: dayIndex,
-        destinations: dayDests,
-        description: `Exploração do itinerário para o Dia ${dayIndex}. Aproveite as principais atividades locais.`,
-      });
     }
+
+    const plan = planRoute({
+      catalogue: destinosInfo,
+      style: normalizeStyle(selectedStyle),
+      transport: transportKey,
+      days: durationDays,
+      anchorName: matchedQueryDest,
+    });
+
+    const routeDays: RouteDay[] = plan.days.map(day => ({
+      day: day.day,
+      destinations: day.destinations,
+      description: describeDay(day),
+      travelKm: day.travelKm,
+    }));
 
     const generated = {
       title,
       description,
-      destinations: matchedDestinations,
-      days: routeDays.filter(day => day.destinations.length > 0),
+      destinations: plan.destinations,
+      days: routeDays,
     };
 
     // Pre-select default attractions
     const initialExps: Record<string, boolean> = {};
-    matchedDestinations.forEach(dest => {
+    plan.destinations.forEach(dest => {
       dest.atracoes?.forEach(act => {
         initialExps[act.id] = true;
       });
@@ -302,7 +257,10 @@ export default function TouristHomePage() {
     setSelectedExperiences(initialExps);
 
     setSuggestedRoute(generated);
-    setExpandedDay(1); // Auto-expand Day 1 on route generation
+    // Todos os dias nascem fechados: com um dia aberto o cronograma rolava e os
+    // demais dias sumiam da dobra, e o mapa enquadrava so o dia aberto em vez
+    // da rota inteira.
+    setExpandedDay(null);
 
     // Save generated route to search/route history in local storage
     if (typeof window !== 'undefined') {
@@ -312,10 +270,10 @@ export default function TouristHomePage() {
         id: `route-${Date.now()}`,
         title,
         style: selectedStyle,
-        duration: `${durationDays} ${durationDays === 1 ? 'dia' : 'dias'}`,
+        duration: `${plan.days.length} ${plan.days.length === 1 ? 'dia' : 'dias'}`,
         transport: selectedTransport,
         date: new Date().toLocaleDateString('pt-BR'),
-        destinations: matchedDestinations.map(d => d.nome),
+        destinations: plan.destinations.map(d => d.nome),
       };
       localStorage.setItem('poti_route_history', JSON.stringify([newHistoryItem, ...history].slice(0, 10)));
     }
@@ -326,11 +284,22 @@ export default function TouristHomePage() {
   // Memoized destinations for the map based on active day/route state or active filters
   const mapDestinations = useMemo(() => {
     if (suggestedRoute) {
-      if (expandedDay === null) return suggestedRoute.destinations;
+      // O dia de cada parada vai JUNTO para o mapa. Sem isso o pino caia no indice da
+      // parada e o mapa passava a contradizer o painel: 5 dias com 8 destinos numerava os
+      // pinos de 1 a 8 e o popup anunciava "Dia 8", dia que nao existe. O campo sempre
+      // existiu em HomeRouteMap — o que faltava era alguem preenche-lo.
+      const diaDaParada = new Map<string, number>();
+      for (const d of suggestedRoute.days) {
+        for (const dest of d.destinations) diaDaParada.set(dest.nome, d.day);
+      }
+      const comDia = (lista: typeof suggestedRoute.destinations) =>
+        lista.map(d => ({ ...d, dia: diaDaParada.get(d.nome) }));
+
+      if (expandedDay === null) return comDia(suggestedRoute.destinations);
       const dayItem = suggestedRoute.days.find(d => d.day === expandedDay);
-      return dayItem && dayItem.destinations.length > 0 
-        ? dayItem.destinations 
-        : suggestedRoute.destinations;
+      return dayItem && dayItem.destinations.length > 0
+        ? comDia(dayItem.destinations)
+        : comDia(suggestedRoute.destinations);
     }
 
     // Dynamic filtering for map markers when planning/configuring
@@ -399,51 +368,55 @@ export default function TouristHomePage() {
   return (
     <div className="animate-fade-in space-y-12">
       {/* ═══ Smart Route Planner & Map Split-Pane Hero Section ═══ */}
-      <section className="relative w-full border-b border-[var(--color-border)] bg-[var(--color-bg)] overflow-hidden">
-        <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[calc(100vh-4rem)] lg:h-[calc(100vh-4rem)] w-full">
-          
-          {/* Left Column: Blurred Map initially, clear on route generation */}
-          <div className="lg:col-span-7 relative h-[380px] lg:h-full w-full bg-[var(--color-surface-alt)] order-2 lg:order-1 border-b lg:border-b-0 lg:border-r border-[var(--color-border)] overflow-hidden">
-            <div className={cn(
-              "w-full h-full transition-all duration-1000",
-              (step === 1 || step === 2) ? "blur-[6px] scale-105" : "blur-0 scale-100"
-            )}>
-              <HomeRouteMap 
-                destinations={mapDestinations} 
-                activeDay={expandedDay} 
-                isInteractive={true}
-              />
-            </div>
-            
-            {/* Overlay Logo/Name on Map initially */}
-            {(step === 1 || step === 2) && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/10 transition-all duration-700 animate-fade-in pointer-events-none z-20">
-                <div className="bg-[var(--color-surface)]/90 backdrop-blur-sm border border-[var(--color-border)]/50 px-6 py-4 rounded-3xl shadow-2xl flex flex-col items-center gap-2">
-                  <div className="h-12 w-12 rounded-2xl bg-[var(--color-primary-soft)] flex items-center justify-center">
-                    <Sparkles className="h-6 w-6 text-[var(--color-primary)] animate-pulse" />
-                  </div>
-                  <span className="text-xl font-black tracking-wider text-[var(--color-text)]">POTI</span>
-                  <span className="text-[10px] uppercase font-bold text-[var(--color-text-muted)] tracking-widest">Observatório Potiguar</span>
-                </div>
-              </div>
-            )}
+      <section className="relative w-full h-[calc(100vh-4rem)] border-b border-[var(--color-border)] bg-[var(--color-bg)] overflow-hidden">
+
+          {/* Cena 3D ocupando o hero inteiro, atras de tudo. Sem interacao:
+              a camera e uma tomada fixa orbitando Genipabu, nao uma ferramenta
+              de navegacao — arrastar o mapa so quebraria o enquadramento. */}
+          <div className="absolute inset-0">
+            <HomeRouteMap
+              destinations={mapDestinations}
+              activeDay={expandedDay}
+              isInteractive={false}
+              hasRoute={suggestedRoute !== null}
+              routeDestinations={suggestedRoute?.destinations}
+              focusTarget={focusedDest}
+            />
           </div>
 
-          {/* Right Column: Title + Smart Unified Form OR Generated Itinerary */}
-          <div className="lg:col-span-5 flex flex-col p-6 sm:p-8 lg:p-10 overflow-y-auto max-h-full custom-scrollbar z-10 justify-between bg-[var(--color-surface)] order-1 lg:order-2">
+          {/* Painel flutuante. No mobile ocupa a metade de baixo e deixa a
+              duna aparecer em cima; no desktop encosta a direita com margem,
+              para o mapa respirar em volta. */}
+          {/* Painel flutuante. `p-6` tambem no desktop (era sm:p-8): 16px de
+              padding a menos e 16px de conteudo a mais, e num painel que precisa
+              caber sem rolar isso conta. */}
+          <div className="absolute inset-x-0 bottom-0 top-[42vh] lg:inset-y-6 lg:left-auto lg:right-6 lg:top-6 lg:bottom-6 lg:w-[min(30rem,42vw)] flex flex-col p-6 overflow-y-auto custom-scrollbar z-10 justify-between bg-[var(--color-surface)] rounded-t-3xl lg:rounded-3xl shadow-2xl ring-1 ring-[var(--color-border)]">
             {(step === 1 || step === 2) ? (
-              <div className="space-y-6 animate-fade-in my-auto">
+              <div className="space-y-3 animate-fade-in my-auto">
                 {/* Header Info */}
-                <div className="space-y-2.5">
-                  <Badge variant="accent" size="sm" className="px-2.5 py-0.5 text-[9px] font-bold tracking-wider uppercase">
+                <div className="space-y-2">
+                  <Badge variant="accent" size="sm" className="px-2.5 py-0.5 text-[11px] font-bold tracking-wider uppercase">
                     <Sparkles className="h-3 w-3 animate-pulse text-[var(--color-accent)] shrink-0" />
                     {t('title')}
                   </Badge>
-                  <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-[var(--color-text)] leading-[1.15] tracking-tight">
+                  {/* Entrelinha abaixo de 1 e tracking negativo: e daqui que
+                      vem a sensacao de titulo "puxado", nao de deformar a
+                      fonte. Medido nos sites do showcase da GSAP — Kononenko
+                      usa leading 0.70, TRIONN 0.90, ambos com tracking
+                      negativo. Peso 800 so passou a valer depois de h1-h6 ir
+                      para @layer base.
+
+                      O corpo escala por ALTURA de viewport, nao por largura. O
+                      painel nao pode rolar, e o que estoura a altura dele e este
+                      titulo: em 40px ele ocupava 157px em quatro linhas, 27% do
+                      espaco disponivel num viewport de 695px. Com vh ele fica
+                      grande em tela alta e compacto em tela baixa, que e onde o
+                      aperto existe. */}
+                  <h1 className="text-[28px] sm:text-4xl lg:text-[clamp(22px,3.1vh,40px)] font-extrabold text-[var(--color-text)] leading-[1.02] tracking-[-0.03em]">
                     {t('heading')} <br />
                     <span className="gradient-ocean gradient-text">{t('subheading')}</span>
                   </h1>
-                  <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                  <p className="text-[11.5px] text-[var(--color-text-secondary)] leading-snug">
                     {t('description')}
                   </p>
                 </div>
@@ -451,74 +424,21 @@ export default function TouristHomePage() {
                 {/* Smart Form Panel */}
                 {step === 1 ? (
                   /* STEP 1: Basic Route Options */
-                  <div className="space-y-4">
-                    {/* What we offer checklist */}
-                    <div className="space-y-2.5 pb-2 border-b border-[var(--color-border-light)] bg-[var(--color-surface-alt)]/30 p-3.5 rounded-2xl">
-                      <span className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
-                        O que oferecemos:
-                      </span>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
-                        <div className="flex gap-2.5 items-start">
-                          <span className="text-sm mt-0.5">🗺️</span>
-                          <div>
-                            <span className="text-[11px] font-extrabold text-[var(--color-text)] block leading-tight">Roteiros Inteligentes</span>
-                            <span className="text-[9px] text-[var(--color-text-secondary)] block mt-0.5 leading-normal">Rotas otimizadas por IA para os paraísos do RN.</span>
-                          </div>
-                        </div>
-                        <div className="flex gap-2.5 items-start">
-                          <span className="text-sm mt-0.5">🛡️</span>
-                          <div>
-                            <span className="text-[11px] font-extrabold text-[var(--color-text)] block leading-tight">Guias com Cadastur</span>
-                            <span className="text-[9px] text-[var(--color-text-secondary)] block mt-0.5 leading-normal">Conexão direta com operadores 100% legalizados.</span>
-                          </div>
-                        </div>
-                        <div className="flex gap-2.5 items-start">
-                          <span className="text-sm mt-0.5">🌱</span>
-                          <div>
-                            <span className="text-[11px] font-extrabold text-[var(--color-text)] block leading-tight">Zeladoria Ecológica</span>
-                            <span className="text-[9px] text-[var(--color-text-secondary)] block mt-0.5 leading-normal">Auditoria social de preservação em 3 cliques.</span>
-                          </div>
-                        </div>
-                        <div className="flex gap-2.5 items-start">
-                          <span className="text-sm mt-0.5">📊</span>
-                          <div>
-                            <span className="text-[11px] font-extrabold text-[var(--color-text)] block leading-tight">Painel Observatório</span>
-                            <span className="text-[9px] text-[var(--color-text-secondary)] block mt-0.5 leading-normal">Dados em tempo real para controle sustentável.</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    {/* Destination Search */}
-                    <div className="space-y-1.5">
-                      <label htmlFor="home-search" className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
-                        Buscar destino específico
-                      </label>
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--color-text-muted)] pointer-events-none" />
-                        <input
-                          id="home-search"
-                          type="text"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          placeholder="Ex: Pipa, Genipabu, Natal..."
-                          className="w-full h-9 pl-9 pr-8 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-alt)]/40 text-xs text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-border-focus)]"
-                        />
-                        {searchQuery && (
-                          <button
-                            type="button"
-                            onClick={() => setSearchQuery('')}
-                            aria-label="Limpar busca"
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
-                          >
-                            <X className="h-3.5 w-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
+                  <div className="space-y-3">
+                    {/* O card "O que oferecemos" saiu daqui. Eram 4 itens com
+                        titulo E descricao — ~70 palavras de argumento
+                        institucional (Cadastur, Zeladoria, Painel) empurrando a
+                        primeira pergunta de verdade para o sexto bloco do
+                        painel. Virou a faixa de selos no pe, so icone e rotulo.
+
+                        A busca por destino tambem desceu, para depois do CTA: o
+                        painel abre com "como voce viaja?", que e o que a POTI
+                        faz de diferente. Quem ja sabe o destino acha o campo
+                        logo abaixo. */}
 
                     {/* Travel Style Selection */}
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
+                      <label className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
                         {t('travelStyleLabel')}
                       </label>
                       <div className="flex flex-wrap gap-1.5">
@@ -531,12 +451,13 @@ export default function TouristHomePage() {
                               onClick={() => setSelectedStyle(s.id)}
                               title={s.desc}
                               className={cn(
-                                "px-3 py-1.5 rounded-full border text-left transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-[10.5px] font-bold",
+                                "px-2.5 py-1 rounded-full border text-left transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-xs font-bold",
                                 isActive
                                   ? "bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-sm"
                                   : "bg-[var(--color-surface-alt)]/40 border-[var(--color-border-light)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text)]"
                               )}
                             >
+                              <s.icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
                               {s.label}
                             </button>
                           );
@@ -544,56 +465,69 @@ export default function TouristHomePage() {
                       </div>
                     </div>
 
-                    {/* Duration Selection (Plus/Minus Counter) */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
-                        Duração do Roteiro
-                      </label>
-                      <div className="flex items-center justify-between bg-[var(--color-surface-alt)] p-1.5 rounded-xl border border-[var(--color-border-light)] max-w-[220px]">
-                        <button 
-                          type="button"
-                          onClick={() => setDurationDays(prev => Math.max(1, prev - 1))}
-                          className="h-8 w-10 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-black flex items-center justify-center cursor-pointer select-none transition-all"
-                        >
-                          -
-                        </button>
-                        <span className="font-black text-xs text-[var(--color-text)]">
-                          {durationDays} {durationDays === 1 ? 'Dia' : 'Dias'}
-                        </span>
-                        <button 
-                          type="button"
-                          onClick={() => setDurationDays(prev => Math.min(15, prev + 1))}
-                          className="h-8 w-10 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-black flex items-center justify-center cursor-pointer select-none transition-all"
-                        >
-                          +
-                        </button>
+                    {/* Duracao e transporte na MESMA linha. Empilhados eram dois
+                        blocos de ~66px cada, e o painel nao pode rolar. Lado a
+                        lado eles somam um: a duracao e um contador estreito e o
+                        transporte cresce no espaco que sobra. */}
+                    <div className="grid grid-cols-[auto_1fr] gap-2.5 items-end">
+                      {/* Duration Selection (Plus/Minus Counter) */}
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
+                          {t('durationLabel')}
+                        </label>
+                        <div className="flex items-center gap-1 bg-[var(--color-surface-alt)] p-1 rounded-xl border border-[var(--color-border-light)]">
+                          <button
+                            type="button"
+                            onClick={() => setDurationDays(prev => Math.max(1, prev - 1))}
+                            aria-label={t('durationMinus')}
+                            className="h-7 w-7 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-bold flex items-center justify-center cursor-pointer select-none transition-all"
+                          >
+                            -
+                          </button>
+                          {/* Plural por ICU, nao por ternario com string fixa:
+                              "3 Dias" aparecia em portugues no meio da UI em
+                              ingles. */}
+                          <span className="font-bold text-[11px] text-[var(--color-text)] tabular-nums text-center min-w-[46px]">
+                            {t('daysCount', { count: durationDays })}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setDurationDays(prev => Math.min(MAX_ROUTE_DAYS, prev + 1))}
+                            aria-label={t('durationPlus')}
+                            className="h-7 w-7 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-bold flex items-center justify-center cursor-pointer select-none transition-all"
+                          >
+                            +
+                          </button>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Transport Selection */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
-                        {t('transportLabel')}
-                      </label>
-                      <div className="flex bg-[var(--color-surface-alt)] p-1 rounded-xl border border-[var(--color-border-light)] gap-1">
-                        {transports.map(tInfo => {
-                          const isActive = selectedTransport === tInfo.id;
-                          return (
-                            <button
-                              key={tInfo.id}
-                              type="button"
-                              onClick={() => setSelectedTransport(tInfo.id)}
-                              className={cn(
-                                "flex-1 py-1.5 text-center rounded-lg font-extrabold text-[10px] transition-all cursor-pointer truncate select-none border border-transparent",
-                                isActive
-                                  ? "bg-[var(--color-surface)] text-[var(--color-primary)] shadow-sm border-[var(--color-border)]/20"
-                                  : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
-                              )}
-                            >
-                              {tInfo.label}
-                            </button>
-                          );
-                        })}
+                      {/* Transport Selection */}
+                      <div className="space-y-1.5 min-w-0">
+                        <label className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
+                          {t('transportLabel')}
+                        </label>
+                        <div className="flex bg-[var(--color-surface-alt)] p-1 rounded-xl border border-[var(--color-border-light)] gap-1">
+                          {transports.map(tInfo => {
+                            const isActive = selectedTransport === tInfo.id;
+                            return (
+                              <button
+                                key={tInfo.id}
+                                type="button"
+                                onClick={() => setSelectedTransport(tInfo.id)}
+                                title={tInfo.label}
+                                className={cn(
+                                  "flex-1 min-w-0 h-7 text-center rounded-lg font-bold text-[10.5px] transition-all cursor-pointer select-none border border-transparent flex items-center justify-center gap-1",
+                                  isActive
+                                    ? "bg-[var(--color-surface)] text-[var(--color-primary)] shadow-sm border-[var(--color-border)]/20"
+                                    : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
+                                )}
+                              >
+                                <tInfo.icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
+                                <span className="truncate">{tInfo.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
 
@@ -601,18 +535,59 @@ export default function TouristHomePage() {
                     <button
                       type="button"
                       onClick={() => setStep(2)}
-                      className="w-full mt-3 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg hover:shadow-[var(--color-primary)]/10 active:scale-[0.98] transform flex items-center justify-center gap-2 cursor-pointer text-[10.5px]"
+                      className="w-full mt-3 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg hover:shadow-[var(--color-primary)]/10 active:scale-[0.98] transform flex items-center justify-center gap-2 cursor-pointer text-xs"
                     >
                       <span>{t('nextStep')}</span>
                       <ArrowRight className="h-3.5 w-3.5 shrink-0" />
                     </button>
+
+                    {/* Atalho para quem ja tem destino em mente. Fica DEPOIS do
+                        CTA e sem label em caixa alta: e caminho alternativo, nao
+                        campo do formulario. Enter leva a camera ao lugar. */}
+                    <div>
+                      {/* Rotulo e dica na MESMA linha: a dica ocupava uma linha
+                          inteira embaixo do campo, e o painel nao pode rolar.
+                          Aqui ela continua visivel — Enter e a unica forma de
+                          disparar a busca — sem custar altura. */}
+                      <div className="flex items-baseline justify-between gap-2 mb-1.5">
+                        <label htmlFor="home-search" className="text-[11px] text-[var(--color-text-muted)]">
+                          {t('searchNudge')}
+                        </label>
+                        <span id="home-search-hint" className="text-[10px] text-[var(--color-text-muted)] shrink-0">
+                          {t('searchHint')}
+                        </span>
+                      </div>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--color-text-muted)] pointer-events-none" />
+                        <input
+                          id="home-search"
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          onKeyDown={handleSearchKeyDown}
+                          placeholder={t('startPointPlaceholder')}
+                          aria-describedby="home-search-hint"
+                          className="w-full h-9 pl-9 pr-8 rounded-xl border border-[var(--color-border-light)] bg-[var(--color-surface-alt)]/40 text-xs text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-border-focus)]"
+                        />
+                        {searchQuery && (
+                          <button
+                            type="button"
+                            onClick={() => { setSearchQuery(''); setFocusedDest(null); }}
+                            aria-label={t('clearSearch')}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   /* STEP 2: Advanced/Detailed Profile & Budget */
-                  <div className="space-y-4 animate-fade-in">
+                  <div className="space-y-3 animate-fade-in">
                     {/* Traveler Profile Selection */}
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
+                      <label className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
                         {t('groupProfileLabel')}
                       </label>
                       <div className="flex flex-wrap gap-1.5">
@@ -630,7 +605,7 @@ export default function TouristHomePage() {
                               type="button"
                               onClick={() => setSelectedGroupProfile(profileId)}
                               className={cn(
-                                "px-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-[10.5px] font-bold",
+                                "px-2.5 py-1 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-xs font-bold",
                                 isActive
                                   ? "bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-sm"
                                   : "bg-[var(--color-surface-alt)]/40 border-[var(--color-border-light)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text)]"
@@ -645,7 +620,7 @@ export default function TouristHomePage() {
 
                     {/* Budget Selection */}
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
+                      <label className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
                         {t('budgetLabel')}
                       </label>
                       <div className="flex bg-[var(--color-surface-alt)] p-1 rounded-xl border border-[var(--color-border-light)] gap-1">
@@ -657,7 +632,7 @@ export default function TouristHomePage() {
                               type="button"
                               onClick={() => setSelectedBudget(budgetId)}
                               className={cn(
-                                "flex-1 py-1.5 text-center rounded-lg font-extrabold text-[10px] transition-all cursor-pointer truncate select-none border border-transparent",
+                                "flex-1 h-7 text-center rounded-lg font-bold text-[11px] transition-all cursor-pointer truncate select-none border border-transparent flex items-center justify-center",
                                 isActive
                                   ? "bg-[var(--color-surface)] text-[var(--color-primary)] shadow-sm border-[var(--color-border)]/20"
                                   : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
@@ -672,7 +647,7 @@ export default function TouristHomePage() {
 
                     {/* Stay Preference Selection */}
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
+                      <label className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block">
                         {t('stayPreferenceLabel')}
                       </label>
                       <div className="flex flex-wrap gap-1.5">
@@ -685,7 +660,7 @@ export default function TouristHomePage() {
                               type="button"
                               onClick={() => setSelectedStayPreference(stayId)}
                               className={cn(
-                                "px-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-[10.5px] font-bold",
+                                "px-2.5 py-1 rounded-full border transition-all duration-200 cursor-pointer flex items-center gap-1.5 select-none text-xs font-bold",
                                 isActive
                                   ? "bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-sm"
                                   : "bg-[var(--color-surface-alt)]/40 border-[var(--color-border-light)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text)]"
@@ -703,14 +678,14 @@ export default function TouristHomePage() {
                       <button
                         type="button"
                         onClick={() => setStep(1)}
-                        className="flex-1 py-2 border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] rounded-xl font-bold text-[10.5px] transition-all text-[var(--color-text)] cursor-pointer"
+                        className="flex-1 py-2 border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] rounded-xl font-bold text-xs transition-all text-[var(--color-text)] cursor-pointer"
                       >
                         {t('prevStep')}
                       </button>
                       <button
                         type="button"
                         onClick={handleGenerateRoute}
-                        className="flex-[2] py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer text-[10.5px]"
+                        className="flex-[2] py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer text-xs"
                       >
                         <Sparkles className="h-3.5 w-3.5 shrink-0" />
                         {t('generateButton')}
@@ -719,10 +694,26 @@ export default function TouristHomePage() {
                   </div>
                 )}
 
-                {/* Footer Certifications */}
-                <div className="flex items-center gap-4 text-[10px] text-[var(--color-text-muted)] justify-center pt-2">
-                  <span className="flex items-center gap-1"><Shield className="h-3.5 w-3.5 text-[var(--color-success)]" /> {t('cadasturCert')}</span>
-                  <span className="flex items-center gap-1"><Navigation className="h-3.5 w-3.5 text-[var(--color-primary)]" /> {t('activeGps')}</span>
+                {/* Selos. Herdeiros do card "O que oferecemos" e do rodape de
+                    certificacoes, que diziam a mesma coisa duas vezes ("100%
+                    Cadastur" logo abaixo de "Guias com Cadastur"). Aqui provam
+                    o diferencial sem gastar frase: icone e rotulo, e o
+                    argumento longo fica para quem rolar a pagina. */}
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 pt-3 border-t border-[var(--color-border-light)]">
+                  {[
+                    { icon: Route, label: t('seals.ai') },
+                    { icon: ShieldCheck, label: t('seals.cadastur') },
+                    { icon: Leaf, label: t('seals.stewardship') },
+                    { icon: BarChart3, label: t('seals.liveData') },
+                  ].map(({ icon: Icon, label }) => (
+                    <span
+                      key={label}
+                      className="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--color-text-secondary)]"
+                    >
+                      <Icon className="h-3.5 w-3.5 shrink-0 text-[var(--color-primary)]" strokeWidth={1.75} />
+                      {label}
+                    </span>
+                  ))}
                 </div>
               </div>
             ) : (
@@ -781,7 +772,7 @@ export default function TouristHomePage() {
                             let currentPrev = prevDest;
                             dayItem.destinations.forEach((dest) => {
                               if (currentPrev && currentPrev.nome !== dest.nome) {
-                                const dist = getHaversineDistance(
+                                const dist = haversineKm(
                                   currentPrev.latitude,
                                   currentPrev.longitude,
                                   dest.latitude,
@@ -1331,7 +1322,7 @@ export default function TouristHomePage() {
                               let currentPrev = prevDest;
                               dayItem.destinations.forEach((dest) => {
                                 if (currentPrev && currentPrev.nome !== dest.nome) {
-                                  const dist = getHaversineDistance(
+                                  const dist = haversineKm(
                                     currentPrev.latitude,
                                     currentPrev.longitude,
                                     dest.latitude,
@@ -1813,18 +1804,35 @@ export default function TouristHomePage() {
             )}
           </div>
 
-          {/* Floating Scroll Down Button */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden lg:flex flex-col items-center gap-1.5 z-20 cursor-pointer group"
-               onClick={() => document.getElementById('recommended-destinations')?.scrollIntoView({ behavior: 'smooth' })}>
-            <span className="text-[10px] font-black uppercase tracking-wider text-[var(--color-text-muted)] group-hover:text-[var(--color-text)] transition-colors">
-              Explorar Destinos
-            </span>
-            <div className="h-9 w-6 rounded-full border-2 border-[var(--color-border)] group-hover:border-[var(--color-primary)] flex items-start justify-center p-1.5 transition-colors">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-text-muted)] group-hover:bg-[var(--color-primary)] transition-colors animate-bounce" />
-            </div>
+          {/* Indicador de scroll: trilho fino com o ponto descendo, no lugar do
+              desenho de mouse — a cena 3D ja e o elemento pesado do hero.
+              Pousa sobre o satelite, entao usa branco proprio em vez dos tokens
+              de superficie, que sumiriam na foto.
+
+              Centrado na AREA DO MAPA, nao no hero inteiro: o painel come a
+              direita, e centralizar em 50% da tela jogaria o indicador contra a
+              borda dele. A largura e a mesma conta que o painel usa
+              (min(30rem,42vw) + a margem de 1.5rem), entao ele fica no meio da
+              faixa de mapa que sobra — a ~16px do eixo otico da camera, que
+              tambem desconta o padding esquerdo de 56px.
+
+              O wrapper posiciona e o botao continua do tamanho do conteudo: um
+              botao de 1400px de largura interceptaria clique de toda a faixa. */}
+          <div className="pointer-events-none absolute bottom-6 left-0 z-20 hidden w-[calc(100%-min(30rem,42vw)-1.5rem)] justify-center lg:flex">
+            <button
+              type="button"
+              onClick={() => document.getElementById('recommended-destinations')?.scrollIntoView({ behavior: 'smooth' })}
+              className="pointer-events-auto flex flex-col items-center gap-2.5 cursor-pointer group bg-transparent border-0 p-1 rounded-lg [text-shadow:0_1px_8px_rgba(0,0,0,0.6)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            >
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/80 group-hover:text-white transition-colors">
+                Explorar Destinos
+              </span>
+              <span className="relative block h-10 w-px overflow-hidden bg-white/35 group-hover:bg-white/60 transition-colors">
+                <span className="scroll-hint-dot absolute left-1/2 h-2.5 w-[3px] rounded-full bg-white/80 group-hover:bg-white transition-colors" />
+              </span>
+            </button>
           </div>
 
-        </div>
       </section>
 
       {/* ═══ Popular Destinations (Larger Clickable Cards) ═══ */}
@@ -1852,9 +1860,15 @@ export default function TouristHomePage() {
                   
                   {/* Larger Image Section */}
                   <div className="relative h-64 w-full overflow-hidden">
-                    <Image
-                      src={dest.imagem || '/images/destinations/hero_ponta_negra.png'}
+                    <PlaceImage
+                      src={dest.imagem}
                       alt={dest.nome}
+                      local={dest.nome}
+                      latitude={dest.latitude}
+                      longitude={dest.longitude}
+                      mapLabel={dest.municipio}
+                      variant="card"
+                      showMapLabel={false}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -1938,9 +1952,13 @@ export default function TouristHomePage() {
                 <div className="surface-card-interactive p-4 flex flex-col sm:flex-row items-center gap-4 text-left">
                   {/* Left: Image */}
                   <div className="relative h-20 w-20 sm:h-24 sm:w-24 rounded-2xl overflow-hidden flex-shrink-0">
-                    <Image
-                      src={dest.imagem || '/images/destinations/hero_ponta_negra.png'}
+                    <PlaceImage
+                      src={dest.imagem}
                       alt={dest.nome}
+                      local={dest.nome}
+                      latitude={dest.latitude}
+                      longitude={dest.longitude}
+                      variant="thumb"
                       fill
                       className="object-cover transition-transform duration-300 group-hover:scale-105"
                       sizes="96px"

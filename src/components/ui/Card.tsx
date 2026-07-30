@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode } from 'react';
+import { type ReactNode, type KeyboardEvent } from 'react';
 import { cn } from '@/lib/utils';
 
 const cardVariants = {
@@ -25,16 +25,34 @@ interface CardProps {
   children?: ReactNode;
   onClick?: () => void;
   id?: string;
+  /** Passe false quando o card já tem um controle focável próprio (evita aninhar semântica de botão). */
+  asButton?: boolean;
+  /** Para cards-botão que abrem/fecham um bloco de detalhes. */
+  'aria-expanded'?: boolean;
+  /** Para cards-botão que abrem um popup, ex.: 'dialog'. */
+  'aria-haspopup'?: 'dialog' | 'menu' | 'listbox' | true;
 }
 
-export function Card({ variant = 'default', padding = 'md', className, children, onClick, id }: CardProps) {
+export function Card({ variant = 'default', padding = 'md', className, children, onClick, id, asButton = true, 'aria-expanded': ariaExpanded, 'aria-haspopup': ariaHasPopup }: CardProps) {
+  const isButton = Boolean(onClick) && asButton;
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick?.();
+    }
+  };
+
   return (
     <div
       id={id}
       onClick={onClick}
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick ? 0 : undefined}
-      className={cn(cardVariants[variant], paddings[padding], className)}
+      onKeyDown={isButton ? handleKeyDown : undefined}
+      role={isButton ? 'button' : undefined}
+      tabIndex={isButton ? 0 : undefined}
+      aria-expanded={isButton ? ariaExpanded : undefined}
+      aria-haspopup={isButton ? ariaHasPopup : undefined}
+      className={cn(cardVariants[variant], paddings[padding], onClick && 'cursor-pointer', className)}
     >
       {children}
     </div>

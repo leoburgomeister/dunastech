@@ -258,14 +258,21 @@ export default function PitchPage() {
     }
   };
 
-  // Prompter scripts matching the rebranding focus
+  // Roteiro do apresentador (3 min) — tom colaborativo, sem números no discurso
+  // (os indicadores ficam nos slides). Fecho com CTA de parceria.
   const prompterScripts = [
-    "Olá, banca! Nós somos a equipe do POTI - Plataforma de Observatório do Turismo Inteligente do Rio Grande do Norte. Desenvolvemos uma plataforma que transforma dados dispersos em decisões estratégicas para prefeituras, órgãos estaduais e investidores.",
-    "O turismo gera dados todos os dias, mas o desafio é transformá-los em decisões. No RN, o turismo representa 76% do PIB de serviços, 75% da arrecadação de ICMS e 73% dos empregos. No entanto, prefeituras ainda governam no escuro, sem dados reais da zeladoria local. O fluxo sem controle destrói os atrativos turísticos.",
-    "A solução é a plataforma integrada POTI. Introduzimos o ISA - Índice de Saúde do Atrativo, um score dinâmico (0 a 100) baseado em dados do turista, zeladoria e APIs sociais. No perfil do Turista (B2C), geramos rotas e avaliações inteligentes. No perfil da Gestão (B2G), fornecemos alertas preditivos automáticos.",
-    "Nosso ecossistema resolve o problema integrando 4 grandes atores. O turista é transformado em um sensor vivo de zeladoria. A prefeitura visualiza o ISA e alertas em tempo real. O trade de MEIs locais é inserido em uma vitrine auditável, e os administradores técnicos auditam logs e conformidade com a LGPD.",
-    "Monetizamos o observatório de forma sustentável com três fontes: roteiros B2C gratuitos, destaques patrocinados Freemium B2B baseados em CPC para negócios credenciados no Cadastur, e assinatura SaaS B2G para órgãos públicos. Nosso sistema de Força Cadastur notifica negócios irregulares prevenindo fraudes.",
-    "O Poti RN Gestão conecta dados, transforma a gestão e promove o crescimento sustentável do turismo potiguar. Garantimos que os destinos do Rio Grande do Norte estejam preservados hoje para continuarem atraindo turistas amanhã. Muito obrigado!"
+    // Slide 0 — Abertura
+    "Secretário, conselheiros: o turismo é uma das maiores forças do Rio Grande do Norte. Mas hoje boa parte das decisões ainda é tomada com dados que chegam tarde e espalhados. Somos a DunasTech, e criamos o POTI — a Plataforma de Observação do Turismo Inteligente.",
+    // Slide 1 — O Desafio
+    "O turismo gera dados todos os dias; o desafio é transformá-los em decisão. Ele é o principal motor da nossa economia, mas quem cuida dele nem sempre tem em mãos uma leitura viva do território. E, sem essa visão, o crescimento pode acabar desgastando os próprios destinos que são o nosso maior orgulho.",
+    // Slide 2 — A Solução + ISA
+    "O POTI é uma camada de inteligência com duas faces sobre o mesmo dado. Para o turista, um assistente que monta o roteiro do dia em poucos minutos, recomendando só prestadores regularizados no Cadastur. Para o governo, um observatório que enxerga o território em tempo real. No centro está o ISA — o Índice de Saúde do Atrativo: limpeza, sinalização, preservação, acessibilidade, segurança, custo-benefício, conservação e lotação. Ele mostra qual atrativo precisa de cuidado antes de o problema aparecer. E não é maquete: já trabalhamos com dados reais de Cadastur, IBGE e dos nossos destinos.",
+    // Slide 3 — Ecossistema
+    "É um ecossistema que une todo mundo. O turista se torna um parceiro na preservação. O gestor público enxerga a saúde dos destinos e antecipa ações. O trade local regularizado ganha visibilidade — um convite à formalização. E tudo isso com segurança e respeito à privacidade, com as informações do turista tratadas de forma anonimizada.",
+    // Slide 4 — Sustentabilidade + Impacto
+    "O modelo se sustenta de forma equilibrada: gratuito para o turista, com destaque opcional para o trade credenciado, e assinatura para a gestão pública. E o impacto é territorial: ajudar o estado a levar mais visitantes para o interior, distribuindo oportunidades, e a fortalecer quem faz o turismo com regularidade.",
+    // Slide 5 — Fecho (CTA colaborativo)
+    "Mais do que uma ferramenta, propomos uma parceria: caminhar junto com a Secretaria de Turismo para colocar a inteligência a serviço dos nossos destinos. POTI, da DunasTech. Vamos juntos transformar o turismo do RN — e do Brasil?"
   ];
 
   // Custom tooltip style for charts
@@ -394,7 +401,7 @@ export default function PitchPage() {
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className="text-4xl sm:text-6xl font-black tracking-tight leading-none"
               >
-                Poti RN <span className="text-[#D4A017]">Gestão</span>
+                <span className="text-[#D4A017]">POTI</span>
               </motion.h1>
               
               <motion.p
@@ -549,7 +556,7 @@ export default function PitchPage() {
               </motion.h2>
 
               <p className="text-[#3D595B] text-xs sm:text-sm leading-relaxed font-semibold">
-                O Poti RN Gestão conecta os dois mundos: a jornada sensorial do turista e a tomada de decisão inteligente do gestor público, baseada no **Índice de Saúde do Atrativo (ISA)**.
+                O POTI conecta os dois mundos: a jornada sensorial do turista e a tomada de decisão inteligente do gestor público, baseada no **Índice de Saúde do Atrativo (ISA)**.
               </p>
 
               {/* ISA spotlight box */}
@@ -1341,7 +1348,7 @@ export default function PitchPage() {
               transition={{ delay: 0.1 }}
               className="text-4xl sm:text-6xl font-black tracking-tight"
             >
-              Poti RN <span className="text-[#D4A017]">Gestão</span>
+              <span className="text-[#D4A017]">POTI</span>
             </motion.h2>
 
             <motion.p
@@ -1384,7 +1391,7 @@ export default function PitchPage() {
               transition={{ delay: 0.5 }}
               className="text-[9px] text-[#7E9798] pt-6 flex flex-col items-center gap-1 font-extrabold uppercase tracking-wider border-t border-[#0F6B6D]/30 mt-6"
             >
-              <span>POTI · Hackathon do Sol 2026 · Natal/RN</span>
+              <span>POTI · uma solução DunasTech · Hackathon do Sol 2026 · Natal/RN</span>
               <span>Inteligência Territorial Governamental</span>
             </motion.div>
           </div>

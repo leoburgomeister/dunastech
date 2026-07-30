@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { useTheme } from 'next-themes';
 import L from 'leaflet';
 import { type DestinoInfo, type Feedback, fluxoData, calcularISA } from '@/data/mockData';
 import { Badge } from '@/components/ui/Badge';
+import { PlaceImage } from '@/components/ui/PlaceImage';
 import { Users, Activity, MapPin } from 'lucide-react';
 import { slugify } from '@/lib/utils';
 
@@ -118,7 +118,17 @@ export default function DestinosMap({ destinations, feedbacks = [] }: DestinosMa
               <Popup>
                 <div className="p-2 space-y-2 min-w-56 text-[var(--color-text)]">
                   <div className="relative h-20 w-full rounded-lg overflow-hidden">
-                    <Image src={d.imagem} alt={d.nome} fill sizes="224px" className="object-cover" />
+                    <PlaceImage
+                      src={d.imagem}
+                      alt={d.nome}
+                      local={d.nome}
+                      latitude={d.latitude}
+                      longitude={d.longitude}
+                      variant="thumb"
+                      fill
+                      sizes="224px"
+                      className="object-cover"
+                    />
                     <div className="absolute top-1.5 right-1.5">
                       <Badge variant={isa >= 80 ? 'success' : isa >= 60 ? 'warning' : 'danger'} size="sm">
                         ISA: {isa}

@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Modal } from "@/components/ui/Modal";
 import { Badge } from "@/components/ui/Badge";
 import {
   destinosInfo,
@@ -21,7 +22,8 @@ import {
   ArrowUpDown,
   Eye,
   EyeOff,
-  AlertCircle
+  AlertCircle,
+  type LucideIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +38,45 @@ interface MunicipioStats {
   fluxo_total: number;
 }
 
+type KPIKey = "population" | "area" | "investments" | "revenue";
+
+const KPI_DETAIL: Record<KPIKey, {
+  title: string;
+  icon: LucideIcon;
+  chip: string;
+  sort: (a: MunicipioStats, b: MunicipioStats) => number;
+  value: (m: MunicipioStats) => string;
+}> = {
+  population: {
+    title: "Distribuição populacional por município",
+    icon: Users,
+    chip: "bg-[var(--color-primary-light)] text-[var(--color-primary)]",
+    sort: (a, b) => b.populacao - a.populacao,
+    value: (m) => m.populacao.toLocaleString("pt-BR")
+  },
+  area: {
+    title: "Área territorial monitorada",
+    icon: Map,
+    chip: "bg-emerald-100 dark:bg-emerald-950 text-emerald-500",
+    sort: (a, b) => b.area_km2 - a.area_km2,
+    value: (m) => `${m.area_km2.toLocaleString("pt-BR")} km²`
+  },
+  investments: {
+    title: "Investimentos estaduais em 2026",
+    icon: DollarSign,
+    chip: "bg-blue-100 dark:bg-blue-950 text-blue-500",
+    sort: (a, b) => b.investimento_mil - a.investimento_mil,
+    value: (m) => `R$ ${m.investimento_mil.toLocaleString("pt-BR")}k`
+  },
+  revenue: {
+    title: "Receita de turismo por mês",
+    icon: TrendingUp,
+    chip: "bg-purple-100 dark:bg-purple-950 text-purple-500",
+    sort: (a, b) => b.receita_milhoes - a.receita_milhoes,
+    value: (m) => `R$ ${m.receita_milhoes.toFixed(1)}M`
+  }
+};
+
 export default function CidadesGestaoPage() {
   useSupabaseSync();
   const [searchTerm, setSearchTerm] = useState("");
@@ -48,7 +89,21 @@ export default function CidadesGestaoPage() {
     }
     return destinosInfo.filter(d => d.monitorado !== false).map(d => d.nome);
   });
-  const [expandedKPI, setExpandedKPI] = useState<'population' | 'area' | 'investments' | 'revenue' | null>(null);
+  // detailKPI nunca zera: mantém o conteúdo em tela enquanto o popup faz a animação de saída.
+  const [detailKPI, setDetailKPI] = useState<KPIKey>("population");
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  // Centro do card clicado: o popup nasce de lá, em vez de surgir no meio da tela.
+  const [popupOrigin, setPopupOrigin] = useState<{ x: number; y: number } | null>(null);
+
+  const openDetail = (key: KPIKey) => {
+    const card = document.getElementById(`kpi-${key}`);
+    if (card) {
+      const rect = card.getBoundingClientRect();
+      setPopupOrigin({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    }
+    setDetailKPI(key);
+    setIsDetailOpen(true);
+  };
 
   // Load monitored spots from localStorage, fallback to mockData defaults
   useEffect(() => {
@@ -154,6 +209,13 @@ export default function CidadesGestaoPage() {
     };
   }, [municipiosList]);
 
+  const kpiDetail = KPI_DETAIL[detailKPI];
+
+  const kpiRanking = useMemo(
+    () => [...municipiosList].sort(kpiDetail.sort).slice(0, 6),
+    [municipiosList, kpiDetail]
+  );
+
   const handleSort = (field: typeof sortBy) => {
     if (sortBy === field) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -179,11 +241,14 @@ export default function CidadesGestaoPage() {
 
         {/* KPIs Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card 
-            onClick={() => setExpandedKPI(expandedKPI === 'population' ? null : 'population')}
+          <Card
+            id="kpi-population"
+            onClick={() => openDetail('population')}
+            aria-expanded={isDetailOpen && detailKPI === 'population'}
+            aria-haspopup="dialog"
             className={cn(
-              "p-4 flex items-center gap-4 cursor-pointer hover:border-[var(--color-primary)] transition-all border select-none",
-              expandedKPI === 'population' ? "border-[var(--color-primary)] bg-[var(--color-primary-soft)]/5" : "border-[var(--color-border-light)]"
+              "p-4 flex items-center gap-4 cursor-pointer hover:border-[var(--color-primary)] hover:shadow-md transition-all border select-none",
+              isDetailOpen && detailKPI === 'population' ? "border-[var(--color-primary)] bg-[var(--color-primary-soft)]/5 shadow-md" : "border-[var(--color-border-light)]"
             )}
           >
             <div className="p-3 bg-[var(--color-primary-light)] rounded-2xl text-[var(--color-primary)]">
@@ -197,11 +262,14 @@ export default function CidadesGestaoPage() {
             </div>
           </Card>
 
-          <Card 
-            onClick={() => setExpandedKPI(expandedKPI === 'area' ? null : 'area')}
+          <Card
+            id="kpi-area"
+            onClick={() => openDetail('area')}
+            aria-expanded={isDetailOpen && detailKPI === 'area'}
+            aria-haspopup="dialog"
             className={cn(
-              "p-4 flex items-center gap-4 cursor-pointer hover:border-emerald-500 transition-all border select-none",
-              expandedKPI === 'area' ? "border-emerald-500 bg-emerald-500/5" : "border-[var(--color-border-light)]"
+              "p-4 flex items-center gap-4 cursor-pointer hover:border-emerald-500 hover:shadow-md transition-all border select-none",
+              isDetailOpen && detailKPI === 'area' ? "border-emerald-500 bg-emerald-500/5 shadow-md" : "border-[var(--color-border-light)]"
             )}
           >
             <div className="p-3 bg-emerald-100 dark:bg-emerald-950 rounded-2xl text-emerald-500">
@@ -215,11 +283,14 @@ export default function CidadesGestaoPage() {
             </div>
           </Card>
 
-          <Card 
-            onClick={() => setExpandedKPI(expandedKPI === 'investments' ? null : 'investments')}
+          <Card
+            id="kpi-investments"
+            onClick={() => openDetail('investments')}
+            aria-expanded={isDetailOpen && detailKPI === 'investments'}
+            aria-haspopup="dialog"
             className={cn(
-              "p-4 flex items-center gap-4 cursor-pointer hover:border-blue-500 transition-all border select-none",
-              expandedKPI === 'investments' ? "border-blue-500 bg-blue-500/5" : "border-[var(--color-border-light)]"
+              "p-4 flex items-center gap-4 cursor-pointer hover:border-blue-500 hover:shadow-md transition-all border select-none",
+              isDetailOpen && detailKPI === 'investments' ? "border-blue-500 bg-blue-500/5 shadow-md" : "border-[var(--color-border-light)]"
             )}
           >
             <div className="p-3 bg-blue-100 dark:bg-blue-950 rounded-2xl text-blue-500">
@@ -233,11 +304,14 @@ export default function CidadesGestaoPage() {
             </div>
           </Card>
 
-          <Card 
-            onClick={() => setExpandedKPI(expandedKPI === 'revenue' ? null : 'revenue')}
+          <Card
+            id="kpi-revenue"
+            onClick={() => openDetail('revenue')}
+            aria-expanded={isDetailOpen && detailKPI === 'revenue'}
+            aria-haspopup="dialog"
             className={cn(
-              "p-4 flex items-center gap-4 cursor-pointer hover:border-purple-500 transition-all border select-none",
-              expandedKPI === 'revenue' ? "border-purple-500 bg-purple-500/5" : "border-[var(--color-border-light)]"
+              "p-4 flex items-center gap-4 cursor-pointer hover:border-purple-500 hover:shadow-md transition-all border select-none",
+              isDetailOpen && detailKPI === 'revenue' ? "border-purple-500 bg-purple-500/5 shadow-md" : "border-[var(--color-border-light)]"
             )}
           >
             <div className="p-3 bg-purple-100 dark:bg-purple-950 rounded-2xl text-purple-500">
@@ -252,47 +326,34 @@ export default function CidadesGestaoPage() {
           </Card>
         </div>
 
-        {/* Expanded KPI Detail Block */}
-        {expandedKPI && (
-          <Card className="p-5 border border-[var(--color-border)] bg-[var(--color-surface-alt)]/40 animate-fade-in space-y-3">
-            <div className="flex items-center justify-between border-b border-[var(--color-border-light)] pb-2">
-              <h3 className="font-bold text-xs text-[var(--color-text)] flex items-center gap-2">
-                {expandedKPI === 'population' && <>👥 Distribuição Populacional por Município (Top 6)</>}
-                {expandedKPI === 'area' && <>🗺️ Detalhamento de Área Territorial Monitorada (Top 6)</>}
-                {expandedKPI === 'investments' && <>💰 Detalhamento de Investimentos Estaduais (Top 6)</>}
-                {expandedKPI === 'revenue' && <>📈 Detalhamento de Receita de Turismo (Top 6)</>}
-              </h3>
-              <button 
-                onClick={() => setExpandedKPI(null)}
-                className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
+        {/* KPI Detail Popup */}
+        <Modal
+          open={isDetailOpen}
+          onClose={() => setIsDetailOpen(false)}
+          origin={popupOrigin}
+          title={kpiDetail?.title ?? ''}
+          subtitle="Top 6 municípios"
+          icon={kpiDetail && (
+            <span className={cn("p-2.5 rounded-2xl flex-shrink-0", kpiDetail.chip)}>
+              <kpiDetail.icon className="w-5 h-5" />
+            </span>
+          )}
+        >
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {kpiRanking.map((m, i) => (
+              <div
+                key={m.nome}
+                className="relative p-3 bg-[var(--color-surface-alt)] border border-[var(--color-border-light)] rounded-xl space-y-1"
               >
-                Fechar [x]
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {[...municipiosList]
-                .sort((a, b) => {
-                  if (expandedKPI === 'population') return b.populacao - a.populacao;
-                  if (expandedKPI === 'area') return b.area_km2 - a.area_km2;
-                  if (expandedKPI === 'investments') return b.investimento_mil - a.investimento_mil;
-                  return b.receita_milhoes - a.receita_milhoes;
-                })
-                .slice(0, 6)
-                .map((m) => (
-                  <div key={m.nome} className="p-3 bg-[var(--color-surface)] border border-[var(--color-border-light)] rounded-xl text-center space-y-1">
-                    <span className="text-[10px] font-bold text-[var(--color-text-muted)] truncate block">{m.nome}</span>
-                    <span className="font-black text-xs text-[var(--color-text)] block">
-                      {expandedKPI === 'population' && `${m.populacao.toLocaleString("pt-BR")}`}
-                      {expandedKPI === 'area' && `${m.area_km2.toLocaleString("pt-BR")} km²`}
-                      {expandedKPI === 'investments' && `R$ ${m.investimento_mil.toLocaleString("pt-BR")}k`}
-                      {expandedKPI === 'revenue' && `R$ ${m.receita_milhoes.toFixed(1)}M`}
-                    </span>
-                  </div>
-                ))}
-            </div>
-          </Card>
-        )}
+                <span className="absolute top-2.5 right-3 text-[10px] font-[var(--font-mono)] text-[var(--color-text-muted)]">
+                  {i + 1}
+                </span>
+                <span className="text-[10px] font-bold text-[var(--color-text-muted)] truncate block pr-5">{m.nome}</span>
+                <span className="font-black text-sm text-[var(--color-text)] block">{kpiDetail?.value(m)}</span>
+              </div>
+            ))}
+          </div>
+        </Modal>
 
         {/* Charts & Comparative Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

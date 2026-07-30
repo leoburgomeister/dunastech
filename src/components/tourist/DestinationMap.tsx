@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import { useTheme } from 'next-themes';
 import { type DestinoInfo, cadasturData } from '@/data/mockData';
+import { createMarkerElement } from '@/lib/map/marker';
 
 // Helper to determine marker styling based on partner type
 function getPartnerIconStyle(tipo: string): { icon: string; color: string } {
@@ -121,23 +122,7 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
 
     // Add main center destination marker
     const centerStyle = getPartnerIconStyle('Centro');
-    const centerEl = document.createElement('div');
-    centerEl.className = 'marker-wrapper';
-
-    const centerPulse = document.createElement('div');
-    centerPulse.className = 'marker-pulse';
-    centerPulse.style.backgroundColor = centerStyle.color;
-    centerEl.appendChild(centerPulse);
-
-    const centerPin = document.createElement('div');
-    centerPin.className = 'marker-custom';
-    centerPin.style.backgroundColor = centerStyle.color;
-    centerEl.appendChild(centerPin);
-
-    const centerEmoji = document.createElement('span');
-    centerEmoji.className = 'marker-emoji';
-    centerEmoji.innerText = centerStyle.icon;
-    centerPin.appendChild(centerEmoji);
+    const centerEl = createMarkerElement({ color: centerStyle.color, glyph: centerStyle.icon });
 
     const centerPopup = new maplibregl.Popup({ offset: 25 }).setHTML(`
       <div style="font-family: var(--font-jakarta), sans-serif; padding: 2px;">
@@ -155,23 +140,7 @@ export default function DestinationMap({ destination }: DestinationMapProps) {
     // Add partner markers
     partners.forEach((partner) => {
       const style = getPartnerIconStyle(partner.tipo);
-      const el = document.createElement('div');
-      el.className = 'marker-wrapper';
-
-      const pulse = document.createElement('div');
-      pulse.className = 'marker-pulse';
-      pulse.style.backgroundColor = style.color;
-      el.appendChild(pulse);
-
-      const pin = document.createElement('div');
-      pin.className = 'marker-custom';
-      pin.style.backgroundColor = style.color;
-      el.appendChild(pin);
-
-      const emojiEl = document.createElement('span');
-      emojiEl.className = 'marker-emoji';
-      emojiEl.innerText = style.icon;
-      pin.appendChild(emojiEl);
+      const el = createMarkerElement({ color: style.color, glyph: style.icon });
 
       const popupHtml = `
         <div style="font-family: var(--font-jakarta), sans-serif; padding: 4px; min-width: 180px; color: var(--color-text);">

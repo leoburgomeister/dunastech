@@ -75,14 +75,14 @@
     "selectDestination": "Selecciona el destino",
     "overallRating": "Nota general",
     "criteria": {
-      "clean": "🧹 Limpio y conservado",
-      "signage": "🪧 Buena señalización",
-      "preserved": "🌿 Bien preservado",
-      "accessible": "♿ Accesible",
-      "safe": "🔒 Seguro",
-      "hospitality": "😊 Buena hospitalidad",
-      "infrastructure": "🏗️ Buena infraestructura",
-      "overcrowded": "🚫 Sobresaturado"
+      "clean": "Limpio y conservado",
+      "signage": "Buena señalización",
+      "preserved": "Bien preservado",
+      "accessible": "Accesible",
+      "safe": "Seguro",
+      "hospitality": "Buena hospitalidad",
+      "infrastructure": "Buena infraestructura",
+      "overcrowded": "Sobresaturado"
     },
     "comment": "Comentario (opcional)",
     "commentPlaceholder": "Cuéntanos sobre tu experiencia...",
@@ -140,31 +140,34 @@
     "title": "POTI - Observatorio del Turismo Inteligente",
     "heading": "Rutas con Alma Potiguar,",
     "subheading": "Turismo Seguro y Sostenible",
-    "description": "POTI es la plataforma de observatorio inteligente que lo conecta con lo mejor de Rio Grande do Norte. Planifique rutas a su medida, contrate guías certificados en Cadastur y ayude a monitorear el estado de nuestros destinos. ¡Orgullo de valorar nuestra cultura y preservar nuestros paraísos naturales!",
-    "startPointLabel": "📍 Punto de Partida o Enfoque (Opcional)",
+    "description": "Diga cómo viaja. POTI arma su ruta por Rio Grande do Norte, con guías certificados y datos reales de cada destino.",
+    "startPointLabel": "Punto de Partida o Enfoque (Opcional)",
     "startPointPlaceholder": "Ej: Pipa, Genipabu, Natal...",
-    "travelStyleLabel": "🎭 Estilo de Viaje",
-    "durationLabel": "📅 Duración de la Ruta",
-    "transportLabel": "🚗 Medio de Transporte",
-    "generateButton": "Generar Itinerario Inteligente ✨",
+    "travelStyleLabel": "Estilo de Viaje",
+    "durationLabel": "Duración de la Ruta",
+    "transportLabel": "Medio de Transporte",
+    "generateButton": "Generar Itinerario Inteligente",
     "cadasturCert": "100% Cadastur",
     "activeGps": "GPS Activo",
     "optimizedItinerary": "Itinerario Optimizado",
     "redo": "Rehacer",
     "itinerarySchedule": "Cronograma del Itinerario",
     "day": "Día {day}",
-    "routeAndMobility": "🚗 Trayecto y Locomoción",
+    "dayPlanSingle": "Día completo en {destination}, {city}. Tiempo de sobra para las actividades locales y para conocer los alrededores con calma.",
+    "dayPlanSingleTransfer": "Traslado de {distance} km hasta {destination}, {city}. El resto del día queda libre para las actividades locales.",
+    "dayPlanMulti": "Itinerario que combina {destinations}. Cerca de {distance} km de desplazamiento en el día.",
+    "routeAndMobility": "Trayecto y Locomoción",
     "from": "De",
     "to": "para",
     "with": "con",
-    "distance": "📍 {distance} km",
+    "distance": "{distance} km",
     "timeMin": "{time} min de {transport}",
     "timeHr": "{hours}h{minutes} de {transport}",
     "timeHrOnly": "{hours}h de {transport}",
     "warning": "Aviso:",
     "walkingWarning": "La distancia es de {distance} km, lo cual es demasiado largo para ir a pie. Considere alquilar un buggy o contratar un traslado acreditado.",
     "localRoute": "Itinerario local. No requiere desplazamiento por carretera entre destinos hoy.",
-    "detailedSchedule": "🚩 Programación detallada",
+    "detailedSchedule": "Programación detallada",
     "viewDestination": "Ver destino",
     "noAttractions": "No se enumeran atracciones específicas. ¡Disfrute explorando el lugar libremente!",
     "doneThisRoute": "¿Ya has realizado este itinerario?",
@@ -194,42 +197,42 @@
     "hike": "caminata",
     "styles": {
       "adventure": {
-        "label": "Aventura & Dunas 🏄‍♂️",
+        "label": "Aventura & Dunas",
         "desc": "Para quienes buscan adrenalina, paseos en buggy y dunas móviles."
       },
       "relax": {
-        "label": "Relax y Naturaleza 🐚",
+        "label": "Relax y Naturaleza",
         "desc": "Playas desiertas, piscinas naturales y lagunas tranquilas de agua dulce."
       },
       "culture": {
-        "label": "Historia y Cultura 🏰",
+        "label": "Historia y Cultura",
         "desc": "Fuerte colonial, casonas históricas y centros de artesanía."
       },
       "gastronomy": {
-        "label": "Gastronomía 🦐",
+        "label": "Gastronomía",
         "desc": "Restaurantes de mariscos, cocina local y bebidas regionales."
       },
       "ecotourism": {
-        "label": "Ecoturismo 🌿",
+        "label": "Ecoturismo",
         "desc": "Senderos ecológicos, avistamiento de vida silvestre y reservas naturales."
       },
       "family": {
-        "label": "Familia y Ocio 👨‍👩‍👧‍👦",
+        "label": "Familia y Ocio",
         "desc": "Hoteles con recreación, resorts y playas tranquilas para niños."
       }
     },
     "durations": {
       "1day": {
-        "label": "1 Día (Ida y vuelta) 📅",
+        "label": "1 Día (Ida y vuelta)",
         "description": "Exploración de los principales puntos turísticos del destino en un itinerario de ida y vuelta."
       },
       "weekend": {
-        "label": "Fin de Semana 🌅",
+        "label": "Fin de Semana",
         "day1": "Llegada, check-in en un socio certificado y visita inicial a la atracción principal.",
         "day2": "Día de aventura guiada y regreso al final de la tarde con un atardecer espectacular."
       },
       "1week": {
-        "label": "1 Semana o más mochilero 🎒",
+        "label": "1 Semana o más mochilero",
         "day1": "Día de aclimatación, paseos cortos y relajación en los alrededores.",
         "day2": "Día reservado para deportes ecológicos y buceo libre guiado.",
         "day3": "Tour cultural y compras de artesanía certificada en el centro histórico."
@@ -237,13 +240,13 @@
     },
     "transports": {
       "buggy": {
-        "label": "Buggy / 4x4 🚗"
+        "label": "Buggy / 4x4"
       },
       "shuttle": {
-        "label": "Traslado / Vans 🚌"
+        "label": "Traslado / Vans"
       },
       "hike": {
-        "label": "Caminata / Sendero 🥾"
+        "label": "Caminata / Sendero"
       }
     },
     "routes": {
@@ -332,9 +335,9 @@
         }
       }
     },
-    "groupProfileLabel": "👥 Perfil de Viajeros",
-    "budgetLabel": "💰 Presupuesto Estimado (Diario)",
-    "stayPreferenceLabel": "🏨 Preferencia de Alojamiento",
+    "groupProfileLabel": "Perfil de Viajeros",
+    "budgetLabel": "Presupuesto Estimado (Diario)",
+    "stayPreferenceLabel": "Preferencia de Alojamiento",
     "groupProfiles": {
       "solo": "Solo",
       "couple": "Pareja",
@@ -354,19 +357,19 @@
     },
     "nextStep": "Avanzar",
     "prevStep": "Atrás",
-    "acceptAndPlan": "Aceptar y Planificar Viaje ✈️",
+    "acceptAndPlan": "Aceptar y Planificar Viaje",
     "planTripTitle": "Personalice su Viaje",
     "planTripDesc": "Elija las experiencias e ingrese los datos necesarios para generar el detalle completo de su viaje.",
     "selectExperiences": "Elija sus Experiencias",
     "experienciasTitle": "Atracciones y Experiencias recomendadas",
-    "cadasturBadge": "🛡️ Certificado Cadastur",
+    "cadasturBadge": "Certificado Cadastur",
     "rating": "Nota: {nota}",
     "tripDetails": "Información del Viaje",
     "startDate": "Fecha de Inicio",
     "endDate": "Fecha de Fin",
     "travelersPlaceholder": "Ingrese los nombres de los viajeros (uno por línea)",
     "specialReqsPlaceholder": "Ej: Requiere accesibilidad, restricciones alimentarias, etc.",
-    "generateSummaryButton": "Generar Detalle Completo 📋",
+    "generateSummaryButton": "Generar Detalle Completo",
     "travelDossier": "Detalle Completo del Viaje",
     "bookingCode": "Código de Reserva / Localizador",
     "sustainabilityShield": "Sello de Conformidad Ambiental y Seguridad",
@@ -379,7 +382,18 @@
     "routeSummary": "Resumen de la Planificación",
     "budgetLevel": "Nivel de Presupuesto",
     "groupProfile": "Perfil del Grupo",
-    "stayPreference": "Alojamiento Preferido"
+    "stayPreference": "Alojamiento Preferido",
+    "searchNudge": "¿Ya sabe a dónde va?",
+    "searchHint": "Enter para verlo en el mapa",
+    "seals": {
+      "ai": "Rutas por IA",
+      "cadastur": "Guías Cadastur",
+      "stewardship": "Cuidado ecológico",
+      "liveData": "Datos en vivo"
+    },
+    "clearSearch": "Limpiar búsqueda",
+    "durationMinus": "Quitar un día",
+    "durationPlus": "Añadir un día",
+    "daysCount": "{count, plural, one {# Día} other {# Días}}"
   }
 }
-
