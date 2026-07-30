@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
-import { Play, Square } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { type DestinoInfo } from '@/data/mockData';
 import { slugify } from '@/lib/utils';
@@ -32,12 +31,9 @@ import {
   browserOrbitDeps,
   type OrbitController,
 } from '@/lib/map/cinematic';
-import {
-  createFollowController,
-  browserFollowDeps,
-  type FollowController,
-  type Coord,
-} from '@/lib/map/follow';
+// createFollowController e browserFollowDeps continuam em @/lib/map/follow, com os
+// seus testes, para quando o "Seguir rota" voltar. Daqui so sai o tipo.
+import { type Coord } from '@/lib/map/follow';
 import {
   extractRings,
   buildMaskFeature,
@@ -127,17 +123,12 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
   const animationFrameRef = useRef<number | null>(null);
   const [mounted, setMounted] = useState(false);
   const orbitRef = useRef<OrbitController | null>(null);
-  const followRef = useRef<FollowController | null>(null);
-  const followingRef = useRef(false);
+  /**
+   * Geometria da rota desenhada. Nada a le hoje — o botao "Seguir rota" saiu da
+   * interface (ver comentario no JSX) —, mas e o insumo do voo, entao continua
+   * gravada aqui para o retorno nao precisar refazer a ligacao com o cache do OSRM.
+   */
   const routeCoordsRef = useRef<Coord[]>([]);
-  const cameraBeforeFollowRef = useRef<{
-    center: maplibregl.LngLat;
-    zoom: number;
-    bearing: number;
-    pitch: number;
-  } | null>(null);
-  const [routeReady, setRouteReady] = useState(false);
-  const [following, setFollowing] = useState(false);
   /** Abertura concluida: so entao a orbita assume a camera. */
   const [introDone, setIntroDone] = useState(false);
   /**
@@ -467,7 +458,22 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
 
     const flight = {
       duration: mapMode === 'cinematic' ? CINEMATIC_FLY_DURATION_MS : PLAIN_FIT_DURATION_MS,
-      pitch: is3D(mapMode) ? CINEMATIC_PITCH : 0,
+      /**
+       * Rota gerada e vista de cima, sem inclinacao — mesma razao do plano aberto do
+       * estado (RN_OVERVIEW_PITCH).
+       *
+       * Aqui tem um motivo a mais, e concreto: `cameraForBounds` do MapLibre IGNORA
+       * pitch. Medido no browser — zoom 9,94 com pitch 0, 30 ou 60, identico. O voo
+       * entao inclinava para 60 depois de enquadrar como se fosse de cima, e a camera
+       * inclinada enxerga muito mais chao: o trajeto caia de 380px para 196px de
+       * altura, 52% do tamanho pretendido. Era o "longe demais".
+       *
+       * Compensar o zoom pelo pitch daria um numero mágico frágil, e a perspectiva
+       * ainda distorceria o `offset` do enquadramento. De cima, o enquadramento e
+       * exato. A inclinacao continua onde ela informa: no mergulho da abertura, que
+       * existe para mostrar relevo de duna.
+       */
+      pitch: 0,
       // curve baixa suaviza o arco de zoom: o voo sobe menos e chega mais macio.
       curve: FLY_CURVE,
     };
@@ -796,7 +802,7 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     // Enquanto a camera segue a rota, a orbita tambem cede: os dois escrevem
     // bearing no mesmo frame e o resultado seria tremor.
     const orbit = createOrbitController(map, browserOrbitDeps(), {
-      isBusy: () => map.isEasing() || followingRef.current,
+      isBusy: () => map.isEasing(),
     });
     orbitRef.current = orbit;
 
@@ -898,15 +904,9 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
 
     const animateRoute = (coordinates: [number, number][]) => {
       // Guardadas para o voo "seguir rota": e a mesma geometria do OSRM que
-      // acabou de ser desenhada, entao a camera percorre exatamente o traçado
+      // acabou de ser desenhada, entao a camera percorreria exatamente o traçado
       // que o usuario esta vendo, e nao uma reta entre paradas.
-      // Trocou de roteiro no meio de um voo? O voo antigo morre aqui.
-      followRef.current?.stop();
-      followRef.current = null;
-      followingRef.current = false;
-      setFollowing(false);
       routeCoordsRef.current = coordinates;
-      setRouteReady(coordinates.length > 1);
 
       if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current);
@@ -964,52 +964,6 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     };
   }, [pathDestinations, mapInstance, estiloCarregado, hasRoute]);
 
-  // Encerra o voo devolvendo a camera exatamente de onde ela saiu, em vez de
-  // largar onde o ultimo ponto caiu ou reenquadrar a rota inteira — o usuario
-  // pediu um voo, nao uma mudanca de enquadramento.
-  const stopFollowing = useCallback(() => {
-    followRef.current?.stop();
-    followRef.current = null;
-    followingRef.current = false;
-    setFollowing(false);
-
-    const map = mapInstance;
-    const volta = cameraBeforeFollowRef.current;
-    cameraBeforeFollowRef.current = null;
-    if (!map || !volta) return;
-    map.easeTo({ ...volta, duration: 2200 });
-  }, [mapInstance]);
-
-  const toggleFollow = useCallback(() => {
-    if (following) {
-      stopFollowing();
-      return;
-    }
-    const map = mapInstance;
-    if (!map || routeCoordsRef.current.length < 2) return;
-
-    cameraBeforeFollowRef.current = {
-      center: map.getCenter(),
-      zoom: map.getZoom(),
-      bearing: map.getBearing(),
-      pitch: map.getPitch(),
-    };
-
-    const controller = createFollowController(map, browserFollowDeps(), {
-      coordinates: routeCoordsRef.current,
-      pitch: is3D(mapMode) ? CINEMATIC_PITCH : 0,
-      onFinish: stopFollowing,
-    });
-    followRef.current = controller;
-    followingRef.current = true;
-    setFollowing(true);
-    controller.start();
-  }, [following, mapInstance, mapMode, stopFollowing]);
-
-  useEffect(() => () => {
-    followRef.current?.destroy();
-  }, []);
-
   return (
     <div className="w-full h-full relative overflow-hidden">
       <div ref={mapContainerRef} className="w-full h-full" />
@@ -1020,21 +974,13 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
           malha do RN, montado no efeito acima. Como overlay fixo ela colava no
           header do site e ficava parada enquanto o mapa se movia. */}
 
-      {hasRoute && routeReady && pathDestinations.length > 1 && (
-        <button
-          type="button"
-          onClick={toggleFollow}
-          aria-pressed={following}
-          className="absolute bottom-4 left-4 z-10 flex items-center gap-2 rounded-full bg-[var(--color-surface)]/92 px-3.5 py-2 text-xs font-semibold text-[var(--color-text)] shadow-lg ring-1 ring-[var(--color-border)] transition-colors hover:bg-[var(--color-surface)] cursor-pointer"
-        >
-          {following ? (
-            <Square className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-          ) : (
-            <Play className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-          )}
-          {following ? 'Parar' : 'Seguir rota'}
-        </button>
-      )}
+      {/* O botao "Seguir rota" esta fora da interface.
+
+          O voo percorre a geometria rapido demais e, em roteiro espalhado, termina
+          longe do trajeto — em vez de explicar a viagem, ele desorienta. A maquinaria
+          continua aqui (createFollowController, toggleFollow, routeCoordsRef): o que
+          falta e ritmo, nao codigo. Para trazer de volta, reponha o botao e ajuste a
+          duracao por quilometro em src/lib/map/follow.ts. */}
     </div>
   );
 }
