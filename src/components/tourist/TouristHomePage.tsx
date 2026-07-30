@@ -1811,17 +1811,22 @@ export default function TouristHomePage() {
             )}
           </div>
 
-          {/* Floating Scroll Down Button — agora pousa sobre o satelite, entao
-              precisa de cor propria: os tokens de superficie sumiriam na foto. */}
-          <div className="absolute bottom-6 left-6 hidden lg:flex flex-col items-center gap-1.5 z-20 cursor-pointer group [text-shadow:0_1px_8px_rgba(0,0,0,0.6)]"
-               onClick={() => document.getElementById('recommended-destinations')?.scrollIntoView({ behavior: 'smooth' })}>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-white/80 group-hover:text-white transition-colors">
+          {/* Indicador de scroll: trilho fino com o ponto descendo, no lugar do
+              desenho de mouse — a cena 3D ja e o elemento pesado do hero.
+              Pousa sobre o satelite, entao usa branco proprio em vez dos tokens
+              de superficie, que sumiriam na foto. */}
+          <button
+            type="button"
+            onClick={() => document.getElementById('recommended-destinations')?.scrollIntoView({ behavior: 'smooth' })}
+            className="absolute bottom-6 left-6 hidden lg:flex flex-col items-center gap-2.5 z-20 cursor-pointer group bg-transparent border-0 p-1 rounded-lg [text-shadow:0_1px_8px_rgba(0,0,0,0.6)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/80 group-hover:text-white transition-colors">
               Explorar Destinos
             </span>
-            <div className="h-9 w-6 rounded-full border-2 border-white/50 group-hover:border-white flex items-start justify-center p-1.5 transition-colors">
-              <span className="h-1.5 w-1.5 rounded-full bg-white/80 group-hover:bg-white transition-colors animate-bounce" />
-            </div>
-          </div>
+            <span className="relative block h-10 w-px overflow-hidden bg-white/35 group-hover:bg-white/60 transition-colors">
+              <span className="scroll-hint-dot absolute left-1/2 h-2.5 w-[3px] rounded-full bg-white/80 group-hover:bg-white transition-colors" />
+            </span>
+          </button>
 
       </section>
 
