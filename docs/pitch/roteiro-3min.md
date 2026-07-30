@@ -2,44 +2,40 @@
 
 > **Contexto:** 96ª Reunião Ordinária do CONETUR, 9h, Centro de Convenções de Natal. Pitch de **3 minutos** sobre a ideia vencedora do Hackathon do Sol. Apresentador: Leonardo (PO). App ao vivo em **dunastech.com.br** + vídeo de backup.
 >
-> ⚠️ **Conferir antes do palco:** os números de mercado abaixo vêm dos documentos internos/resumos de IA do projeto. **Validar em fonte primária** (SETUR/Emprotur/IBGE/Ministério do Turismo) e ter a fonte citável no bolso. Não afirmar número que não se possa defender no Q&A.
+> **Estratégia de discurso:** tom **colaborativo**, sem citar números no palco — os indicadores ficam nos slides e no material de apoio. O fecho é um **convite à parceria**, não um pedido de recurso.
 
 ---
 
-## Estrutura (3:00 total)
+## Estrutura (3:00 total) — texto do teleprompter
 
-### 0:00–0:25 — Abertura / a dor (com a plateia certa)
-> "Secretário, conselheiros — o turismo é **~76% do PIB** e **~75% do ICMS** do Rio Grande do Norte. E a secretaria que administra essa força opera hoje com **poucos servidores e sem um turismólogo dedicado a dados**. Nós tomamos decisão de bilhões olhando pelo retrovisor — dados que chegam meses depois, dispersos em planilhas."
+### 0:00–0:25 — Abertura
+> "Secretário, conselheiros: o turismo é uma das maiores forças do Rio Grande do Norte. Mas hoje boa parte das decisões ainda é tomada com dados que chegam tarde e espalhados. Somos a DunasTech, e criamos o POTI — a Plataforma de Observação do Turismo Inteligente."
 
 *(Tela: home DunasTech/POTI no ar, mapa do RN.)*
 
-### 0:25–1:00 — A solução: POTI
-> "A DunasTech criou o **POTI — Plataforma de Observação do Turismo Inteligente**. Uma camada de inteligência sobre o turismo do RN, com duas faces sobre o **mesmo dado**:
-> - Para o **turista**: um assistente que monta o roteiro do dia em **menos de 15 minutos**, recomendando **só prestadores regularizados no Cadastur**.
-> - Para o **governo**: um observatório preditivo — mapas de calor de intenção, indicadores por região, alertas."
+### 0:25–0:55 — O Desafio
+> "O turismo gera dados todos os dias; o desafio é transformá-los em decisão. Ele é o principal motor da nossa economia, mas quem cuida dele nem sempre tem em mãos uma leitura viva do território. E, sem essa visão, o crescimento pode acabar desgastando os próprios destinos que são o nosso maior orgulho."
 
-*(Tela: alterna B2C → painel /gestao.)*
+*(Tela: slide "O Desafio". Os indicadores 76%/75%/73% ficam no slide como apoio visual — não precisam ser recitados.)*
 
-### 1:00–1:45 — O diferencial: ISA + dados reais
-> "Cada turista que avalia um atrativo alimenta o nosso **Índice de Saúde do Atrativo — o ISA**: limpeza, sinalização, preservação, acessibilidade, segurança, custo-benefício, conservação e lotação. Em tempo real, o gestor vê **qual atrativo está adoecendo antes de virar crise**."
+### 0:55–1:40 — A Solução + ISA
+> "O POTI é uma camada de inteligência com duas faces sobre o mesmo dado. Para o turista, um assistente que monta o roteiro do dia em poucos minutos, recomendando só prestadores regularizados no Cadastur. Para o governo, um observatório que enxerga o território em tempo real. No centro está o ISA — o Índice de Saúde do Atrativo: limpeza, sinalização, preservação, acessibilidade, segurança, custo-benefício, conservação e lotação. Ele mostra qual atrativo precisa de cuidado antes de o problema aparecer. E não é maquete: já trabalhamos com dados reais de Cadastur, IBGE e dos nossos destinos."
 
-*(Tela: banner ISA no dashboard; enviar uma avaliação no B2C e mostrar o ISA reagir ao vivo.)*
+*(Tela: alterna B2C → painel /gestao; enviar uma avaliação e mostrar o ISA reagir.)*
 
-> "E não é maquete: estamos consumindo **dados reais** — Cadastur, IBGE e os atrativos dos polos Costa das Dunas, Costa Branca e Seridó."
+### 1:40–2:05 — Ecossistema
+> "É um ecossistema que une todo mundo. O turista se torna um parceiro na preservação. O gestor público enxerga a saúde dos destinos e antecipa ações. O trade local regularizado ganha visibilidade — um convite à formalização. E tudo isso com segurança e respeito à privacidade, com as informações do turista tratadas de forma anonimizada."
 
-### 1:45–2:20 — Impacto / por que agora
-> "O RN vive um momento único: **34.815 turistas internacionais** só entre janeiro e maio de 2026 — mais que todo o ano de 2025. A alta estação injeta cerca de **R$ 1,7 bilhão**. O POTI ajuda o estado a **distribuir esse fluxo para o interior** — nossa meta é aumentar em **30% os roteiros para fora da Costa das Dunas** — e a **formalizar** o setor, porque só quem está no Cadastur é recomendado."
+### 2:05–2:35 — Sustentabilidade + Impacto
+> "O modelo se sustenta de forma equilibrada: gratuito para o turista, com destaque opcional para o trade credenciado, e assinatura para a gestão pública. E o impacto é territorial: ajudar o estado a levar mais visitantes para o interior, distribuindo oportunidades, e a fortalecer quem faz o turismo com regularidade."
 
-### 2:20–2:50 — O pedido (chamada à ação)
-> "Não viemos pedir cheque. Viemos propor uma **parceria de dados**: acesso às bases oficiais e um piloto com a SETUR. Em troca, o estado ganha um observatório vivo do próprio turismo — sem depender de consultoria externa."
-
-### 2:50–3:00 — Fecho
-> "POTI, da DunasTech. Transformamos o turismo do RN de **intuição em inteligência**. Obrigado."
+### 2:35–3:00 — Fecho (CTA colaborativo)
+> "Mais do que uma ferramenta, propomos uma parceria: caminhar junto com a Secretaria de Turismo para colocar a inteligência a serviço dos nossos destinos. POTI, da DunasTech. Vamos juntos transformar o turismo do RN — e do Brasil?"
 
 ---
 
 ## Notas de execução
 - **Backup:** ter o vídeo gravado da demo pronto no celular/notebook caso a internet do Centro de Convenções falhe.
 - **Regra de ouro:** mostrar, não narrar. Cada beat = uma tela. Não ler slides.
+- **Números:** ficam nos slides e no `qa-tecnico.md` como apoio — recitar de cabeça só se perguntado. Ter as fontes primárias no bolso.
 - **Quem fala:** Leonardo conduz; Antônio de prontidão para Q&A técnico; Cláudia com o material institucional.
-- **Uma frase de reserva** se sobrar tempo: modelo de negócio B2G/B2B (assinatura do painel), **sem processar pagamento nesta fase**.

@@ -258,21 +258,21 @@ export default function PitchPage() {
     }
   };
 
-  // Roteiro do apresentador (3 min) — alinhado ao pitch desenvolvido para o CONETUR.
-  // Um bloco por slide. Números de mercado a conferir em fonte primária antes do palco.
+  // Roteiro do apresentador (3 min) — tom colaborativo, sem números no discurso
+  // (os indicadores ficam nos slides). Fecho com CTA de parceria.
   const prompterScripts = [
-    // Slide 0 — Abertura (0:00–0:25)
-    "Secretário, conselheiros: o turismo é cerca de 76% do PIB e 75% do ICMS do Rio Grande do Norte. E hoje se decide sobre essa força olhando pelo retrovisor — dados que chegam meses depois, dispersos em planilhas. Somos a DunasTech, e criamos o POTI: a Plataforma de Observação do Turismo Inteligente.",
-    // Slide 1 — O Desafio (0:25–0:55)
-    "O turismo gera dados todos os dias; o desafio é transformá-los em decisão. Aqui, ele é 76% do PIB de serviços, 75% do ICMS e 73% dos empregos formais — mas a secretaria que administra isso opera com poucos servidores e sem um turismólogo dedicado a dados. E o momento é único: só entre janeiro e maio de 2026 foram 34.815 turistas internacionais, mais que todo o ano de 2025, com cerca de R$ 1,7 bilhão injetados na alta estação. Fluxo sem controle destrói o atrativo.",
-    // Slide 2 — A Solução + ISA (0:55–1:40)
-    "O POTI é uma camada de inteligência com duas faces sobre o mesmo dado. Para o turista: um assistente que monta o roteiro do dia em menos de 15 minutos, recomendando só prestadores regularizados no Cadastur. Para o governo: um observatório preditivo. O coração é o ISA — Índice de Saúde do Atrativo: limpeza, sinalização, preservação, acessibilidade, segurança, custo-benefício, conservação e lotação. Em tempo real, o gestor vê qual atrativo está adoecendo antes de virar crise. E não é maquete: já consumimos dados reais de Cadastur, IBGE e dos destinos dos três polos.",
-    // Slide 3 — Ecossistema (1:40–2:05)
-    "Um ecossistema com quatro atores. O turista vira sensor vivo de zeladoria. O gestor público enxerga o ISA e recebe alertas preditivos. O trade local regularizado ganha uma vitrine auditável — incentivo direto à formalização. E o console técnico garante segurança e conformidade com a LGPD, com as interações do turista anonimizadas antes de qualquer agregação.",
-    // Slide 4 — Sustentabilidade + Impacto (2:05–2:35)
-    "O modelo se sustenta em três canais: roteiros B2C gratuitos, destaque por CPC para o trade credenciado no Cadastur, e assinatura SaaS para o governo. E o impacto territorial é claro: ajudamos o estado a distribuir o fluxo para o interior — nossa meta é aumentar em 30% os roteiros para fora da Costa das Dunas — e a formalizar o setor, porque só quem está no Cadastur é recomendado.",
-    // Slide 5 — Pedido + Fecho (2:35–3:00)
-    "Não viemos pedir cheque. Viemos propor uma parceria de dados: acesso às bases oficiais e um piloto com a Secretaria de Turismo. Em troca, o estado ganha um observatório vivo do próprio turismo, sem depender de consultoria externa. POTI, da DunasTech: transformamos o turismo do RN de intuição em inteligência. Muito obrigado."
+    // Slide 0 — Abertura
+    "Secretário, conselheiros: o turismo é uma das maiores forças do Rio Grande do Norte. Mas hoje boa parte das decisões ainda é tomada com dados que chegam tarde e espalhados. Somos a DunasTech, e criamos o POTI — a Plataforma de Observação do Turismo Inteligente.",
+    // Slide 1 — O Desafio
+    "O turismo gera dados todos os dias; o desafio é transformá-los em decisão. Ele é o principal motor da nossa economia, mas quem cuida dele nem sempre tem em mãos uma leitura viva do território. E, sem essa visão, o crescimento pode acabar desgastando os próprios destinos que são o nosso maior orgulho.",
+    // Slide 2 — A Solução + ISA
+    "O POTI é uma camada de inteligência com duas faces sobre o mesmo dado. Para o turista, um assistente que monta o roteiro do dia em poucos minutos, recomendando só prestadores regularizados no Cadastur. Para o governo, um observatório que enxerga o território em tempo real. No centro está o ISA — o Índice de Saúde do Atrativo: limpeza, sinalização, preservação, acessibilidade, segurança, custo-benefício, conservação e lotação. Ele mostra qual atrativo precisa de cuidado antes de o problema aparecer. E não é maquete: já trabalhamos com dados reais de Cadastur, IBGE e dos nossos destinos.",
+    // Slide 3 — Ecossistema
+    "É um ecossistema que une todo mundo. O turista se torna um parceiro na preservação. O gestor público enxerga a saúde dos destinos e antecipa ações. O trade local regularizado ganha visibilidade — um convite à formalização. E tudo isso com segurança e respeito à privacidade, com as informações do turista tratadas de forma anonimizada.",
+    // Slide 4 — Sustentabilidade + Impacto
+    "O modelo se sustenta de forma equilibrada: gratuito para o turista, com destaque opcional para o trade credenciado, e assinatura para a gestão pública. E o impacto é territorial: ajudar o estado a levar mais visitantes para o interior, distribuindo oportunidades, e a fortalecer quem faz o turismo com regularidade.",
+    // Slide 5 — Fecho (CTA colaborativo)
+    "Mais do que uma ferramenta, propomos uma parceria: caminhar junto com a Secretaria de Turismo para colocar a inteligência a serviço dos nossos destinos. POTI, da DunasTech. Vamos juntos transformar o turismo do RN — e do Brasil?"
   ];
 
   // Custom tooltip style for charts
