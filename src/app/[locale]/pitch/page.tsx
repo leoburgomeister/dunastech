@@ -383,7 +383,7 @@ export default function PitchPage() {
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className="text-4xl sm:text-6xl font-black tracking-tight leading-none"
               >
-                Poti RN <span className="text-[#D4A017]">Gestão</span>
+                <span className="text-[#D4A017]">POTI</span>
               </motion.h1>
               
               <motion.p
@@ -538,7 +538,7 @@ export default function PitchPage() {
               </motion.h2>
 
               <p className="text-[#3D595B] text-xs sm:text-sm leading-relaxed font-semibold">
-                O Poti RN Gestão conecta os dois mundos: a jornada sensorial do turista e a tomada de decisão inteligente do gestor público, baseada no **Índice de Saúde do Atrativo (ISA)**.
+                O POTI conecta os dois mundos: a jornada sensorial do turista e a tomada de decisão inteligente do gestor público, baseada no **Índice de Saúde do Atrativo (ISA)**.
               </p>
 
               {/* ISA spotlight box */}
@@ -1330,7 +1330,7 @@ export default function PitchPage() {
               transition={{ delay: 0.1 }}
               className="text-4xl sm:text-6xl font-black tracking-tight"
             >
-              Poti RN <span className="text-[#D4A017]">Gestão</span>
+              <span className="text-[#D4A017]">POTI</span>
             </motion.h2>
 
             <motion.p
