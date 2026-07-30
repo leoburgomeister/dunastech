@@ -21,7 +21,9 @@ import { Badge } from '@/components/ui/Badge';
 import { destinosInfo, fluxoData, cadasturData, calcularISA } from '@/data/mockData';
 import type { Feedback, DestinoInfo } from '@/data/mockData';
 import { useSupabaseSync } from '@/lib/supabase-data';
-import { destinosDoRoteiro, normalizeTransport } from '@/lib/routePresets';
+import { normalizeStyle, normalizeTransport } from '@/lib/routePresets';
+import { planRoute, haversineKm, MAX_ROUTE_DAYS } from '@/lib/route-planner';
+import type { PlannedDay } from '@/lib/route-planner';
 
 // Dynamically load Map component to prevent SSR window error on homepage
 const HomeRouteMap = dynamic(
@@ -39,25 +41,7 @@ interface RouteDay {
   day: number;
   destinations: typeof destinosInfo;
   description: string;
-}
-
-function getHaversineDistance(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number
-): number {
-  const R = 6371; // km
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+  travelKm: number;
 }
 
 export default function TouristHomePage() {
@@ -90,7 +74,7 @@ export default function TouristHomePage() {
   const [durationDays, setDurationDays] = useState(3);
   const [expandedPartners, setExpandedPartners] = useState<Record<string, boolean>>({});
   const [selectedTransport, setSelectedTransport] = useState('buggy');
-  const [expandedDay, setExpandedDay] = useState<number | null>(1);
+  const [expandedDay, setExpandedDay] = useState<number | null>(null);
 
   const togglePartner = (id: string) => {
     setExpandedPartners(prev => ({ ...prev, [id]: !prev[id] }));
@@ -194,83 +178,78 @@ export default function TouristHomePage() {
 
   const topDestinations = destinations.slice(0, 3); // Top 3 largest cards
 
+  // Turns a planned day into a readable summary. Lives here (not in the planner) so the
+  // copy follows the active locale instead of being hardcoded in Portuguese.
+  const describeDay = (day: PlannedDay): string => {
+    if (day.destinations.length > 1) {
+      return t('dayPlanMulti', {
+        destinations: day.destinations.map(d => d.nome).join(' • '),
+        distance: day.travelKm,
+      });
+    }
+
+    const only = day.destinations[0];
+    if (day.travelKm > 0) {
+      return t('dayPlanSingleTransfer', {
+        destination: only.nome,
+        city: only.municipio,
+        distance: day.travelKm,
+      });
+    }
+
+    return t('dayPlanSingle', { destination: only.nome, city: only.municipio });
+  };
+
   // Process questionnaire answers and suggest a route
   const handleGenerateRoute = () => {
-    // A tabela vive em routePresets porque o script que pre-cacheia as rotas
-    // do OSRM le a MESMA fonte. Duplicada, o cache envelheceria em silencio
-    // na primeira vez que alguem trocasse um destino aqui.
-    const selectedDestNames: string[] = destinosDoRoteiro(selectedStyle, selectedTransport);
-
     const transportKey = normalizeTransport(selectedTransport);
     let title = t(`routes.${selectedStyle}.${transportKey}.title`);
     const description = t(`routes.${selectedStyle}.${transportKey}.description`);
 
-    // Smart search query injection
+    // The search box is the trip's starting point, so a match anchors the route instead of
+    // replacing one of the destinations the translated title promises.
     let matchedQueryDest: string | null = null;
     if (searchQuery.trim() !== '') {
       const q = searchQuery.toLowerCase();
-      const match = destinosInfo.find(d => 
-        d.nome.toLowerCase().includes(q) || 
+      const match = destinosInfo.find(d =>
+        d.nome.toLowerCase().includes(q) ||
         d.municipio.toLowerCase().includes(q)
       );
       if (match) {
         matchedQueryDest = match.nome;
-      }
-    }
 
-    if (matchedQueryDest && !selectedDestNames.includes(matchedQueryDest)) {
-      if (selectedDestNames.length >= 3) {
-        selectedDestNames[selectedDestNames.length - 1] = matchedQueryDest;
-      } else {
-        selectedDestNames.push(matchedQueryDest);
-      }
-      
-      const cleanName = matchedQueryDest.replace(/ e .*/g, '').replace(/ e Morro.*/g, '');
-      if (!title.includes(cleanName)) {
-        title = `${title} ${t('with')} ${cleanName}`;
-      }
-    }
-
-    const matchedDestinations = selectedDestNames
-      .map(name => destinosInfo.find(d => d.nome === name))
-      .filter(Boolean) as typeof destinosInfo;
-    
-    // Create day-by-day itineraries dynamically based on durationDays selected
-    const routeDays: RouteDay[] = [];
-    const numDays = durationDays;
-    
-    // Distribute matchedDestinations into numDays
-    for (let dayIndex = 1; dayIndex <= numDays; dayIndex++) {
-      let dayDests: typeof destinosInfo = [];
-      if (numDays === 1) {
-        dayDests = matchedDestinations.slice(0, 3); // 1-day trip gets up to 3 destinations
-      } else {
-        if (dayIndex === numDays) {
-          // Last day gets the remainder
-          dayDests = matchedDestinations.slice(dayIndex - 1);
-        } else {
-          // Other days get one destination each
-          dayDests = [matchedDestinations[dayIndex - 1]].filter(Boolean);
+        const cleanName = matchedQueryDest.replace(/ e .*/g, '').replace(/ e Morro.*/g, '');
+        if (!title.includes(cleanName)) {
+          title = `${title} ${t('with')} ${cleanName}`;
         }
       }
-      
-      routeDays.push({
-        day: dayIndex,
-        destinations: dayDests,
-        description: `Exploração do itinerário para o Dia ${dayIndex}. Aproveite as principais atividades locais.`,
-      });
     }
+
+    const plan = planRoute({
+      catalogue: destinosInfo,
+      style: normalizeStyle(selectedStyle),
+      transport: transportKey,
+      days: durationDays,
+      anchorName: matchedQueryDest,
+    });
+
+    const routeDays: RouteDay[] = plan.days.map(day => ({
+      day: day.day,
+      destinations: day.destinations,
+      description: describeDay(day),
+      travelKm: day.travelKm,
+    }));
 
     const generated = {
       title,
       description,
-      destinations: matchedDestinations,
-      days: routeDays.filter(day => day.destinations.length > 0),
+      destinations: plan.destinations,
+      days: routeDays,
     };
 
     // Pre-select default attractions
     const initialExps: Record<string, boolean> = {};
-    matchedDestinations.forEach(dest => {
+    plan.destinations.forEach(dest => {
       dest.atracoes?.forEach(act => {
         initialExps[act.id] = true;
       });
@@ -278,7 +257,10 @@ export default function TouristHomePage() {
     setSelectedExperiences(initialExps);
 
     setSuggestedRoute(generated);
-    setExpandedDay(1); // Auto-expand Day 1 on route generation
+    // Todos os dias nascem fechados: com um dia aberto o cronograma rolava e os
+    // demais dias sumiam da dobra, e o mapa enquadrava so o dia aberto em vez
+    // da rota inteira.
+    setExpandedDay(null);
 
     // Save generated route to search/route history in local storage
     if (typeof window !== 'undefined') {
@@ -288,10 +270,10 @@ export default function TouristHomePage() {
         id: `route-${Date.now()}`,
         title,
         style: selectedStyle,
-        duration: `${durationDays} ${durationDays === 1 ? 'dia' : 'dias'}`,
+        duration: `${plan.days.length} ${plan.days.length === 1 ? 'dia' : 'dias'}`,
         transport: selectedTransport,
         date: new Date().toLocaleDateString('pt-BR'),
-        destinations: matchedDestinations.map(d => d.nome),
+        destinations: plan.destinations.map(d => d.nome),
       };
       localStorage.setItem('poti_route_history', JSON.stringify([newHistoryItem, ...history].slice(0, 10)));
     }
@@ -499,7 +481,7 @@ export default function TouristHomePage() {
                           </span>
                           <button
                             type="button"
-                            onClick={() => setDurationDays(prev => Math.min(15, prev + 1))}
+                            onClick={() => setDurationDays(prev => Math.min(MAX_ROUTE_DAYS, prev + 1))}
                             aria-label={t('durationPlus')}
                             className="h-7 w-7 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-bold flex items-center justify-center cursor-pointer select-none transition-all"
                           >
@@ -779,7 +761,7 @@ export default function TouristHomePage() {
                             let currentPrev = prevDest;
                             dayItem.destinations.forEach((dest) => {
                               if (currentPrev && currentPrev.nome !== dest.nome) {
-                                const dist = getHaversineDistance(
+                                const dist = haversineKm(
                                   currentPrev.latitude,
                                   currentPrev.longitude,
                                   dest.latitude,
@@ -1329,7 +1311,7 @@ export default function TouristHomePage() {
                               let currentPrev = prevDest;
                               dayItem.destinations.forEach((dest) => {
                                 if (currentPrev && currentPrev.nome !== dest.nome) {
-                                  const dist = getHaversineDistance(
+                                  const dist = haversineKm(
                                     currentPrev.latitude,
                                     currentPrev.longitude,
                                     dest.latitude,

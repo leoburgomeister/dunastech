@@ -63,16 +63,18 @@ export function normalizeTransport(id: string): Transport {
   return 'shuttle';
 }
 
+/** Estilo cai em 'gastronomy' quando nao reconhecido, como o else final da home. */
+export function normalizeStyle(id: string): TravelStyle {
+  return (TRAVEL_STYLES as readonly string[]).includes(id) ? (id as TravelStyle) : 'gastronomy';
+}
+
 /**
  * Devolve COPIA: a home muta a lista (a busca injeta ou substitui um destino),
  * e devolver a referencia da tabela corromperia os presets para sempre — o
  * cache do OSRM passaria a errar a chave a partir da primeira busca.
  */
 export function destinosDoRoteiro(style: string, transport: string): string[] {
-  const estilo = (TRAVEL_STYLES as readonly string[]).includes(style)
-    ? (style as TravelStyle)
-    : 'gastronomy'; // mesma queda do else final da home
-  return [...ROTEIROS[estilo][normalizeTransport(transport)]];
+  return [...ROTEIROS[normalizeStyle(style)][normalizeTransport(transport)]];
 }
 
 /** Todas as 18 combinacoes, para o gerador de cache varrer. */

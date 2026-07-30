@@ -11,6 +11,7 @@ import {
   type Coord,
 } from './routeCache';
 import { todasAsCombinacoes, destinosDoRoteiro } from '@/lib/routePresets';
+import { trechosNecessarios } from './routeCoverage';
 import { destinosInfo } from '@/data/mockData';
 
 const A: Coord = [-35.1967, -5.7089];
@@ -83,20 +84,23 @@ describe('cobertura do cache gravado', () => {
     fs.readFileSync(path.join(process.cwd(), 'public/routes/osrm-cache.json'), 'utf8')
   );
 
-  const coordsDe = (nomes: string[]): Coord[] =>
-    nomes.map((n) => {
-      const d = destinosInfo.find((x) => x.nome === n)!;
-      return [d.longitude, d.latitude];
-    });
+  it('TODA geometria que a home pode gerar tem rota gravada', () => {
+    // Este e o teste que importa: se alguem mexer na tabela de roteiros, no
+    // planejador ou nos dados dos destinos e nao rodar o gerador de novo, a
+    // apresentacao volta a depender do OSRM ao vivo — e isso so apareceria no
+    // palco. Mede a saida do PLANEJADOR, nao a tabela de presets: a tabela
+    // sozinha nao ve as variacoes por duracao nem os trechos de cada dia.
+    const faltando: string[] = [];
 
-  it('TODA combinacao de estilo x transporte tem rota gravada', () => {
-    // Este e o teste que importa: se alguem mexer na tabela de roteiros e nao
-    // rodar o gerador de novo, a apresentacao volta a depender do OSRM ao vivo
-    // — e isso so apareceria no palco.
-    for (const { style, transport, destinos } of todasAsCombinacoes()) {
-      const rota = lookupRoute(cache, coordsDe(destinos));
-      expect(rota, `sem cache para ${style}/${transport}`).not.toBeNull();
+    for (const { coords, rotulo } of trechosNecessarios().values()) {
+      if (lookupRoute(cache, coords) === null) faltando.push(rotulo);
     }
+
+    expect(
+      faltando,
+      `${faltando.length} geometria(s) sem cache. Rode: npx tsx scripts/gerar-cache-osrm.mts\n` +
+        faltando.slice(0, 10).join('\n')
+    ).toEqual([]);
   });
 
   it('a tabela e a home concordam sobre os destinos', () => {
