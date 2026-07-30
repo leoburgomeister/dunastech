@@ -14,7 +14,7 @@
  */
 
 import { destinosInfo } from '../../data/mockData';
-import { TRAVEL_STYLES, TRANSPORTS } from '../routePresets';
+import { TRAVEL_STYLES, TRANSPORTS, limitesDeDuracao } from '../routePresets';
 import { planRoute } from '../route-planner';
 import { routeKey, type Coord } from './routeCache';
 
@@ -52,7 +52,13 @@ export function trechosNecessarios(): Map<string, TrechoDeRota> {
 
   for (const style of TRAVEL_STYLES) {
     for (const transport of TRANSPORTS) {
-      for (let days = 1; days <= MAX_CACHED_DAYS; days++) {
+      // Duracao fora da faixa da combinacao e inalcancavel pela home: planRoute
+      // apertaria para dentro dela e devolveria um plano que ja foi enumerado.
+      // Enumerar assim mesmo so engordaria o asset com geometria orfa.
+      const { min, max } = limitesDeDuracao(style, transport);
+      const teto = Math.min(max, MAX_CACHED_DAYS);
+
+      for (let days = min; days <= teto; days++) {
         const plano = planRoute({ catalogue: destinosInfo, style, transport, days });
 
         registrar(coordsDe(plano.destinations), `${style}/${transport}/${days}d rota inteira`);
