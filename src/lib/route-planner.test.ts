@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { destinosInfo } from '../data/mockData';
 import { planRoute, optimizeOrder, haversineKm, routeLengthKm, MAX_ROUTE_DAYS } from './route-planner';
 import type { PlanRouteOptions } from './route-planner';
+import { destinosDoRoteiro } from './routePresets';
 
 const base = {
   catalogue: destinosInfo,
@@ -70,6 +71,28 @@ describe('planRoute — seleção de destinos', () => {
     const plano = planRoute({ ...base, days: 12 });
     const nomes = plano.destinations.map((d) => d.nome);
     expect(new Set(nomes).size).toBe(nomes.length);
+  });
+
+  it('não acrescenta destino que o título não prometeu quando a assinatura já cobre os dias', () => {
+    // O título e a descrição de cada combinação nomeiam exatamente os destinos-assinatura.
+    // Enquanto a duração couber neles, o roteiro não pode inventar parada: "Roteiro Buggy
+    // Litoral NORTE" chegou a abrir com Praia da Pipa, 100 km ao SUL, porque o preenchimento
+    // por afinidade rodava mesmo sem precisar.
+    for (const estilo of ['adventure', 'relax', 'ecotourism', 'culture', 'gastronomy', 'family'] as const) {
+      for (const transporte of ['buggy', 'shuttle', 'hike'] as const) {
+        const assinatura = destinosDoRoteiro(estilo, transporte);
+        for (let dias = 1; dias <= assinatura.length; dias++) {
+          const nomes = planRoute({
+            catalogue: destinosInfo,
+            style: estilo,
+            transport: transporte,
+            days: dias,
+          }).destinations.map((d) => d.nome);
+
+          expect([...nomes].sort()).toEqual([...assinatura].sort());
+        }
+      }
+    }
   });
 
   it('cresce o número de destinos junto com a duração', () => {

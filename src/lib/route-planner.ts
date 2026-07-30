@@ -330,9 +330,18 @@ export function planRoute(options: PlanRouteOptions): PlannedRoute {
 
   // Precisa de pelo menos um destino por dia — é isso que impede um dia de nascer vazio
   // e ser descartado silenciosamente, que era a causa do "pedi 6 dias, vieram 3".
+  //
+  // Enquanto a assinatura cobre os dias pedidos, ela é o roteiro INTEIRO: o título e a
+  // descrição de cada combinação nomeiam exatamente esses destinos, e preencher além
+  // deles desmentia a própria promessa — "Roteiro Buggy Litoral NORTE" abria com Praia da
+  // Pipa, 100 km ao SUL, porque o ritmo de 1,5 destino/dia pedia dois nomes a mais e a
+  // afinidade os buscava litoral abaixo. O ritmo por transporte volta a valer quando a
+  // duração passa da assinatura, aí preencher é inevitável.
   const targetCount = Math.min(
     catalogue.length,
-    Math.max(Math.round(totalDays * profile.perDay), totalDays, seedCount)
+    totalDays <= seedCount
+      ? seedCount
+      : Math.max(Math.round(totalDays * profile.perDay), totalDays)
   );
 
   const selected = selectDestinations(catalogue, style, transport, targetCount, anchor);
