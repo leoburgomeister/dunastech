@@ -23,6 +23,7 @@ import {
   DESTINATION_ZOOM,
   DESTINATION_FLY_MS,
   overviewPadding,
+  routeFraming,
 } from '@/lib/map/scene3d';
 import { FLY_CURVE } from '@/lib/map/camera';
 import { createMarkerElement } from '@/lib/map/marker';
@@ -475,8 +476,16 @@ export default function HomeRouteMap({ destinations, activeDay = null, isInterac
     // abaixo): plano aberto no estado, espera, mergulho em Genipabu.
     if (!hasRoute) return;
 
+    // Enquadramento vem de routeFraming, nao de um padding uniforme escrito aqui.
+    // Uniforme anulava o padding do mapa — que existe para o conteudo nao cair
+    // atras do painel — e a rota nascia colada nele: um roteiro compacto (5 paradas
+    // na Grande Natal) ficava praticamente todo escondido.
+    const canvas = map.getCanvas();
+    const { padding, offset } = routeFraming(canvas.clientWidth, canvas.clientHeight);
+
     map.fitBounds(bounds, {
-      padding: { top: 60, bottom: 60, left: 60, right: 60 },
+      padding,
+      offset,
       maxZoom: 13,
       ...flight,
     });

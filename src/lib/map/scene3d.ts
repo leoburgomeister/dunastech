@@ -74,6 +74,13 @@ const PANEL_VW_RATIO = 0.42;
 const PANEL_TOP_VH_RATIO = 0.42;
 /** Breakpoint lg do Tailwind. */
 const LG_BREAKPOINT_PX = 1024;
+/**
+ * Teto do padding somado num eixo, como fracao da dimensao. Acima de ~50% o
+ * `cameraForBounds` do MapLibre passa a devolver zoom absurdo e, mais adiante,
+ * `undefined`. Medido no browser: num canvas de 1172px, 480px somados funcionam e
+ * 600px devolvem `undefined`.
+ */
+const PADDING_MAX_RATIO = 0.44;
 
 /**
  * Padding do enquadramento de abertura descontando o painel flutuante.
@@ -93,6 +100,54 @@ export function overviewPadding(
     bottom: Math.round(height * (1 - PANEL_TOP_VH_RATIO)) + 24,
     left: 32,
     right: 32,
+  };
+}
+
+/**
+ * Enquadramento do roteiro gerado, descontando o painel.
+ *
+ * O `fitBounds` da rota passava `padding: 60` uniforme, o que ANULAVA o padding do
+ * mapa — justo o que existe para manter o conteudo fora de baixo do painel. A rota
+ * era centrada no canvas inteiro e nascia colada no painel: num roteiro compacto
+ * (5 paradas na Grande Natal, ~30 km) o trajeto caia praticamente todo atras dele.
+ *
+ * Por que nao simplesmente passar `overviewPadding`? Porque `cameraForBounds` do
+ * MapLibre erra feio com padding horizontal grande e assimetrico: com
+ * `right: 528` num canvas de 1172 ele devolve zoom 5,26 onde o certo e ~10 — e a
+ * partir de ~600px somados devolve `undefined`. Medido no browser.
+ *
+ * A saida e separar as duas coisas que o padding fazia junto:
+ *   - `padding` SIMETRICO reserva a largura do painel para o calculo do zoom, sem
+ *     cair no bug (o total horizontal e a largura do painel, no maximo 42vw, entao
+ *     nunca chega perto da metade do canvas);
+ *   - `offset` empurra o alvo para o meio da faixa que sobra ao lado do painel.
+ */
+export function routeFraming(
+  width: number,
+  height: number
+): {
+  padding: { top: number; bottom: number; left: number; right: number };
+  offset: [number, number];
+} {
+  if (width >= LG_BREAKPOINT_PX) {
+    const painel = Math.round(Math.min(PANEL_MAX_W_PX, width * PANEL_VW_RATIO));
+    const lateral = Math.round(painel / 2);
+    return {
+      padding: { top: 56, bottom: 56, left: lateral, right: lateral },
+      offset: [-lateral, 0],
+    };
+  }
+
+  // Mobile: o painel ocupa a parte de baixo, entao a faixa livre e o topo. A
+  // reserva cheia seria 58vh e passaria da metade da altura, que e onde o calculo
+  // do MapLibre quebra — o teto vem da propria restricao (somando a margem base,
+  // o padding total fica sob PADDING_MAX_RATIO), nao de um numero escolhido a dedo.
+  const base = 32;
+  const teto = Math.floor((height * PADDING_MAX_RATIO) / 2) - base;
+  const vertical = Math.max(0, Math.min(Math.round((height * (1 - PANEL_TOP_VH_RATIO)) / 2), teto));
+  return {
+    padding: { top: base + vertical, bottom: base + vertical, left: 32, right: 32 },
+    offset: [0, -vertical],
   };
 }
 
