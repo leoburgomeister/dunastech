@@ -21,8 +21,8 @@ import { PlaceImage } from '@/components/ui/PlaceImage';
 import { destinosInfo, fluxoData, cadasturData, calcularISA } from '@/data/mockData';
 import type { Feedback, DestinoInfo } from '@/data/mockData';
 import { useSupabaseSync } from '@/lib/supabase-data';
-import { normalizeStyle, normalizeTransport } from '@/lib/routePresets';
-import { planRoute, haversineKm, MAX_ROUTE_DAYS } from '@/lib/route-planner';
+import { normalizeStyle, normalizeTransport, limitesDeDuracao } from '@/lib/routePresets';
+import { planRoute, haversineKm } from '@/lib/route-planner';
 import type { PlannedDay } from '@/lib/route-planner';
 
 // Dynamically load Map component to prevent SSR window error on homepage
@@ -75,6 +75,24 @@ export default function TouristHomePage() {
   const [expandedPartners, setExpandedPartners] = useState<Record<string, boolean>>({});
   const [selectedTransport, setSelectedTransport] = useState('buggy');
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
+
+  const limitesDuracao = limitesDeDuracao(selectedStyle, selectedTransport);
+
+  // Trocar de estilo ou transporte pode deixar a duracao fora da faixa da nova
+  // combinacao: "10 dias" e depois caminhada exibia 10 no contador enquanto o
+  // roteiro entregava 3. O contador tem que dizer a verdade que planRoute aperta.
+  // Ajuste feito no corpo do componente, nao em useEffect: setState sincrono
+  // dentro de efeito aciona o lint react-hooks/set-state-in-effect (cascata de
+  // renders). Comparar com os limites do render anterior e o padrao que o
+  // proprio React recomenda para resetar estado quando uma dependencia muda.
+  const [prevLimitesDuracao, setPrevLimitesDuracao] = useState(limitesDuracao);
+  if (
+    prevLimitesDuracao.min !== limitesDuracao.min ||
+    prevLimitesDuracao.max !== limitesDuracao.max
+  ) {
+    setPrevLimitesDuracao(limitesDuracao);
+    setDurationDays((prev) => Math.min(Math.max(prev, limitesDuracao.min), limitesDuracao.max));
+  }
 
   const togglePartner = (id: string) => {
     setExpandedPartners(prev => ({ ...prev, [id]: !prev[id] }));
@@ -478,7 +496,7 @@ export default function TouristHomePage() {
                         <div className="flex items-center gap-1 bg-[var(--color-surface-alt)] p-1 rounded-xl border border-[var(--color-border-light)]">
                           <button
                             type="button"
-                            onClick={() => setDurationDays(prev => Math.max(1, prev - 1))}
+                            onClick={() => setDurationDays(prev => Math.max(limitesDuracao.min, prev - 1))}
                             aria-label={t('durationMinus')}
                             className="h-7 w-7 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-bold flex items-center justify-center cursor-pointer select-none transition-all"
                           >
@@ -492,7 +510,7 @@ export default function TouristHomePage() {
                           </span>
                           <button
                             type="button"
-                            onClick={() => setDurationDays(prev => Math.min(MAX_ROUTE_DAYS, prev + 1))}
+                            onClick={() => setDurationDays(prev => Math.min(limitesDuracao.max, prev + 1))}
                             aria-label={t('durationPlus')}
                             className="h-7 w-7 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] text-sm font-bold flex items-center justify-center cursor-pointer select-none transition-all"
                           >
