@@ -249,6 +249,7 @@ function selectDestinations(
   style: TravelStyle,
   transport: TransportMode,
   targetCount: number,
+  minCount: number,
   anchor: DestinoInfo | null
 ): DestinoInfo[] {
   const profile = TRANSPORT_PROFILE[transport];
@@ -262,25 +263,40 @@ function selectDestinations(
     selected.push(dest);
   };
 
+  // Assinatura entra sempre, mesmo longe: e o que o titulo prometeu. A "Grande Rota
+  // Historica" de van vai a Mossoro e ao Lajedo porque a descricao os nomeia — o
+  // deslocamento longo ali e o roteiro, nao um efeito colateral do preenchimento.
   if (anchor) take(anchor);
   for (const nome of destinosDoRoteiro(style, transport)) {
     take(catalogue.find((d) => d.nome === nome));
   }
 
-  while (selected.length < targetCount) {
+  const nearestSelectedKm = (candidate: DestinoInfo) =>
+    selected.length ? Math.min(...selected.map((s) => distanceBetween(s, candidate))) : 0;
+
+  /**
+   * Escolhe o proximo destino do preenchimento.
+   *
+   * `limiteKm` e barreira DURA, nao mais uma penalidade: a afinidade de estilo vale
+   * AFFINITY_STEP por posicao na lista e superava com folga o custo da distancia, entao
+   * "Cultura + Buggy" alcancava Mossoro — 245 km de buggy num dia — so porque Mossoro e
+   * o segundo nome da lista de cultura. Com a barreira, afinidade decide apenas ENTRE os
+   * destinos que o transporte consegue rodar.
+   */
+  const escolher = (limiteKm: number): DestinoInfo | null => {
     let best: DestinoInfo | null = null;
     let bestScore = -Infinity;
 
     for (const candidate of catalogue) {
       if (taken.has(candidate.nome)) continue;
 
+      const nearestKm = nearestSelectedKm(candidate);
+      if (nearestKm > limiteKm) continue;
+
       const affinityIndex = affinity.indexOf(candidate.nome);
       const affinityScore =
         affinityIndex === -1 ? 0 : (affinity.length - affinityIndex) * AFFINITY_STEP;
 
-      const nearestKm = selected.length
-        ? Math.min(...selected.map((s) => distanceBetween(s, candidate)))
-        : 0;
       const distancePenalty =
         profile.distanceWeight * (nearestKm / profile.comfortableLegKm) * AFFINITY_STEP;
 
@@ -293,8 +309,24 @@ function selectDestinations(
       }
     }
 
-    if (!best) break;
-    take(best);
+    return best;
+  };
+
+  while (selected.length < targetCount) {
+    let proximo = escolher(profile.comfortableLegKm);
+
+    // Nada ao alcance. Roteiro mais curto e melhor que roteiro impossivel, entao paramos
+    // aqui — desde que cada dia ja tenha o seu destino. Se ainda faltar destino para
+    // algum dia, a barreira cede: dia vazio seria descartado em silencio e o usuario
+    // receberia menos dias do que pediu, que e o defeito que este planejador existe para
+    // impedir.
+    if (!proximo) {
+      if (selected.length >= minCount) break;
+      proximo = escolher(Infinity);
+      if (!proximo) break;
+    }
+
+    take(proximo);
   }
 
   return selected;
@@ -344,7 +376,7 @@ export function planRoute(options: PlanRouteOptions): PlannedRoute {
       : Math.max(Math.round(totalDays * profile.perDay), totalDays)
   );
 
-  const selected = selectDestinations(catalogue, style, transport, targetCount, anchor);
+  const selected = selectDestinations(catalogue, style, transport, targetCount, totalDays, anchor);
   const ordered = optimizeOrder(selected, anchor?.nome);
   const chunks = splitIntoDays(ordered, totalDays);
 

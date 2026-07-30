@@ -3,6 +3,7 @@ import { destinosInfo } from '../data/mockData';
 import { planRoute, optimizeOrder, haversineKm, routeLengthKm, MAX_ROUTE_DAYS } from './route-planner';
 import type { PlanRouteOptions } from './route-planner';
 import { destinosDoRoteiro } from './routePresets';
+import { MAX_CACHED_DAYS } from './map/routeCoverage';
 
 const base = {
   catalogue: destinosInfo,
@@ -155,6 +156,57 @@ describe('planRoute — coerência com o transporte', () => {
     const aPe = planRoute({ ...base, transport: 'hike', days: 5 });
     for (const dia of aPe.days) {
       expect(dia.destinations).toHaveLength(1);
+    }
+  });
+
+  it('o preenchimento não arrasta o roteiro para fora do alcance do transporte', () => {
+    // "Cultura + Buggy + 3 dias" punha Mossoro e Genipabu no MESMO dia -- 245 km de buggy.
+    // A assinatura de cultura/buggy e Forte + Genipabu, os dois na Grande Natal; Mossoro
+    // entrou pelo preenchimento porque a afinidade de estilo valia AFFINITY_STEP por
+    // posicao na lista e superava com folga o custo da distancia. A barreira dura resolve:
+    // afinidade agora decide apenas ENTRE os destinos que o transporte consegue rodar.
+    const plano = planRoute({ catalogue: destinosInfo, style: 'culture', transport: 'buggy', days: 3 });
+    const nomes = plano.destinations.map((d) => d.nome);
+
+    expect(nomes).not.toContain('Cidade Histórica de Mossoró');
+    expect(nomes).not.toContain('Lajedo de Soledade');
+  });
+
+  it('nenhum dia da faixa demonstrável piora o que a assinatura já pedia', () => {
+    // Teto por transporte na faixa que o cache do OSRM cobre (MAX_CACHED_DAYS = 7), que e
+    // a faixa que a apresentacao usa. Estes numeros sao os PIORES dias que sobraram, e
+    // todos vem de trechos da propria tabela de presets -- ecoturismo/buggy liga Maracajau
+    // a Galinhos (112 km), cultura/van vai a Mossoro e ao Lajedo (313 km no roteiro de um
+    // dia), familia/caminhada liga Ponta Negra a Pipa (40 km a pe). Ou seja: nao ha mais
+    // dia longo criado pelo PREENCHIMENTO.
+    //
+    // Nao e teto de conforto, e trava de regressao: baixar estes numeros exige mexer na
+    // tabela de presets (e regerar o cache do OSRM), nao no planejador.
+    const teto: Record<'hike' | 'buggy' | 'shuttle', number> = {
+      hike: 39.7,
+      buggy: 138.9,
+      shuttle: 313.1,
+    };
+
+    for (const estilo of ['adventure', 'relax', 'ecotourism', 'culture', 'gastronomy', 'family'] as const) {
+      for (const transporte of ['buggy', 'shuttle', 'hike'] as const) {
+        for (let dias = 1; dias <= MAX_CACHED_DAYS; dias++) {
+          const plano = planRoute({
+            catalogue: destinosInfo,
+            style: estilo,
+            transport: transporte,
+            days: dias,
+          });
+
+          for (const dia of plano.days) {
+            expect(
+              dia.travelKm,
+              `${estilo}/${transporte}/${dias}d dia ${dia.day}: ${dia.travelKm} km em ` +
+                `${transporte} (${dia.destinations.map((d) => d.nome).join(' + ')})`
+            ).toBeLessThanOrEqual(teto[transporte]);
+          }
+        }
+      }
     }
   });
 
