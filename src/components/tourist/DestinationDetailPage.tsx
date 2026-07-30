@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import dynamic from 'next/dynamic';
@@ -13,6 +12,7 @@ import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
 import DestinationPhotos from './DestinationPhotos';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { PlaceImage } from '@/components/ui/PlaceImage';
 import { type DestinoInfo, cadasturData, fluxoData } from '@/data/mockData';
 import { useAuth } from '@/providers/AuthProvider';
 import { addFeedback } from '@/lib/firebase';
@@ -131,9 +131,15 @@ export default function DestinationDetailPage({ destination }: DestinationDetail
 
       {/* Header Banner — cena 3D mergulhando do estado ate o destino */}
       <div className="relative h-96 sm:h-[460px] w-full rounded-3xl overflow-hidden shadow-xl bg-slate-900">
-        <Image
-          src={destination.imagem || '/images/destinations/hero_ponta_negra.png'}
+        <PlaceImage
+          src={destination.imagem}
           alt={destination.nome}
+          local={destination.nome}
+          latitude={destination.latitude}
+          longitude={destination.longitude}
+          mapLabel={destination.municipio}
+          variant="hero"
+          showMapLabel={false}
           fill
           sizes="100vw"
           className={cn(
@@ -241,9 +247,14 @@ export default function DestinationDetailPage({ destination }: DestinationDetail
               {destination.atracoes.map((act) => (
                 <Card key={act.id} className="overflow-hidden !p-0 flex flex-col h-full hover:shadow-lg transition-shadow">
                   <div className="relative h-44 w-full">
-                    <Image
+                    <PlaceImage
                       src={act.imagem}
                       alt={act.nome}
+                      local={act.nome}
+                      latitude={destination.latitude}
+                      longitude={destination.longitude}
+                      mapLabel={destination.municipio}
+                      variant="card"
                       fill
                       className="object-cover"
                     />
@@ -290,9 +301,13 @@ export default function DestinationDetailPage({ destination }: DestinationDetail
                     className="flex items-center gap-3 p-3 rounded-xl bg-[var(--color-surface-alt)] border border-[var(--color-border-light)] hover:border-[var(--color-primary)]/40 transition-all duration-200"
                   >
                     <div className="relative h-12 w-12 rounded-lg overflow-hidden flex-shrink-0">
-                      <Image
+                      <PlaceImage
                         src={partner.imagem}
                         alt={partner.nome}
+                        local={partner.nome}
+                        latitude={partner.latitude}
+                        longitude={partner.longitude}
+                        variant="thumb"
                         fill
                         className="object-cover"
                       />

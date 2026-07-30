@@ -1,9 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import Image from 'next/image';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { LocalImage } from '@/components/ui/LocalImage';
 import { type DestinoInfo, cadasturData } from '@/data/mockData';
+import { fotoAprovadaPara } from '@/data/photoCuration';
 import { cn } from '@/lib/utils';
 
 /**
@@ -29,14 +30,16 @@ export default function DestinationPhotos({ destination }: DestinationPhotosProp
   const photos = useMemo<Photo[]>(() => {
     // A foto do destino abre a galeria: ela era o banner da pagina antes do
     // mapa assumir o topo, e continua sendo a imagem que representa o lugar.
-    const lead: Photo = {
+    const lead = {
       src: destination.imagem,
+      local: destination.nome,
       title: destination.nome,
       caption: `${destination.municipio}, Rio Grande do Norte`,
     };
 
     const attractions = destination.atracoes.map((a) => ({
       src: a.imagem,
+      local: a.nome,
       title: a.nome,
       caption: a.descricao,
     }));
@@ -47,11 +50,19 @@ export default function DestinationPhotos({ destination }: DestinationPhotosProp
       .slice(0, MAX_PARTNER_PHOTOS)
       .map((b) => ({
         src: b.imagem,
+        local: b.nome,
         title: b.nome,
         caption: `${b.tipo} regularizada no Cadastur`,
       }));
 
-    return [lead, ...attractions, ...partners].filter((p) => Boolean(p.src));
+    // O lightbox amplia quase em tela cheia (max-w-4xl), o mesmo nivel de
+    // exigencia do hero — por isso o portao aqui pede aprovacao pra 'hero',
+    // nao so pra 'card'. Quem nao tem foto aprovada nesse tamanho fica de
+    // fora da galeria (o <PlaceMap> ja cobre esses casos nos cards
+    // individuais); a secao inteira some se nao sobrar nenhuma foto.
+    return [lead, ...attractions, ...partners]
+      .filter((p) => fotoAprovadaPara(p.src, p.local, 'hero'))
+      .map(({ src, title, caption }) => ({ src, title, caption }));
   }, [destination]);
 
   const close = useCallback(() => setOpenIndex(null), []);
@@ -120,10 +131,9 @@ export default function DestinationPhotos({ destination }: DestinationPhotosProp
                 isLead && 'col-span-2 row-span-2'
               )}
             >
-              <LocalImage
+              <Image
                 src={photo.src}
                 alt={photo.title}
-                fallbackLabel={photo.title}
                 fill
                 sizes={isLead ? '(max-width: 640px) 100vw, 60vw' : '(max-width: 640px) 50vw, 30vw'}
                 className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
@@ -189,10 +199,9 @@ export default function DestinationPhotos({ destination }: DestinationPhotosProp
             className="relative w-full max-w-4xl aspect-[16/10] rounded-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <LocalImage
+            <Image
               src={active.src}
               alt={active.title}
-              fallbackLabel={active.title}
               fill
               sizes="100vw"
               className="object-contain"
