@@ -194,18 +194,16 @@ describe('planRoute — coerência com o transporte', () => {
 
   it('nenhum dia da faixa demonstrável piora o que a assinatura já pedia', () => {
     // Teto por transporte na faixa que o cache do OSRM cobre (MAX_CACHED_DAYS = 7), que e
-    // a faixa que a apresentacao usa. Estes numeros sao os PIORES dias que sobraram, e os
-    // tres vem da mesma situacao: roteiro de UM dia, em que a assinatura inteira precisa
-    // caber num dia so -- ecoturismo/buggy liga Maracajau a Galinhos (112 km),
-    // cultura/van vai a Mossoro e ao Lajedo (313 km), familia/caminhada liga Ponta Negra a
-    // Pipa (40 km a pe). Nenhum dia longo vem do PREENCHIMENTO.
+    // a faixa que a apresentacao usa.
     //
-    // Nao e teto de conforto, e trava de regressao: baixar estes numeros exige mexer na
+    // Nao e teto de conforto, e trava de regressao. Os 246,2 km que sobram sao o trecho
+    // Forte -> Mossoro da assinatura de cultura/van: um dia de transfer, prometido pela
+    // propria copia da "Grande Rota Historica". Baixar mais que isso exige mexer na
     // tabela de presets (e regerar o cache do OSRM), nao no planejador.
     const teto: Record<'hike' | 'buggy' | 'shuttle', number> = {
-      hike: 39.7,
-      buggy: 112.6,
-      shuttle: 313.1,
+      hike: 9.2,
+      buggy: 54.6,
+      shuttle: 246.2,
     };
 
     for (const estilo of ['adventure', 'relax', 'ecotourism', 'culture', 'gastronomy', 'family'] as const) {

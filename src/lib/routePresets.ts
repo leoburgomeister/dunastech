@@ -23,6 +23,16 @@ export type Transport = (typeof TRANSPORTS)[number];
 
 type Tabela = Record<TravelStyle, Record<Transport, string[]>>;
 
+// Trecho de preset e o unico caminho por onde ainda entrava dia impossivel: a
+// assinatura nao passa pela barreira de distancia, de proposito. Tres pediam o que o
+// transporte nao faz num dia -- Ponta Negra -> Pipa a pe (39,7 km), Pitangui ->
+// Maracajau a pe (27,6 km) e Maracajau -> Galinhos de buggy (112,6 km). Os
+// substitutos ficam em 6,8 / 7,8 / 48,5 km.
+//
+// ecoturismo/caminhada repete a dupla de aventura/caminhada: dentro dos 8 km que o
+// planejador considera caminhavel o catalogo so tem 5 pares, e todos ja estao em uso.
+// Ja era padrao aceito -- relax/caminhada e gastronomia/caminhada sao ambos Pipa +
+// Madeiro, diferenciados so pela copia.
 const ROTEIROS: Tabela = {
   adventure: {
     hike: ['Dunas de Genipabu', 'Lagoa de Pitangui'],
@@ -40,12 +50,12 @@ const ROTEIROS: Tabela = {
     shuttle: ['Forte dos Reis Magos', 'Cidade Histórica de Mossoró', 'Lajedo de Soledade'],
   },
   ecotourism: {
-    hike: ['Lagoa de Pitangui', 'Parrachos de Maracajaú'],
-    buggy: ['Parrachos de Maracajaú', 'Galinhos'],
+    hike: ['Lagoa de Pitangui', 'Dunas de Genipabu'],
+    buggy: ['Parrachos de Maracajaú', 'São Miguel do Gostoso'],
     shuttle: ['Lagoa de Pitangui', 'Parrachos de Maracajaú', 'Galinhos'],
   },
   family: {
-    hike: ['Ponta Negra e Morro do Careca', 'Praia da Pipa'],
+    hike: ['Ponta Negra e Morro do Careca', 'Parque das Dunas'],
     buggy: ['Forte dos Reis Magos', 'Dunas de Genipabu'],
     shuttle: ['Ponta Negra e Morro do Careca', 'Forte dos Reis Magos', 'Praia da Pipa'],
   },

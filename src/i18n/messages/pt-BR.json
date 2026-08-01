@@ -308,12 +308,12 @@
       },
       "ecotourism": {
         "hike": {
-          "title": "Trilha Ecológica das Lagoas & Parrachos",
-          "description": "Caminhada explorando a Lagoa de Pitangui e os recifes de coral dos Parrachos de Maracajaú."
+          "title": "Lagoa e Dunas: Ecossistema de Genipabu",
+          "description": "Caminhada explorando a Lagoa de Pitangui e as dunas móveis de Genipabu."
         },
         "buggy": {
           "title": "Rota de Buggy Sustentável Litoral Norte",
-          "description": "Passeio de buggy conectando os Parrachos de Maracajaú à vila de pescadores de Galinhos."
+          "description": "Passeio de buggy conectando os Parrachos de Maracajaú à vila de pescadores de São Miguel do Gostoso."
         },
         "shuttle": {
           "title": "Circuito Ecológico Lagoas & Manguezais",
@@ -322,8 +322,8 @@
       },
       "family": {
         "hike": {
-          "title": "Caminhada em Família Ponta Negra & Pipa",
-          "description": "Passeio tranquilo pela orla de Ponta Negra e a praia familiar de Pipa, ideal para crianças."
+          "title": "Caminhada em Família no Parque das Dunas",
+          "description": "Passeio tranquilo pela orla de Ponta Negra e pelas trilhas sombreadas do Parque das Dunas, ideal para crianças."
         },
         "buggy": {
           "title": "Roteiro de Buggy em Família Litoral Norte",

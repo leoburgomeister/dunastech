@@ -308,12 +308,12 @@
       },
       "ecotourism": {
         "hike": {
-          "title": "Sendero Ecológico: Lagunas y Arrecifes",
-          "description": "Caminata explorando la Laguna de Pitangui y los arrecifes de coral de Maracajaú."
+          "title": "Laguna y Dunas: Ecosistema de Genipabu",
+          "description": "Caminata explorando la Laguna de Pitangui y las dunas móviles de Genipabu."
         },
         "buggy": {
           "title": "Ruta de Buggy Sostenible Litoral Norte",
-          "description": "Paseo en buggy conectando los arrecifes de Maracajaú con el pueblo pesquero de Galinhos."
+          "description": "Paseo en buggy conectando los arrecifes de Maracajaú con el pueblo pesquero de São Miguel do Gostoso."
         },
         "shuttle": {
           "title": "Circuito Ecológico: Lagunas y Manglares",
@@ -322,8 +322,8 @@
       },
       "family": {
         "hike": {
-          "title": "Paseo Familiar: Ponta Negra y Pipa",
-          "description": "Un paseo tranquilo por el paseo marítimo de Ponta Negra y la playa familiar de Pipa, ideal para niños."
+          "title": "Paseo Familiar en el Parque das Dunas",
+          "description": "Un paseo tranquilo por el paseo marítimo de Ponta Negra y los senderos sombreados del Parque das Dunas, ideal para niños."
         },
         "buggy": {
           "title": "Ruta Familiar en Buggy Litoral Norte",

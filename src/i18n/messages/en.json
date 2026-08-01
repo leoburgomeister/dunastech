@@ -308,12 +308,12 @@
       },
       "ecotourism": {
         "hike": {
-          "title": "Lagoons & Reefs Ecological Trail",
-          "description": "A hike exploring Pitangui Lagoon and the coral reef pools of Maracajaú."
+          "title": "Lagoon & Dunes: Genipabu Ecosystem",
+          "description": "A hike exploring Pitangui Lagoon and the shifting dunes of Genipabu."
         },
         "buggy": {
           "title": "Sustainable North Coast Buggy Route",
-          "description": "Buggy tour connecting the Maracajaú reef pools to the fishing village of Galinhos."
+          "description": "Buggy tour connecting the Maracajaú reef pools to the fishing village of São Miguel do Gostoso."
         },
         "shuttle": {
           "title": "Lagoons & Mangroves Ecological Circuit",
@@ -322,8 +322,8 @@
       },
       "family": {
         "hike": {
-          "title": "Family Walk: Ponta Negra & Pipa",
-          "description": "A relaxed stroll along Ponta Negra's waterfront and the family-friendly Pipa beach, great for kids."
+          "title": "Family Walk at Parque das Dunas",
+          "description": "A relaxed stroll along Ponta Negra's waterfront and the shaded trails of Parque das Dunas, great for kids."
         },
         "buggy": {
           "title": "Family North Coast Buggy Route",
