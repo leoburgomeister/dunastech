@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, Poppins, JetBrains_Mono } from 'next/font/google';
 import { getLocale, getMessages } from 'next-intl/server';
+import { Analytics } from '@vercel/analytics/next';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import { AuthProvider } from '@/providers/AuthProvider';
 import { IntlProvider } from '@/providers/IntlProvider';
@@ -74,6 +75,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </AuthProvider>
           </IntlProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
