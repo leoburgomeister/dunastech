@@ -120,9 +120,11 @@ export default function DestinationDetailPage({ destination }: DestinationDetail
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8 animate-fade-in-up">
       {/* Back button */}
       <div>
-        <Link 
-          href="/" 
-          className="inline-flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors"
+        {/* py + -my: cresce a area de toque de 20px para 36px sem mexer no
+            espacamento visual. O link tem tamanho de texto, nao de botao. */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 py-2 -my-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Voltar para Explorar
@@ -267,7 +269,7 @@ export default function DestinationDetailPage({ destination }: DestinationDetail
                     {act.parceiroId && (
                       <Link 
                         href={`/vitrine/${act.parceiroId}`}
-                        className="text-xs font-bold text-[var(--color-primary)] hover:underline inline-flex items-center gap-1 self-start"
+                        className="text-xs font-bold text-[var(--color-primary)] hover:underline inline-flex items-center gap-1 self-start py-2.5 -my-2.5"
                       >
                         Ver Operadora <ArrowRight className="h-3 w-3" />
                       </Link>

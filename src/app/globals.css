@@ -283,6 +283,15 @@ body {
   background: var(--color-text-muted);
 }
 
+/* Faixa de abas rolavel (nav mobile do painel de gestao): rola, mas sem a
+   barra aparecendo por cima das pilulas. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* ── Selection ──────────────────────────────────────── */
 ::selection {
   background-color: var(--color-primary);
@@ -733,6 +742,20 @@ input[type="number"]::-webkit-outer-spin-button {
    apertado: a etiqueta viraria ruido sobre o pouco mapa que sobra. */
 @media (max-width: 1023px) {
   .rn-label { display: none; }
+}
+
+/* Campos com 16px no mobile. Abaixo disso o iOS da zoom sozinho ao focar o
+   campo e nao volta, o que desalinha o layout inteiro no meio de um
+   formulario. A UI usa text-xs (12px) em quase todo input, entao a regra fica
+   FORA de @layer de proposito: assim vence as utilitarias do Tailwind, que
+   moram em @layer utilities. Isto e o que permite liberar o pinch-to-zoom no
+   viewport sem herdar o zoom-ao-focar. */
+@media (max-width: 639px) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']),
+  textarea,
+  select {
+    font-size: 16px;
+  }
 }
 
 /* ── Pin do atrativo sorteado na abertura da home ─────────────────── */

@@ -82,7 +82,9 @@ export default function SocialGestaoPage() {
               Varredura de hashtags públicas via Apify Scraper para medir fluxo e sentimento.
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          {/* `flex-wrap`: sao quatro controles numa linha que, no celular, tem
+              358px. Sem quebrar, eles se esmagavam entre si. */}
+          <div className="flex flex-wrap items-center gap-3">
             {/* Settings button */}
             <button
               onClick={() => setShowTokenInput(!showTokenInput)}
@@ -103,13 +105,16 @@ export default function SocialGestaoPage() {
               <span>Forçar atualização</span>
             </label>
 
+            {/* `min-w-0`: a largura intrinseca de um select vem da option mais
+                longa, e com `min-width: auto` ele nao encolhe — sozinho
+                esticava a pagina para 581px num viewport de 390px. */}
             <select
               value={selectedDestino}
               onChange={(e) => {
                 setSelectedDestino(e.target.value);
                 setInstagramData(null);
               }}
-              className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl px-4 py-2 text-xs font-semibold text-[var(--color-text)] focus:outline-none cursor-pointer"
+              className="min-w-0 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl px-4 py-2 text-xs font-semibold text-[var(--color-text)] focus:outline-none cursor-pointer"
             >
               {destinosInfo.map((d) => (
                 <option key={d.nome} value={d.nome}>

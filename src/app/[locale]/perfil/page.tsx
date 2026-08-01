@@ -95,7 +95,7 @@ export default function PerfilPage() {
         <div className="flex items-center justify-between">
           <Link 
             href="/" 
-            className="inline-flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors"
+            className="inline-flex items-center gap-2 py-2 -my-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Voltar para Explorar

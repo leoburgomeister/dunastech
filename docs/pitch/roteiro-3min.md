@@ -1,5 +1,11 @@
 # Roteiro de Pitch — 3 minutos · CONETUR (30/07/2026)
 
+> ⚠️ **Este é o texto do teleprompter do deck `/pitch`, não o roteiro de palco.**
+>
+> O roteiro que o Leonardo fala está em **[`cartao-de-palco.md`](cartao-de-palco.md)** — abertura pela interiorização (11 polos, 81 municípios), demo ao vivo, avaliação no celular. Este arquivo existe para manter o deck coerente com aquele fecho; os dois divergem no miolo de propósito.
+>
+> Ordem no palco: `/pitch/abertura` (página rosto) → `dunastech.com.br` (demo ao vivo) → cartão no celular como referência.
+
 > **Contexto:** 96ª Reunião Ordinária do CONETUR, 9h, Centro de Convenções de Natal. Pitch de **3 minutos** sobre a ideia vencedora do Hackathon do Sol. Apresentador: Leonardo (PO). App ao vivo em **dunastech.com.br** + vídeo de backup.
 >
 > **Estratégia de discurso:** tom **colaborativo**, sem citar números no palco — os indicadores ficam nos slides e no material de apoio. O fecho é um **convite à parceria**, não um pedido de recurso.
@@ -29,8 +35,18 @@
 ### 2:05–2:35 — Sustentabilidade + Impacto
 > "O modelo se sustenta de forma equilibrada: gratuito para o turista, com destaque opcional para o trade credenciado, e assinatura para a gestão pública. E o impacto é territorial: ajudar o estado a levar mais visitantes para o interior, distribuindo oportunidades, e a fortalecer quem faz o turismo com regularidade."
 
-### 2:35–3:00 — Fecho (CTA colaborativo)
-> "Mais do que uma ferramenta, propomos uma parceria: caminhar junto com a Secretaria de Turismo para colocar a inteligência a serviço dos nossos destinos. POTI, da DunasTech. Vamos juntos transformar o turismo do RN — e do Brasil?"
+### 2:35–3:00 — Fecho (pedido concreto + levante)
+> "Hoje, a gente precisa de duas coisas: acesso às bases oficiais, para o projeto seguir. E o apoio de vocês, que é quem pode abrir essa porta.
+>
+> *(pausa)*
+>
+> O Rio Grande do Norte já tem os destinos. Vamos juntos torná-los inteligentes?
+>
+> Obrigado."
+
+**Descartado: "transformar o turismo do RN — e do Brasil".** Diante de um conselho cujo mandato é o estado, o "e do Brasil" posiciona o RN como degrau de uma ambição nacional da empresa. E "transformar" é o verbo mais saturado do vocabulário de pitch, gasto justamente no segundo mais valioso.
+
+A versão de legado — "fazer do RN a referência nacional em turismo inteligente" — fica guardada para os Comentários, dita em resposta a entusiasmo já manifestado.
 
 ---
 

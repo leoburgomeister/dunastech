@@ -27,8 +27,13 @@ export function StarRating({ value, onChange, readonly = false, size = 'md', cla
     lg: 'gap-1.5',
   };
 
+  // Quando da para clicar, a area de toque vem do padding do botao, nao do
+  // tamanho do icone: sem isso o alvo era do tamanho da estrela — 28px no `lg`
+  // da pagina de avaliacao, 20px no `md` — e errar a estrela no celular era
+  // facil. O gap sai junto, senao as estrelas ficariam longe demais uma da
+  // outra. No modo readonly nada muda: ali e exibicao, nao alvo.
   return (
-    <div className={cn('flex items-center', gapClasses[size], className)}>
+    <div className={cn('flex items-center', readonly ? gapClasses[size] : 'gap-0', className)}>
       {[1, 2, 3, 4, 5].map((star) => {
         const filled = star <= (hovered || value);
         return (
@@ -41,7 +46,7 @@ export function StarRating({ value, onChange, readonly = false, size = 'md', cla
             onMouseLeave={() => !readonly && setHovered(0)}
             className={cn(
               'transition-all duration-150 ease-out',
-              readonly ? 'cursor-default' : 'cursor-pointer hover:scale-110 active:scale-95',
+              readonly ? 'cursor-default' : 'cursor-pointer hover:scale-110 active:scale-95 p-2',
             )}
             aria-label={`${star} estrela${star > 1 ? 's' : ''}`}
           >

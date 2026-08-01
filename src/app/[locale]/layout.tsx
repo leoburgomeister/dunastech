@@ -48,7 +48,12 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
+  // Sem `maximumScale: 1`. Ele travava o pinch-to-zoom (WCAG 1.4.4), e boa
+  // parte da UI mobile vive em 10-12px: sem zoom nao havia como ler. O
+  // efeito colateral que o maximumScale evitava — iOS dando zoom sozinho ao
+  // focar input com fonte < 16px — esta resolvido no CSS, com os campos em
+  // 16px no mobile.
+  maximumScale: 5,
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#FAFBFD' },
     { media: '(prefers-color-scheme: dark)', color: '#060913' },
