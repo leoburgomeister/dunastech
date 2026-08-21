@@ -53,7 +53,7 @@
 | B7 | Fallback do ISA sem fluxo/investimento (retorna 70 fixo → empate em massa) | idem |
 | B8 | ~~Atrações somem no sync~~ — **RESOLVIDO em 20/08** (mapper + migration 0005 + reserva estática) | esta sessão |
 | B9 | Catálogo intermediário (nada entre Maracajaú e Gostoso; 246 km sem parada até Mossoró) | spec alcance §Próximos passos |
-| B10 | Fechar a porta do `escolher(Infinity)` (única entrada de dia impossível; alternativas: destino repetido ou dia de descanso) | idem — relacionado aos 2 bugs capturados com `it.fails` na revisão de 20/08 |
+| B10 | ~~Fechar a porta do `escolher(Infinity)`~~ — **RESOLVIDO em 21/08**: barreira de alcance nunca cede; déficit vira dia de permanência (destino repetido, perna 0 km); catálogo deduplicado por nome em `planRoute`. Bug da busca (assinatura furando alcance) também fechado. Os 2 `it.fails` viraram testes normais; suíte 269 verde, tsc limpo | idem — relacionado aos 2 bugs capturados com `it.fails` na revisão de 20/08 |
 | B11 | Reavaliar teto de buggy (12) se o catálogo do litoral norte crescer | idem |
 | B12 | Roteiros 13–15 dias: alvo encosta no catálogo e o ISA deixa de influenciar | spec ISA §Limitação |
 | B13 | Papel "gestor de polo" (multi-tenancy) — registrado "para não virar surpresa de escopo" | spec pitch §6 |
@@ -64,14 +64,14 @@
 
 À lista soma-se a **dívida achada pela revisão de 20/08** e ainda não corrigida: destino da busca fura o limite de distância do transporte; dias vazios com nomes duplicados; coordenadas do seed divergem do cache OSRM (~9 km na Lagoa de Pitangui → 100% cache miss); memos com deps `[]` não recomputam pós-sync; vazamento de interval em `firebase.ts`.
 
-~~RLS de `feedbacks` sem predicado~~ — **FEITO em 20/08**: `0008` aplicada em produção (insert anônimo → `P0001` «Avaliação exige usuário autenticado»). ~~`/api/gemini` e `/api/scraper` sem auth/rate limit~~ — **código pronto**; falta deploy.
+~~RLS de `feedbacks` sem predicado~~ — **FEITO em 20/08**: `0008` aplicada em produção (insert anônimo → `P0001` «Avaliação exige usuário autenticado»). ~~`/api/gemini` e `/api/scraper` sem auth/rate limit~~ — **FEITO e verificado em produção em 21/08**: `POST /api/gemini` sem sessão → 401; `/api/scraper` → 405 (commit `f8967da`).
 
 ### C. Pendências de negócio (pitch passou; os itens continuam abertos)
 
 | # | Ação | Fonte |
 |---|---|---|
 | C1 | **Validar preços contra custo real** ("se a margem não fechar, o número está errado") — criticidade alta | spec pitch §8 |
-| C2 | Confirmar status do CNPJ/LTDA (os dois Q&As se contradizem — ver §4.6) | spec pitch §8; Q&As |
+| C2 | ~~Confirmar status do CNPJ/LTDA~~ — **RESOLVIDO em 21/08**: **CNPJ 68.629.561/0001-98 — DUNASTECH INOVA SIMPLES (I.S.)**, ATIVA, aberta em **17/08/2026** (nat. jur. 2348, CNAE 6201-5/01; sede Rua das Andorinhas 04, Pipa, Tibau do Sul/RN). Sócios: Leonardo B. Burgomeister (adm.), Ana Camilly G. de Araujo, Antonio C. da Cruz. A contradição dos Q&As se explica: no CONETUR (30/07) ainda não existia — falta só atualizar os dois Q&As (ver D3) | spec pitch §8; Q&As |
 | C3 | Validar em fonte primária: investimento em governança das IGRs; "76% do PIB"; "75% do ICMS" | spec pitch §5, §8 |
 | C4 | Confirmar com a SETUR se existe CPSI aberto no RN para turismo | spec pitch §7 |
 | C5 | Registrar status real das conversas com Emprotur/SETUR (placeholder nunca preenchido) | qa-tecnico.md |
@@ -138,7 +138,7 @@
 
 ## 6. Prioridade recomendada
 
-1. **Deploy** — auth/rate-limit em `/api/gemini` e `/api/scraper` (hoje em produção ainda respondem 200 sem sessão). **A1, A2, A7 e 0008 feitos**.
+1. ~~**Deploy** — auth/rate-limit em `/api/gemini` e `/api/scraper`~~ — **FEITO, verificado em produção em 21/08** (401/405 sem sessão). **A1, A2, A7 e 0008 feitos**.
 2. **B10 + o bug da busca** — fechar `escolher(Infinity)` e o destino buscado que fura o alcance do transporte (os dois `it.fails` do planejador).
 3. **D1 + D2** — trazer os docs das branches e aposentar o `.gsd/`, para o repo voltar a ter uma única fonte de verdade.
 4. **C1–C2** — preço × custo real e situação societária, que travam qualquer proposta comercial pós-CONETUR.

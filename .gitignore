@@ -55,3 +55,6 @@ next-env.d.ts
 # os arquivos otimizados em public/images/destinations/.
 /public/images/*.zip
 /public/images/*.ZIP
+
+# Documentos internos sensíveis (CNPJ, quadro societário) — nunca versionar
+interno/
