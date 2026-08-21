@@ -1,8 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { destinosInfo, fluxoData, investimentosData, transporteData, calcularISA, Feedback } from "@/data/mockData";
+import { exigirAdmin } from "@/lib/api-guard";
 
 export async function POST(request: NextRequest) {
+  const barrado = await exigirAdmin(request, { nome: "gemini", max: 10, janelaMs: 60_000 });
+  if (barrado) return barrado;
+
   try {
     const body = await request.json();
     const apiKey = process.env.GEMINI_API_KEY;

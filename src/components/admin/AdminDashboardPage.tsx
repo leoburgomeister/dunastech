@@ -11,7 +11,7 @@ import {
   destinosInfo, fluxoData, transporteData, calcularISA, investimentosData
 } from '@/data/mockData';
 import type { Feedback } from '@/data/mockData';
-import { subscribeFeedbacks } from '@/lib/firebase';
+import { subscribeFeedbacks } from '@/lib/feedbacks';
 import { useSupabaseSync } from '@/lib/supabase-data';
 
 export default function AdminDashboardPage() {

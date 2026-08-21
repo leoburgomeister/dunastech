@@ -26,10 +26,22 @@ export interface PlannedDay {
   travelKm: number;
 }
 
+/** Destino-assinatura trocado por ISA crítico, para a interface poder explicar o porquê. */
+export interface SeedReplacement {
+  /** Destino-assinatura que saiu. */
+  removed: string;
+  /** ISA que motivou a saída. */
+  isa: number;
+  /** Quem entrou no lugar. */
+  replacedBy: string;
+}
+
 export interface PlannedRoute {
   destinations: DestinoInfo[];
   days: PlannedDay[];
   totalKm: number;
+  /** Vazio quando nada foi trocado. */
+  replacements: SeedReplacement[];
 }
 
 export interface PlanRouteOptions {
@@ -39,7 +51,35 @@ export interface PlanRouteOptions {
   days: number;
   /** Destino buscado pelo usuário; vira o ponto de partida do roteiro. */
   anchorName?: string | null;
+  /**
+   * ISA (0–100) por nome de destino.
+   *
+   * Injetado, não importado: `calcularISA` depende de `fluxoData`/`investimentosData`,
+   * que o `supabase-data` muta em runtime — o planejador tem que continuar puro para
+   * seguir testável sem fixture de feedback. Opcional de propósito: sem ele o
+   * planejador se comporta exatamente como antes do ISA entrar.
+   */
+  isaByDestination?: Record<string, number>;
 }
+
+/**
+ * Pivô da pontuação por ISA e limiar de "crítico".
+ *
+ * 60 é o mesmo corte que `getISABadge` já usa no produto (≥80 saudável, ≥60 atenção,
+ * <60 crítico) — nenhum número novo foi inventado para esta regra. Destino sem leitura
+ * de ISA vale o pivô: sem opinião, efeito zero.
+ */
+const ISA_PIVO = 60;
+
+/**
+ * Quanto cada ponto de ISA vale na pontuação.
+ *
+ * Calibrado contra a escala existente: um degrau de afinidade vale AFFINITY_STEP (10),
+ * então 0,8 move um destino cerca de 3 posições na fila. ISA 95 dá +28, ISA 20 dá −32.
+ * É desempate forte, não ditador: o estilo escolhido pelo turista continua decidindo a
+ * maior parte dos casos.
+ */
+const ISA_WEIGHT = 0.8;
 
 // Ordem de preferência usada para completar o roteiro quando a duração pede mais
 // destinos do que os de assinatura. Quem não está na lista ainda pode entrar, mas
@@ -268,12 +308,17 @@ function selectDestinations(
   transport: TransportMode,
   targetCount: number,
   minCount: number,
-  anchor: DestinoInfo | null
-): DestinoInfo[] {
+  anchor: DestinoInfo | null,
+  isaByDestination: Record<string, number> | undefined
+): { selected: DestinoInfo[]; replacements: SeedReplacement[] } {
   const profile = TRANSPORT_PROFILE[transport];
   const affinity = STYLE_AFFINITY[style];
   const selected: DestinoInfo[] = [];
   const taken = new Set<string>();
+  const replacements: SeedReplacement[] = [];
+
+  const isaDe = (nome: string) => isaByDestination?.[nome] ?? ISA_PIVO;
+  const pontuacaoISA = (nome: string) => (isaDe(nome) - ISA_PIVO) * ISA_WEIGHT;
 
   const take = (dest: DestinoInfo | undefined) => {
     if (!dest || taken.has(dest.nome)) return;
@@ -281,12 +326,79 @@ function selectDestinations(
     selected.push(dest);
   };
 
+  const seedNames = destinosDoRoteiro(style, transport);
+  const seedNameSet = new Set(seedNames);
+
+  /**
+   * Melhor substituto saudável para um destino-assinatura em estado crítico.
+   *
+   * A distância é medida até o destino REMOVIDO, não até o resto do grupo: o
+   * substituto precisa cair na mesma região para a rota preservar o formato e a
+   * promessa geográfica do título. Outros destinos-assinatura estão fora — eles já
+   * entram por conta própria, e tomá-los aqui encurtaria o roteiro.
+   */
+  const escolherSubstituto = (removido: DestinoInfo): DestinoInfo | null => {
+    let best: DestinoInfo | null = null;
+    let bestScore = -Infinity;
+
+    for (const candidate of catalogue) {
+      if (taken.has(candidate.nome) || seedNameSet.has(candidate.nome)) continue;
+      if (isaDe(candidate.nome) < ISA_PIVO) continue;
+
+      const km = distanceBetween(removido, candidate);
+      const affinityIndex = affinity.indexOf(candidate.nome);
+      const affinityScore =
+        affinityIndex === -1 ? 0 : (affinity.length - affinityIndex) * AFFINITY_STEP;
+      const distancePenalty =
+        profile.distanceWeight * (km / profile.comfortableLegKm) * AFFINITY_STEP;
+
+      const score =
+        affinityScore +
+        (candidate.monitorado ? MONITORED_BONUS : 0) +
+        pontuacaoISA(candidate.nome) -
+        distancePenalty;
+
+      if (score > bestScore) {
+        bestScore = score;
+        best = candidate;
+      }
+    }
+
+    return best;
+  };
+
   // Assinatura entra sempre, mesmo longe: e o que o titulo prometeu. A "Grande Rota
   // Historica" de van vai a Mossoro e ao Lajedo porque a descricao os nomeia — o
   // deslocamento longo ali e o roteiro, nao um efeito colateral do preenchimento.
+  //
+  // A ancora da busca entra antes e nunca e substituida: o turista pediu aquele destino
+  // explicitamente, e devolver outro sem ele pedir seria pior do que mostrar o selo de
+  // ISA vermelho no que ele escolheu.
   if (anchor) take(anchor);
-  for (const nome of destinosDoRoteiro(style, transport)) {
-    take(catalogue.find((d) => d.nome === nome));
+
+  for (const nome of seedNames) {
+    if (taken.has(nome)) continue;
+    const seed = catalogue.find((d) => d.nome === nome);
+    if (!seed) continue;
+
+    const isa = isaDe(nome);
+    if (isa >= ISA_PIVO) {
+      take(seed);
+      continue;
+    }
+
+    // Assinatura tem regra dura porque entra FORÇADA, antes de qualquer pontuação —
+    // o peso do ISA não teria como alcançá-la. A regra existe só para dar ao indicador
+    // acesso ao único caminho que a pontuação não cobre.
+    const substituto = escolherSubstituto(seed);
+    if (!substituto) {
+      // Sem nenhum saudável disponível, o roteiro degradado é melhor que o vazio.
+      take(seed);
+      continue;
+    }
+
+    take(substituto);
+    replacements.push({ removed: nome, isa, replacedBy: substituto.nome });
   }
 
   const nearestSelectedKm = (candidate: DestinoInfo) =>
@@ -318,8 +430,13 @@ function selectDestinations(
       const distancePenalty =
         profile.distanceWeight * (nearestKm / profile.comfortableLegKm) * AFFINITY_STEP;
 
+      // O ISA entra como PESO, sem corte automático: a plataforma não fecha atrativo
+      // sozinha — quem suspende é a IGR. Ele desempata a favor de quem está saudável.
       const score =
-        affinityScore + (candidate.monitorado ? MONITORED_BONUS : 0) - distancePenalty;
+        affinityScore +
+        (candidate.monitorado ? MONITORED_BONUS : 0) +
+        pontuacaoISA(candidate.nome) -
+        distancePenalty;
 
       if (score > bestScore) {
         bestScore = score;
@@ -347,7 +464,7 @@ function selectDestinations(
     take(proximo);
   }
 
-  return selected;
+  return { selected, replacements };
 }
 
 /** Reparte a sequência já otimizada em blocos contíguos e equilibrados, um por dia. */
@@ -367,11 +484,11 @@ function splitIntoDays(ordered: DestinoInfo[], days: number): DestinoInfo[][] {
 }
 
 export function planRoute(options: PlanRouteOptions): PlannedRoute {
-  const { catalogue, style, transport, days, anchorName } = options;
+  const { catalogue, style, transport, days, anchorName, isaByDestination } = options;
 
   const totalDays = clampDays(days, catalogue.length, style, transport);
   if (totalDays === 0) {
-    return { destinations: [], days: [], totalKm: 0 };
+    return { destinations: [], days: [], totalKm: 0, replacements: [] };
   }
 
   const anchor = anchorName ? catalogue.find((d) => d.nome === anchorName) ?? null : null;
@@ -394,7 +511,15 @@ export function planRoute(options: PlanRouteOptions): PlannedRoute {
       : Math.max(Math.round(totalDays * profile.perDay), totalDays)
   );
 
-  const selected = selectDestinations(catalogue, style, transport, targetCount, totalDays, anchor);
+  const { selected, replacements } = selectDestinations(
+    catalogue,
+    style,
+    transport,
+    targetCount,
+    totalDays,
+    anchor,
+    isaByDestination
+  );
   const ordered = optimizeOrder(selected, anchor?.nome);
   const chunks = splitIntoDays(ordered, totalDays);
 
@@ -420,5 +545,6 @@ export function planRoute(options: PlanRouteOptions): PlannedRoute {
     destinations: ordered,
     days: plannedDays,
     totalKm: Number(routeLengthKm(ordered).toFixed(1)),
+    replacements,
   };
 }

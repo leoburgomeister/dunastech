@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { subscribeFeedbacks } from "@/lib/firebase";
+import { subscribeFeedbacks } from "@/lib/feedbacks";
 import type { Feedback } from "@/data/mockData";
 import { Star, Clock, Filter, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";

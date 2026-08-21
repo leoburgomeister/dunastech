@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { destinosInfo, transporteData, investimentosData, calcularISA } from "@/data/mockData";
 import type { Feedback } from "@/data/mockData";
-import { subscribeFeedbacks } from "@/lib/firebase";
+import { subscribeFeedbacks } from "@/lib/feedbacks";
+import { headersComSessao } from "@/lib/session-headers";
 import {
   Brain, Sparkles, Loader2, Send, MessageSquare, ShieldAlert,
   TrendingUp, Trash2, Bus, ShieldCheck, Wrench, Activity
@@ -305,7 +306,7 @@ PROPOSTAS DE INVESTIMENTO DE ZELADORIA:
     try {
       const res = await fetch("/api/gemini", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: await headersComSessao(),
         body: JSON.stringify({
           destino: selectedDestino,
           feedbacks,
@@ -343,7 +344,7 @@ PROPOSTAS DE INVESTIMENTO DE ZELADORIA:
 
       const res = await fetch("/api/gemini", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: await headersComSessao(),
         body: JSON.stringify({
           chatMode: true,
           message: userText,

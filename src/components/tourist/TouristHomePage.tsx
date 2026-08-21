@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import {
@@ -13,7 +14,8 @@ import {
   Car, Bus, Footprints, Route, ShieldCheck, BarChart3
 } from 'lucide-react';
 import { StarRating } from '@/components/ui/StarRating';
-import { addFeedback } from '@/lib/firebase';
+import { addFeedback, subscribeFeedbacks } from '@/lib/feedbacks';
+import { useAuth } from '@/providers/AuthProvider';
 import { cn, slugify } from '@/lib/utils';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -23,7 +25,7 @@ import type { Feedback, DestinoInfo } from '@/data/mockData';
 import { useSupabaseSync } from '@/lib/supabase-data';
 import { normalizeStyle, normalizeTransport, limitesDeDuracao } from '@/lib/routePresets';
 import { planRoute, haversineKm } from '@/lib/route-planner';
-import type { PlannedDay } from '@/lib/route-planner';
+import type { PlannedDay, SeedReplacement } from '@/lib/route-planner';
 
 // Dynamically load Map component to prevent SSR window error on homepage
 const HomeRouteMap = dynamic(
@@ -46,6 +48,8 @@ interface RouteDay {
 
 export default function TouristHomePage() {
   useSupabaseSync();
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
   const t = useTranslations('planner');
   const tRanking = useTranslations('ranking');
 
@@ -149,6 +153,10 @@ export default function TouristHomePage() {
   const handleEvalSubmitDest = async (destNome: string) => {
     const rating = evalRatings[destNome] || 0;
     if (rating === 0) return;
+    if (!isAuthenticated) {
+      router.push('/login?redirect=/');
+      return;
+    }
     setEvalLoadingDest(destNome);
     try {
       const criteria = evalCriteriaByDest[destNome] || {};
@@ -182,17 +190,37 @@ export default function TouristHomePage() {
     description: string;
     destinations: typeof destinosInfo;
     days: RouteDay[];
+    replacements: SeedReplacement[];
   } | null>(null);
+
+  // Avaliações reais, a mesma fonte que o painel do gestor consome.
+  //
+  // Antes daqui a home passava `[] as Feedback[]` para o `calcularISA`, então gestor e
+  // turista viam números diferentes para o mesmo atrativo assim que alguém avaliava — e
+  // o ciclo "turista avalia -> ISA cai -> rota desvia" nunca fechava.
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+
+  useEffect(() => {
+    const unsub = subscribeFeedbacks(setFeedbacks);
+    return () => unsub();
+  }, []);
+
+  /** ISA por destino, fonte única para os cards, os selos e o planejador. */
+  const isaByDestination = useMemo(() => {
+    const mapa: Record<string, number> = {};
+    for (const d of destinosInfo) mapa[d.nome] = calcularISA(d.nome, feedbacks);
+    return mapa;
+  }, [feedbacks]);
 
   // All destinations memo
   const destinations = useMemo(() => {
     return destinosInfo.map(d => {
       const fluxo = fluxoData.find(f => f.destino === d.nome);
-      const isa = calcularISA(d.nome, [] as Feedback[]);
+      const isa = isaByDestination[d.nome] ?? 0;
       const partners = cadasturData.filter(c => c.destino === d.nome && c.regularizado);
       return { ...d, fluxo, isa, partners };
     }).sort((a, b) => b.isa - a.isa);
-  }, []);
+  }, [isaByDestination]);
 
   const topDestinations = destinations.slice(0, 3); // Top 3 largest cards
 
@@ -249,6 +277,7 @@ export default function TouristHomePage() {
       transport: transportKey,
       days: durationDays,
       anchorName: matchedQueryDest,
+      isaByDestination,
     });
 
     const routeDays: RouteDay[] = plan.days.map(day => ({
@@ -263,6 +292,7 @@ export default function TouristHomePage() {
       description,
       destinations: plan.destinations,
       days: routeDays,
+      replacements: plan.replacements,
     };
 
     // Pre-select default attractions
@@ -800,8 +830,29 @@ export default function TouristHomePage() {
 
                       {/* Daily breakdown timeline */}
                       <div className="space-y-3 flex-1 overflow-y-auto pr-1 custom-scrollbar py-2">
+                        {/* Troca por ISA crítico: o critério só é legível se a rota disser
+                            o que saiu e por quê. Mesmo padrão âmbar do aviso de caminhada longa. */}
+                        {suggestedRoute.replacements.map((troca) => (
+                          <div
+                            key={troca.removed}
+                            className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[10px] text-amber-600 flex items-start gap-1.5 leading-relaxed"
+                          >
+                            <ShieldAlert className="h-3.5 w-3.5 text-amber-600 shrink-0 mt-0.5" />
+                            <span>
+                              {t.rich('isaReplacement', {
+                                removed: troca.removed,
+                                isa: troca.isa,
+                                replacedBy: troca.replacedBy,
+                                strong: (chunks) => (
+                                  <strong className="text-[var(--color-text)]">{chunks}</strong>
+                                ),
+                              })}
+                            </span>
+                          </div>
+                        ))}
+
                         <p className="text-[10px] uppercase font-bold text-[var(--color-text-muted)] tracking-wider">{t('itinerarySchedule')}</p>
-                        
+
                         <div className="space-y-2.5">
                           {suggestedRoute.days.map((dayItem, dayIndex) => {
                             const isExpanded = expandedDay === dayItem.day;

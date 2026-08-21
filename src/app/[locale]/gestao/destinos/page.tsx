@@ -10,7 +10,7 @@ import { destinosInfo, fluxoData, ibgeData, transporteData, calcularISA, type Fe
 import { Badge } from "@/components/ui/Badge";
 import { MapPin, Users, Activity, Maximize2 } from "lucide-react";
 import { cn, slugify } from "@/lib/utils";
-import { subscribeFeedbacks } from "@/lib/firebase";
+import { subscribeFeedbacks } from "@/lib/feedbacks";
 import { useSupabaseSync } from "@/lib/supabase-data";
 
 const DestinosMap = dynamic(

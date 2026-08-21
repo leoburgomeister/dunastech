@@ -26,7 +26,7 @@ import {
   type Feedback,
   DestinoInfo,
 } from "@/data/mockData";
-import { addFeedback } from "@/lib/firebase";
+import { addFeedback } from "@/lib/feedbacks";
 
 // Dynamically import Leaflet map to prevent SSR window reference crash
 const DestinationMap = dynamic(() => import("./DestinationMap"), {

@@ -35,7 +35,8 @@ import {
   calcularISA,
   type Feedback,
 } from "@/data/mockData";
-import { subscribeFeedbacks } from "@/lib/firebase";
+import { subscribeFeedbacks } from "@/lib/feedbacks";
+import { headersComSessao } from "@/lib/session-headers";
 import ISAGauge from "./ISAGauge";
 import AIChatSidebar from "./AIChatSidebar";
 
@@ -101,7 +102,7 @@ export default function ManagerView() {
       const hashtag = fluxo?.hashtag_instagram || "pontanegranatal";
       const res = await fetch("/api/scraper", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: await headersComSessao(),
         body: JSON.stringify({ hashtag }),
       });
       const data = await res.json();
@@ -119,7 +120,7 @@ export default function ManagerView() {
     try {
       const res = await fetch("/api/gemini", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: await headersComSessao(),
         body: JSON.stringify({
           destino: selectedDestino,
           feedbacks: destinoFeedbacks,

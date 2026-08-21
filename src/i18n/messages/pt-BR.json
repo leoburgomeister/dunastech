@@ -165,6 +165,7 @@
     "timeHr": "{hours}h{minutes} de {transport}",
     "timeHrOnly": "{hours}h de {transport}",
     "warning": "Aviso:",
+    "isaReplacement": "<strong>{removed}</strong> ficou fora do roteiro — ISA {isa} (crítico). Sugerimos <strong>{replacedBy}</strong> no lugar.",
     "walkingWarning": "A distância é de {distance} km, o que é muito longo para ir a pé. Considere alugar um buggy ou contratar um translado credenciado.",
     "localRoute": "Roteiro local. Não exige deslocamento rodoviário entre destinos neste dia.",
     "detailedSchedule": "Programação detalhada",

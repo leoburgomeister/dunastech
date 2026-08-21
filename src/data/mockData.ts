@@ -1221,12 +1221,42 @@ const ISA_INVESTMENT_DIVISOR = 250; // R$ mil investidos por ponto de bônus
 const ISA_SATURATION_FREE = 70; // % de saturação sem penalidade
 const ISA_SATURATION_WEIGHT = 0.5; // pontos perdidos por ponto percentual acima do limite
 
+// Peso do baseline na média com as avaliações — o "K" da suavização bayesiana.
+//
+// Sem ele, `baseScore = soma / n` SUBSTITUÍA o baseline: a primeira avaliação de um
+// destino apagava todo o dado estático. Uma avaliação péssima levava um destino de 86
+// para 0, uma mediana para 22 — ou seja, o primeiro turista a avaliar qualquer atrativo
+// derrubava o indicador dele para a faixa de 0–30, o que é defeito de produção e não só
+// de demonstração.
+//
+// K = 3 significa "o baseline vale três avaliações". Duas avaliações ruins ainda levam
+// qualquer destino da faixa saudável para crítico (<60), então o indicador continua
+// respondendo rápido a problema real — só não é mais decidido por um único voto.
+const ISA_PESO_BASELINE = 3;
+
 export function calcularISA(destino: string, feedbacks: Feedback[]): number {
   const fluxo = fluxoData.find((f) => f.destino === destino);
   const investimento = investimentosData.find((i) => i.destino === destino);
   if (!fluxo || !investimento) return 70;
 
-  let baseScore = ISA_BASE;
+  // Baseline estático, sempre calculado: com avaliações ele deixa de ser o resultado e
+  // passa a ser o ponto de partida da média ponderada.
+  // Termos contínuos em vez de degraus fixos: o indicador ganha resolução fina e os
+  // destinos deixam de empatar em três valores possíveis.
+  const investmentBonus = Math.min(
+    ISA_INVESTMENT_CAP,
+    investimento.total_mil / ISA_INVESTMENT_DIVISOR
+  );
+  const saturationPenalty = Math.max(
+    0,
+    (fluxo.saturacao_turistica - ISA_SATURATION_FREE) * ISA_SATURATION_WEIGHT
+  );
+  const baseline = Math.max(
+    0,
+    Math.min(100, ISA_BASE + investmentBonus - saturationPenalty)
+  );
+
+  let baseScore = baseline;
 
   // Filter feedbacks for this destination
   const destFeedbacks = feedbacks.filter((f) => f.destino === destino);
@@ -1254,24 +1284,17 @@ export function calcularISA(destino: string, feedbacks: Feedback[]): number {
       // Negative aspects
       const overcrowdingPenalty = f.superlotado ? -15 : 0;
 
-      feedbackBonus += (score / count) * 80 + starFactor + overcrowdingPenalty;
+      // Cada avaliação vira uma nota 0–100. O clamp é por avaliação, antes da média:
+      // sem ele, uma nota de -25 puxaria o conjunto para baixo com peso que a escala
+      // do indicador não tem.
+      const nota = (score / count) * 80 + starFactor + overcrowdingPenalty;
+      feedbackBonus += Math.max(0, Math.min(100, nota));
       feedbackCount++;
     });
 
-    baseScore = feedbackBonus / feedbackCount;
-  } else {
-    // Baseline estático, usado enquanto o destino não tem nenhuma avaliação.
-    // Termos contínuos em vez de degraus fixos: o indicador ganha resolução fina e os
-    // destinos deixam de empatar em três valores possíveis.
-    const investmentBonus = Math.min(
-      ISA_INVESTMENT_CAP,
-      investimento.total_mil / ISA_INVESTMENT_DIVISOR
-    );
-    const saturationPenalty = Math.max(
-      0,
-      (fluxo.saturacao_turistica - ISA_SATURATION_FREE) * ISA_SATURATION_WEIGHT
-    );
-    baseScore = ISA_BASE + investmentBonus - saturationPenalty;
+    // Média ponderada entre o baseline (peso K) e as avaliações (peso 1 cada).
+    baseScore =
+      (baseline * ISA_PESO_BASELINE + feedbackBonus) / (ISA_PESO_BASELINE + feedbackCount);
   }
 
   return Math.max(0, Math.min(100, Math.round(baseScore)));

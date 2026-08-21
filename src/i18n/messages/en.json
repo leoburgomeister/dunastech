@@ -165,6 +165,7 @@
     "timeHr": "{hours}h {minutes}m by {transport}",
     "timeHrOnly": "{hours}h by {transport}",
     "warning": "Warning:",
+    "isaReplacement": "<strong>{removed}</strong> was left out of the itinerary — ISA {isa} (critical). We suggest <strong>{replacedBy}</strong> instead.",
     "walkingWarning": "The distance is {distance} km, which is too long to walk. Consider renting a buggy or hiring a certified shuttle.",
     "localRoute": "Local itinerary. Does not require road travel between destinations today.",
     "detailedSchedule": "Detailed Schedule",

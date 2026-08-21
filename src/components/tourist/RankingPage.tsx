@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/Badge';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Card } from '@/components/ui/Card';
 import { destinosInfo, fluxoData, calcularISA, investimentosData, Feedback } from '@/data/mockData';
-import { subscribeFeedbacks } from '@/lib/firebase';
+import { subscribeFeedbacks } from '@/lib/feedbacks';
 import { useSupabaseSync } from '@/lib/supabase-data';
 import Link from 'next/link';
 
@@ -134,7 +134,10 @@ export default function RankingPage() {
               Diagnóstico do Estado (Geral)
             </h3>
             <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
-              O Rio Grande do Norte apresenta uma média geral de <strong>{avgISA} pontos</strong>, classificada como <strong>Atenção</strong>.
+              {/* A classificação vem do mesmo helper que decide os selos logo abaixo.
+                  Estava escrita à mão como "Atenção", então a frase principal da página
+                  contradizia os próprios contadores sempre que a média passava de 80. */}
+              O Rio Grande do Norte apresenta uma média geral de <strong>{avgISA} pontos</strong>, classificada como <strong>{getISAConfig(avgISA).label}</strong>.
               O índice ISA é calculado a partir de taxas de superlotação de visitantes, investimentos em infraestrutura e saneamento, e feedback em tempo real sobre limpeza, segurança e conservação.
             </p>
             <div className="flex gap-2 pt-2 text-[10px] text-[var(--color-text-muted)] font-medium">

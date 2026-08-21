@@ -8,6 +8,8 @@ import {
   fluxoData,
   investimentosData,
   transporteData,
+  type AttractionActivity,
+  type DestinoInfo,
 } from '@/data/mockData';
 
 // Reads reference data (destinos, ibge, fluxo, investimento, transporte) from Supabase
@@ -31,11 +33,124 @@ function replaceAll<T>(target: T[], next: T[]) {
   target.push(...next);
 }
 
+/** PostgREST devolve relação 1-1 ora como objeto, ora como array de um elemento. */
+type RelacaoRow = { nome: string } | { nome: string }[] | null;
+const nomeRelacionado = (r: RelacaoRow) => (Array.isArray(r) ? r[0]?.nome : r?.nome);
+
+type AtracaoRow = { id: number | string; nome: string | null; descricao: string | null };
+
+/** Linha de `destinos` como o select deste módulo a pede. */
+export interface DestinoRow {
+  nome: string;
+  descricao: string | null;
+  imagem: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  hashtags: string[] | null;
+  monitorado: boolean | null;
+  municipios: RelacaoRow;
+  atracoes: AtracaoRow[] | null;
+}
+
+// `parceiroId` fica vazio de propósito: ele endereça `/vitrine/{id}` sobre o catálogo
+// Cadastur, que ainda é estático e não é sincronizado aqui. Um id do Supabase levaria
+// a uma vitrine inexistente; com string vazia, DestinationDetailPage simplesmente não
+// desenha o link. Melhor a atração sem link do que o link quebrado.
+// `imagem` idem: quem decide a foto é a curadoria em photoCuration.ts, não este campo.
+function atracoesDe(rows: AtracaoRow[] | null | undefined): AttractionActivity[] {
+  if (!Array.isArray(rows)) return [];
+  return rows
+    .filter((a) => a && a.nome)
+    .map((a) => ({
+      id: String(a.id),
+      nome: a.nome as string,
+      descricao: a.descricao || '',
+      imagem: '',
+      parceiroId: '',
+    }));
+}
+
+// Atrações do catálogo estático, congeladas na avaliação do módulo — ou seja, ANTES
+// de qualquer `replaceAll` mutar `destinosInfo`. Servem de reserva quando o banco não
+// tem atração para um destino: a tabela `atracoes` ficou vazia até a migration 0005,
+// e um destino sem atrações apagaria o passo de escolher experiências da home. Se o
+// banco um dia quiser um destino deliberadamente sem atrações, a reserva sai junto
+// com esta constante.
+const ATRACOES_ESTATICAS: ReadonlyMap<string, AttractionActivity[]> = new Map(
+  destinosInfo.map((d) => [d.nome, d.atracoes])
+);
+
+// `latitude`/`longitude` são nullable no schema, mas `DestinoInfo` os declara como
+// number e o app os usa sem guarda: `PlaceMap` chama `.toFixed()`, a câmera do mapa
+// monta `[lng, lat]` e `haversineKm` entra em NaN — e um NaN no planejador contamina
+// o `totalKm` do roteiro inteiro, não só o destino defeituoso. Um destino sem
+// coordenada não tem como ser desenhado, então fica de fora e é avisado.
+const temCoordenada = (d: { latitude: unknown; longitude: unknown }) =>
+  Number.isFinite(d.latitude) && Number.isFinite(d.longitude);
+
+/**
+ * Converte as linhas de `destinos` no formato que o app inteiro já consome.
+ *
+ * Exportada para teste: é aqui que mora o contrato entre o banco e `DestinoInfo`, e
+ * a versão anterior perdia `atracoes` e `monitorado` em silêncio — defeito que só
+ * aparecia com o Supabase configurado, ou seja, apenas em produção.
+ */
+export function mapDestinoRows(rows: DestinoRow[]): {
+  destinos: DestinoInfo[];
+  semCoordenada: string[];
+} {
+  const semCoordenada = rows.filter((d) => !temCoordenada(d)).map((d) => d.nome);
+  const destinos = rows.filter(temCoordenada).map((d) => {
+    const doBanco = atracoesDe(d.atracoes);
+    return {
+      nome: d.nome,
+      municipio: nomeRelacionado(d.municipios) || '',
+      descricao: d.descricao || '',
+      imagem: d.imagem || '',
+      latitude: d.latitude as number,
+      longitude: d.longitude as number,
+      atracoes: doBanco.length > 0 ? doBanco : ATRACOES_ESTATICAS.get(d.nome) ?? [],
+      hashtag: (d.hashtags && d.hashtags[0]) || '',
+      monitorado: d.monitorado !== false,
+    };
+  });
+  return { destinos, semCoordenada };
+}
+
+const DESTINOS_SELECT =
+  'nome, descricao, imagem, latitude, longitude, hashtags, monitorado, municipios(nome), atracoes(id, nome, descricao)';
+
+// Mesma consulta sem `monitorado`, para banco anterior à migration 0004.
+const DESTINOS_SELECT_SEM_MONITORADO =
+  'nome, descricao, imagem, latitude, longitude, hashtags, municipios(nome), atracoes(id, nome, descricao)';
+
+/**
+ * Busca os destinos tolerando banco que ainda não recebeu a migration 0004.
+ *
+ * Sem isto, subir este código antes da migration derruba a sincronização INTEIRA:
+ * o PostgREST devolve 400 (`column destinos.monitorado does not exist`), `anyError`
+ * dispara e o app volta ao catálogo estático — perdendo também ibge, fluxo,
+ * investimento e transporte, que nada têm a ver com a coluna nova. A ordem entre
+ * deploy e migration deixa de importar.
+ */
+async function fetchDestinos() {
+  if (!supabase) throw new Error('supabase client ausente');
+  const completo = await supabase.from('destinos').select(DESTINOS_SELECT);
+  if (!completo.error) return completo;
+
+  console.warn(
+    'Supabase: `destinos.monitorado` indisponível — aplique supabase/migrations/0004_destinos_monitorado.sql. ' +
+      'Seguindo sem a coluna; todo destino conta como monitorado.',
+    completo.error
+  );
+  return supabase.from('destinos').select(DESTINOS_SELECT_SEM_MONITORADO);
+}
+
 async function fetchReferenceData(): Promise<void> {
   if (!supabase) return;
 
   const [destinosRes, ibgeRes, fluxoRes, investimentoRes, transporteRes] = await Promise.all([
-    supabase.from('destinos').select('nome, descricao, imagem, latitude, longitude, hashtags, municipios(nome)'),
+    fetchDestinos(),
     supabase.from('ibge').select('populacao, area_km2, idh, leitos_hospitalares, escolas_publicas, municipios(nome)'),
     supabase.from('fluxo').select('fluxo_visitantes_mes, receita_estimada_milhoes, saturacao_turistica, hashtags, destinos(nome)'),
     supabase.from('investimento').select('investimento_infraestrutura_mil, saneamento_mil, turismo_mil, total_mil, ano, destinos(nome)'),
@@ -48,26 +163,27 @@ async function fetchReferenceData(): Promise<void> {
     return;
   }
 
-  type MunicipioRow = { nome: string } | { nome: string }[] | null;
-  const municipioNome = (m: MunicipioRow) => Array.isArray(m) ? m[0]?.nome : m?.nome;
-  const destinoNome = (d: MunicipioRow) => Array.isArray(d) ? d[0]?.nome : d?.nome;
-
   if (destinosRes.data && destinosRes.data.length > 0) {
-    replaceAll(destinosInfo, destinosRes.data.map((d) => ({
-      nome: d.nome,
-      municipio: municipioNome(d.municipios as MunicipioRow) || '',
-      descricao: d.descricao || '',
-      imagem: d.imagem || '',
-      latitude: d.latitude,
-      longitude: d.longitude,
-      atracoes: [],
-      hashtag: (d.hashtags && d.hashtags[0]) || '',
-    })));
+    const { destinos, semCoordenada } = mapDestinoRows(
+      destinosRes.data as unknown as DestinoRow[]
+    );
+    if (semCoordenada.length > 0) {
+      console.warn(
+        `Supabase: ${semCoordenada.length} destino(s) sem latitude/longitude ficaram de fora do catálogo.`,
+        semCoordenada
+      );
+    }
+
+    // Catálogo vazio depois do filtro seria pior que o estático: a home ficaria sem
+    // nenhum destino. Nesse caso mantemos o mock, como no caminho de erro acima.
+    if (destinos.length > 0) {
+      replaceAll(destinosInfo, destinos);
+    }
   }
 
   if (ibgeRes.data && ibgeRes.data.length > 0 && destinosInfo.length > 0) {
     const ibgeByMunicipio = new Map(
-      ibgeRes.data.map((row) => [municipioNome(row.municipios as MunicipioRow), row])
+      ibgeRes.data.map((row) => [nomeRelacionado(row.municipios as RelacaoRow), row])
     );
     replaceAll(ibgeData, destinosInfo.map((d) => {
       const row = ibgeByMunicipio.get(d.municipio);
@@ -85,7 +201,7 @@ async function fetchReferenceData(): Promise<void> {
 
   if (fluxoRes.data && fluxoRes.data.length > 0) {
     replaceAll(fluxoData, fluxoRes.data.map((f) => ({
-      destino: destinoNome(f.destinos as MunicipioRow) || '',
+      destino: nomeRelacionado(f.destinos as RelacaoRow) || '',
       fluxo_visitantes_mes: f.fluxo_visitantes_mes,
       receita_estimada_milhoes: f.receita_estimada_milhoes,
       saturacao_turistica: f.saturacao_turistica,
@@ -95,7 +211,7 @@ async function fetchReferenceData(): Promise<void> {
 
   if (investimentoRes.data && investimentoRes.data.length > 0) {
     replaceAll(investimentosData, investimentoRes.data.map((i) => ({
-      destino: destinoNome(i.destinos as MunicipioRow) || '',
+      destino: nomeRelacionado(i.destinos as RelacaoRow) || '',
       investimento_infraestrutura_mil: i.investimento_infraestrutura_mil,
       investimento_saneamento_mil: i.saneamento_mil,
       investimento_turismo_mil: i.turismo_mil,
@@ -106,7 +222,7 @@ async function fetchReferenceData(): Promise<void> {
 
   if (transporteRes.data && transporteRes.data.length > 0) {
     replaceAll(transporteData, transporteRes.data.map((t) => ({
-      destino: destinoNome(t.destinos as MunicipioRow) || '',
+      destino: nomeRelacionado(t.destinos as RelacaoRow) || '',
       voos_mensais: t.voos_mensais,
       onibus_mensais: t.onibus_mensais,
       veiculos_terrestres_mensais: t.veiculos_terrestres_mensais,

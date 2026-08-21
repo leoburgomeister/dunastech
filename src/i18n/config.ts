@@ -1,5 +1,6 @@
 import { getRequestConfig } from 'next-intl/server';
 import { cookies } from 'next/headers';
+import { TIME_ZONE } from './timeZone';
 
 export const locales = ['pt-BR', 'en', 'es'] as const;
 export type Locale = (typeof locales)[number];
@@ -15,6 +16,6 @@ export default getRequestConfig(async () => {
   return {
     locale,
     messages: (await import(`./messages/${locale}.json`)).default,
-    timeZone: 'America/Fortaleza',
+    timeZone: TIME_ZONE,
   };
 });

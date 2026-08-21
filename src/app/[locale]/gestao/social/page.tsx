@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { destinosInfo, fluxoData } from "@/data/mockData";
+import { headersComSessao } from "@/lib/session-headers";
 import { Share2, Heart, MessageCircle, Camera, Loader2, Settings, Key, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -58,7 +59,7 @@ export default function SocialGestaoPage() {
       const hashtag = currentFluxo?.hashtag_instagram || "pontanegranatal";
       const res = await fetch("/api/scraper", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: await headersComSessao(),
         body: JSON.stringify({ hashtag, forceRefresh, apiToken }),
       });
       const data = await res.json();

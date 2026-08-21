@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { StarRating } from '@/components/ui/StarRating';
 import { useAuth } from '@/providers/AuthProvider';
-import { addFeedback } from '@/lib/firebase';
+import { addFeedback } from '@/lib/feedbacks';
 import { allDestinos } from '@/data/mockData';
 import { useRouter } from 'next/navigation';
 

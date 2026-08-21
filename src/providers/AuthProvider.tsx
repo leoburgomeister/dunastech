@@ -1,23 +1,19 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
-import { 
-  getAuth, 
-  signInWithPopup, 
-  GoogleAuthProvider, 
-  signOut as firebaseSignOut,
-  onAuthStateChanged,
-  type User as FirebaseUser
-} from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, query, collection, where, getDocs } from 'firebase/firestore';
+import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { validateCPF } from '@/lib/utils';
 
-// Check if Firebase is configured
-const isFirebaseConfigured = !!(
-  process.env.NEXT_PUBLIC_FIREBASE_API_KEY &&
-  process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN &&
-  process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
-);
+// Autenticação no Supabase, a mesma origem dos dados do produto.
+//
+// O login vivia no Firebase por herança do MVP do hackathon; os dados migraram para o
+// Supabase e o auth ficou para trás, então o app carregava dois provedores para fazer
+// um trabalho só. A tabela `usuarios` já nascera desenhada para cá — `auth_uid` e
+// policies em `auth.uid()` —, só não era usada.
+//
+// Sem Supabase configurado o provider cai em modo mock (localStorage), que é o que
+// mantém a demonstração de pé numa máquina sem variáveis de ambiente.
 
 export interface PotiUser {
   uid: string;
@@ -51,7 +47,7 @@ export function useAuth() {
   return context;
 }
 
-// Mock user for development without Firebase
+// Mock user for development without Supabase
 const MOCK_STORAGE_KEY = 'poti_mock_user';
 
 function getMockUser(): PotiUser | null {
@@ -73,6 +69,51 @@ function setMockUser(user: PotiUser | null) {
   }
 }
 
+/** Linha de `usuarios` como o app a lê. */
+interface UsuarioRow {
+  auth_uid: string | null;
+  email: string | null;
+  display_name: string | null;
+  photo_url: string | null;
+  cpf: string | null;
+  role: string | null;
+  provider: string | null;
+  created_at: string | null;
+}
+
+function toPotiUser(row: UsuarioRow, fallback: SupabaseUser): PotiUser {
+  return {
+    uid: row.auth_uid ?? fallback.id,
+    email: row.email ?? fallback.email ?? null,
+    displayName: row.display_name ?? null,
+    photoURL: row.photo_url ?? null,
+    cpf: row.cpf ?? null,
+    // Só 'admin' promove. Qualquer outro valor cai em turista — o papel é definido
+    // pelo backoffice via service role, e o trigger `usuarios_papel_imutavel` impede
+    // que o próprio cliente se eleve.
+    role: row.role === 'admin' ? 'admin' : 'tourist',
+    provider: row.provider === 'google' ? 'google' : 'cpf',
+    createdAt: row.created_at ?? new Date().toISOString(),
+  };
+}
+
+/** Perfil vindo do metadata da sessão, para quando a linha ainda não existe. */
+function perfilDaSessao(sessionUser: SupabaseUser): PotiUser {
+  const meta = sessionUser.user_metadata ?? {};
+  return {
+    uid: sessionUser.id,
+    email: sessionUser.email ?? null,
+    displayName: (meta.full_name as string) ?? (meta.name as string) ?? null,
+    photoURL: (meta.avatar_url as string) ?? null,
+    cpf: null,
+    role: 'tourist',
+    provider: sessionUser.is_anonymous ? 'cpf' : 'google',
+    createdAt: sessionUser.created_at ?? new Date().toISOString(),
+  };
+}
+
+const SELECT_USUARIO = 'auth_uid, email, display_name, photo_url, cpf, role, provider, created_at';
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<PotiUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -80,10 +121,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const clearError = useCallback(() => setError(null), []);
 
-  // Initialize auth state
   useEffect(() => {
-    if (!isFirebaseConfigured) {
-      // Mock mode: check localStorage
+    if (!supabase) {
+      // Modo mock: sem backend, a sessão é o que está no localStorage.
       const mockUser = getMockUser();
       setTimeout(() => {
         setUser(mockUser);
@@ -92,63 +132,79 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Real Firebase Auth listener
-    try {
-      const auth = getAuth();
-      const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-        if (firebaseUser) {
-          // Fetch user profile from Firestore
-          try {
-            const db = getFirestore();
-            const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-            if (userDoc.exists()) {
-              setUser(userDoc.data() as PotiUser);
-            } else {
-              // User doesn't exist in Firestore, create basic profile
-              const newUser: PotiUser = {
-                uid: firebaseUser.uid,
-                email: firebaseUser.email,
-                displayName: firebaseUser.displayName,
-                photoURL: firebaseUser.photoURL,
-                cpf: null,
-                role: 'tourist',
-                provider: 'google',
-                createdAt: new Date().toISOString(),
-              };
-              await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
-              setUser(newUser);
-            }
-          } catch (err) {
-            console.error('Error fetching user profile:', err);
-            setUser({
-              uid: firebaseUser.uid,
-              email: firebaseUser.email,
-              displayName: firebaseUser.displayName,
-              photoURL: firebaseUser.photoURL,
-              cpf: null,
-              role: 'tourist',
-              provider: 'google',
-              createdAt: new Date().toISOString(),
-            });
-          }
-        } else {
-          setUser(null);
-        }
-        setLoading(false);
-      });
+    const client = supabase;
+    let ativo = true;
 
-      return () => unsubscribe();
-    } catch {
-      setTimeout(() => setLoading(false), 0);
-    }
+    /**
+     * Carrega o perfil da sessão. Falha de leitura NÃO desloga: o usuário está
+     * autenticado de fato (a sessão é do Supabase), só o enriquecimento do perfil
+     * ficou indisponível — cair para o metadata é melhor que expulsar quem entrou.
+     */
+    const carregarPerfil = async (session: Session | null) => {
+      if (!session?.user) {
+        if (ativo) {
+          setUser(null);
+          setLoading(false);
+        }
+        return;
+      }
+
+      const sessionUser = session.user;
+      try {
+        const { data, error: erroPerfil } = await client
+          .from('usuarios')
+          .select(SELECT_USUARIO)
+          .eq('auth_uid', sessionUser.id)
+          .maybeSingle();
+
+        if (!ativo) return;
+
+        if (erroPerfil) {
+          console.warn('Supabase: perfil indisponível, usando os dados da sessão.', erroPerfil);
+          setUser(perfilDaSessao(sessionUser));
+        } else if (data) {
+          setUser(toPotiUser(data as UsuarioRow, sessionUser));
+        } else {
+          // Primeiro acesso: cria a linha a partir do que o provedor entregou.
+          const novo = perfilDaSessao(sessionUser);
+          const { error: erroInsert } = await client.from('usuarios').insert({
+            auth_uid: sessionUser.id,
+            email: novo.email,
+            display_name: novo.displayName,
+            photo_url: novo.photoURL,
+            provider: novo.provider,
+          });
+          if (erroInsert) {
+            console.warn('Supabase: não foi possível criar o perfil.', erroInsert);
+          }
+          if (ativo) setUser(novo);
+        }
+      } catch (err) {
+        if (!ativo) return;
+        console.warn('Supabase: erro ao carregar o perfil.', err);
+        setUser(perfilDaSessao(sessionUser));
+      } finally {
+        if (ativo) setLoading(false);
+      }
+    };
+
+    client.auth.getSession().then(({ data }) => carregarPerfil(data.session));
+
+    const { data: listener } = client.auth.onAuthStateChange((_evento, session) => {
+      carregarPerfil(session);
+    });
+
+    return () => {
+      ativo = false;
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
   const signInWithGoogle = useCallback(async () => {
     setError(null);
     setLoading(true);
 
-    if (!isFirebaseConfigured) {
-      // Mock Google sign-in
+    if (!supabase) {
       const mockUser: PotiUser = {
         uid: 'mock-google-' + Date.now(),
         email: 'turista@poti.com.br',
@@ -166,14 +222,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const auth = getAuth();
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      await signInWithPopup(auth, provider);
-      // onAuthStateChanged will handle the rest
+      const { error: erro } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.href },
+      });
+      if (erro) throw erro;
+      // O redirect leva embora; onAuthStateChange assume na volta.
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro ao fazer login com Google';
-      setError(errorMessage);
+      const erro = err as { message?: string };
+      setError(erro?.message ?? 'Erro ao fazer login com Google');
       setLoading(false);
     }
   }, []);
@@ -213,16 +270,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    if (!isFirebaseConfigured) {
-      // Mock CPF sign-in
+    if (!supabase) {
       const mockUser: PotiUser = {
         uid: 'mock-cpf-' + cleanCPF,
         email,
         displayName: name,
         photoURL: null,
         cpf: cleanCPF,
-        // Mock-mode only (no Firebase configured): a fixed demo address, not a substring match,
-        // so an ordinary tourist typing e.g. "administracao@empresa.com" can't self-elevate.
+        // Modo mock apenas (sem backend): endereço fixo de demonstração, não um
+        // "contém", para um turista qualquer digitando "administracao@empresa.com"
+        // não se autopromover.
         role: email.toLowerCase() === 'admin@poti.com.br' ? 'admin' : 'tourist',
         provider: 'mock',
         createdAt: new Date().toISOString(),
@@ -234,57 +291,77 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const db = getFirestore();
-      
-      // Check if CPF already exists
-      const cpfQuery = query(collection(db, 'users'), where('cpf', '==', cleanCPF));
-      const existing = await getDocs(cpfQuery);
-      
-      if (!existing.empty) {
-        // CPF already registered — log them in
-        const existingUser = existing.docs[0].data() as PotiUser;
-        setUser(existingUser);
-        setLoading(false);
-        return;
-      }
+      // A sessão é uma credencial emitida pelo Supabase — o CPF é atributo do
+      // perfil, nunca a chave de acesso.
+      //
+      // O fluxo antigo procurava `where cpf == <digitado>` e adotava o registro
+      // encontrado. Isso fazia do CPF uma senha pública: ele circula largamente, a
+      // validação confere só os dígitos verificadores, e o nome e o e-mail digitados
+      // eram descartados nesse ramo. Quem soubesse o CPF de outra pessoa recebia a
+      // sessão dela — com o papel dela junto.
+      const { data, error: erroAuth } = await supabase.auth.signInAnonymously();
+      if (erroAuth) throw erroAuth;
 
-      // Create new user with CPF
-      const uid = `cpf-${cleanCPF}`;
-      const newUser: PotiUser = {
-        uid,
+      const sessionUser = data.user;
+      if (!sessionUser) throw new Error('Sessão não foi criada.');
+
+      // `role` não vai no payload de propósito: quem define é o backoffice, e o
+      // trigger no banco força 'tourist' em qualquer insert vindo do cliente.
+      const { error: erroPerfil } = await supabase.from('usuarios').upsert(
+        {
+          auth_uid: sessionUser.id,
+          email,
+          display_name: name,
+          cpf: cleanCPF,
+          provider: 'cpf',
+        },
+        { onConflict: 'auth_uid' }
+      );
+      if (erroPerfil) throw erroPerfil;
+
+      setUser({
+        uid: sessionUser.id,
         email,
         displayName: name,
         photoURL: null,
         cpf: cleanCPF,
         role: 'tourist',
         provider: 'cpf',
-        createdAt: new Date().toISOString(),
-      };
-      
-      await setDoc(doc(db, 'users', uid), newUser);
-      setUser(newUser);
+        createdAt: sessionUser.created_at ?? new Date().toISOString(),
+      });
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro ao cadastrar. Tente novamente.';
-      setError(errorMessage);
+      const erro = err as { message?: string; code?: string };
+      // Sessão anônima precisa estar habilitada no painel do Supabase
+      // (Authentication > Sign In / Providers > Anonymous). Sem isso a API devolve
+      // "Anonymous sign-ins are disabled", que sozinho não diz nada a quem está na tela.
+      const anonimoDesligado = /anonymous/i.test(erro?.message ?? '');
+      if (anonimoDesligado) {
+        console.error('Supabase: habilite "Anonymous sign-ins" para o cadastro por documento funcionar.', err);
+      }
+      setError(
+        anonimoDesligado
+          ? 'Cadastro por documento indisponível no momento. Tente entrar com o Google.'
+          : erro?.message ?? 'Erro ao cadastrar. Tente novamente.'
+      );
     } finally {
       setLoading(false);
     }
   }, []);
 
   const signOutUser = useCallback(async () => {
-    if (!isFirebaseConfigured) {
+    if (!supabase) {
       setMockUser(null);
       setUser(null);
       return;
     }
 
     try {
-      const auth = getAuth();
-      await firebaseSignOut(auth);
+      const { error: erro } = await supabase.auth.signOut();
+      if (erro) throw erro;
       setUser(null);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro ao sair';
-      setError(errorMessage);
+      const erro = err as { message?: string };
+      setError(erro?.message ?? 'Erro ao sair');
     }
   }, []);
 
@@ -305,3 +382,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     </AuthContext.Provider>
   );
 }
+
+/** Mantido para quem importava daqui; a fonte é o cliente único em `@/lib/supabase`. */
+export { isSupabaseConfigured };

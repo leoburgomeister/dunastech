@@ -279,3 +279,407 @@ describe('haversineKm', () => {
     expect(dist).toBeLessThan(44);
   });
 });
+
+describe('planRoute — duração degenerada', () => {
+  it('duração não-finita cai no piso da combinação', () => {
+    // O contador da home entrega `parseInt('')` = NaN sempre que o campo e limpo.
+    // Sem a guarda, `splitIntoDays` roda `for (i = 0; i < NaN)` zero vezes e o painel
+    // do roteiro volta vazio com a lista de destinos cheia.
+    for (const [style, transport] of [
+      ['adventure', 'shuttle'],
+      ['culture', 'shuttle'],
+      ['family', 'hike'],
+    ] as const) {
+      const piso = limitesDeDuracao(style, transport).min;
+      expect(planRoute({ catalogue: destinosInfo, style, transport, days: NaN }).days).toHaveLength(
+        piso
+      );
+      // Infinity tambem e nao-finito: cai no piso, nao no teto. Pedir "infinitos dias"
+      // e entrada quebrada, e roteiro minimo e mais honesto que o maximo do transporte.
+      expect(
+        planRoute({ catalogue: destinosInfo, style, transport, days: Infinity }).days
+      ).toHaveLength(piso);
+      expect(
+        planRoute({ catalogue: destinosInfo, style, transport, days: -Infinity }).days
+      ).toHaveLength(piso);
+    }
+  });
+
+  it('catálogo menor que a duração pedida encolhe os dias em vez de esvaziá-los', () => {
+    const plano = planRoute({
+      catalogue: destinosInfo.slice(0, 2),
+      style: 'culture',
+      transport: 'shuttle',
+      days: 5,
+    });
+    expect(plano.days).toHaveLength(2);
+    for (const dia of plano.days) expect(dia.destinations.length).toBeGreaterThan(0);
+  });
+
+  it('catálogo vazio devolve plano vazio sem quebrar', () => {
+    const plano = planRoute({
+      catalogue: [],
+      style: 'adventure',
+      transport: 'shuttle',
+      days: 3,
+    });
+    expect(plano.days).toEqual([]);
+    expect(plano.destinations).toEqual([]);
+    expect(plano.totalKm).toBe(0);
+  });
+});
+
+describe('planRoute — nenhum dia fica vazio', () => {
+  it('vale para toda combinação em toda duração alcançável', () => {
+    // O cabecalho do modulo promete que nenhum dia fica vazio, e TouristHomePage
+    // confia nisso: `describeDay` faz `day.destinations[0].nome` sem guarda.
+    const estilos = ['adventure', 'relax', 'culture', 'family', 'ecotourism', 'gastronomy'] as const;
+    const transportes = ['hike', 'buggy', 'shuttle'] as const;
+    for (const style of estilos) {
+      for (const transport of transportes) {
+        const { min, max } = limitesDeDuracao(style, transport);
+        for (let dias = min; dias <= max; dias++) {
+          const plano = planRoute({ catalogue: destinosInfo, style, transport, days: dias });
+          for (const dia of plano.days) {
+            expect(
+              dia.destinations.length,
+              `${style}/${transport}/${dias}d dia ${dia.day}`
+            ).toBeGreaterThan(0);
+          }
+        }
+      }
+    }
+  });
+
+  it.fails('BUG: catálogo com nome repetido produz dia vazio', () => {
+    // `clampDays` limita os dias por `catalogue.length`, mas `selectDestinations` deduplica
+    // por `nome` — entao um catalogo com nomes repetidos rende menos destinos que dias, e
+    // `splitIntoDays` emite blocos de tamanho zero. Nao e hipotetico: o schema do Supabase
+    // nao tem unique em `destinos.nome`, e `supabase-data.ts` joga as linhas direto em
+    // `destinosInfo`. O sintoma na home e um TypeError dentro do clique de gerar roteiro.
+    //
+    // `it.fails` = comportamento errado, capturado de proposito. Ao corrigir o planejador,
+    // troque para `it` — o teste passa a valer como regressao.
+    const catalogo = [...destinosInfo.slice(0, 5), { ...destinosInfo[0] }, { ...destinosInfo[1] }];
+    const plano = planRoute({
+      catalogue: catalogo,
+      style: 'adventure',
+      transport: 'shuttle',
+      days: 7,
+    });
+    for (const dia of plano.days) {
+      expect(dia.destinations.length, `dia ${dia.day}`).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe('planRoute — destino vindo da busca', () => {
+  it.fails('BUG: o destino buscado fura o alcance diário do transporte', () => {
+    // A barreira DURA de `escolher(limiteKm)` vale so para o preenchimento. A assinatura e
+    // isenta de proposito — a copia do preset promete Mossoro e o Lajedo. Mas o destino
+    // vindo da busca entrou na mesma isencao sem ter a mesma justificativa: a home aceita
+    // qualquer texto no campo e planta o resultado no roteiro.
+    //
+    // Medido no catalogo real: a pe, a pior perna sem busca e 9,2 km; com "Lajedo de
+    // Soledade" na busca vira 284,5 km — um dia de caminhada de 284 km. De buggy, 48,5 km
+    // viram 276,3 km. E exatamente o defeito que o commit dos presets tinha fechado.
+    //
+    // `it.fails` = comportamento errado, capturado de proposito. Ao corrigir, troque para `it`.
+    const TETO_POR_TRANSPORTE = [
+      ['hike', 24],
+      ['buggy', 120],
+    ] as const;
+    for (const [transport, teto] of TETO_POR_TRANSPORTE) {
+      for (const anchorName of destinosInfo.map((d) => d.nome)) {
+        const plano = planRoute({
+          catalogue: destinosInfo,
+          style: 'adventure',
+          transport,
+          days: 3,
+          anchorName,
+        });
+        for (const dia of plano.days) {
+          expect(dia.travelKm, `${transport} com "${anchorName}" no dia ${dia.day}`).toBeLessThanOrEqual(teto);
+        }
+      }
+    }
+  });
+
+  it('destino buscado que não existe no catálogo é ignorado sem quebrar', () => {
+    const plano = planRoute({
+      ...base,
+      days: 3,
+      anchorName: 'Destino Que Nao Existe',
+    });
+    expect(plano.days).toHaveLength(3);
+    expect(plano.destinations.length).toBeGreaterThan(0);
+  });
+
+  it('destino buscado aparece no roteiro gerado', () => {
+    const alvo = destinosInfo[7].nome;
+    const plano = planRoute({ ...base, days: 3, anchorName: alvo });
+    expect(plano.destinations.map((d) => d.nome)).toContain(alvo);
+  });
+});
+
+// ============================================================
+// ISA na geração de rotas
+// ============================================================
+// O ISA é o diferencial declarado do produto. Antes disto ele não participava da
+// seleção em momento nenhum: um atrativo com ISA 30 tinha a mesma chance de entrar
+// num roteiro que um com ISA 95 — a plataforma empurrava turista para o destino
+// degradado, o oposto do que promete.
+
+/** Mapa de ISA com todos saudáveis, para partir de um estado neutro. */
+function isaTodosSaudaveis(valor = 85): Record<string, number> {
+  return Object.fromEntries(destinosInfo.map((d) => [d.nome, valor]));
+}
+
+describe('planRoute — ISA como peso', () => {
+  it('sem isaByDestination a rota é idêntica à de antes do ISA', () => {
+    // Retrocompatibilidade: o parâmetro é opcional justamente para os testes que já
+    // existiam seguirem valendo como rede de regressão, sem fixture de feedback.
+    for (const style of ['adventure', 'culture', 'relax'] as const) {
+      for (const dias of [1, 3, 6]) {
+        const semISA = planRoute({ catalogue: destinosInfo, style, transport: 'shuttle', days: dias });
+        const neutro = planRoute({
+          catalogue: destinosInfo,
+          style,
+          transport: 'shuttle',
+          days: dias,
+          isaByDestination: {},
+        });
+        expect(neutro.destinations.map((d) => d.nome), `${style}/${dias}d`).toEqual(
+          semISA.destinations.map((d) => d.nome)
+        );
+      }
+    }
+  });
+
+  it('destino sem leitura de ISA é neutro, não penalizado', () => {
+    // Sem opinião = efeito zero. Um mapa parcial não pode empurrar para baixo quem
+    // ainda não foi avaliado.
+    const parcial = planRoute({
+      catalogue: destinosInfo,
+      style: 'adventure',
+      transport: 'shuttle',
+      days: 6,
+      isaByDestination: { 'Praia da Pipa': 60 },
+    });
+    const semISA = planRoute({
+      catalogue: destinosInfo,
+      style: 'adventure',
+      transport: 'shuttle',
+      days: 6,
+    });
+    expect(parcial.destinations.map((d) => d.nome)).toEqual(semISA.destinations.map((d) => d.nome));
+  });
+
+  it('ISA alto puxa um destino para dentro do roteiro', () => {
+    const base = planRoute({
+      catalogue: destinosInfo,
+      style: 'adventure',
+      transport: 'shuttle',
+      days: 6,
+    });
+    const deFora = destinosInfo.find((d) => !base.destinations.some((x) => x.nome === d.nome))!;
+
+    const isa = isaTodosSaudaveis(62);
+    isa[deFora.nome] = 100;
+    const comISA = planRoute({
+      catalogue: destinosInfo,
+      style: 'adventure',
+      transport: 'shuttle',
+      days: 6,
+      isaByDestination: isa,
+    });
+
+    expect(comISA.destinations.map((d) => d.nome)).toContain(deFora.nome);
+  });
+
+  it('ISA baixo empurra um destino do preenchimento para fora', () => {
+    const base = planRoute({
+      catalogue: destinosInfo,
+      style: 'adventure',
+      transport: 'shuttle',
+      days: 6,
+    });
+    const seeds = new Set(destinosDoRoteiro('adventure', 'shuttle'));
+    // O alvo tem que ser do preenchimento: assinatura entra forçada e a pontuação
+    // não a alcança — para ela existe a regra de substituição, testada abaixo.
+    const alvo = base.destinations.find((d) => !seeds.has(d.nome))!;
+
+    const isa = isaTodosSaudaveis(90);
+    isa[alvo.nome] = 10;
+    const comISA = planRoute({
+      catalogue: destinosInfo,
+      style: 'adventure',
+      transport: 'shuttle',
+      days: 6,
+      isaByDestination: isa,
+    });
+
+    expect(comISA.destinations.map((d) => d.nome)).not.toContain(alvo.nome);
+  });
+
+  it('não corta destino crítico sozinho — o ISA pesa, não veta', () => {
+    // Decisão de produto: a plataforma não fecha atrativo. Quem suspende é a IGR.
+    // Com todo o catálogo crítico, o roteiro sai completo do mesmo jeito.
+    const isa = Object.fromEntries(destinosInfo.map((d) => [d.nome, 20]));
+    const plano = planRoute({
+      catalogue: destinosInfo,
+      style: 'relax',
+      transport: 'shuttle',
+      days: 4,
+      isaByDestination: isa,
+    });
+    expect(plano.days).toHaveLength(4);
+    for (const dia of plano.days) expect(dia.destinations.length).toBeGreaterThan(0);
+  });
+});
+
+describe('planRoute — substituição de destino-assinatura', () => {
+  const SEEDS_CULTURA = destinosDoRoteiro('culture', 'shuttle');
+
+  it('assinatura com ISA crítico sai e registra a troca com os três campos', () => {
+    const isa = isaTodosSaudaveis(85);
+    isa[SEEDS_CULTURA[0]] = 38;
+
+    const plano = planRoute({
+      catalogue: destinosInfo,
+      style: 'culture',
+      transport: 'shuttle',
+      days: 3,
+      isaByDestination: isa,
+    });
+
+    expect(plano.destinations.map((d) => d.nome)).not.toContain(SEEDS_CULTURA[0]);
+    expect(plano.replacements).toHaveLength(1);
+    expect(plano.replacements[0].removed).toBe(SEEDS_CULTURA[0]);
+    expect(plano.replacements[0].isa).toBe(38);
+    expect(plano.replacements[0].replacedBy).toBeTruthy();
+    expect(plano.destinations.map((d) => d.nome)).toContain(plano.replacements[0].replacedBy);
+  });
+
+  it('assinatura saudável fica, e replacements vem vazio', () => {
+    const plano = planRoute({
+      catalogue: destinosInfo,
+      style: 'culture',
+      transport: 'shuttle',
+      days: 3,
+      isaByDestination: isaTodosSaudaveis(85),
+    });
+    for (const seed of SEEDS_CULTURA) expect(plano.destinations.map((d) => d.nome)).toContain(seed);
+    expect(plano.replacements).toEqual([]);
+  });
+
+  it('o substituto entra saudável', () => {
+    const isa = isaTodosSaudaveis(85);
+    isa[SEEDS_CULTURA[0]] = 20;
+    const plano = planRoute({
+      catalogue: destinosInfo,
+      style: 'culture',
+      transport: 'shuttle',
+      days: 3,
+      isaByDestination: isa,
+    });
+    expect(isa[plano.replacements[0].replacedBy]).toBeGreaterThanOrEqual(60);
+  });
+
+  it('a distância do substituto é medida até o destino REMOVIDO', () => {
+    // Não até o resto do grupo: o substituto precisa cair na mesma região para a rota
+    // preservar o formato e a promessa geográfica do título. Entre dois candidatos
+    // igualmente saudáveis e fora da lista de afinidade, vence o mais perto do removido.
+    const removido = destinosInfo.find((d) => d.nome === SEEDS_CULTURA[0])!;
+    const isa = isaTodosSaudaveis(85);
+    isa[SEEDS_CULTURA[0]] = 30;
+
+    const plano = planRoute({
+      catalogue: destinosInfo,
+      style: 'culture',
+      transport: 'shuttle',
+      days: 3,
+      isaByDestination: isa,
+    });
+
+    const substituto = destinosInfo.find((d) => d.nome === plano.replacements[0].replacedBy)!;
+    const kmDoRemovido = haversineKm(
+      removido.latitude,
+      removido.longitude,
+      substituto.latitude,
+      substituto.longitude
+    );
+    // Mesma região: o catálogo cobre o estado inteiro (Natal a Mossoró são ~246 km),
+    // então um substituto a menos de 50 km do removido comprova a ancoragem local.
+    expect(kmDoRemovido).toBeLessThan(50);
+  });
+
+  it('sem nenhum candidato saudável, mantém o assinatura e não registra troca', () => {
+    // Roteiro degradado é melhor que roteiro vazio.
+    const isa = Object.fromEntries(destinosInfo.map((d) => [d.nome, 25]));
+    const plano = planRoute({
+      catalogue: destinosInfo,
+      style: 'culture',
+      transport: 'shuttle',
+      days: 3,
+      isaByDestination: isa,
+    });
+    for (const seed of SEEDS_CULTURA) expect(plano.destinations.map((d) => d.nome)).toContain(seed);
+    expect(plano.replacements).toEqual([]);
+  });
+
+  it('o destino buscado NUNCA é substituído, mesmo crítico', () => {
+    // O turista pediu aquele lugar explicitamente. Entregar outro sem ele pedir seria
+    // pior do que mostrar o selo de ISA vermelho no que ele escolheu.
+    const buscado = SEEDS_CULTURA[0];
+    const isa = isaTodosSaudaveis(85);
+    isa[buscado] = 15;
+
+    const plano = planRoute({
+      catalogue: destinosInfo,
+      style: 'culture',
+      transport: 'shuttle',
+      days: 3,
+      anchorName: buscado,
+      isaByDestination: isa,
+    });
+
+    expect(plano.destinations.map((d) => d.nome)).toContain(buscado);
+    expect(plano.replacements.some((r) => r.removed === buscado)).toBe(false);
+  });
+
+  it('varre todas as combinações com ISA ligado sem quebrar as garantias do planejador', () => {
+    // As mesmas três promessas do cabeçalho do módulo, agora com o ISA participando:
+    // dias exatos, nenhum dia vazio, nenhum destino repetido.
+    const isa = isaTodosSaudaveis(85);
+    // Uma assinatura crítica em cada estilo, para a substituição rodar na varredura.
+    for (const style of ['adventure', 'relax', 'culture', 'family', 'ecotourism', 'gastronomy'] as const) {
+      isa[destinosDoRoteiro(style, 'shuttle')[0]] = 35;
+    }
+
+    const estilos = ['adventure', 'relax', 'culture', 'family', 'ecotourism', 'gastronomy'] as const;
+    const transportes = ['hike', 'buggy', 'shuttle'] as const;
+    for (const style of estilos) {
+      for (const transport of transportes) {
+        const { min, max } = limitesDeDuracao(style, transport);
+        for (let dias = min; dias <= max; dias++) {
+          const rotulo = `${style}/${transport}/${dias}d`;
+          const plano = planRoute({
+            catalogue: destinosInfo,
+            style,
+            transport,
+            days: dias,
+            isaByDestination: isa,
+          });
+
+          expect(plano.days, rotulo).toHaveLength(dias);
+          for (const dia of plano.days) {
+            expect(dia.destinations.length, `${rotulo} dia ${dia.day}`).toBeGreaterThan(0);
+          }
+          const nomes = plano.destinations.map((d) => d.nome);
+          expect(new Set(nomes).size, `${rotulo} sem repetidos`).toBe(nomes.length);
+        }
+      }
+    }
+  });
+});

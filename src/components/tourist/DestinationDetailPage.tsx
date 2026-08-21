@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/Button';
 import { PlaceImage } from '@/components/ui/PlaceImage';
 import { type DestinoInfo, cadasturData, fluxoData } from '@/data/mockData';
 import { useAuth } from '@/providers/AuthProvider';
-import { addFeedback } from '@/lib/firebase';
+import { addFeedback } from '@/lib/feedbacks';
 import { cn } from '@/lib/utils';
 
 // Dynamically load Map components to prevent SSR window error

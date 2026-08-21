@@ -10,6 +10,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { DestinoInfo, Feedback } from "@/data/mockData";
+import { headersComSessao } from "@/lib/session-headers";
 
 interface Message {
   role: "user" | "model";
@@ -58,7 +59,7 @@ export default function AIChatSidebar({
       // Send chat message along with current system state to Gemini route
       const res = await fetch("/api/gemini", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: await headersComSessao(),
         body: JSON.stringify({
           chatMode: true,
           message: userMessage,

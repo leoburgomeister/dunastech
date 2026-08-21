@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
+import { exigirAdmin } from "@/lib/api-guard";
 
 // Simple sentiment analysis
 function analyzeSentiment(caption: string): "Positivo" | "Neutro" | "Crítica" {
@@ -43,6 +44,9 @@ function sweepExpiredCache(now: number) {
 }
 
 export async function POST(request: NextRequest) {
+  const barrado = await exigirAdmin(request, { nome: "scraper", max: 5, janelaMs: 60_000 });
+  if (barrado) return barrado;
+
   try {
     const body = await request.json();
     const { hashtag, forceRefresh, apiToken: clientApiToken } = body;
@@ -54,6 +58,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // O token do cliente só chega aqui depois do exigirAdmin. Antes, a rota
+    // aberta aceitava qualquer POST e gastava o APIFY_API_TOKEN da env.
     const apiToken = process.env.APIFY_API_TOKEN || clientApiToken;
     const now = Date.now();
     sweepExpiredCache(now);
