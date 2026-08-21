@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Compass, LayoutDashboard, Sparkles, ChevronDown, BarChart2 } from 'lucide-react';
+import { Compass, LayoutDashboard, Sparkles, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const panels = [
@@ -28,17 +28,6 @@ const panels = [
     activeBg: 'bg-[var(--color-accent-soft)]',
     activeBorder: 'border-[var(--color-accent)]/40',
     dot: 'bg-[var(--color-accent)]',
-  },
-  {
-    id: 'pitch',
-    href: '/pitch',
-    icon: BarChart2,
-    label: 'Pitch',
-    sublabel: 'Apresentação do Projeto',
-    color: 'text-purple-500',
-    activeBg: 'bg-purple-500/10',
-    activeBorder: 'border-purple-500/40',
-    dot: 'bg-purple-500',
   },
 ];
 

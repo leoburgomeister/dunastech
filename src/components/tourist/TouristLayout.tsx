@@ -116,10 +116,9 @@ export default function TouristLayout({ children }: { children: React.ReactNode 
       {/* Footer — Desktop */}
       <footer className="hidden lg:block border-t border-[var(--color-border)] py-6">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between text-xs text-[var(--color-text-muted)]">
-          <p>© 2026 POTI. Feito com ❤️ para o Hackathon do Sol.</p>
+          <p>© 2026 DunasTech · POTI — Plataforma de Observação do Turismo Inteligente.</p>
           <div className="flex items-center gap-4">
             <Link href="/gestao" className="hover:text-[var(--color-text)] transition-colors">Gestão</Link>
-            <Link href="/pitch" className="hover:text-[var(--color-text)] transition-colors">Pitch</Link>
           </div>
         </div>
       </footer>
