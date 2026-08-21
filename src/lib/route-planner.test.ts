@@ -351,15 +351,12 @@ describe('planRoute — nenhum dia fica vazio', () => {
     }
   });
 
-  it.fails('BUG: catálogo com nome repetido produz dia vazio', () => {
+  it('catálogo com nome repetido não produz dia vazio', () => {
     // `clampDays` limita os dias por `catalogue.length`, mas `selectDestinations` deduplica
-    // por `nome` — entao um catalogo com nomes repetidos rende menos destinos que dias, e
-    // `splitIntoDays` emite blocos de tamanho zero. Nao e hipotetico: o schema do Supabase
+    // por `nome` — entao um catalogo com nomes repetidos rendia menos destinos que dias, e
+    // `splitIntoDays` emitia blocos de tamanho zero. Nao e hipotetico: o schema do Supabase
     // nao tem unique em `destinos.nome`, e `supabase-data.ts` joga as linhas direto em
-    // `destinosInfo`. O sintoma na home e um TypeError dentro do clique de gerar roteiro.
-    //
-    // `it.fails` = comportamento errado, capturado de proposito. Ao corrigir o planejador,
-    // troque para `it` — o teste passa a valer como regressao.
+    // `destinosInfo`. Corrigido: `planRoute` deduplica o catalogo por nome na entrada.
     const catalogo = [...destinosInfo.slice(0, 5), { ...destinosInfo[0] }, { ...destinosInfo[1] }];
     const plano = planRoute({
       catalogue: catalogo,
@@ -374,17 +371,16 @@ describe('planRoute — nenhum dia fica vazio', () => {
 });
 
 describe('planRoute — destino vindo da busca', () => {
-  it.fails('BUG: o destino buscado fura o alcance diário do transporte', () => {
-    // A barreira DURA de `escolher(limiteKm)` vale so para o preenchimento. A assinatura e
+  it('o destino buscado não fura o alcance diário do transporte', () => {
+    // A barreira DURA de `escolher(limiteKm)` vale para o preenchimento. A assinatura e
     // isenta de proposito — a copia do preset promete Mossoro e o Lajedo. Mas o destino
-    // vindo da busca entrou na mesma isencao sem ter a mesma justificativa: a home aceita
-    // qualquer texto no campo e planta o resultado no roteiro.
+    // vindo da busca tinha entrado na mesma isencao sem ter a mesma justificativa: a home
+    // aceita qualquer texto no campo e plantava o resultado no roteiro.
     //
-    // Medido no catalogo real: a pe, a pior perna sem busca e 9,2 km; com "Lajedo de
-    // Soledade" na busca vira 284,5 km — um dia de caminhada de 284 km. De buggy, 48,5 km
-    // viram 276,3 km. E exatamente o defeito que o commit dos presets tinha fechado.
-    //
-    // `it.fails` = comportamento errado, capturado de proposito. Ao corrigir, troque para `it`.
+    // Medido no catalogo real (antes da correcao): a pe, a pior perna sem busca era 9,2 km;
+    // com "Lajedo de Soledade" na busca virava 284,5 km — um dia de caminhada de 284 km.
+    // De buggy, 48,5 km viravam 276,3 km. Corrigido: com ancora da busca, a assinatura
+    // tambem respeita o alcance do transporte a partir do que ja foi escolhido.
     const TETO_POR_TRANSPORTE = [
       ['hike', 24],
       ['buggy', 120],

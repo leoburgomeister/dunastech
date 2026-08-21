@@ -307,7 +307,6 @@ function selectDestinations(
   style: TravelStyle,
   transport: TransportMode,
   targetCount: number,
-  minCount: number,
   anchor: DestinoInfo | null,
   isaByDestination: Record<string, number> | undefined
 ): { selected: DestinoInfo[]; replacements: SeedReplacement[] } {
@@ -381,6 +380,15 @@ function selectDestinations(
     const seed = catalogue.find((d) => d.nome === nome);
     if (!seed) continue;
 
+    // Com âncora da busca no roteiro, a assinatura perde a isenção de distância: a cópia
+    // do preset promete os destinos-assinatura entre si, não a partir de qualquer ponto
+    // que o turista digitar. Assinatura fora do alcance do transporte a partir do que já
+    // foi escolhido fica de fora — o preenchimento cobre o dia com algo alcançável.
+    if (anchor && selected.length > 0) {
+      const nearest = Math.min(...selected.map((s) => distanceBetween(s, seed)));
+      if (nearest > profile.comfortableLegKm) continue;
+    }
+
     const isa = isaDe(nome);
     if (isa >= ISA_PIVO) {
       take(seed);
@@ -448,18 +456,13 @@ function selectDestinations(
   };
 
   while (selected.length < targetCount) {
-    let proximo = escolher(profile.comfortableLegKm);
+    const proximo = escolher(profile.comfortableLegKm);
 
-    // Nada ao alcance. Roteiro mais curto e melhor que roteiro impossivel, entao paramos
-    // aqui — desde que cada dia ja tenha o seu destino. Se ainda faltar destino para
-    // algum dia, a barreira cede: dia vazio seria descartado em silencio e o usuario
-    // receberia menos dias do que pediu, que e o defeito que este planejador existe para
-    // impedir.
-    if (!proximo) {
-      if (selected.length >= minCount) break;
-      proximo = escolher(Infinity);
-      if (!proximo) break;
-    }
+    // Nada ao alcance do transporte: paramos aqui. A barreira NUNCA cede — um destino
+    // fora do alcance renderia um dia impossivel (ex.: 284 km a pe). O deficit de
+    // destinos e coberto em `planRoute` com dia de permanencia (destino repetido),
+    // que e roteiro honesto; dia impossivel nao e.
+    if (!proximo) break;
 
     take(proximo);
   }
@@ -484,7 +487,17 @@ function splitIntoDays(ordered: DestinoInfo[], days: number): DestinoInfo[][] {
 }
 
 export function planRoute(options: PlanRouteOptions): PlannedRoute {
-  const { catalogue, style, transport, days, anchorName, isaByDestination } = options;
+  const { style, transport, days, anchorName, isaByDestination } = options;
+
+  // O schema do Supabase nao tem unique em `destinos.nome` e `selectDestinations`
+  // deduplica por nome — sem esta guarda, um catalogo com nomes repetidos rende menos
+  // destinos que dias e `splitIntoDays` emitiria blocos vazios.
+  const vistos = new Set<string>();
+  const catalogue = options.catalogue.filter((d) => {
+    if (vistos.has(d.nome)) return false;
+    vistos.add(d.nome);
+    return true;
+  });
 
   const totalDays = clampDays(days, catalogue.length, style, transport);
   if (totalDays === 0) {
@@ -516,12 +529,19 @@ export function planRoute(options: PlanRouteOptions): PlannedRoute {
     style,
     transport,
     targetCount,
-    totalDays,
     anchor,
     isaByDestination
   );
   const ordered = optimizeOrder(selected, anchor?.nome);
-  const chunks = splitIntoDays(ordered, totalDays);
+
+  // Se a barreira de alcance deixou menos destinos que dias, o deficit vira dia de
+  // permanencia: o roteiro repete o ultimo destino em vez de inventar um trecho fora
+  // do alcance do transporte (o antigo `escolher(Infinity)`) ou descartar o dia.
+  const chunks = splitIntoDays(ordered, Math.min(totalDays, ordered.length));
+  while (chunks.length > 0 && chunks.length < totalDays) {
+    const anterior = chunks[chunks.length - 1];
+    chunks.push([anterior[anterior.length - 1]]);
+  }
 
   let previous: DestinoInfo | null = null;
   const plannedDays: PlannedDay[] = chunks.map((destinations, index) => {
