@@ -1234,10 +1234,132 @@ const ISA_SATURATION_WEIGHT = 0.5; // pontos perdidos por ponto percentual acima
 // respondendo rápido a problema real — só não é mais decidido por um único voto.
 const ISA_PESO_BASELINE = 3;
 
-export function calcularISA(destino: string, feedbacks: Feedback[]): number {
+// --- Fallback quando falta fluxo ou investimento ---
+//
+// Antes daqui existia `if (!fluxo || !investimento) return 70`, com dois defeitos. O
+// primeiro é o empate: todo destino sem dado saía no mesmo número, então ranking e peso
+// do ISA na geração de rotas parariam de discriminar assim que o catálogo crescesse pelo
+// Cadastur — nome, município e geo são fáceis de obter; fluxo e investimento por atrativo,
+// não. O segundo é pior: o `return` antecipado descartava as avaliações, e um atrativo sem
+// dado estático ficava imune ao feedback do turista.
+//
+// Agora cada termo do baseline é resolvido sozinho, na ordem observado → mediana do
+// município → mediana do estado, e o resultado carrega de onde veio. Mediana, e não média,
+// para um Ponta Negra não arrastar o município inteiro. Quando nenhum termo é observado e
+// não há avaliação, o valor é só prior — `indeterminado` avisa isso a quem consome, em vez
+// de o número fingir medida.
+export type ISAFonte = "observado" | "proxy_municipio" | "proxy_estadual";
+
+export interface ISADetalhado {
+  /** ISA final, 0–100, arredondado — o mesmo número que `calcularISA` devolve. */
+  valor: number;
+  /** Baseline estático antes das avaliações, sem arredondar. */
+  baseline: number;
+  fonteInvestimento: ISAFonte;
+  fonteSaturacao: ISAFonte;
+  avaliacoes: number;
+  /** Nenhum termo observado e nenhuma avaliação: o valor é prior, não medida. */
+  indeterminado: boolean;
+}
+
+interface ISAStats {
+  municipioPorDestino: Map<string, string>;
+  investimentoPorMunicipio: Map<string, number[]>;
+  saturacaoPorMunicipio: Map<string, number[]>;
+  investimentoEstadual: number[];
+  saturacaoEstadual: number[];
+}
+
+let isaStatsCache: ISAStats | null = null;
+
+function isaStats(): ISAStats {
+  if (isaStatsCache) return isaStatsCache;
+
+  // O catálogo manda no município; o IBGE cobre destino que só existe na camada estatística.
+  const municipioPorDestino = new Map<string, string>();
+  for (const linha of ibgeData) municipioPorDestino.set(linha.destino, linha.municipio);
+  for (const d of destinosInfo) municipioPorDestino.set(d.nome, d.municipio);
+
+  const investimentoPorMunicipio = new Map<string, number[]>();
+  const saturacaoPorMunicipio = new Map<string, number[]>();
+  const agrupar = (mapa: Map<string, number[]>, destino: string, valor: number) => {
+    const municipio = municipioPorDestino.get(destino);
+    if (!municipio) return;
+    const lista = mapa.get(municipio);
+    if (lista) lista.push(valor);
+    else mapa.set(municipio, [valor]);
+  };
+
+  for (const i of investimentosData) agrupar(investimentoPorMunicipio, i.destino, i.total_mil);
+  for (const f of fluxoData) agrupar(saturacaoPorMunicipio, f.destino, f.saturacao_turistica);
+
+  isaStatsCache = {
+    municipioPorDestino,
+    investimentoPorMunicipio,
+    saturacaoPorMunicipio,
+    investimentoEstadual: investimentosData.map((i) => i.total_mil),
+    saturacaoEstadual: fluxoData.map((f) => f.saturacao_turistica),
+  };
+  return isaStatsCache;
+}
+
+function mediana(valores: number[]): number | null {
+  if (valores.length === 0) return null;
+  const ordenados = [...valores].sort((a, b) => a - b);
+  const meio = Math.floor(ordenados.length / 2);
+  return ordenados.length % 2 === 0
+    ? (ordenados[meio - 1] + ordenados[meio]) / 2
+    : ordenados[meio];
+}
+
+function resolverTermo(
+  observado: number | undefined,
+  municipio: string | undefined,
+  porMunicipio: Map<string, number[]>,
+  estadual: number[],
+  // Só usado se a camada inteira estiver vazia — aí nem prior estadual existe.
+  neutro: number
+): { valor: number; fonte: ISAFonte } {
+  if (observado !== undefined) return { valor: observado, fonte: "observado" };
+
+  const doMunicipio = municipio ? mediana(porMunicipio.get(municipio) ?? []) : null;
+  if (doMunicipio !== null) return { valor: doMunicipio, fonte: "proxy_municipio" };
+
+  return { valor: mediana(estadual) ?? neutro, fonte: "proxy_estadual" };
+}
+
+/**
+ * ISA com a proveniência de cada termo. Use quando a interface precisa distinguir número
+ * medido de número derivado de proxy — `calcularISA` devolve só o valor.
+ *
+ * `opcoes.municipio` serve a destino que ainda não está no catálogo (crescimento via
+ * Cadastur): sem ele o proxy municipal não tem como ser encontrado e a queda é direto
+ * para a mediana estadual.
+ */
+export function calcularISADetalhado(
+  destino: string,
+  feedbacks: Feedback[],
+  opcoes: { municipio?: string } = {}
+): ISADetalhado {
+  const stats = isaStats();
   const fluxo = fluxoData.find((f) => f.destino === destino);
   const investimento = investimentosData.find((i) => i.destino === destino);
-  if (!fluxo || !investimento) return 70;
+  const municipio = opcoes.municipio ?? stats.municipioPorDestino.get(destino);
+
+  const termoInvestimento = resolverTermo(
+    investimento?.total_mil,
+    municipio,
+    stats.investimentoPorMunicipio,
+    stats.investimentoEstadual,
+    (ISA_INVESTMENT_CAP * ISA_INVESTMENT_DIVISOR) / 2
+  );
+  const termoSaturacao = resolverTermo(
+    fluxo?.saturacao_turistica,
+    municipio,
+    stats.saturacaoPorMunicipio,
+    stats.saturacaoEstadual,
+    ISA_SATURATION_FREE
+  );
 
   // Baseline estático, sempre calculado: com avaliações ele deixa de ser o resultado e
   // passa a ser o ponto de partida da média ponderada.
@@ -1245,11 +1367,11 @@ export function calcularISA(destino: string, feedbacks: Feedback[]): number {
   // destinos deixam de empatar em três valores possíveis.
   const investmentBonus = Math.min(
     ISA_INVESTMENT_CAP,
-    investimento.total_mil / ISA_INVESTMENT_DIVISOR
+    termoInvestimento.valor / ISA_INVESTMENT_DIVISOR
   );
   const saturationPenalty = Math.max(
     0,
-    (fluxo.saturacao_turistica - ISA_SATURATION_FREE) * ISA_SATURATION_WEIGHT
+    (termoSaturacao.valor - ISA_SATURATION_FREE) * ISA_SATURATION_WEIGHT
   );
   const baseline = Math.max(
     0,
@@ -1297,7 +1419,22 @@ export function calcularISA(destino: string, feedbacks: Feedback[]): number {
       (baseline * ISA_PESO_BASELINE + feedbackBonus) / (ISA_PESO_BASELINE + feedbackCount);
   }
 
-  return Math.max(0, Math.min(100, Math.round(baseScore)));
+  return {
+    valor: Math.max(0, Math.min(100, Math.round(baseScore))),
+    baseline,
+    fonteInvestimento: termoInvestimento.fonte,
+    fonteSaturacao: termoSaturacao.fonte,
+    avaliacoes: destFeedbacks.length,
+    indeterminado:
+      destFeedbacks.length === 0 &&
+      termoInvestimento.fonte !== "observado" &&
+      termoSaturacao.fonte !== "observado",
+  };
+}
+
+/** Só o número — a maioria dos consumidores não precisa da proveniência. */
+export function calcularISA(destino: string, feedbacks: Feedback[]): number {
+  return calcularISADetalhado(destino, feedbacks).valor;
 }
 
 export const allDestinos = destinosInfo.map((d) => d.nome);
