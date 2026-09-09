@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DunasTech — Cockpit de Gestão</title>
+<style>
+  :root{
+    --bg:#0b1220; --surface:#111a2e; --surface2:#16223d; --border:#243352;
+    --text:#eaf0fb; --muted:#93a4c4; --primary:#2dd4bf; --primary2:#38bdf8;
+    --sun:#fbbf24; --ok:#34d399; --warn:#fbbf24; --crit:#fb7185; --pend:#64748b;
+    --leo:#38bdf8; --ant:#a78bfa; --ari:#34d399; --cam:#fbbf24; --cla:#fb7185; --res:#475569;
+  }
+  [data-theme="light"]{
+    --bg:#eef2f9; --surface:#ffffff; --surface2:#f4f7fc; --border:#dbe3f0;
+    --text:#0f1f3d; --muted:#5b6b88;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:var(--primary2);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px}
+  /* Header */
+  header.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+    padding:18px 22px;border-radius:18px;margin-bottom:18px;
+    background:linear-gradient(120deg,rgba(45,212,191,.14),rgba(56,189,248,.10));
+    border:1px solid var(--border)}
+  .logo{height:44px;width:44px;border-radius:12px;flex:0 0 auto;
+    background:linear-gradient(135deg,var(--primary),var(--primary2));
+    display:flex;align-items:center;justify-content:center;font-size:22px}
+  .brand h1{font-size:19px;letter-spacing:.5px}
+  .brand h1 b{color:var(--primary)}
+  .brand p{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:2px}
+  .spacer{flex:1}
+  .count{display:flex;flex-direction:column;align-items:flex-end}
+  .count .n{font-size:30px;font-weight:800;line-height:1;color:var(--sun)}
+  .count .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+  .btn{cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);
+    border-radius:10px;padding:8px 12px;font-size:13px}
+  .btn:hover{background:var(--surface2)}
+  /* Tabs */
+  nav.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+  nav.tabs button{cursor:pointer;border:1px solid var(--border);background:var(--surface);
+    color:var(--muted);border-radius:10px;padding:9px 14px;font-size:13.5px;font-weight:600;transition:.15s}
+  nav.tabs button:hover{color:var(--text)}
+  nav.tabs button.active{background:linear-gradient(135deg,var(--primary),var(--primary2));
+    color:#04121a;border-color:transparent}
+  section.panel{display:none;animation:fade .25s ease}
+  section.panel.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  /* Cards */
+  .grid{display:grid;gap:14px}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:900px){.g4,.g3,.g2{grid-template-columns:1fr 1fr}}
+  @media(max-width:600px){.g4,.g3,.g2{grid-template-columns:1fr}}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px}
+  .card h3{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:700}
+  .kpi .v{font-size:30px;font-weight:800}
+  .kpi .s{font-size:12.5px;color:var(--muted)}
+  .kpi .v.small{font-size:22px}
+  h2.sec{font-size:16px;margin:22px 0 12px;display:flex;align-items:center;gap:8px}
+  h2.sec:first-child{margin-top:4px}
+  .pill{font-size:11px;padding:2px 9px;border-radius:999px;border:1px solid var(--border);color:var(--muted)}
+  /* progress */
+  .bar{height:9px;border-radius:999px;background:var(--surface2);overflow:hidden;margin-top:8px}
+  .bar>span{display:block;height:100%;background:linear-gradient(90deg,var(--primary),var(--primary2));border-radius:999px;transition:width .3s}
+  /* timeline / gantt */
+  .tl{position:relative;margin-top:6px}
+  .tl .row{display:grid;grid-template-columns:190px 1fr;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--border)}
+  .tl .row:first-child{border-top:none}
+  .tl .lab{font-size:13px}
+  .tl .lab small{display:block;color:var(--muted);font-size:11px}
+  .track{position:relative;height:26px;background:var(--surface2);border-radius:8px}
+  .seg{position:absolute;top:3px;height:20px;border-radius:6px;
+    background:linear-gradient(90deg,var(--primary),var(--primary2));display:flex;align-items:center;
+    padding:0 8px;font-size:10.5px;color:#04121a;font-weight:700;white-space:nowrap;overflow:hidden}
+  .seg.mile{background:var(--sun);width:auto!important;padding:0 8px}
+  .seg.crit{background:var(--crit);color:#fff}
+  .axis{display:grid;grid-template-columns:190px 1fr;gap:10px;margin-top:6px}
+  .axis .scale{display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}
+  /* table */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+  td.c,th.c{text-align:center}
+  .tag{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:6px}
+  .R{background:rgba(52,211,153,.18);color:var(--ok)}
+  .A{background:rgba(56,189,248,.18);color:var(--primary2)}
+  .C{background:rgba(251,191,36,.16);color:var(--sun)}
+  .I{background:rgba(148,163,184,.16);color:var(--muted)}
+  /* donut */
+  .donut-wrap{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+  .donut{width:180px;height:180px;border-radius:50%;flex:0 0 auto;position:relative}
+  .donut::after{content:"";position:absolute;inset:26px;border-radius:50%;background:var(--surface)}
+  .donut .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2}
+  .donut .mid b{font-size:22px}
+  .donut .mid span{font-size:11px;color:var(--muted)}
+  .legend{display:flex;flex-direction:column;gap:8px;font-size:13px}
+  .legend .it{display:flex;align-items:center;gap:9px}
+  .dot{width:12px;height:12px;border-radius:4px;flex:0 0 auto}
+  /* checklist */
+  .chk{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-top:1px solid var(--border);font-size:13.5px}
+  .chk:first-child{border-top:none}
+  .chk input{width:18px;height:18px;margin-top:2px;accent-color:var(--primary);cursor:pointer;flex:0 0 auto}
+  .chk label{cursor:pointer}
+  .chk small{display:block;color:var(--muted);font-size:11.5px}
+  .chk.done label{color:var(--muted);text-decoration:line-through}
+  .who{font-size:11px;color:var(--sun);font-weight:700;margin-left:4px}
+  .role-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .avatar{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#04121a;font-size:14px;flex:0 0 auto}
+  .muted{color:var(--muted)}
+  .foot{margin:26px 0 10px;text-align:center;color:var(--muted);font-size:12px}
+  ul.tight{margin:6px 0 0 18px}
+  ul.tight li{margin:3px 0;font-size:13px}
+  .note{font-size:12px;color:var(--muted);background:var(--surface2);border:1px dashed var(--border);border-radius:10px;padding:10px 12px;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="logo">🌵</div>
+    <div class="brand">
+      <h1>DUNAS<b>TECH</b> — Cockpit de Gestão</h1>
+      <p>POTI · Plataforma de Observação do Turismo Inteligente · RN</p>
+    </div>
+    <div class="spacer"></div>
+    <div class="count">
+      <span class="n" id="countdown">–</span>
+      <span class="l">dias p/ Reunião do Governo (30/07)</span>
+    </div>
+    <button class="btn" id="themeBtn" title="Alternar tema">🌙 / ☀️</button>
+    <button class="btn" id="resetBtn" title="Zerar progresso salvo">↺ Reset</button>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="overview" class="active">Visão Geral</button>
+    <button data-tab="cronograma">Cronograma</button>
+    <button data-tab="equity">Sociedade</button>
+    <button data-tab="equipe">Equipe & RACI</button>
+    <button data-tab="okrs">OKRs</button>
+    <button data-tab="rampup">Ramp-up</button>
+    <button data-tab="fundacao">Checklist Fundação</button>
+    <button data-tab="docs">Documentos</button>
+  </nav>
+
+  <!-- ═══════════ OVERVIEW ═══════════ -->
+  <section class="panel active" id="overview">
+    <div class="grid g4">
+      <div class="card kpi"><h3>Progresso Geral</h3><div class="v" id="kpiGlobal">0%</div><div class="bar"><span id="kpiGlobalBar" style="width:0%"></span></div><div class="s">tarefas concluídas no cockpit</div></div>
+      <div class="card kpi"><h3>Marco Crítico</h3><div class="v small">30/07</div><div class="s">Reunião — Secretaria de Turismo</div></div>
+      <div class="card kpi"><h3>Equipe</h3><div class="v">5</div><div class="s">Leonardo, Antônio, Ari, Camilly, Claudia</div></div>
+      <div class="card kpi"><h3>Dedicação</h3><div class="v small">2h/dia</div><div class="s">mín. por integrante + daily 15min</div></div>
+    </div>
+
+    <h2 class="sec">Saúde do projeto <span class="pill">snapshot</span></h2>
+    <div class="grid g4">
+      <div class="card"><h3>Produto (MVP)</h3><div class="v small" style="color:var(--ok)">🟢 Funcional</div><div class="s">Next.js · B2C/B2G · ISA · APIs</div></div>
+      <div class="card"><h3>Qualidade técnica</h3><div class="v small" style="color:var(--warn)">🟡 A sanear</div><div class="s">82 issues de lint (14 erros)</div></div>
+      <div class="card"><h3>Pesquisa de mercado</h3><div class="v small" style="color:var(--ok)">🟢 Consolidada</div><div class="s">Dados RN, personas, fontes</div></div>
+      <div class="card"><h3>Sociedade/Jurídico</h3><div class="v small" style="color:var(--crit)">🔴 Pendente</div><div class="s">Equity definido; falta formalizar</div></div>
+    </div>
+
+    <h2 class="sec">ISA por atrativo <span class="pill">POTI · demo do pitch</span></h2>
+    <div class="card" id="isaBox"></div>
+
+    <h2 class="sec">Progresso por frente</h2>
+    <div class="grid g2">
+      <div class="card"><h3>OKRs</h3><div class="v small" id="kpiOkr">0%</div><div class="bar"><span id="kpiOkrBar" style="width:0%"></span></div></div>
+      <div class="card"><h3>Ramp-up da equipe</h3><div class="v small" id="kpiRamp">0%</div><div class="bar"><span id="kpiRampBar" style="width:0%"></span></div></div>
+      <div class="card"><h3>Checklist de Fundação</h3><div class="v small" id="kpiFund">0%</div><div class="bar"><span id="kpiFundBar" style="width:0%"></span></div></div>
+      <div class="card"><h3>Marcos do cronograma</h3><div class="v small" id="kpiMile">0 / 8</div><div class="bar"><span id="kpiMileBar" style="width:0%"></span></div></div>
+    </div>
+    <div class="note">Dica: marque as tarefas nas abas <b>OKRs</b>, <b>Ramp-up</b>, <b>Fundação</b> e <b>Cronograma</b>. O progresso é salvo automaticamente no seu navegador (localStorage).</div>
+  </section>
+
+  <!-- ═══════════ CRONOGRAMA ═══════════ -->
+  <section class="panel" id="cronograma">
+    <h2 class="sec">Cronograma de Kickoff <span class="pill">11/07 → 30/07</span></h2>
+    <div class="card">
+      <div class="tl" id="gantt"></div>
+      <div class="axis"><div></div><div class="scale"><span>11/07</span><span>16/07</span><span>20/07</span><span>24/07</span><span>30/07</span></div></div>
+    </div>
+    <h2 class="sec">Marcos (marque ao concluir)</h2>
+    <div class="card" id="mileList"></div>
+  </section>
+
+  <!-- ═══════════ EQUITY ═══════════ -->
+  <section class="panel" id="equity">
+    <h2 class="sec">Estrutura Societária <span class="pill">Cenário B (adotado)</span></h2>
+    <div class="grid g2">
+      <div class="card">
+        <div class="donut-wrap">
+          <div class="donut" id="donut"><div class="mid"><b>100%</b><span>DunasTech</span></div></div>
+          <div class="legend" id="legend"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Participação</h3>
+        <table id="equityTable"></table>
+        <div class="note">Todos com <b>vesting</b> de 4 anos + cliff (6–12 meses) e gatilhos por meta. Reserva (4%) sob custódia do founder para advisors/captação. Guia estratégico — validar com contador/advogado.</div>
+      </div>
+    </div>
+    <h2 class="sec">Regras-chave</h2>
+    <div class="grid g3">
+      <div class="card"><h3>Controle</h3><p style="font-size:13.5px">Leonardo mantém 72% — direção estratégica e decisão final.</p></div>
+      <div class="card"><h3>Vesting</h3><p style="font-size:13.5px">Participação se conquista por permanência e entrega, não por estar no início.</p></div>
+      <div class="card"><h3>Proteções</h3><p style="font-size:13.5px">Good/bad leaver, recompra de cotas não-vestidas, drag/tag along, NDA e não-competição.</p></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ EQUIPE & RACI ═══════════ -->
+  <section class="panel" id="equipe">
+    <h2 class="sec">Papéis</h2>
+    <div class="grid g2" id="roles"></div>
+    <h2 class="sec">Matriz RACI <span class="pill">R=Responsável · A=Aprovador · C=Consultado · I=Informado</span></h2>
+    <div class="card" style="overflow-x:auto"><table id="raci"></table></div>
+    <h2 class="sec">Cadência de reuniões</h2>
+    <div class="grid g4">
+      <div class="card"><h3>Daily</h3><div class="v small">15 min</div><div class="s">todo dia útil</div></div>
+      <div class="card"><h3>Planning</h3><div class="v small">semanal</div><div class="s">início da sprint</div></div>
+      <div class="card"><h3>Review + Retro</h3><div class="v small">marcos</div><div class="s">15, 20 e 24/07</div></div>
+      <div class="card"><h3>Deep work</h3><div class="v small">≥2h/dia</div><div class="s">execução individual</div></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ OKRs ═══════════ -->
+  <section class="panel" id="okrs">
+    <h2 class="sec">OKRs do Trimestre <span class="pill">Jul–Set/2026</span></h2>
+    <div id="okrList"></div>
+  </section>
+
+  <!-- ═══════════ RAMP-UP ═══════════ -->
+  <section class="panel" id="rampup">
+    <h2 class="sec">Plano de Ramp-up — de todos <span class="pill">proatividade obrigatória</span></h2>
+    <div class="note" style="margin-top:0">Leonardo é ponto de apoio para dúvidas — não muleta. Cada um traz evidência de progresso.</div>
+    <div class="grid g2" id="rampList" style="margin-top:14px"></div>
+  </section>
+
+  <!-- ═══════════ FUNDAÇÃO ═══════════ -->
+  <section class="panel" id="fundacao">
+    <h2 class="sec">Checklist de Fundação <span class="pill">curto prazo</span></h2>
+    <div class="card" id="fundList"></div>
+  </section>
+
+  <!-- ═══════════ DOCS ═══════════ -->
+  <section class="panel" id="docs">
+    <h2 class="sec">Documentos do pacote</h2>
+    <div class="grid g2" id="docsList"></div>
+    <div class="note">Os documentos completos estão em <b>docs/startup/</b>. Este cockpit é a camada de visualização e acompanhamento.</div>
+  </section>
+
+  <div class="foot">DunasTech · Cockpit de Gestão — dados deste painel salvos localmente no seu navegador.</div>
+</div>
+
+<script>
+/* ============ DADOS ============ */
+const PEOPLE = {
+  leo:{name:"Leonardo",role:"CEO / Founder & PO",color:"var(--leo)",ini:"L"},
+  ant:{name:"Antônio",role:"Tech Lead · Git & Backend",color:"var(--ant)",ini:"A"},
+  ari:{name:"Ari",role:"Negócios & Campo",color:"var(--ari)",ini:"R"},
+  cam:{name:"Camilly",role:"Documentação & Scrum",color:"var(--cam)",ini:"C"},
+  cla:{name:"Claudia",role:"Corporate Affairs & Comunicação",color:"var(--cla)",ini:"K"},
+};
+
+const EQUITY = [
+  {k:"Leonardo (founder)",v:72,c:"var(--leo)"},
+  {k:"Antônio",v:6,c:"var(--ant)"},
+  {k:"Ari",v:6,c:"var(--ari)"},
+  {k:"Camilly",v:6,c:"var(--cam)"},
+  {k:"Claudia",v:6,c:"var(--cla)"},
+  {k:"Reserva estratégica",v:4,c:"var(--res)"},
+];
+
+// timeline base: 11/07 = day 0 ... 30/07 = day 19 (total 20 dias)
+const D0 = new Date(2026,6,11), DEND=new Date(2026,6,30);
+const SPAN = (DEND-D0)/(1000*3600*24); // 19
+function pos(d){return ((d-D0)/(1000*3600*24))/SPAN*100;}
+const GANTT = [
+  {lab:"Sprint 1",sub:"Fundação + Plano v1",s:new Date(2026,6,11),e:new Date(2026,6,15)},
+  {lab:"Sprint 2",sub:"Arquitetura + Dados",s:new Date(2026,6,16),e:new Date(2026,6,22)},
+  {lab:"Sprint 3",sub:"Pitch + Materiais",s:new Date(2026,6,23),e:new Date(2026,6,29)},
+];
+const MILES = [
+  {id:"m1",d:new Date(2026,6,11),lab:"Kickoff único",who:"Leonardo"},
+  {id:"m2",d:new Date(2026,6,15),lab:"Plano de Negócio v1 + Review",who:"Leonardo/Camilly"},
+  {id:"m3",d:new Date(2026,6,20),lab:"Arquitetura + Dados",who:"Antônio"},
+  {id:"m4",d:new Date(2026,6,22),lab:"MVP/ISA + Marca",who:"Antônio/Claudia"},
+  {id:"m5",d:new Date(2026,6,24),lab:"Demo + Pitch deck v1",who:"Leonardo/Ari"},
+  {id:"m6",d:new Date(2026,6,27),lab:"Ensaio + Materiais",who:"Claudia/Leonardo"},
+  {id:"m7",d:new Date(2026,6,29),lab:"Dry-run final",who:"Todos"},
+  {id:"m8",d:new Date(2026,6,30),lab:"Reunião com o Governo",who:"Leonardo",crit:true},
+];
+
+const RACI = {
+  cols:["Leonardo","Antônio","Camilly","Ari","Claudia"],
+  rows:[
+    ["Estratégia & Produto","A","C","C","C","I"],
+    ["Backend, Git & Arquitetura","A","R","I","I","I"],
+    ["Documentação & Organização","A","C","R","C","C"],
+    ["Negócios / Campo","A","I","I","R","C"],
+    ["Comunicação, Marca & Redes","A","I","I","C","R"],
+    ["Relação institucional / Governo","A","I","C","C","C"],
+    ["Sociedade & Jurídico","A","I","C","I","C"],
+    ["Pitch & Materiais (30/07)","A","C","C","R","R"],
+  ]
+};
+
+const OKRS = [
+  {o:"Chegar forte na reunião do governo (30/07)",krs:[
+    {id:"o1k1",t:"Pitch deck + one-pager + demo do ISA prontos e ensaiados até 29/07"},
+    {id:"o1k2",t:"1 documento de proposta de valor B2G entregue à Secretaria"},
+    {id:"o1k3",t:"100% dos papéis e sociedade formalizados até 13/07"},
+  ]},
+  {o:"Consolidar produto e dados",krs:[
+    {id:"o2k1",t:"Zerar erros críticos de lint/build do MVP"},
+    {id:"o2k2",t:"Validar e documentar 3 fontes oficiais (Cadastur, SÍRIO, IBGE)"},
+    {id:"o2k3",t:"ISA calculado com dados reais em ao menos 5 atrativos"},
+  ]},
+  {o:"Estruturar a operação",krs:[
+    {id:"o3k1",t:"Jira com épicos, board e 2 sprints planejadas"},
+    {id:"o3k2",t:"Cadência de dailies + reviews rodando com atas"},
+    {id:"o3k3",t:"Cada membro com trilha de ramp-up iniciada e evidência"},
+  ]},
+];
+
+const RAMP = [
+  {who:"ant",title:"Antônio — Tech",items:[
+    {id:"r_ant1",t:"Git na prática (branches, commits, PRs, conflitos)"},
+    {id:"r_ant2",t:"Arquitetura backend: APIs REST, endpoints seguros, segredos"},
+    {id:"r_ant3",t:"Integrações: Cadastur, SÍRIO, Gemini, Apify + ETL"},
+    {id:"r_ant4",t:"Deploy (Vercel) + noções de Firebase/Firestore"},
+  ]},
+  {who:"cam",title:"Camilly — Documentação & Scrum",items:[
+    {id:"r_cam1",t:"Scrum + Jira (épicos, histórias, board, DoD)"},
+    {id:"r_cam2",t:"Documentação: casos de uso, diagramas, atas padronizadas"},
+    {id:"r_cam3",t:"Board organizado + 2 atas + 1 diagrama (evidência)"},
+  ]},
+  {who:"ari",title:"Ari — Negócios & Campo",items:[
+    {id:"r_ari1",t:"Pitch técnico + venda para setor público (GovTech)"},
+    {id:"r_ari2",t:"Negociação + dados do setor turístico"},
+    {id:"r_ari3",t:"Lista de leads/parceiros + roteiro de abordagem (evidência)"},
+  ]},
+  {who:"cla",title:"Claudia — Comunicação & Marca",items:[
+    {id:"r_cla1",t:"Branding + identidade visual + social analytics"},
+    {id:"r_cla2",t:"Comunicação institucional + fundamentos de startup"},
+    {id:"r_cla3",t:"Proposta de identidade + calendário de conteúdo (evidência)"},
+  ]},
+];
+
+const FUND = [
+  {id:"f1",t:"Fechar e assinar o acordo de sócios (Cenário B + vesting)",w:"até 13/07"},
+  {id:"f2",t:"Definir cliff (6 ou 12 meses) e gatilhos de desempenho por membro",w:""},
+  {id:"f3",t:"Agendar orientação no SEBRAE",w:""},
+  {id:"f4",t:"Escolher contador e validar tipo societário + CNAEs",w:""},
+  {id:"f5",t:"Definir marca institucional",w:""},
+  {id:"f6",t:"Registrar decisões em ata",w:"Camilly"},
+];
+
+const ISA = [
+  {name:"Gostoso", isa:86, sat:48},
+  {name:"Pipa", isa:79, sat:76},
+  {name:"Maracajaú", isa:70, sat:54},
+  {name:"Genipabu", isa:68, sat:62},
+  {name:"Ponta Negra", isa:42, sat:88},
+];
+
+const DOCS = [
+  {f:"README.md",d:"Índice + sumário executivo"},
+  {f:"00-VISAO-GERAL.md",d:"Ideia polida, ISA, marca, posicionamento"},
+  {f:"01-RELATORIO-ESTRATEGICO.md",d:"Situação, gestão, cenário, modelo de negócio"},
+  {f:"02-FUNDACAO-E-SOCIEDADE.md",d:"Equity, vesting, CNPJ, parcerias"},
+  {f:"03-EQUIPE-E-GOVERNANCA.md",d:"Papéis, RACI, ramp-up, cadência"},
+  {f:"04-METODOLOGIA-E-FERRAMENTAS.md",d:"Scrum, Design Thinking, Jira, Git"},
+  {f:"05-CRONOGRAMA-KICKOFF.md",d:"Cronograma 11/07 → 30/07 + Gantt"},
+  {f:"06-PAUTA-REUNIAO-ALINHAMENTO.md",d:"Roteiro do kickoff + ata"},
+];
+
+/* ============ ESTADO (localStorage) ============ */
+const LS="dunastech_cockpit_v1";
+let state=JSON.parse(localStorage.getItem(LS)||"{}");
+function save(){localStorage.setItem(LS,JSON.stringify(state));}
+function isDone(id){return !!state[id];}
+function toggle(id,v){state[id]=v;save();renderKPIs();}
+
+/* ============ RENDER ============ */
+function el(t,c,h){const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;}
+
+function renderGantt(){
+  const g=document.getElementById("gantt");g.innerHTML="";
+  GANTT.forEach(row=>{
+    const r=el("div","row");
+    r.appendChild(el("div","lab",`${row.lab}<small>${row.sub}</small>`));
+    const track=el("div","track");
+    const seg=el("div","seg",row.lab);
+    seg.style.left=pos(row.s)+"%";
+    seg.style.width=Math.max(6,(pos(row.e)-pos(row.s)))+"%";
+    track.appendChild(seg);
+    r.appendChild(track);g.appendChild(r);
+  });
+  // milestone row
+  const r=el("div","row");
+  r.appendChild(el("div","lab","Marcos<small>entregas-chave</small>"));
+  const track=el("div","track");
+  MILES.forEach(m=>{
+    const s=el("div","seg mile"+(m.crit?" crit":""),m.d.getDate()+"/07");
+    s.style.left=`calc(${pos(m.d)}% - 14px)`;s.title=m.lab+" — "+m.who;
+    track.appendChild(s);
+  });
+  r.appendChild(track);g.appendChild(r);
+}
+
+function renderMiles(){
+  const c=document.getElementById("mileList");c.innerHTML="";
+  MILES.forEach(m=>{
+    const div=el("div","chk"+(isDone(m.id)?" done":""));
+    const cb=el("input");cb.type="checkbox";cb.checked=isDone(m.id);
+    cb.onchange=()=>{toggle(m.id,cb.checked);div.classList.toggle("done",cb.checked);};
+    const lab=el("label",null,`${m.d.getDate()}/07 — ${m.lab} <span class="who">${m.who}</span>`);
+    div.appendChild(cb);div.appendChild(lab);c.appendChild(div);
+  });
+}
+
+function renderDonut(){
+  let acc=0;const parts=EQUITY.map(e=>{const a=acc;acc+=e.v;return `${e.c} ${a}% ${acc}%`;});
+  document.getElementById("donut").style.background=`conic-gradient(${parts.join(",")})`;
+  const lg=document.getElementById("legend");lg.innerHTML="";
+  EQUITY.forEach(e=>{const it=el("div","it");it.innerHTML=`<span class="dot" style="background:${e.c}"></span> ${e.k} <b style="margin-left:auto">${e.v}%</b>`;lg.appendChild(it);});
+  const t=document.getElementById("equityTable");
+  t.innerHTML="<tr><th>Sócio</th><th class='c'>%</th></tr>"+EQUITY.map(e=>`<tr><td>${e.k}</td><td class='c'><b>${e.v}%</b></td></tr>`).join("");
+}
+
+function renderRoles(){
+  const c=document.getElementById("roles");c.innerHTML="";
+  const desc={
+    leo:"Estratégia, negócio, posicionamento, entregas e relação institucional. Ponto de apoio para dúvidas.",
+    ant:"Versionamento (Git), arquitetura online do backend e integrações/APIs.",
+    ari:"Aquisição técnica de novos negócios, campo, relacionamento com prestadores e apoio ao pitch.",
+    cam:"Documentação técnica/negócio, organização do Jira/board, atas e facilitação Scrum.",
+    cla:"Comunicação institucional, redes sociais, marca/imagem e secretariado geral.",
+  };
+  Object.keys(PEOPLE).forEach(k=>{
+    const p=PEOPLE[k];const card=el("div","card");
+    card.innerHTML=`<div class="role-head"><div class="avatar" style="background:${p.color}">${p.ini}</div>
+      <div><b>${p.name}</b><div class="muted" style="font-size:12px">${p.role}</div></div></div>
+      <p style="font-size:13px">${desc[k]}</p>`;
+    c.appendChild(card);
+  });
+}
+
+function renderRaci(){
+  const t=document.getElementById("raci");
+  t.innerHTML="<tr><th>Frente</th>"+RACI.cols.map(c=>`<th class='c'>${c}</th>`).join("")+"</tr>"+
+    RACI.rows.map(r=>`<tr><td>${r[0]}</td>`+r.slice(1).map(v=>{
+      const cls=v.replace("/","");const first=v[0];
+      return `<td class='c'><span class='tag ${first}'>${v}</span></td>`;
+    }).join("")+"</tr>").join("");
+}
+
+function renderOkrs(){
+  const c=document.getElementById("okrList");c.innerHTML="";
+  OKRS.forEach((o,i)=>{
+    const card=el("div","card");card.style.marginBottom="14px";
+    const done=o.krs.filter(k=>isDone(k.id)).length;
+    card.innerHTML=`<h3>Objetivo ${i+1}</h3><div style="font-size:15px;font-weight:700;margin-bottom:4px">${o.o}</div>
+      <div class="bar"><span style="width:${done/o.krs.length*100}%"></span></div>
+      <div class="muted" style="font-size:12px;margin:4px 0 8px">${done}/${o.krs.length} KRs concluídos</div>`;
+    o.krs.forEach(k=>{
+      const div=el("div","chk"+(isDone(k.id)?" done":""));
+      const cb=el("input");cb.type="checkbox";cb.checked=isDone(k.id);
+      cb.onchange=()=>{toggle(k.id,cb.checked);renderOkrs();};
+      const lab=el("label",null,k.t);
+      div.appendChild(cb);div.appendChild(lab);card.appendChild(div);
+    });
+    c.appendChild(card);
+  });
+}
+
+function renderRamp(){
+  const c=document.getElementById("rampList");c.innerHTML="";
+  RAMP.forEach(g=>{
+    const p=PEOPLE[g.who];const card=el("div","card");
+    const done=g.items.filter(it=>isDone(it.id)).length;
+    card.innerHTML=`<div class="role-head"><div class="avatar" style="background:${p.color}">${p.ini}</div><div><b>${g.title}</b></div></div>
+      <div class="bar"><span style="width:${done/g.items.length*100}%"></span></div>
+      <div class="muted" style="font-size:12px;margin:4px 0 8px">${done}/${g.items.length}</div>`;
+    g.items.forEach(it=>{
+      const div=el("div","chk"+(isDone(it.id)?" done":""));
+      const cb=el("input");cb.type="checkbox";cb.checked=isDone(it.id);
+      cb.onchange=()=>{toggle(it.id,cb.checked);renderRamp();};
+      const lab=el("label",null,it.t);
+      div.appendChild(cb);div.appendChild(lab);card.appendChild(div);
+    });
+    c.appendChild(card);
+  });
+}
+
+function renderFund(){
+  const c=document.getElementById("fundList");c.innerHTML="";
+  FUND.forEach(f=>{
+    const div=el("div","chk"+(isDone(f.id)?" done":""));
+    const cb=el("input");cb.type="checkbox";cb.checked=isDone(f.id);
+    cb.onchange=()=>{toggle(f.id,cb.checked);div.classList.toggle("done",cb.checked);};
+    const lab=el("label",null,`${f.t}${f.w?` <span class="who">${f.w}</span>`:""}`);
+    div.appendChild(cb);div.appendChild(lab);c.appendChild(div);
+  });
+}
+
+function isaColor(v){return v<50?"var(--crit)":(v<70?"var(--warn)":"var(--ok)");}
+function renderIsa(){
+  const c=document.getElementById("isaBox");if(!c)return;c.innerHTML="";
+  ISA.forEach(a=>{
+    const row=el("div");row.style.cssText="display:grid;grid-template-columns:120px 1fr 90px;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--border)";
+    row.innerHTML=`<div style="font-size:13.5px">${a.name}</div>
+      <div class="bar" style="margin-top:0"><span style="width:${a.isa}%;background:${isaColor(a.isa)}"></span></div>
+      <div style="font-size:12px;text-align:right"><b>ISA ${a.isa}</b> <span class="muted">· sat. ${a.sat}%</span></div>`;
+    c.appendChild(row);
+  });
+  const note=el("div","note",'🛡️ <b>Força Cadastur:</b> auto-notificações preventivas de regularização para estabelecimentos sem registro ativo. ISA = avaliações de turistas + varredura de Instagram + zeladoria (0–100).');
+  c.appendChild(note);
+}
+function renderDocs(){
+  const c=document.getElementById("docsList");c.innerHTML="";
+  DOCS.forEach(d=>{
+    const card=el("div","card");
+    card.innerHTML=`<b><a href="${d.f}">${d.f}</a></b><div class="muted" style="font-size:13px;margin-top:4px">${d.d}</div>`;
+    c.appendChild(card);
+  });
+}
+
+function pct(ids){const t=ids.length;const d=ids.filter(isDone).length;return t?Math.round(d/t*100):0;}
+function renderKPIs(){
+  const okrIds=OKRS.flatMap(o=>o.krs.map(k=>k.id));
+  const rampIds=RAMP.flatMap(g=>g.items.map(i=>i.id));
+  const fundIds=FUND.map(f=>f.id);
+  const mileIds=MILES.map(m=>m.id);
+  const all=[...okrIds,...rampIds,...fundIds,...mileIds];
+  const set=(id,barId,v)=>{document.getElementById(id).textContent=v+"%";document.getElementById(barId).style.width=v+"%";};
+  set("kpiOkr","kpiOkrBar",pct(okrIds));
+  set("kpiRamp","kpiRampBar",pct(rampIds));
+  set("kpiFund","kpiFundBar",pct(fundIds));
+  const md=mileIds.filter(isDone).length;
+  document.getElementById("kpiMile").textContent=md+" / "+mileIds.length;
+  document.getElementById("kpiMileBar").style.width=(md/mileIds.length*100)+"%";
+  set("kpiGlobal","kpiGlobalBar",pct(all));
+}
+
+function countdown(){
+  const now=new Date();const diff=Math.ceil((DEND-now)/(1000*3600*24));
+  document.getElementById("countdown").textContent=diff>=0?diff:"0";
+}
+
+/* Tabs */
+document.getElementById("tabs").addEventListener("click",e=>{
+  if(e.target.tagName!=="BUTTON")return;
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll("section.panel").forEach(s=>s.classList.remove("active"));
+  e.target.classList.add("active");
+  document.getElementById(e.target.dataset.tab).classList.add("active");
+});
+/* Theme */
+document.getElementById("themeBtn").onclick=()=>{
+  const cur=document.documentElement.getAttribute("data-theme");
+  const nx=cur==="light"?"":"light";
+  document.documentElement.setAttribute("data-theme",nx);
+  state.__theme=nx;save();renderDonut();
+};
+/* Reset */
+document.getElementById("resetBtn").onclick=()=>{
+  if(confirm("Zerar todo o progresso salvo neste navegador?")){
+    const th=state.__theme;state={__theme:th};save();
+    renderMiles();renderOkrs();renderRamp();renderFund();renderKPIs();
+  }
+};
+
+/* Init */
+if(state.__theme)document.documentElement.setAttribute("data-theme",state.__theme);
+renderGantt();renderMiles();renderDonut();renderRoles();renderRaci();
+renderOkrs();renderRamp();renderFund();renderDocs();renderIsa();renderKPIs();countdown();
+</script>
+</body>
+</html>
