@@ -81,17 +81,25 @@ export function normalizeStyle(id: string): TravelStyle {
 /**
  * Teto do contador de duracao por transporte.
  *
- * O catalogo tem 20 destinos e so ~10 na Grande Natal. Passado o teto, o
- * preenchimento esgota o que esta perto e cai no escape `escolher(Infinity)` do
- * planejador — que ignora a barreira de distancia de proposito, para nao devolver
- * dia vazio. Dai sairam os 70 km a pe em 13 dias e os 189 km de buggy.
+ * Passado o teto, o preenchimento esgota o que esta ao alcance do transporte
+ * (`comfortableLegKm`) e para: a barreira de distancia em `escolher()` e dura desde
+ * `6f72060` (fechou o antigo escape `escolher(Infinity)`), entao dia sem destino novo
+ * vira permanencia (repete o ultimo destino) em vez de dia impossivel. O teto marca o
+ * ultimo dia que ainda renderia destino GENUINO, nao mais uma barreira contra distancia
+ * absurda — essa ja e a barreira dura.
  *
- * Os cortes sao medidos, nao arbitrados: caminhada da 9,2 km de pior dia com teto
- * 3 e 26,6 km com teto 4; buggy da 55,6 km ate o teto 12 e 189 km no 13.
+ * Os cortes sao medidos, nao arbitrados: caminhada da 9,2 km de pior dia com teto 3 e
+ * 26,6 km com teto 4.
+ *
+ * Buggy reavaliado em 10/09 (BRU-20) apos o catalogo do litoral norte crescer com o
+ * Farol de Touros (BRU-19): o novo destino fica ao alcance da cadeia de preenchimento
+ * de buggy e passou a render dia 13 genuino (28,9 km de pior dia, abaixo do pior dia
+ * de varios estilos ate o dia 12). Sem o Farol de Touros o catalogo esgotava em 12
+ * destinos alcancaveis; com ele, esgota em 13 — dia 14 em diante e permanencia.
  */
 export const MAX_DIAS_POR_TRANSPORTE: Record<Transport, number> = {
   hike: 3,
-  buggy: 12,
+  buggy: 13,
   shuttle: 15,
 };
 

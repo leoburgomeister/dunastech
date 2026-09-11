@@ -42,7 +42,7 @@ describe('planRoute — duração', () => {
   it('nao passa do teto de duracao do transporte', () => {
     // Pedir 15 dias de caminhada devolvia 15 dias, com dia de 70 km a pe.
     expect(planRoute({ ...base, transport: 'hike', days: 15 }).days).toHaveLength(3);
-    expect(planRoute({ ...base, transport: 'buggy', days: 15 }).days).toHaveLength(12);
+    expect(planRoute({ ...base, transport: 'buggy', days: 15 }).days).toHaveLength(13);
     expect(planRoute({ ...base, transport: 'shuttle', days: 15 }).days).toHaveLength(15);
   });
 
