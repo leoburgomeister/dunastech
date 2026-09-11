@@ -52,7 +52,7 @@
   - `MIN_DIAS_POR_COMBINACAO: Record<string, number>` (chave `` `${TravelStyle}/${Transport}` ``)
   - `limitesDeDuracao(style: string, transport: string): { min: number; max: number }`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Criar `src/lib/routePresets.test.ts`:
 
@@ -108,7 +108,7 @@ describe('limitesDeDuracao', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 ```bash
 npx vitest run src/lib/routePresets.test.ts
@@ -116,7 +116,7 @@ npx vitest run src/lib/routePresets.test.ts
 
 Expected: FAIL — `limitesDeDuracao` e `MAX_DIAS_POR_TRANSPORTE` não são exportados.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Em `src/lib/routePresets.ts`, depois de `normalizeStyle` e antes de `destinosDoRoteiro`:
 
@@ -157,7 +157,7 @@ export function limitesDeDuracao(style: string, transport: string): { min: numbe
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 ```bash
 npx vitest run src/lib/routePresets.test.ts
@@ -165,7 +165,7 @@ npx vitest run src/lib/routePresets.test.ts
 
 Expected: PASS, 7 testes.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/routePresets.ts src/lib/routePresets.test.ts
@@ -195,7 +195,7 @@ EOF
 - Consumes: `limitesDeDuracao` da Tarefa 1.
 - Produces: `planRoute` passa a devolver no máximo `max` e no mínimo `min` dias da combinação. Assinatura pública de `planRoute` **não muda**.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Adicionar ao `describe('planRoute — duração')` em `src/lib/route-planner.test.ts`:
 
@@ -256,7 +256,7 @@ Acrescentar ao topo do arquivo, junto do import de `destinosDoRoteiro`:
 import { destinosDoRoteiro, limitesDeDuracao } from './routePresets';
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 ```bash
 npx vitest run src/lib/route-planner.test.ts
@@ -264,7 +264,7 @@ npx vitest run src/lib/route-planner.test.ts
 
 Expected: FAIL — `nao passa do teto` recebe 15 dias de caminhada em vez de 3; `sobe a duracao ate o minimo` recebe 1 em vez de 3.
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 Em `src/lib/route-planner.ts`, trocar a importação:
 
@@ -302,7 +302,7 @@ E, em `planRoute`, a chamada:
   const totalDays = clampDays(days, catalogue.length, style, transport);
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 ```bash
 npx vitest run src/lib/route-planner.test.ts
@@ -313,7 +313,7 @@ Expected: PASS. Três testes vizinhos continuam verdes sem alteração, e vale s
 - `'limita durações inválidas ou maiores que o catálogo'` e `'entrega exatamente a quantidade de dias pedida'` usam `adventure/shuttle`, cuja faixa é 1 a 15 — nada muda para eles.
 - `'mantém as pernas curtas quando o passeio é a pé'` pede 4 dias a pé e agora recebe 3, mas segue comparando contra 4 dias de van: a caminhada fica com 3 destinos coesos e a van com 6, então a desigualdade continua valendo com folga.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/route-planner.ts src/lib/route-planner.test.ts
@@ -349,7 +349,7 @@ EOF
 
 Sem teste automatizado: o repositório não tem testes de componente React, e introduzir a infraestrutura de render agora não cabe nas horas até o pitch. A verificação é manual, no Step 4. `planRoute` já é o contrato apertado pela Tarefa 2 — a UI aqui é conveniência, para o contador não exibir um número que o roteiro não vai entregar.
 
-- [ ] **Step 1: Importar `useEffect` e `limitesDeDuracao`**
+- [x] **Step 1: Importar `useEffect` e `limitesDeDuracao`**
 
 Linha 3, acrescentar `useEffect`:
 
@@ -363,7 +363,7 @@ Linha 24, acrescentar `limitesDeDuracao`:
 import { normalizeStyle, normalizeTransport, limitesDeDuracao } from '@/lib/routePresets';
 ```
 
-- [ ] **Step 2: Derivar os limites e reapertar a duração ao trocar de combinação**
+- [x] **Step 2: Derivar os limites e reapertar a duração ao trocar de combinação**
 
 Logo depois da declaração `const [selectedTransport, setSelectedTransport] = useState('buggy');` (linha 76):
 
@@ -378,7 +378,7 @@ Logo depois da declaração `const [selectedTransport, setSelectedTransport] = u
   }, [limitesDuracao.min, limitesDuracao.max]);
 ```
 
-- [ ] **Step 3: Trocar os limites fixos dos botões**
+- [x] **Step 3: Trocar os limites fixos dos botões**
 
 Linha 481:
 
@@ -398,7 +398,7 @@ Linha 495:
 import { planRoute, haversineKm } from '@/lib/route-planner';
 ```
 
-- [ ] **Step 4: Verificar no navegador**
+- [x] **Step 4: Verificar no navegador**
 
 ```bash
 npm run lint
@@ -411,7 +411,7 @@ Subir a home pelo preview e conferir, no painel de geração de rotas:
 2. Selecionar **cultura + van** — o `−` para de descer em 3.
 3. Pôr 10 dias com van e trocar para caminhada — o contador cai sozinho para 3, não fica exibindo 10.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/tourist/TouristHomePage.tsx
@@ -441,7 +441,7 @@ EOF
 - Consumes: `limitesDeDuracao` da Tarefa 1.
 - Produces: `trechosNecessarios()` devolve um **subconjunto** do que devolvia antes. Nenhuma chave nova.
 
-- [ ] **Step 1: Ajustar o laço**
+- [x] **Step 1: Ajustar o laço**
 
 Em `src/lib/map/routeCoverage.ts`, importar:
 
@@ -465,7 +465,7 @@ E trocar o laço de duração dentro de `trechosNecessarios`:
 
 O resto do corpo do laço fica igual.
 
-- [ ] **Step 2: Rodar a suíte inteira**
+- [x] **Step 2: Rodar a suíte inteira**
 
 ```bash
 npm test
@@ -473,7 +473,7 @@ npm test
 
 Expected: PASS, inclusive `routeCache.test.ts`. Nenhuma chave nova é pedida — o conjunto só encolheu, e o cache gravado já cobre o que sobrou. É por isso que esta tarefa não precisa de `cache:rotas`.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/lib/map/routeCoverage.ts
@@ -507,7 +507,7 @@ EOF
 
 > **Esta tarefa NÃO commita.** Deixa tudo staged; a Tarefa 6 commita o conjunto junto do cache regerado.
 
-- [ ] **Step 1: Baixar os tetos de regressão (o teste falha primeiro)**
+- [x] **Step 1: Baixar os tetos de regressão (o teste falha primeiro)**
 
 Em `src/lib/route-planner.test.ts`, no teste `'nenhum dia da faixa demonstrável piora o que a assinatura já pedia'`, substituir o bloco de comentário e a constante `teto`:
 
@@ -526,7 +526,7 @@ Em `src/lib/route-planner.test.ts`, no teste `'nenhum dia da faixa demonstrável
     };
 ```
 
-- [ ] **Step 2: Rodar para ver falhar**
+- [x] **Step 2: Rodar para ver falhar**
 
 ```bash
 npx vitest run src/lib/route-planner.test.ts -t "nenhum dia da faixa"
@@ -534,7 +534,7 @@ npx vitest run src/lib/route-planner.test.ts -t "nenhum dia da faixa"
 
 Expected: FAIL, com mensagens nomeando os dias que ainda estouram — `family/hike` em 39,7 km, `ecotourism/hike` em 27,6 km e `ecotourism/buggy` em 112,6 km.
 
-- [ ] **Step 3: Trocar os três presets**
+- [x] **Step 3: Trocar os três presets**
 
 Em `src/lib/routePresets.ts`, dentro de `ROTEIROS`:
 
@@ -566,7 +566,7 @@ Acrescentar, logo acima de `const ROTEIROS: Tabela = {`:
 // Madeiro, diferenciados so pela copia.
 ```
 
-- [ ] **Step 4: Rodar o teste do planejador**
+- [x] **Step 4: Rodar o teste do planejador**
 
 ```bash
 npx vitest run src/lib/route-planner.test.ts
@@ -574,7 +574,7 @@ npx vitest run src/lib/route-planner.test.ts
 
 Expected: PASS. `routeCache.test.ts` ainda vai falhar — é o esperado, e a Tarefa 6 resolve.
 
-- [ ] **Step 5: Atualizar a cópia em pt-BR**
+- [x] **Step 5: Atualizar a cópia em pt-BR**
 
 Em `src/i18n/messages/pt-BR.json`, sob `planner.routes`:
 
@@ -599,7 +599,7 @@ Em `src/i18n/messages/pt-BR.json`, sob `planner.routes`:
 
 Manter as demais chaves de `ecotourism` e `family` como estão — o trecho acima mostra só o que muda.
 
-- [ ] **Step 6: Atualizar a cópia em en**
+- [x] **Step 6: Atualizar a cópia em en**
 
 Em `src/i18n/messages/en.json`:
 
@@ -622,7 +622,7 @@ Em `src/i18n/messages/en.json`:
     }
 ```
 
-- [ ] **Step 7: Atualizar a cópia em es**
+- [x] **Step 7: Atualizar a cópia em es**
 
 Em `src/i18n/messages/es.json`:
 
@@ -645,7 +645,7 @@ Em `src/i18n/messages/es.json`:
     }
 ```
 
-- [ ] **Step 8: Conferir que nenhuma cópia nomeia destino que saiu**
+- [x] **Step 8: Conferir que nenhuma cópia nomeia destino que saiu**
 
 ```bash
 git diff src/i18n/messages/ | grep -E "^\+" | grep -iE "pipa|parrachos|galinhos|maracaj"
@@ -653,7 +653,7 @@ git diff src/i18n/messages/ | grep -E "^\+" | grep -iE "pipa|parrachos|galinhos|
 
 Expected: só a linha de `ecotourism.buggy`, que legitimamente mantém "Parrachos de Maracajaú" (o destino continua na combinação). Nenhuma linha nova pode citar Pipa em `family.hike` nem Galinhos em `ecotourism.buggy`.
 
-- [ ] **Step 9: Deixar staged, sem commitar**
+- [x] **Step 9: Deixar staged, sem commitar**
 
 ```bash
 git add src/lib/routePresets.ts src/lib/route-planner.test.ts src/i18n/messages/
@@ -673,7 +673,7 @@ Expected: os 5 arquivos em staged. **Não commitar** — a Tarefa 6 fecha o comm
 - Consumes: a tabela alterada na Tarefa 5 e a enumeração encolhida na Tarefa 4.
 - Produces: nada.
 
-- [ ] **Step 1: Confirmar que o teste de cobertura falha antes**
+- [x] **Step 1: Confirmar que o teste de cobertura falha antes**
 
 ```bash
 npx vitest run src/lib/map/routeCache.test.ts
@@ -681,7 +681,7 @@ npx vitest run src/lib/map/routeCache.test.ts
 
 Expected: FAIL em `'TODA combinacao de estilo x transporte tem rota gravada'`, nomeando `family/hike`, `ecotourism/hike` e `ecotourism/buggy`. É a trava funcionando: a tabela mudou e o cache está velho.
 
-- [ ] **Step 2: Regenerar**
+- [x] **Step 2: Regenerar**
 
 ```bash
 npm run cache:rotas
@@ -697,7 +697,7 @@ git checkout -- src/lib/routePresets.ts src/lib/route-planner.test.ts src/i18n/m
 
 As Tarefas 1-4 continuam commitadas e válidas — elas não dependem desta.
 
-- [ ] **Step 3: Rodar a suíte inteira**
+- [x] **Step 3: Rodar a suíte inteira**
 
 ```bash
 npm test
@@ -705,7 +705,7 @@ npm test
 
 Expected: PASS, incluindo a cobertura do cache.
 
-- [ ] **Step 4: Lint e build**
+- [x] **Step 4: Lint e build**
 
 ```bash
 npm run lint && npm run build
@@ -713,7 +713,7 @@ npm run lint && npm run build
 
 Expected: ambos verdes.
 
-- [ ] **Step 5: Verificar na home**
+- [x] **Step 5: Verificar na home**
 
 Subir a home pelo preview e conferir:
 1. **família + caminhada** — o roteiro mostra Parque das Dunas, não Praia da Pipa, e o título diz "Parque das Dunas".
@@ -722,7 +722,7 @@ Subir a home pelo preview e conferir:
 4. Trocar o idioma para en e es e reconferir os três títulos.
 5. O traço da rota aparece no mapa nas três combinações (se sumir ou ficar reto, o cache não pegou).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add public/routes/osrm-cache.json
