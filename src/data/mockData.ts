@@ -219,6 +219,25 @@ export const destinosInfo: DestinoInfo[] = [
     ]
   },
   {
+    nome: "Farol de Touros",
+    municipio: "Touros",
+    descricao: "Farol erguido na Ponta do Calcanhar, o ponto mais oriental do litoral potiguar, na foz do Rio Cabelo em Touros. Fica a meio caminho entre os Parrachos de Maracajaú e São Miguel do Gostoso, cercado por dunas móveis e uma vila de pescadores com forte tradição na pesca da lagosta.",
+    imagem: "",
+    latitude: -5.1997,
+    longitude: -35.4603,
+    hashtag: "faroldetouros",
+    monitorado: true,
+    atracoes: [
+      {
+        id: "act-touros-1",
+        nome: "Subida ao Farol da Ponta do Calcanhar",
+        descricao: "Vista panorâmica do encontro do Rio Cabelo com o mar, no ponto mais oriental do litoral do RN.",
+        imagem: "",
+        parceiroId: "cad-touros-2"
+      }
+    ]
+  },
+  {
     nome: "Forte dos Reis Magos",
     municipio: "Natal",
     descricao: "Fortaleza histórica de pedra datada de 1598, em formato de estrela, localizada na foz do Rio Potengi. É o marco inicial da fundação de Natal, abrigando canhões e relíquias do período colonial sob preservação histórica.",
@@ -1113,6 +1132,7 @@ export const ibgeData: IBGEData[] = [
   { destino: "Dunas de Genipabu", municipio: "Extremoz", populacao: 68584, area_km2: 224.0, idh: 0.665, leitos_hospitalares: 15, escolas_publicas: 24 },
   { destino: "Parrachos de Maracajaú", municipio: "Maxaranguape", populacao: 13000, area_km2: 131.3, idh: 0.612, leitos_hospitalares: 4, escolas_publicas: 6 },
   { destino: "São Miguel do Gostoso", municipio: "São Miguel do Gostoso", populacao: 10636, area_km2: 342.4, idh: 0.611, leitos_hospitalares: 6, escolas_publicas: 12 },
+  { destino: "Farol de Touros", municipio: "Touros", populacao: 21325, area_km2: 313.6, idh: 0.593, leitos_hospitalares: 5, escolas_publicas: 14 },
   { destino: "Forte dos Reis Magos", municipio: "Natal", populacao: 784249, area_km2: 167.26, idh: 0.763, leitos_hospitalares: 3200, escolas_publicas: 450 },
   { destino: "Galinhos", municipio: "Galinhos", populacao: 2159, area_km2: 340.5, idh: 0.589, leitos_hospitalares: 2, escolas_publicas: 3 },
   { destino: "Maior Cajueiro do Mundo", municipio: "Parnamirim", populacao: 271713, area_km2: 123.4, idh: 0.742, leitos_hospitalares: 450, escolas_publicas: 98 },
@@ -1136,6 +1156,7 @@ export const transporteData: TransporteData[] = [
   { destino: "Dunas de Genipabu", voos_mensais: 0, onibus_mensais: 600, veiculos_terrestres_mensais: 22000, modal_principal: "Buggy / Vans", variacao_percentual: 8 },
   { destino: "Parrachos de Maracajaú", voos_mensais: 0, onibus_mensais: 300, veiculos_terrestres_mensais: 11000, modal_principal: "Vans Receptivas", variacao_percentual: 12 },
   { destino: "São Miguel do Gostoso", voos_mensais: 0, onibus_mensais: 140, veiculos_terrestres_mensais: 8500, modal_principal: "Veículo Particular", variacao_percentual: 24 },
+  { destino: "Farol de Touros", voos_mensais: 0, onibus_mensais: 110, veiculos_terrestres_mensais: 6800, modal_principal: "Veículo Particular", variacao_percentual: 19 },
   { destino: "Forte dos Reis Magos", voos_mensais: 0, onibus_mensais: 500, veiculos_terrestres_mensais: 45000, modal_principal: "Urbano / Ônibus", variacao_percentual: 3 },
   { destino: "Galinhos", voos_mensais: 0, onibus_mensais: 40, veiculos_terrestres_mensais: 1200, modal_principal: "Barco + 4x4", variacao_percentual: 6 },
   { destino: "Maior Cajueiro do Mundo", voos_mensais: 0, onibus_mensais: 950, veiculos_terrestres_mensais: 52000, modal_principal: "Terrestre Coletivo", variacao_percentual: 9 },
@@ -1159,6 +1180,7 @@ export const investimentosData: InvestimentoData[] = [
   { destino: "Dunas de Genipabu", investimento_infraestrutura_mil: 1800, investimento_saneamento_mil: 1200, investimento_turismo_mil: 1000, total_mil: 4000, ano: 2026 },
   { destino: "Parrachos de Maracajaú", investimento_infraestrutura_mil: 1600, investimento_saneamento_mil: 1100, investimento_turismo_mil: 900, total_mil: 3600, ano: 2026 },
   { destino: "São Miguel do Gostoso", investimento_infraestrutura_mil: 1500, investimento_saneamento_mil: 1000, investimento_turismo_mil: 900, total_mil: 3400, ano: 2026 },
+  { destino: "Farol de Touros", investimento_infraestrutura_mil: 1150, investimento_saneamento_mil: 800, investimento_turismo_mil: 700, total_mil: 2650, ano: 2026 },
   { destino: "Forte dos Reis Magos", investimento_infraestrutura_mil: 1200, investimento_saneamento_mil: 800, investimento_turismo_mil: 750, total_mil: 2750, ano: 2026 },
   { destino: "Galinhos", investimento_infraestrutura_mil: 1100, investimento_saneamento_mil: 750, investimento_turismo_mil: 650, total_mil: 2500, ano: 2026 },
   { destino: "Maior Cajueiro do Mundo", investimento_infraestrutura_mil: 1250, investimento_saneamento_mil: 800, investimento_turismo_mil: 700, total_mil: 2750, ano: 2026 },
@@ -1182,6 +1204,7 @@ export const fluxoData: FluxoData[] = [
   { destino: "Dunas de Genipabu", fluxo_visitantes_mes: 54000, receita_estimada_milhoes: 12.8, saturacao_turistica: 62, hashtag_instagram: "genipabu" },
   { destino: "Parrachos de Maracajaú", fluxo_visitantes_mes: 28000, receita_estimada_milhoes: 8.5, saturacao_turistica: 54, hashtag_instagram: "maracajau" },
   { destino: "São Miguel do Gostoso", fluxo_visitantes_mes: 32000, receita_estimada_milhoes: 11.2, saturacao_turistica: 48, hashtag_instagram: "saomigueldogostoso" },
+  { destino: "Farol de Touros", fluxo_visitantes_mes: 16000, receita_estimada_milhoes: 4.6, saturacao_turistica: 32, hashtag_instagram: "faroldetouros" },
   { destino: "Forte dos Reis Magos", fluxo_visitantes_mes: 24000, receita_estimada_milhoes: 2.1, saturacao_turistica: 35, hashtag_instagram: "fortedosreismagos" },
   { destino: "Galinhos", fluxo_visitantes_mes: 9800, receita_estimada_milhoes: 3.4, saturacao_turistica: 28, hashtag_instagram: "galinhos" },
   { destino: "Maior Cajueiro do Mundo", fluxo_visitantes_mes: 68000, receita_estimada_milhoes: 4.8, saturacao_turistica: 72, hashtag_instagram: "maiorcajueiro" },

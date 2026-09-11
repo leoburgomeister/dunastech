@@ -93,6 +93,7 @@ const STYLE_AFFINITY: Record<TravelStyle, string[]> = {
     'Praia da Pipa',
     'Praia do Madeiro',
     'São Miguel do Gostoso',
+    'Farol de Touros',
     'Galinhos',
     'Parque das Dunas',
     // Aventura de verdade, mas serra adentro: só entra em roteiros longos, depois que o
@@ -104,6 +105,7 @@ const STYLE_AFFINITY: Record<TravelStyle, string[]> = {
     'Praia do Madeiro',
     'Parrachos de Maracajaú',
     'São Miguel do Gostoso',
+    'Farol de Touros',
     'Galinhos',
     'Barra de Cunhaú',
     'Lagoa de Pitangui',
@@ -112,6 +114,7 @@ const STYLE_AFFINITY: Record<TravelStyle, string[]> = {
   ecotourism: [
     'Lagoa de Pitangui',
     'Parrachos de Maracajaú',
+    'Farol de Touros',
     'Galinhos',
     'Parque das Dunas',
     'Barra de Cunhaú',
@@ -129,6 +132,9 @@ const STYLE_AFFINITY: Record<TravelStyle, string[]> = {
     'Estátua de Santa Rita de Cássia',
     'Ponta Negra e Morro do Careca',
     'Maior Cajueiro do Mundo',
+    // Farol histórico da Ponta do Calcanhar: entra por afinidade, não por assinatura —
+    // fica no meio do caminho da "Grande Rota Histórica" até Mossoró.
+    'Farol de Touros',
   ],
   gastronomy: [
     'Praia da Pipa',
@@ -136,6 +142,7 @@ const STYLE_AFFINITY: Record<TravelStyle, string[]> = {
     'Ponta Negra e Morro do Careca',
     'Praia do Madeiro',
     'São Miguel do Gostoso',
+    'Farol de Touros',
     'Galinhos',
     'Parrachos de Maracajaú',
   ],
