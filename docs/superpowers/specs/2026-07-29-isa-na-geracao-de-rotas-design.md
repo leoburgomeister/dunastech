@@ -231,8 +231,10 @@ Objetivo: nenhum destino real aparece degradado na frente do conselho que govern
 3. **Fallback do ISA sem fluxo/investimento.** `calcularISA` retorna 70 fixo quando faltam esses dados. Hoje a cobertura é 20/20, mas ao crescer o catálogo via Cadastur (nome/município/geo são fáceis; fluxo e investimento por atrativo, não) a maioria dos destinos empataria em 70 e o desempate morreria por empate em massa. Derivar o fallback (média da IGR, ou só feedback quando houver) desacopla o crescimento do catálogo da coleta do dado escasso.
 4. **Atrações somem no sync.** `supabase-data.ts` mapeia `atracoes: []`, então as 23 existentes desaparecem quando o Supabase responde. Média atual é 1,15 atração por destino; triplicar o catálogo sem atrações deixaria os dias do roteiro com "Nenhuma atividade selecionada".
 
-## Limitação conhecida
+## Limitação conhecida (RESOLVIDA em 10/09 — ver nota)
 
 Em roteiros de 13–15 dias o alvo de destinos (dias × 1,5) encosta no catálogo inteiro de 20. Com o pool esgotado, o ISA deixa de influenciar **quem entra** — só a ordem, que é geográfica. Numa viagem de 15 dias o turista visita tudo, inclusive os críticos.
 
 Isso é consequência do tamanho do catálogo, não do algoritmo, e se dissolve conforme ele cresce: com ~60 destinos o pool nunca esgota em nenhuma duração da faixa 1–15 dias. Ver "Próximos passos", itens 3 e 4.
+
+> **Nota (BRU-21, 10/09):** a conta acima ficou desatualizada por acúmulo de duas mudanças não relacionadas a este spec. `perDay` voltou a 1 em todo transporte no dia seguinte a este documento (`1af29e6`, 30/07) — a multiplicação por 1,5 nunca chegou a rodar em produção. E o catálogo cresceu de 20 para 21 com o Farol de Touros (B9, 10/09). Com `perDay` 1 e catálogo 21, o alvo no teto de shuttle (15 dias) é 15 — o pool nunca esgota em 1–15 dias, sem precisar dos ~60 destinos previstos aqui. Confirmado com `planRoute` real (15 de 21 selecionados) e trancado em `route-planner.test.ts` ("em 13-15 dias o catálogo não esgota"). Os itens 3 e 4 de "Próximos passos" continuam válidos por conta própria — o fallback de ISA em massa e as atrações sumindo no sync não dependem desta limitação.

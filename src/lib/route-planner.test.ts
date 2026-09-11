@@ -532,6 +532,40 @@ describe('planRoute — ISA como peso', () => {
     expect(plano.days).toHaveLength(4);
     for (const dia of plano.days) expect(dia.destinations.length).toBeGreaterThan(0);
   });
+
+  // BRU-21 (spec ISA §Limitação, item B12): em 13-15 dias o alvo de destinos podia
+  // encostar no catálogo inteiro — com o pool esgotado, o ISA deixava de influenciar
+  // QUEM entra, só a ordem. Isso dependia de duas contas que já mudaram desde que a
+  // limitação foi escrita: `perDay` voltou a 1 em todo transporte (2026-07-30) e o
+  // catálogo cresceu de 20 para 21 com o Farol de Touros (BRU-19). Resultado: no teto
+  // de shuttle (15 dias) o roteiro usa 15 dos 21 destinos — o pool nunca esgota na
+  // faixa 1-15 dias, então o ISA continua tendo o que escolher. Este teste tranca essa
+  // margem: se o catálogo encolher ou o teto de dias subir o bastante para fechar essa
+  // folga, ele quebra e avisa que a limitação documentada no spec voltou a valer.
+  it('em 13-15 dias o catálogo não esgota — ISA continua decidindo quem entra', () => {
+    const style = 'adventure';
+    const transport = 'shuttle';
+    const days = MAX_ROUTE_DAYS;
+
+    const semISA = planRoute({ catalogue: destinosInfo, style, transport, days });
+    expect(semISA.destinations.length).toBeLessThan(destinosInfo.length);
+
+    const seeds = new Set(destinosDoRoteiro(style, transport));
+    const deFora = destinosInfo.find((d) => !semISA.destinations.some((x) => x.nome === d.nome))!;
+    const doPreenchimento = semISA.destinations.find((d) => !seeds.has(d.nome))!;
+
+    // Troca de ISA entre um destino de fora e um marginal de dentro: se o pool
+    // estivesse esgotado (todo o catálogo selecionado), nada mudaria a composição —
+    // só a ordem. Com folga, a troca deve inverter quem entra.
+    const isa = isaTodosSaudaveis(85);
+    isa[deFora.nome] = 100;
+    isa[doPreenchimento.nome] = 5;
+
+    const comISA = planRoute({ catalogue: destinosInfo, style, transport, days, isaByDestination: isa });
+    const nomes = comISA.destinations.map((d) => d.nome);
+    expect(nomes).toContain(deFora.nome);
+    expect(nomes).not.toContain(doPreenchimento.nome);
+  });
 });
 
 describe('planRoute — substituição de destino-assinatura', () => {
