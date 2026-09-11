@@ -1,8 +1,6 @@
 # Roteiro de Pitch — 3 minutos · CONETUR (30/07/2026)
 
-> ⚠️ **Este é o texto do teleprompter do deck `/pitch`, não o roteiro de palco.**
->
-> O roteiro que o Leonardo fala está em **[`cartao-de-palco.md`](cartao-de-palco.md)** — abertura pela interiorização (11 polos, 81 municípios), demo ao vivo, avaliação no celular. Este arquivo existe para manter o deck coerente com aquele fecho; os dois divergem no miolo de propósito.
+> ⚠️ **Superado como roteiro de palco por [`cartao-de-palco.md`](cartao-de-palco.md)** — abertura pela interiorização (11 polos, 81 municípios), demo ao vivo, avaliação no celular. É o que o Leonardo efetivamente fala. Este arquivo continua vigente só como texto do teleprompter do deck `/pitch`; os dois divergem no miolo de propósito, então não leia um como substituto do outro.
 >
 > Ordem no palco: `/pitch/abertura` (página rosto) → `dunastech.com.br` (demo ao vivo) → cartão no celular como referência.
 

@@ -4,6 +4,8 @@
 **Contexto:** pitch do CONETUR em 30/07/2026 (2 dias)
 **Componente alvo:** `src/components/tourist/HomeRouteMap.tsx`
 
+> ⚠️ **Parcialmente superado por [`2026-07-29-abertura-do-mapa-e-painel-do-turista-design.md`](2026-07-29-abertura-do-mapa-e-painel-do-turista-design.md).** A projeção globo introduzida aqui foi removida no dia seguinte (ela encurvava o quadro no zoom baixo da abertura e não tinha efeito visível no mergulho). Seguir esta spec ao pé da letra sem ler a de 29/07 reintroduz esse defeito.
+
 ## Problema
 
 1. O mapa da home dispara confete (`canvas-confetti`) ao terminar a animação da rota. Lido pelo usuário como "parabéns" indevido no carregamento da página.

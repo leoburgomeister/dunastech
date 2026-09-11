@@ -1,5 +1,7 @@
 # Cheat-sheet de Q&A técnico — CONETUR (30/07/2026)
 
+> ⚠️ **Superado por [`qa-conetur.md`](qa-conetur.md)** — versão final, consolidada na véspera do pitch. Este arquivo é a versão de planejamento; entre outras diferenças, ainda descreve o CNPJ como "em constituição" (linha abaixo), quando na verdade está ativo desde 17/08/2026 (68.629.561/0001-98). Mantido só como histórico.
+
 > Respostas curtas e defensáveis. Se não souber um número, dizer "trago o dado" — nunca inventar diante do conselho.
 
 ## Produto e conceito
