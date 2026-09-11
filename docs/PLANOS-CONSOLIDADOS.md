@@ -49,7 +49,7 @@
 | B3 | ~~Suavização do ISA por amostra (K=3)~~ — **RESOLVIDO em 20/08** | idem |
 | B4 | ~~Home calcular ISA com feedbacks reais~~ — **RESOLVIDO em 20/08** (`subscribeFeedbacks` + memo `isaByDestination`) | idem |
 | B5 | Suspensão de atrativo pela IGR usando `destinos.status` — **o bloqueio caiu**: agora há sessão Supabase no browser, então `auth.uid()` deixou de ser NULL e a RLS consegue autorizar a escrita | spec ISA §Próximos passos |
-| B6 | Camada de IGR no modelo (`regioes_turisticas` com FK) | idem |
+| B6 | Camada de IGR no modelo (`regioes_turisticas` com FK) — **modelada em 10/09** (`0009_regioes_turisticas.sql`: tabela + `destinos.regiao_turistica_id`, RLS de leitura pública); falta aplicar em produção (MCP sem acesso a esse projeto) e atribuir a região de cada destino, que depende de C3 | idem |
 | B7 | Fallback do ISA sem fluxo/investimento (retorna 70 fixo → empate em massa) | idem |
 | B8 | ~~Atrações somem no sync~~ — **RESOLVIDO em 20/08** (mapper + migration 0005 + reserva estática) | esta sessão |
 | B9 | Catálogo intermediário (nada entre Maracajaú e Gostoso; 246 km sem parada até Mossoró) | spec alcance §Próximos passos |
