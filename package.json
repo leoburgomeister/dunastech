@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "cache:rotas": "tsx scripts/gerar-cache-osrm.mts",
     "gerar:contorno-rn": "node scripts/gerar-contorno-rn.mjs public/geo/rn.geojson src/data/rnOutline.ts",
     "verificar:banco": "tsx scripts/verificar-banco.mts"
@@ -35,6 +36,7 @@
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
