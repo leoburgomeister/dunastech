@@ -58,18 +58,22 @@ Loop canônico: `/map → /plan → /execute → /verify → (loop se houver gap
 
 ## 4. Estado `.gsd/`
 
-| Arquivo | Papel | Status atual |
-|---------|-------|--------------|
-| `SPEC.md` | Visão/metas/critérios | **FINALIZED** (DunasTech Next.js/Firebase) |
-| `ROADMAP.md` | Fases + progresso | Fase 1, _planning_; 0/9 planos |
-| `STATE.md` | Memória de sessão | Fase 0 — planning; pivot p/ Next.js |
-| `REQUIREMENTS.md` | Matriz REQ-01–10 | Pendente; alinhado ao Next.js |
-| `ARCHITECTURE.md` / `STACK.md` | Saída do `/map` | Ver nota de inconsistência abaixo |
-| `DECISIONS.md` / `JOURNAL.md` / `TODO.md` | ADRs / log / captura | Ainda referenciam o MVP Streamlit (pré-pivot) |
-| `templates/` (24) | Modelos p/ copiar | válidos (17 warnings de `Last updated`) |
-| `examples/` (4) | Referência read-only | cheat sheet + walkthroughs |
+> **Ciclo inativo desde julho de 2026.** `.gsd/` não guarda mais estado de projeto — os 9
+> arquivos da era hackathon (26/06/2026, descreviam Streamlit + Firebase Firestore) foram
+> arquivados em 2026-09-10 em `docs/archive/gsd-hackathon-2026-06/` (ver o `README.md` de
+> lá e `.gsd/README.md`). O trabalho real de produto usa `docs/superpowers/specs/` +
+> `docs/superpowers/plans/`, sem nunca escrever em `.gsd/`. A **arquitetura real** está
+> documentada em `docs/architecture/` (esta pasta).
 
-> **⚠️ Inconsistência de estado (pivot):** `SPEC`/`ROADMAP`/`REQUIREMENTS` refletem o pivot para Next.js, mas `DECISIONS`/`JOURNAL`/`TODO` (e o antigo `ARCHITECTURE.md`) ainda descrevem o MVP em **Streamlit**. Não existe `.gsd/phases/{N}/` — ou seja, `/plan 1` ainda não foi rodado sobre a nova stack. A **arquitetura real** está documentada em `docs/architecture/` (esta pasta).
+| Arquivo | Papel |
+|---------|-------|
+| `templates/` (24) | Modelos p/ copiar, caso o ciclo seja retomado |
+| `examples/` (4) | Referência read-only — cheat sheet + walkthroughs |
+
+`SPEC.md`, `ROADMAP.md`, `STATE.md`, `REQUIREMENTS.md`, `DECISIONS.md`, `JOURNAL.md`,
+`ARCHITECTURE.md`, `STACK.md`, `TODO.md` não existem mais em `.gsd/` — os workflows
+(`/new-project`, `/map`, etc.) tratam a ausência de `SPEC.md` como "projeto novo" e os
+recriariam do zero caso o ciclo seja explicitamente retomado.
 
 ## 5. Adapters model-agnostic
 

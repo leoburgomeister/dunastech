@@ -1,7 +1,7 @@
 # DunasTech — A Ideia e o Produto
 
 > Arquitetura do produto: visão, atores, proposta de valor, o índice ISA, features e monetização.
-> Fontes: `src/app/[locale]/pitch/page.tsx`, `src/app/[locale]/layout.tsx`, `src/i18n/messages/pt-BR.json`, `src/data/mockData.ts`, `.gsd/SPEC.md`.
+> Fontes: `src/app/[locale]/pitch/page.tsx`, `src/app/[locale]/layout.tsx`, `src/i18n/messages/pt-BR.json`, `src/data/mockData.ts`, `docs/archive/gsd-hackathon-2026-06/SPEC.md` (arquivado; ver §9).
 
 ## 1. Visão
 
@@ -88,9 +88,13 @@ O **loop de valor**: o turista gera feedback → o feedback alimenta o ISA e o F
 - **B2G SaaS** — assinatura para municípios (o observatório).
 - **B2B freemium / Ads** — listagens patrocinadas para negócios Cadastur na Vitrine e nos roteiros.
 
-## 9. Escopo (do `.gsd/SPEC.md`, `Status: FINALIZED`)
+## 9. Escopo (do `.gsd/SPEC.md` arquivado, `Status: FINALIZED` em 2026-06-26)
 
-- **In:** frontend mobile-first B2C/C2C, dashboard B2G, persistência em tempo real (Firebase), API routes seguras (`/api/scraper`, `/api/gemini`), pitch/monetização, deploy Vercel.
+> ⚠️ Snapshot da era pivot Next.js/Firebase, hoje só de valor histórico: a persistência
+> em tempo real listada como "In" era Firebase e foi substituída por Supabase (ver
+> `TECH-ARCHITECTURE.md` para o estado atual).
+
+- **In:** frontend mobile-first B2C/C2C, dashboard B2G, persistência em tempo real (Firebase, depois substituída por Supabase), API routes seguras (`/api/scraper`, `/api/gemini`), pitch/monetização, deploy Vercel.
 - **Out (Non-Goals):** Python/Streamlit, cadastro completo com senhas (login é simulado/opcional), gateway de pagamento real (apenas mockup).
 
 > Para o mapeamento de código destas features (rotas ↔ componentes ↔ entidades), ver [`TAXONOMY.md`](./TAXONOMY.md). Para como tudo isso roda, ver [`TECH-ARCHITECTURE.md`](./TECH-ARCHITECTURE.md).

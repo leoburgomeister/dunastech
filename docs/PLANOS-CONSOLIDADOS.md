@@ -84,7 +84,7 @@
 | # | Ação | Fonte |
 |---|---|---|
 | D1 | **Cherry-pick dos docs das branches** (`docs/startup/`, `docs/architecture/`, `AGENTS.md`) para a `main` — sem merge das branches (destrutivo) | plano consolidado Faixa B4/D1 |
-| D2 | Atualizar ou arquivar o `.gsd/` (DECISIONS/TODO/ARCHITECTURE ainda descrevem Streamlit) — pendente desde 23/07 | plano consolidado Faixa D2 |
+| D2 | ~~Atualizar ou arquivar o `.gsd/` (DECISIONS/TODO/ARCHITECTURE ainda descrevem Streamlit)~~ — **FEITO em 10/09**: os 9 arquivos de estado movidos para `docs/archive/gsd-hackathon-2026-06/` (ver `README.md` de lá), DECISION-001 marcada `Superseded` (ADR da reversão que faltava), `PROJECT_RULES.md` ganhou aviso de status inativo apontando para `docs/superpowers/` | plano consolidado Faixa D2 |
 | D3 | Marcar como superados: `roteiro-3min.md`, `qa-tecnico.md`; anotar na spec do mapa 3D que a projeção globo foi removida pela spec de 29/07 | ver §4.4–4.6 |
 | D4 | Marcar os checkboxes dos 2 planos superpowers já executados (senão "feito" e "não feito" são indistinguíveis — foi o que quase escondeu o ISA) | §4.3 |
 | D5 | Jira: auditar board, 1 issue = 1 dono, sincronizar plano→issues (Faixas C1–C5) | plano consolidado |
@@ -95,7 +95,7 @@
 
 ## 3. Arquivar sem executar (obsoletos)
 
-- **Todo o conteúdo aberto do `.gsd/`**: 8 itens do TODO (citam Streamlit), 9 planos do ROADMAP, REQ-01..10 (Firestore), 4 next-steps do STATE, 6 critérios da SPEC (prazo 28/06), 4 dívidas do ARCHITECTURE — tudo já entregue ou superado pelo pivô.
+- ~~**Todo o conteúdo aberto do `.gsd/`**: 8 itens do TODO (citam Streamlit), 9 planos do ROADMAP, REQ-01..10 (Firestore), 4 next-steps do STATE, 6 critérios da SPEC (prazo 28/06), 4 dívidas do ARCHITECTURE — tudo já entregue ou superado pelo pivô.~~ **ARQUIVADO em 10/09** em `docs/archive/gsd-hackathon-2026-06/` (ver D2).
 - **Checklists de palco** (12 itens do cartão + pendências 1/5/7 do pitch): evento de 30/07 ocorreu.
 - **Vídeo de backup da demo**: descartado por decisão registrada em 29/07 — dois docs ainda o pedem.
 - **"Zerar erros de lint"** (Faixa B3; "82 issues"): `eslint` hoje sai **limpo**.
@@ -105,14 +105,14 @@
 
 ## 4. Contradições entre documentos (resumo)
 
-1. **`.gsd/` × código** — DECISION-001 ("tudo em `app.py`/Streamlit") segue `Accepted`; SPEC/STACK/REQUIREMENTS dizem Firestore. Nenhum ADR registra a reversão.
-2. **Protocolo declarado × usado** — `PROJECT_RULES.md` exige o ciclo GSD via `.gsd/`; o trabalho real de jul–ago usou `docs/superpowers/` e nunca escreveu no `.gsd/`.
+1. ~~**`.gsd/` × código** — DECISION-001 ("tudo em `app.py`/Streamlit") segue `Accepted`; SPEC/STACK/REQUIREMENTS dizem Firestore. Nenhum ADR registra a reversão.~~ **RESOLVIDO em 10/09**: `.gsd/` arquivado, DECISION-001 marcada `Superseded` (ver D2).
+2. ~~**Protocolo declarado × usado** — `PROJECT_RULES.md` exige o ciclo GSD via `.gsd/`; o trabalho real de jul–ago usou `docs/superpowers/` e nunca escreveu no `.gsd/`.~~ **RESOLVIDO em 10/09**: `PROJECT_RULES.md` ganhou aviso explícito de que o ciclo está inativo e que `docs/superpowers/` é o processo real (ver D2).
 3. **Planos sem tracking** — 92 checkboxes, zero marcados; só lendo não se distingue plano executado (mapa 3D, transportes) de não executado (ISA).
 4. **Spec do mapa 3D × spec da abertura** — a de 29/07 removeu a projeção globo; a de 28/07 nunca foi anotada e reintroduziria o defeito.
 5. **Três roteiros de pitch** concorrentes, resolvidos por declaração mas com aberturas divergentes.
 6. **CNPJ** — `qa-tecnico.md`: "em constituição"; `qa-conetur.md`: "ativo". Um fato, duas respostas.
 7. **Três tabelas de preço** diferentes (Q&A técnico / startup 01 / spec do pitch) — a do pitch é a mais recente e a única com salvaguardas.
-8. **Arquitetura** — a real (`docs/architecture/`) vive só numa branch; a da `main` (`.gsd/ARCHITECTURE.md`) descreve Streamlit.
+8. ~~**Arquitetura** — a real (`docs/architecture/`) vive só numa branch; a da `main` (`.gsd/ARCHITECTURE.md`) descreve Streamlit.~~ **RESOLVIDO em 10/09**: `docs/architecture/` já está na `main` desde D1; `.gsd/ARCHITECTURE.md` arquivado em `docs/archive/gsd-hackathon-2026-06/` (ver D2). Ainda pendente à parte: `docs/architecture/PRODUCT.md` §9 cita persistência em Firebase — o produto usa Supabase (anotado inline, não corrigido em bloco).
 9. **Caminhos Windows de outra máquina** em 4 docs versionados.
 10. **Baselines de teste desatualizadas** nos planos (185/143 vs 240 atuais).
 

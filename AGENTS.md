@@ -26,4 +26,4 @@ Notes: the browser MCPs (`playwright`, `chrome-devtools`) require a Chrome/Chrom
 
 ### Architecture docs
 
-High-level product, taxonomy, technical architecture, and GSD-harness maps live in `docs/architecture/` (start at `docs/architecture/README.md`). The `.gsd/` directory holds live GSD methodology state; some historical artifacts (`DECISIONS.md`, `JOURNAL.md`, `TODO.md`) still reference the pre-pivot Streamlit MVP.
+High-level product, taxonomy, technical architecture, and GSD-harness maps live in `docs/architecture/` (start at `docs/architecture/README.md`). The `.gsd/` directory is currently empty of project state — the GSD cycle hasn't been the active process since July 2026 (see `PROJECT_RULES.md`); the hackathon-era artifacts that described the pre-pivot Streamlit/Firestore MVP were archived to `docs/archive/gsd-hackathon-2026-06/`.

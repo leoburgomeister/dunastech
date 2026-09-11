@@ -4,6 +4,16 @@
 > 
 > Model-agnostic. All adapters and extensions reference this file.
 
+> **⚠️ Status (2026-09-10): this cycle is not the active process on this project.**
+> No work has gone through `SPEC → PLAN → EXECUTE → VERIFY → COMMIT` via `.gsd/` since
+> July 2026 — the real feature work (mapa 3D, ISA nas rotas, alcance dos transportes,
+> etc.) was done entirely through `docs/superpowers/specs/` + `docs/superpowers/plans/`,
+> which never wrote to `.gsd/`. The rules below remain valid as documentation of the
+> methodology and the tooling (`.agent/workflows/`, `.agents/skills/`) still works, but
+> treat this as **dormant, not canonical for current work** until someone explicitly
+> resumes the GSD cycle. See `.gsd/README.md` and
+> `docs/archive/gsd-hackathon-2026-06/README.md` for context.
+
 ---
 
 ## Core Protocol
