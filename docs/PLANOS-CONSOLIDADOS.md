@@ -60,7 +60,7 @@
 | B14 | ~~Migrar auth para Supabase~~ — **RESOLVIDO em 20/08**: Firebase removido do projeto, auth sobre a tabela `usuarios` | spec pitch §10 + spec ISA |
 | B15 | Remover `leaflet`/`react-leaflet` (usados só em `legacy/` e no mapa admin) | spec mapa 3D §Fora de escopo |
 
-| B16–B21 | `DestinationMap` 2D→3D; Google 3D fase 2; refactor `TouristHomePage` (1998 linhas); fundir steps 1–2 do wizard; painel B2B; motor preditivo | specs diversas §Fora de escopo |
+| B16–B21 | `DestinationMap` 2D→3D; Google 3D fase 2; refactor `TouristHomePage` (2161 linhas, verificado em 09/09/2026 — ver BRU-24); fundir steps 1–2 do wizard; painel B2B; motor preditivo | specs diversas §Fora de escopo |
 
 À lista soma-se a **dívida achada pela revisão de 20/08** e ainda não corrigida: destino da busca fura o limite de distância do transporte; dias vazios com nomes duplicados; coordenadas do seed divergem do cache OSRM (~9 km na Lagoa de Pitangui → 100% cache miss); memos com deps `[]` não recomputam pós-sync; vazamento de interval em `firebase.ts`.
 
