@@ -15,7 +15,7 @@
 - Branch: `leoburgo/alcance-transporte-presets`, worktree `C:/Users/Leobu/dev/DunasTech/.claude/worktrees/clickable-cards-97e230`. Ramificada de `5788bd6`.
 - **Não commitar em `leoburgo/rotas-generation-issues-a1b624`.** Uma sessão paralela trabalha nela e no worktree `superpowers-brainstorming-planning-a3b295`, e vai mexer em `routePresets.ts`. Foi por isso que esta branch existe.
 - **Baseline dos números: `aaf3ed3`.** `1af29e6` pôs `perDay = 1` nos três transportes; medições contra `4fa2aaf` (buggy e van pediam 1,5) não valem mais. `5788bd6` e `aaf3ed3` só tocaram `HomeRouteMap.tsx`, `scene3d.ts` e `overviewPadding.test.ts` — nenhum arquivo deste plano —, então a medição vale aqui. Se `route-planner.ts`, `routePresets.ts` ou `mockData.ts` mudarem, **parar e remedir** antes de tocar nos tetos de regressão.
-- Suíte verde na baseline: **185 testes, 13 arquivos**. Qualquer contagem menor no fim é regressão.
+- Suíte verde na baseline: **185 testes, 13 arquivos** — medição histórica desta execução (plano já mesclado); qualquer contagem menor no fim, na época, era regressão. Para o estado atual da suíte, rodar `npm test` e comparar com `HEAD` em vez de confiar neste número (não envelhece).
 - **Não alterar** `TRANSPORT_PROFILE` (`perDay`, `comfortableLegKm`, `distanceWeight`), as listas `STYLE_AFFINITY` nem coordenadas em `mockData.ts`.
 - Comentário em código é em português sem acentos, como o resto do repositório. Cópia de usuário (i18n) leva acento normal.
 - Comentário explica **por que**, não o que — o padrão dos arquivos tocados.

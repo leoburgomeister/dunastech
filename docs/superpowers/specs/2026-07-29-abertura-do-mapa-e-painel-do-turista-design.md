@@ -210,7 +210,7 @@ usadas em outros lugares do app.
 
 ## Testes
 
-143 testes passam (eram 121). Novos casos, na convenção de `src/lib/map/`:
+143 testes passam (eram 121) — medição histórica desta spec (já implementada). Para o estado atual da suíte, rodar `npm test` e comparar com `HEAD` em vez de confiar neste número. Novos casos, na convenção de `src/lib/map/`:
 
 - `scene3d.test.ts` — `applyOpeningFraming` põe o padding no transform **antes**
   de enquadrar, passa `padding: 0` ao `fitBounds` (o teste que guarda o defeito

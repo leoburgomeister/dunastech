@@ -88,7 +88,7 @@
 | D3 | Marcar como superados: `roteiro-3min.md`, `qa-tecnico.md`; anotar na spec do mapa 3D que a projeção globo foi removida pela spec de 29/07 | ver §4.4–4.6 |
 | D4 | Marcar os checkboxes dos 2 planos superpowers já executados (senão "feito" e "não feito" são indistinguíveis — foi o que quase escondeu o ISA) | §4.3 |
 | D5 | Jira: auditar board, 1 issue = 1 dono, sincronizar plano→issues (Faixas C1–C5) | plano consolidado |
-| D6 | Corrigir baselines de teste citadas nos planos (dizem 185/143; hoje são **240 testes, 17 arquivos**) | §4.12 |
+| D6 | ~~Corrigir baselines de teste citadas nos planos (dizem 185/143; hoje são 240 testes, 17 arquivos)~~ — **FEITO em 10/09**: baselines antigas anotadas como históricas nos planos/specs de origem (`2026-07-30-alcance-do-transporte-nos-presets.md`, `2026-07-29-abertura-do-mapa-e-painel-do-turista-design.md`), com nota para rodar `npm test` e comparar com `HEAD` em vez de confiar no número fixo; suíte atual: **269 testes, 21 arquivos** | §4.12 |
 | D7 | E2E Playwright / audits CWV (nice-to-have) | plano consolidado Faixa D4 |
 
 ---
@@ -114,7 +114,7 @@
 7. **Três tabelas de preço** diferentes (Q&A técnico / startup 01 / spec do pitch) — a do pitch é a mais recente e a única com salvaguardas.
 8. ~~**Arquitetura** — a real (`docs/architecture/`) vive só numa branch; a da `main` (`.gsd/ARCHITECTURE.md`) descreve Streamlit.~~ **RESOLVIDO em 10/09**: `docs/architecture/` já está na `main` desde D1; `.gsd/ARCHITECTURE.md` arquivado em `docs/archive/gsd-hackathon-2026-06/` (ver D2). Ainda pendente à parte: `docs/architecture/PRODUCT.md` §9 cita persistência em Firebase — o produto usa Supabase (anotado inline, não corrigido em bloco).
 9. **Caminhos Windows de outra máquina** em 4 docs versionados.
-10. **Baselines de teste desatualizadas** nos planos (185/143 vs 240 atuais).
+10. ~~**Baselines de teste desatualizadas** nos planos (185/143 vs 240 atuais).~~ **RESOLVIDO em 10/09**: números antigos anotados como históricos nos docs de origem, com indicação de rodar `npm test` e comparar com `HEAD` (ver D6). Suíte atual: 269 testes, 21 arquivos.
 
 ---
 
