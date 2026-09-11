@@ -6,12 +6,20 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { PlaceImage } from "@/components/ui/PlaceImage";
-import { destinosInfo, fluxoData, ibgeData, transporteData, calcularISA, type Feedback, type DestinoInfo } from "@/data/mockData";
+import { destinosInfo, fluxoData, ibgeData, transporteData, calcularISA, type Feedback, type DestinoInfo, type DestinoStatus } from "@/data/mockData";
 import { Badge } from "@/components/ui/Badge";
-import { MapPin, Users, Activity, Maximize2 } from "lucide-react";
+import { MapPin, Users, Activity, Maximize2, Ban, RotateCcw, Loader2 } from "lucide-react";
 import { cn, slugify } from "@/lib/utils";
 import { subscribeFeedbacks } from "@/lib/feedbacks";
-import { useSupabaseSync } from "@/lib/supabase-data";
+import { useSupabaseSync, setDestinoStatus } from "@/lib/supabase-data";
+
+/** Rótulo e cor por status — ausência de status (catálogo estático) equivale a ATIVO. */
+const STATUS_BADGE: Record<DestinoStatus, { label: string; variant: "success" | "warning" | "default" | "danger" }> = {
+  ATIVO: { label: "Ativo", variant: "success" },
+  EM_ANALISE: { label: "Em análise", variant: "warning" },
+  INATIVO: { label: "Inativo", variant: "default" },
+  SUSPENSO: { label: "Suspenso pela IGR", variant: "danger" },
+};
 
 const DestinosMap = dynamic(
   () => import("@/components/admin/DestinosMap"),
@@ -33,6 +41,18 @@ export default function DestinosGestaoPage() {
   // Centro do card clicado: o popup nasce de lá, em vez de surgir no meio da tela.
   const [popupOrigin, setPopupOrigin] = useState<{ x: number; y: number } | null>(null);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [suspendendo, setSuspendendo] = useState<string | null>(null);
+  const [suspensaoErro, setSuspensaoErro] = useState<string | null>(null);
+
+  const alternarSuspensao = async (d: DestinoInfo) => {
+    const proximoStatus: DestinoStatus = d.status === "SUSPENSO" ? "ATIVO" : "SUSPENSO";
+    setSuspendendo(d.nome);
+    setSuspensaoErro(null);
+    const { error } = await setDestinoStatus(d.nome, proximoStatus);
+    setSuspendendo(null);
+    if (error) setSuspensaoErro(error);
+    else setDetailSpot((atual) => (atual.nome === d.nome ? { ...atual, status: proximoStatus } : atual));
+  };
 
   const openDetail = (d: DestinoInfo) => {
     const card = document.getElementById(slugify(d.nome));
@@ -119,6 +139,13 @@ export default function DestinosGestaoPage() {
                         sizes="(max-width: 768px) 100vw, 400px"
                         className="object-cover rounded-t-xl"
                       />
+                      <div className="absolute top-2 left-2 flex gap-1">
+                        {d.status && d.status !== "ATIVO" && (
+                          <Badge variant={STATUS_BADGE[d.status].variant} size="sm">
+                            {STATUS_BADGE[d.status].label}
+                          </Badge>
+                        )}
+                      </div>
                       <div className="absolute top-2 right-2 flex gap-1">
                         <Badge variant={fluxo && fluxo.saturacao_turistica > 75 ? "danger" : "success"} size="sm">
                           Saturação: {fluxo?.saturacao_turistica || 0}%
@@ -134,6 +161,29 @@ export default function DestinosGestaoPage() {
                             {d.municipio}
                           </span>
                         </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            alternarSuspensao(d);
+                          }}
+                          disabled={suspendendo === d.nome}
+                          aria-label={d.status === "SUSPENSO" ? `Reativar ${d.nome}` : `Suspender ${d.nome}`}
+                          className={cn(
+                            "p-1 rounded-lg transition-colors focus:outline-none cursor-pointer flex-shrink-0 disabled:opacity-50 disabled:cursor-wait",
+                            d.status === "SUSPENSO"
+                              ? "text-[var(--color-success)] hover:bg-[var(--color-success-soft)]"
+                              : "text-[var(--color-danger)] hover:bg-[var(--color-danger-soft)]"
+                          )}
+                          title={d.status === "SUSPENSO" ? "Reativar atrativo" : "Suspender atrativo (IGR)"}
+                        >
+                          {suspendendo === d.nome ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : d.status === "SUSPENSO" ? (
+                            <RotateCcw className="w-4 h-4" />
+                          ) : (
+                            <Ban className="w-4 h-4" />
+                          )}
+                        </button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -218,6 +268,13 @@ export default function DestinosGestaoPage() {
                           sizes="(max-width: 768px) 100vw, 400px"
                           className="object-cover rounded-t-xl grayscale-[15%]"
                         />
+                        <div className="absolute top-2 left-2">
+                          {d.status && d.status !== "ATIVO" && (
+                            <Badge variant={STATUS_BADGE[d.status].variant} size="sm">
+                              {STATUS_BADGE[d.status].label}
+                            </Badge>
+                          )}
+                        </div>
                         <div className="absolute top-2 right-2">
                           <Badge variant="warning" size="sm">Sensores Inativos</Badge>
                         </div>
@@ -231,6 +288,29 @@ export default function DestinosGestaoPage() {
                               {d.municipio}
                             </span>
                           </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              alternarSuspensao(d);
+                            }}
+                            disabled={suspendendo === d.nome}
+                            aria-label={d.status === "SUSPENSO" ? `Reativar ${d.nome}` : `Suspender ${d.nome}`}
+                            className={cn(
+                              "p-1 rounded-lg transition-colors focus:outline-none cursor-pointer flex-shrink-0 disabled:opacity-50 disabled:cursor-wait",
+                              d.status === "SUSPENSO"
+                                ? "text-[var(--color-success)] hover:bg-[var(--color-success-soft)]"
+                                : "text-[var(--color-danger)] hover:bg-[var(--color-danger-soft)]"
+                            )}
+                            title={d.status === "SUSPENSO" ? "Reativar atrativo" : "Suspender atrativo (IGR)"}
+                          >
+                            {suspendendo === d.nome ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : d.status === "SUSPENSO" ? (
+                              <RotateCcw className="w-4 h-4" />
+                            ) : (
+                              <Ban className="w-4 h-4" />
+                            )}
+                          </button>
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -341,6 +421,38 @@ export default function DestinosGestaoPage() {
                   </div>
                 );
               })()}
+            </div>
+
+            {/* Governança — status do atrativo (IGR) */}
+            <div className="sm:col-span-2">
+              <span className="text-[10px] font-bold text-[var(--color-text)] uppercase tracking-wider block mb-1.5">Status do atrativo</span>
+              <div className="flex items-center justify-between gap-3 bg-[var(--color-surface-alt)] p-3 rounded-xl">
+                <Badge variant={STATUS_BADGE[detailSpot.status ?? "ATIVO"].variant} size="sm">
+                  {STATUS_BADGE[detailSpot.status ?? "ATIVO"].label}
+                </Badge>
+                <button
+                  onClick={() => alternarSuspensao(detailSpot)}
+                  disabled={suspendendo === detailSpot.nome}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-colors disabled:opacity-50 disabled:cursor-wait cursor-pointer",
+                    detailSpot.status === "SUSPENSO"
+                      ? "bg-[var(--color-success-soft)] text-[var(--color-success)] hover:opacity-80"
+                      : "bg-[var(--color-danger-soft)] text-[var(--color-danger)] hover:opacity-80"
+                  )}
+                >
+                  {suspendendo === detailSpot.nome ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : detailSpot.status === "SUSPENSO" ? (
+                    <RotateCcw className="w-3.5 h-3.5" />
+                  ) : (
+                    <Ban className="w-3.5 h-3.5" />
+                  )}
+                  {detailSpot.status === "SUSPENSO" ? "Reativar atrativo" : "Suspender atrativo"}
+                </button>
+              </div>
+              {suspensaoErro && (
+                <p className="text-[10px] text-[var(--color-danger)] font-semibold mt-1.5">{suspensaoErro}</p>
+              )}
             </div>
           </div>
         </Modal>

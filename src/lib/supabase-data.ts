@@ -10,6 +10,7 @@ import {
   transporteData,
   type AttractionActivity,
   type DestinoInfo,
+  type DestinoStatus,
 } from '@/data/mockData';
 
 // Reads reference data (destinos, ibge, fluxo, investimento, transporte) from Supabase
@@ -48,6 +49,7 @@ export interface DestinoRow {
   longitude: number | null;
   hashtags: string[] | null;
   monitorado: boolean | null;
+  status: string | null;
   municipios: RelacaoRow;
   atracoes: AtracaoRow[] | null;
 }
@@ -88,6 +90,12 @@ const ATRACOES_ESTATICAS: ReadonlyMap<string, AttractionActivity[]> = new Map(
 const temCoordenada = (d: { latitude: unknown; longitude: unknown }) =>
   Number.isFinite(d.latitude) && Number.isFinite(d.longitude);
 
+const STATUS_VALIDOS: readonly DestinoStatus[] = ['ATIVO', 'EM_ANALISE', 'INATIVO', 'SUSPENSO'];
+
+/** Linha fora do check da coluna (ou nula) cai em 'ATIVO' — nunca barra o destino por engano. */
+const statusDaLinha = (status: string | null): DestinoStatus =>
+  STATUS_VALIDOS.includes(status as DestinoStatus) ? (status as DestinoStatus) : 'ATIVO';
+
 /**
  * Converte as linhas de `destinos` no formato que o app inteiro já consome.
  *
@@ -112,17 +120,18 @@ export function mapDestinoRows(rows: DestinoRow[]): {
       atracoes: doBanco.length > 0 ? doBanco : ATRACOES_ESTATICAS.get(d.nome) ?? [],
       hashtag: (d.hashtags && d.hashtags[0]) || '',
       monitorado: d.monitorado !== false,
+      status: statusDaLinha(d.status),
     };
   });
   return { destinos, semCoordenada };
 }
 
 const DESTINOS_SELECT =
-  'nome, descricao, imagem, latitude, longitude, hashtags, monitorado, municipios(nome), atracoes(id, nome, descricao)';
+  'nome, descricao, imagem, latitude, longitude, hashtags, monitorado, status, municipios(nome), atracoes(id, nome, descricao)';
 
 // Mesma consulta sem `monitorado`, para banco anterior à migration 0004.
 const DESTINOS_SELECT_SEM_MONITORADO =
-  'nome, descricao, imagem, latitude, longitude, hashtags, municipios(nome), atracoes(id, nome, descricao)';
+  'nome, descricao, imagem, latitude, longitude, hashtags, status, municipios(nome), atracoes(id, nome, descricao)';
 
 /**
  * Busca os destinos tolerando banco que ainda não recebeu a migration 0004.
@@ -260,4 +269,29 @@ export function useSupabaseSync() {
     syncReferenceDataFromSupabase();
     return () => window.removeEventListener(SYNC_EVENT, rerender);
   }, []);
+}
+
+/**
+ * Suspende ou reativa um destino (`destinos.status`) a pedido da gestão (B5).
+ *
+ * A escrita passa pela sessão do próprio admin (RLS `destinos_update_admin`,
+ * migration 0011) — sem chave de serviço, mesmo padrão de `feedbacks`/`usuarios`.
+ * Sucesso já deixa `destinosInfo` coerente (mutação in-place + evento de sync),
+ * então o planejador e a tela de gestão refletem a suspensão sem esperar o
+ * próximo fetch.
+ */
+export async function setDestinoStatus(
+  nome: string,
+  status: DestinoStatus
+): Promise<{ error: string | null }> {
+  if (!supabase) return { error: 'Supabase não configurado.' };
+
+  const { error } = await supabase.from('destinos').update({ status }).eq('nome', nome);
+  if (error) return { error: error.message };
+
+  const destino = destinosInfo.find((d) => d.nome === nome);
+  if (destino) destino.status = status;
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event(SYNC_EVENT));
+
+  return { error: null };
 }

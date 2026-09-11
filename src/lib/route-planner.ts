@@ -499,8 +499,14 @@ export function planRoute(options: PlanRouteOptions): PlannedRoute {
   // O schema do Supabase nao tem unique em `destinos.nome` e `selectDestinations`
   // deduplica por nome — sem esta guarda, um catalogo com nomes repetidos rende menos
   // destinos que dias e `splitIntoDays` emitiria blocos vazios.
+  //
+  // `status !== 'ATIVO'` sai do catálogo aqui, não como peso: a IGR suspendeu o
+  // atrativo (ou ele está em análise/inativo), e ISA é desempate entre destinos
+  // ofertáveis — suspensão não é desempate, é o roteiro nunca oferecer aquele nome.
+  // Ausência de `status` (catálogo estático, banco antigo) conta como 'ATIVO'.
   const vistos = new Set<string>();
   const catalogue = options.catalogue.filter((d) => {
+    if (d.status && d.status !== 'ATIVO') return false;
     if (vistos.has(d.nome)) return false;
     vistos.add(d.nome);
     return true;
