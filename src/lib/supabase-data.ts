@@ -250,9 +250,14 @@ function syncReferenceDataFromSupabase(): Promise<void> {
  * Call once near the top of any component that reads destinosInfo/ibgeData/fluxoData/
  * investimentosData/transporteData. Triggers a background Supabase fetch (once, shared
  * across all callers) and forces a re-render when real data lands, mutated in place.
+ *
+ * Devolve o tick que muda a cada sync. Como os arrays são mutados in place (mesma
+ * referência), um `useMemo` que lê `destinosInfo` etc. não tem como notar a mudança
+ * pelas próprias deps — precisa deste tick na lista de dependências, senão o memo
+ * recomputa no primeiro render e nunca mais, mesmo com o componente re-renderizando.
  */
 export function useSupabaseSync() {
-  const [, setTick] = useState(0);
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
     const rerender = () => setTick((v) => v + 1);
@@ -260,4 +265,6 @@ export function useSupabaseSync() {
     syncReferenceDataFromSupabase();
     return () => window.removeEventListener(SYNC_EVENT, rerender);
   }, []);
+
+  return tick;
 }
