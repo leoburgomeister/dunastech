@@ -77,7 +77,7 @@
 | C5 | Registrar status real das conversas com Emprotur/SETUR (placeholder nunca preenchido) | qa-tecnico.md |
 | C6 | Fechar e assinar acordo de sócios (Cenário B + vesting; meta original: 13/07) | startup/02 (branch) |
 | C7 | Definir cliff e gatilhos por sócio; SEBRAE; contador; CNAEs | startup/02, /06 (branch) |
-| C8 | ~~One-pager B2G / carta de intenção~~ — **rascunhos feitos em 12/09** em `docs/pitch/one-pager-b2g.md` e `docs/pitch/carta-de-intencao.md`, só com fatos já documentados na spec do pitch (nenhum preço novo, nenhuma promessa de reunião inventada). **Follow-ups do CONETUR continuam em aberto**: não existe no repo nenhuma ata ou registro do que de fato foi dito/combinado na reunião de 30/07 — sem isso não dá pra "registrar follow-up" sem inventar fato (ver BRU-32) | spec pitch §10; startup/07 |
+| C8 | ~~One-pager B2G / carta de intenção / follow-ups do CONETUR~~ — **FEITO em 12/09**: rascunhos em `docs/pitch/one-pager-b2g.md` e `docs/pitch/carta-de-intencao.md`; follow-up real da reunião de 30/07 confirmado pelo Leonardo e registrado em `docs/pitch/follow-up-conetur-30-07.md` (presidente do Cadastur/RN sinalizou interesse em aderir e liberar dados; assessora da Secretária ficou de agendar apresentação técnica — **nenhuma das duas datas está marcada ainda**, cobrança ativa fica pendente) | spec pitch §10; startup/07; BRU-32 |
 
 ### D. Higiene de processo e documentação
 

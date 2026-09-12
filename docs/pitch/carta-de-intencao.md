@@ -2,12 +2,12 @@
 
 > **Status:** RASCUNHO — não enviar sem revisão do Leonardo. Campos entre `[ ]` precisam de confirmação antes do envio.
 > **Origem:** item A3 de `docs/startup/07-PLANO-ACAO-CONSOLIDADO.md` ("rascunho de carta de intenção"), pendente desde 27/07/2026.
-> **Base factual:** `docs/superpowers/specs/2026-07-28-pitch-conetur-96-design.md` §6–§7. Nenhum dado de reunião foi usado aqui — ver observação no fim do arquivo.
+> **Base factual:** `docs/superpowers/specs/2026-07-28-pitch-conetur-96-design.md` §6–§7, mais o follow-up real da reunião de 30/07 registrado em `docs/pitch/follow-up-conetur-30-07.md`. O Leonardo confirmou que **não surgiu um nome de destinatário na reunião** — por isso o campo abaixo fica genérico até haver um contato confirmado.
 
 ---
 
 À Secretaria de Estado do Turismo do Rio Grande do Norte (SETUR/RN)
-At.: [confirmar destinatário — Secretária Marina Marinho, presidente do CONETUR, ou Secretário Adjunto Magno Lima]
+At.: [confirmar destinatário — nenhum nome específico foi confirmado na reunião de 30/07; a assessora da Secretária ficou de agendar uma apresentação técnica, o que pode indicar o contato certo quando isso acontecer]
 
 **Assunto:** Intenção de parceria para piloto de solução de gestão do turismo potiguar via Contrato Público para Solução Inovadora (CPSI)
 
@@ -36,8 +36,8 @@ DunasTech
 
 ## Observação sobre esta minuta
 
-Este rascunho foi construído **apenas com a spec do pitch** (`2026-07-28-pitch-conetur-96-design.md`), que documenta o que a equipe planejava dizer/pedir. **Não há, neste repositório, registro (ata ou anotação) do que de fato foi dito ou combinado na reunião do CONETUR em 30/07/2026** — nem se algum representante da SETUR já verbalizou interesse específico que devesse ser referenciado nesta carta. Antes de enviar, o Leonardo precisa confirmar:
+Este rascunho foi construído com a spec do pitch (`2026-07-28-pitch-conetur-96-design.md`) e com o follow-up real confirmado pelo Leonardo em `docs/pitch/follow-up-conetur-30-07.md`: o bloco da DunasTech ocorreu conforme planejado, o presidente do Cadastur/RN sinalizou interesse em aderir e liberar dados, e a assessora da Secretária ficou de agendar uma apresentação técnica — sem data marcada até 12/09. Antes de enviar, o Leonardo ainda precisa confirmar:
 
-1. O destinatário certo (se surgiu um contato/nome específico na reunião de 30/07).
-2. Se algo dito na reunião muda o tom ou o pedido desta carta (ex.: se já houve sinalização de interesse, a carta pode ser mais direta; se a recepção foi fria, pode precisar de ajuste).
+1. O destinatário certo (nenhum nome surgiu na reunião de 30/07 — só quando a apresentação técnica for marcada é que deve aparecer um contato específico).
+2. Se o tom desta carta deve mudar para refletir o interesse já sinalizado pelo Cadastur/RN (hoje o texto não faz essa referência, por ainda não ter data/contato confirmado).
 3. Dados de contato e data de envio.
