@@ -12,4 +12,10 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  test: {
+    // e2e/ roda sob @playwright/test, não vitest — as duas suítes usam a
+    // mesma extensão *.spec.ts e o vitest tentaria importar `test()` do
+    // Playwright e quebrar.
+    exclude: ['node_modules/**', 'e2e/**'],
+  },
 });
