@@ -18,7 +18,7 @@ function getISAConfig(score: number) {
 }
 
 export default function RankingPage() {
-  useSupabaseSync();
+  const syncTick = useSupabaseSync();
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'healthy' | 'attention' | 'critical'>('all');
   const [expandedDestName, setExpandedDestName] = useState<string | null>(null);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
@@ -28,6 +28,8 @@ export default function RankingPage() {
     return () => unsub();
   }, []);
 
+  // syncTick não aparece no corpo: destinosInfo/fluxoData/investimentosData são mutados
+  // in place pelo useSupabaseSync, e sem essa dep o memo fica preso no primeiro render.
   const ranked = useMemo(() => {
     return destinosInfo.map(d => {
       const isa = calcularISA(d.nome, feedbacks);
@@ -35,7 +37,8 @@ export default function RankingPage() {
       const investimento = investimentosData.find(i => i.destino === d.nome);
       return { ...d, isa, fluxo, investimento };
     }).sort((a, b) => b.isa - a.isa);
-  }, [feedbacks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feedbacks, syncTick]);
 
   const avgISA = Math.round(ranked.reduce((s, d) => s + d.isa, 0) / ranked.length);
   const healthySpots = ranked.filter(d => d.isa >= 80);

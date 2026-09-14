@@ -78,7 +78,7 @@ const KPI_DETAIL: Record<KPIKey, {
 };
 
 export default function CidadesGestaoPage() {
-  useSupabaseSync();
+  const syncTick = useSupabaseSync();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"nome" | "populacao" | "area" | "idh" | "receita" | "investimento">("receita");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
@@ -128,6 +128,9 @@ export default function CidadesGestaoPage() {
   };
 
   // Compile stats for each municipality
+  // syncTick não aparece no corpo: destinosInfo/ibgeData/fluxoData/investimentosData são
+  // mutados in place pelo useSupabaseSync, e sem essa dep o memo fica preso no primeiro
+  // render mesmo após o sync trazer dados novos.
   const municipiosList = useMemo((): MunicipioStats[] => {
     // Unique list of municipalities
     const uniqueNames = Array.from(new Set(destinosInfo.map(d => d.municipio)));
@@ -176,7 +179,8 @@ export default function CidadesGestaoPage() {
         fluxo_total
       };
     });
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [syncTick]);
 
   // Filter and sort list
   const filteredAndSortedList = useMemo(() => {

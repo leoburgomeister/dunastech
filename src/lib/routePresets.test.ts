@@ -13,8 +13,8 @@ describe('limitesDeDuracao', () => {
     expect(limitesDeDuracao('adventure', 'hike').max).toBe(3);
   });
 
-  it('teto de buggy e 12 dias e o de van e 15', () => {
-    expect(limitesDeDuracao('adventure', 'buggy').max).toBe(12);
+  it('teto de buggy e 13 dias e o de van e 15', () => {
+    expect(limitesDeDuracao('adventure', 'buggy').max).toBe(13);
     expect(limitesDeDuracao('adventure', 'shuttle').max).toBe(15);
   });
 

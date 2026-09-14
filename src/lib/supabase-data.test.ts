@@ -17,6 +17,7 @@ function linha(over: Partial<DestinoRow> = {}): DestinoRow {
     longitude: -35.1967,
     hashtags: ['genipabu', 'dunas'],
     monitorado: true,
+    status: 'ATIVO',
     municipios: { nome: 'Extremoz' },
     atracoes: [
       { id: 1, nome: 'Passeio de Buggy', descricao: 'Aventura pelas dunas.' },
@@ -97,6 +98,22 @@ describe('mapDestinoRows — monitorado', () => {
   it('trata ausência do campo como monitorado', () => {
     // Só `false` desliga. Nulo vindo de linha antiga não pode apagar o destino do mapa.
     expect(mapDestinoRows([linha({ monitorado: null })]).destinos[0].monitorado).toBe(true);
+  });
+});
+
+describe('mapDestinoRows — status', () => {
+  it('preserva o status gravado pela gestão', () => {
+    expect(mapDestinoRows([linha({ status: 'SUSPENSO' })]).destinos[0].status).toBe('SUSPENSO');
+  });
+
+  it('trata ausência de status como ATIVO', () => {
+    // Coluna existe desde a 0001 (sempre `not null`), mas um select antigo ou
+    // fixture incompleta não pode suspender um destino por engano.
+    expect(mapDestinoRows([linha({ status: null })]).destinos[0].status).toBe('ATIVO');
+  });
+
+  it('trata valor fora do check como ATIVO, nunca barra o destino silenciosamente', () => {
+    expect(mapDestinoRows([linha({ status: 'QUALQUER_COISA' })]).destinos[0].status).toBe('ATIVO');
   });
 });
 

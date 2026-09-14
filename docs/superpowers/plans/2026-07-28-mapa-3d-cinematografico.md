@@ -47,7 +47,7 @@
 - Consumes: nada.
 - Produces: `type MapMode = 'flat' | 'static3d' | 'cinematic'`; `resolveMapMode(input: MapModeInput): MapMode` onde `MapModeInput = { maptilerKey?: string; force2d?: boolean; prefersReducedMotion?: boolean }`. Consumido pela Task 4.
 
-- [ ] **Step 1: Escrever o teste que falha**
+- [x] **Step 1: Escrever o teste que falha**
 
 Criar `src/lib/map/mapMode.test.ts`:
 
@@ -83,7 +83,7 @@ describe('resolveMapMode', () => {
 });
 ```
 
-- [ ] **Step 2: Rodar o teste e confirmar que falha**
+- [x] **Step 2: Rodar o teste e confirmar que falha**
 
 ```bash
 npx vitest run src/lib/map/mapMode.test.ts
@@ -91,7 +91,7 @@ npx vitest run src/lib/map/mapMode.test.ts
 
 Esperado: FAIL — `Failed to resolve import "./mapMode"`.
 
-- [ ] **Step 3: Implementar**
+- [x] **Step 3: Implementar**
 
 Criar `src/lib/map/mapMode.ts`:
 
@@ -125,7 +125,7 @@ export function is3D(mode: MapMode): boolean {
 }
 ```
 
-- [ ] **Step 4: Rodar o teste e confirmar que passa**
+- [x] **Step 4: Rodar o teste e confirmar que passa**
 
 ```bash
 npx vitest run src/lib/map/mapMode.test.ts
@@ -133,7 +133,7 @@ npx vitest run src/lib/map/mapMode.test.ts
 
 Esperado: PASS, 4 testes.
 
-- [ ] **Step 5: Remover a dependencia do canvas-confetti**
+- [x] **Step 5: Remover a dependencia do canvas-confetti**
 
 O confete ja foi removido do source no commit `b0337f4`. Agora tirar as duas dependencias do `package.json` — a linha `"@types/canvas-confetti": "^1.9.0",` e a linha `"canvas-confetti": "^1.9.4",`. Depois:
 
@@ -141,7 +141,7 @@ O confete ja foi removido do source no commit `b0337f4`. Agora tirar as duas dep
 npm install
 ```
 
-- [ ] **Step 6: Confirmar que nada mais referencia canvas-confetti**
+- [x] **Step 6: Confirmar que nada mais referencia canvas-confetti**
 
 ```bash
 grep -rn "canvas-confetti\|confetti" src/ package.json
@@ -149,7 +149,7 @@ grep -rn "canvas-confetti\|confetti" src/ package.json
 
 Esperado: nenhuma saida.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/lib/map/mapMode.ts src/lib/map/mapMode.test.ts package.json package-lock.json
@@ -170,7 +170,7 @@ git commit -m "feat(map): resolve modo de renderizacao e remove canvas-confetti"
 
 Contexto de API, já verificado nos types instalados da 5.24.0: `map.setTerrain({ source, exaggeration })`, `map.setSky(SkySpecification)` e `map.setProjection({ type: 'globe' })` existem. Os quatro endpoints do MapTiler usados aqui responderam HTTP 200 com a chave do projeto.
 
-- [ ] **Step 1: Escrever o teste que falha**
+- [x] **Step 1: Escrever o teste que falha**
 
 Criar `src/lib/map/scene3d.test.ts`:
 
@@ -262,7 +262,7 @@ describe('constantes', () => {
 });
 ```
 
-- [ ] **Step 2: Rodar o teste e confirmar que falha**
+- [x] **Step 2: Rodar o teste e confirmar que falha**
 
 ```bash
 npx vitest run src/lib/map/scene3d.test.ts
@@ -270,7 +270,7 @@ npx vitest run src/lib/map/scene3d.test.ts
 
 Esperado: FAIL — `Failed to resolve import "./scene3d"`.
 
-- [ ] **Step 3: Implementar**
+- [x] **Step 3: Implementar**
 
 Criar `src/lib/map/scene3d.ts`:
 
@@ -334,7 +334,7 @@ export function apply3DScene(map: Scene3DTarget, key: string): void {
 }
 ```
 
-- [ ] **Step 4: Rodar o teste e confirmar que passa**
+- [x] **Step 4: Rodar o teste e confirmar que passa**
 
 ```bash
 npx vitest run src/lib/map/scene3d.test.ts
@@ -342,7 +342,7 @@ npx vitest run src/lib/map/scene3d.test.ts
 
 Esperado: PASS, 7 testes.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/map/scene3d.ts src/lib/map/scene3d.test.ts
@@ -363,7 +363,7 @@ git commit -m "feat(map): monta cena 3D com terreno, satelite, ceu e globo"
 
 `requestAnimationFrame` e o relógio entram por injeção (`OrbitDeps`) porque os testes rodam em ambiente node, sem browser.
 
-- [ ] **Step 1: Escrever o teste que falha**
+- [x] **Step 1: Escrever o teste que falha**
 
 Criar `src/lib/map/cinematic.test.ts`:
 
@@ -513,7 +513,7 @@ describe('createOrbitController', () => {
 });
 ```
 
-- [ ] **Step 2: Rodar o teste e confirmar que falha**
+- [x] **Step 2: Rodar o teste e confirmar que falha**
 
 ```bash
 npx vitest run src/lib/map/cinematic.test.ts
@@ -521,7 +521,7 @@ npx vitest run src/lib/map/cinematic.test.ts
 
 Esperado: FAIL — `Failed to resolve import "./cinematic"`.
 
-- [ ] **Step 3: Implementar**
+- [x] **Step 3: Implementar**
 
 Criar `src/lib/map/cinematic.ts`:
 
@@ -608,7 +608,7 @@ export function browserOrbitDeps(): OrbitDeps {
 }
 ```
 
-- [ ] **Step 4: Rodar o teste e confirmar que passa**
+- [x] **Step 4: Rodar o teste e confirmar que passa**
 
 ```bash
 npx vitest run src/lib/map/cinematic.test.ts
@@ -616,7 +616,7 @@ npx vitest run src/lib/map/cinematic.test.ts
 
 Esperado: PASS, 11 testes.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/map/cinematic.ts src/lib/map/cinematic.test.ts
@@ -636,7 +636,7 @@ git commit -m "feat(map): controlador de camera com orbita lenta"
 
 Esta task não tem teste automatizado: renderizar o componente exigiria jsdom, que o projeto não configura (ver Global Constraints). A verificação é `build` + `lint` + checagem manual no navegador, listada nos passos.
 
-- [ ] **Step 1: Adicionar os imports e a deteccao de modo**
+- [x] **Step 1: Adicionar os imports e a deteccao de modo**
 
 Em `src/components/tourist/HomeRouteMap.tsx`, logo após o import de `mockData` (linha 6), acrescentar:
 
@@ -657,7 +657,7 @@ Dentro do componente, junto aos outros refs (após `const [mounted, setMounted] 
   const [mapMode, setMapMode] = useState<MapMode>('flat');
 ```
 
-- [ ] **Step 2: Resolver o modo apos o mount**
+- [x] **Step 2: Resolver o modo apos o mount**
 
 Substituir o `useEffect` de mount (linhas 24-33) por:
 
@@ -686,7 +686,7 @@ Substituir o `useEffect` de mount (linhas 24-33) por:
 
 `window` é seguro aqui: o componente é `'use client'` e é carregado com `dynamic(..., { ssr: false })` em `TouristHomePage.tsx:24-27`.
 
-- [ ] **Step 3: Escolher o estilo conforme o modo**
+- [x] **Step 3: Escolher o estilo conforme o modo**
 
 Substituir o bloco `const styleUrl = ...` (linhas 43-45) por:
 
@@ -702,7 +702,7 @@ Substituir o bloco `const styleUrl = ...` (linhas 43-45) por:
         : 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json';
 ```
 
-- [ ] **Step 4: Montar a cena 3D no load**
+- [x] **Step 4: Montar a cena 3D no load**
 
 No handler `map.on('load', ...)` (linha 58), inserir como **primeira** instrução do callback, antes do `map.addSource('route', ...)`:
 
@@ -717,7 +717,7 @@ No handler `map.on('load', ...)` (linha 58), inserir como **primeira** instruç�
       }
 ```
 
-- [ ] **Step 5: Incluir mapMode nas dependencias do efeito de inicializacao**
+- [x] **Step 5: Incluir mapMode nas dependencias do efeito de inicializacao**
 
 O array de dependências do `useEffect` de inicialização (linha 107) passa a incluir `mapMode`:
 
@@ -725,7 +725,7 @@ O array de dependências do `useEffect` de inicialização (linha 107) passa a i
   }, [mounted, isInteractive, destinations.length, firstLatitude, firstLongitude, resolvedTheme, mapMode]);
 ```
 
-- [ ] **Step 6: Mergulho cinematografico no fitBounds**
+- [x] **Step 6: Mergulho cinematografico no fitBounds**
 
 Substituir a chamada `map.fitBounds(...)` (linhas 165-169) por:
 
@@ -744,7 +744,7 @@ E incluir `mapMode` nas dependências desse efeito (linha 170):
   }, [destinations, activeDay, mapInstance, mapMode]);
 ```
 
-- [ ] **Step 7: Iniciar a orbita e pausar quando a aba perde foco**
+- [x] **Step 7: Iniciar a orbita e pausar quando a aba perde foco**
 
 Adicionar um `useEffect` novo, logo após o efeito de marcadores (ou seja, depois da linha 170) e antes do efeito da rota OSRM:
 
@@ -776,7 +776,7 @@ Adicionar um `useEffect` novo, logo após o efeito de marcadores (ou seja, depoi
   }, [mapInstance, mapMode]);
 ```
 
-- [ ] **Step 8: Rodar a suite inteira**
+- [x] **Step 8: Rodar a suite inteira**
 
 ```bash
 npm run test
@@ -784,7 +784,7 @@ npm run test
 
 Esperado: PASS. Os testes de `mapMode`, `scene3d` e `cinematic` das Tasks 1-3, mais `utils` e `mockData`, que já existiam.
 
-- [ ] **Step 9: Lint e build**
+- [x] **Step 9: Lint e build**
 
 ```bash
 npm run lint && npm run build
@@ -807,7 +807,7 @@ Abrir `http://localhost:3000` e conferir, nesta ordem:
 5. Descomentar a chave, setar `NEXT_PUBLIC_MAP_2D=1`, reiniciar: mapa 2D de novo.
 6. Remover `NEXT_PUBLIC_MAP_2D`, ativar "reduzir movimento" no SO, reiniciar: cena 3D aparece, mas **estática**.
 
-- [ ] **Step 11: Commit**
+- [x] **Step 11: Commit**
 
 ```bash
 git add src/components/tourist/HomeRouteMap.tsx
@@ -851,11 +851,11 @@ Estas duas dependem de acesso a painéis de conta e **precisam ser feitas por Le
 
 ## Verificação final
 
-- [ ] `npm run test` passa
-- [ ] `npm run lint` passa
-- [ ] `npm run build` passa
-- [ ] `grep -rn "confetti" src/ package.json` não retorna nada
-- [ ] `git status` limpo, e `.env.local` **não** aparece como arquivo rastreado
+- [x] `npm run test` passa
+- [x] `npm run lint` passa
+- [x] `npm run build` passa
+- [x] `grep -rn "confetti" src/ package.json` não retorna nada
+- [x] `git status` limpo, e `.env.local` **não** aparece como arquivo rastreado
 
 ## Critérios de aceite (da spec)
 
