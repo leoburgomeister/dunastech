@@ -47,7 +47,7 @@ interface RouteDay {
 }
 
 export default function TouristHomePage() {
-  useSupabaseSync();
+  const syncTick = useSupabaseSync();
   const { isAuthenticated } = useAuth();
   const router = useRouter();
   const t = useTranslations('planner');
@@ -206,11 +206,15 @@ export default function TouristHomePage() {
   }, []);
 
   /** ISA por destino, fonte única para os cards, os selos e o planejador. */
+  // syncTick não aparece no corpo: destinosInfo é mutado in place pelo useSupabaseSync,
+  // e sem essa dep o memo fica preso no valor do primeiro render mesmo após o sync trazer
+  // destinos novos do Supabase.
   const isaByDestination = useMemo(() => {
     const mapa: Record<string, number> = {};
     for (const d of destinosInfo) mapa[d.nome] = calcularISA(d.nome, feedbacks);
     return mapa;
-  }, [feedbacks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feedbacks, syncTick]);
 
   // All destinations memo
   const destinations = useMemo(() => {
@@ -220,7 +224,8 @@ export default function TouristHomePage() {
       const partners = cadasturData.filter(c => c.destino === d.nome && c.regularizado);
       return { ...d, fluxo, isa, partners };
     }).sort((a, b) => b.isa - a.isa);
-  }, [isaByDestination]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isaByDestination, syncTick]);
 
   const topDestinations = destinations.slice(0, 3); // Top 3 largest cards
 

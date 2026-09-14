@@ -532,6 +532,100 @@ describe('planRoute — ISA como peso', () => {
     expect(plano.days).toHaveLength(4);
     for (const dia of plano.days) expect(dia.destinations.length).toBeGreaterThan(0);
   });
+
+  // BRU-21 (spec ISA §Limitação, item B12): em 13-15 dias o alvo de destinos podia
+  // encostar no catálogo inteiro — com o pool esgotado, o ISA deixava de influenciar
+  // QUEM entra, só a ordem. Isso dependia de duas contas que já mudaram desde que a
+  // limitação foi escrita: `perDay` voltou a 1 em todo transporte (2026-07-30) e o
+  // catálogo cresceu de 20 para 21 com o Farol de Touros (BRU-19). Resultado: no teto
+  // de shuttle (15 dias) o roteiro usa 15 dos 21 destinos — o pool nunca esgota na
+  // faixa 1-15 dias, então o ISA continua tendo o que escolher. Este teste tranca essa
+  // margem: se o catálogo encolher ou o teto de dias subir o bastante para fechar essa
+  // folga, ele quebra e avisa que a limitação documentada no spec voltou a valer.
+  it('em 13-15 dias o catálogo não esgota — ISA continua decidindo quem entra', () => {
+    const style = 'adventure';
+    const transport = 'shuttle';
+    const days = MAX_ROUTE_DAYS;
+
+    const semISA = planRoute({ catalogue: destinosInfo, style, transport, days });
+    expect(semISA.destinations.length).toBeLessThan(destinosInfo.length);
+
+    const seeds = new Set(destinosDoRoteiro(style, transport));
+    const deFora = destinosInfo.find((d) => !semISA.destinations.some((x) => x.nome === d.nome))!;
+    const doPreenchimento = semISA.destinations.find((d) => !seeds.has(d.nome))!;
+
+    // Troca de ISA entre um destino de fora e um marginal de dentro: se o pool
+    // estivesse esgotado (todo o catálogo selecionado), nada mudaria a composição —
+    // só a ordem. Com folga, a troca deve inverter quem entra.
+    const isa = isaTodosSaudaveis(85);
+    isa[deFora.nome] = 100;
+    isa[doPreenchimento.nome] = 5;
+
+    const comISA = planRoute({ catalogue: destinosInfo, style, transport, days, isaByDestination: isa });
+    const nomes = comISA.destinations.map((d) => d.nome);
+    expect(nomes).toContain(deFora.nome);
+    expect(nomes).not.toContain(doPreenchimento.nome);
+  });
+});
+
+describe('planRoute — suspensão pela IGR (destinos.status)', () => {
+  // B5: diferente do ISA (peso, nunca veta), `status` é decisão da IGR — um
+  // destino SUSPENSO/INATIVO/EM_ANALISE nunca deve aparecer no roteiro.
+  it('nunca oferece um destino suspenso', () => {
+    const alvo = destinosInfo[0];
+    const catalogue = destinosInfo.map((d) =>
+      d.nome === alvo.nome ? { ...d, status: 'SUSPENSO' as const } : d
+    );
+    for (const dias of [1, 4, 9]) {
+      const plano = planRoute({ catalogue, style: 'adventure', transport: 'shuttle', days: dias });
+      expect(plano.destinations.map((d) => d.nome)).not.toContain(alvo.nome);
+    }
+  });
+
+  it('também exclui EM_ANALISE e INATIVO, não só SUSPENSO', () => {
+    const catalogue = destinosInfo.map((d, i) => {
+      if (i === 0) return { ...d, status: 'EM_ANALISE' as const };
+      if (i === 1) return { ...d, status: 'INATIVO' as const };
+      return d;
+    });
+    const plano = planRoute({ catalogue, style: 'adventure', transport: 'shuttle', days: 6 });
+    expect(plano.destinations.map((d) => d.nome)).not.toContain(destinosInfo[0].nome);
+    expect(plano.destinations.map((d) => d.nome)).not.toContain(destinosInfo[1].nome);
+  });
+
+  it('destino sem status (catálogo estático) continua ofertável', () => {
+    const semStatus = destinosInfo.map((d) => ({ ...d, status: undefined }));
+    const plano = planRoute({ catalogue: semStatus, style: 'adventure', transport: 'shuttle', days: 6 });
+    expect(plano.days).toHaveLength(6);
+    for (const dia of plano.days) expect(dia.destinations.length).toBeGreaterThan(0);
+  });
+
+  it('reativar (ATIVO) devolve o destino ao pool', () => {
+    // Ancora: `planRoute` sempre inclui o destino buscado como primeiro da rota
+    // (route-planner.ts:383) quando ele está no catálogo filtrado. Suspenso, a
+    // busca falha em achar o nome (já saiu do catálogo) e a ancora vira nula.
+    const alvo = destinosInfo[0];
+    const suspenso = destinosInfo.map((d) => (d.nome === alvo.nome ? { ...d, status: 'SUSPENSO' as const } : d));
+    const reativado = destinosInfo.map((d) => (d.nome === alvo.nome ? { ...d, status: 'ATIVO' as const } : d));
+
+    const planoSuspenso = planRoute({
+      catalogue: suspenso,
+      style: 'adventure',
+      transport: 'shuttle',
+      days: 4,
+      anchorName: alvo.nome,
+    });
+    const planoReativado = planRoute({
+      catalogue: reativado,
+      style: 'adventure',
+      transport: 'shuttle',
+      days: 4,
+      anchorName: alvo.nome,
+    });
+
+    expect(planoSuspenso.destinations.map((d) => d.nome)).not.toContain(alvo.nome);
+    expect(planoReativado.destinations[0]?.nome).toBe(alvo.nome);
+  });
 });
 
 describe('planRoute — substituição de destino-assinatura', () => {

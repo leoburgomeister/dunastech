@@ -50,7 +50,7 @@ Hoje `baseScore = feedbackBonus / feedbackCount` **substitui** o baseline inteir
 - Consumes: nada de tasks anteriores.
 - Produces: `calcularISA(destino: string, feedbacks: Feedback[]): number` — mesma assinatura de hoje. Passa a devolver a mistura entre baseline e feedbacks.
 
-- [ ] **Step 1: Escrever os testes que falham**
+- [x] **Step 1: Escrever os testes que falham**
 
 Substituir os dois últimos testes de `src/data/mockData.test.ts` (`should calculate ISA based on positive feedback bonus...` e `should penalize the ISA score if there is overcrowding...`) por este bloco. O baseline de "Praia da Pipa" é **88** (investimento 4200 → bônus 16,8; saturação 76 → penalidade 3; 74 + 16,8 − 3 = 87,8 → 88).
 
@@ -163,12 +163,12 @@ Substituir os dois últimos testes de `src/data/mockData.test.ts` (`should calcu
   });
 ```
 
-- [ ] **Step 2: Rodar os testes para confirmar que falham**
+- [x] **Step 2: Rodar os testes para confirmar que falham**
 
 Run: `npx vitest run src/data/mockData.test.ts`
 Expected: FAIL — `expected 90 to be 89`, `expected 0 to be 66`, `expected 0 to be 53`.
 
-- [ ] **Step 3: Extrair a nota de um feedback para uma função**
+- [x] **Step 3: Extrair a nota de um feedback para uma função**
 
 Em `src/data/mockData.ts`, adicionar **acima** de `export function calcularISA`, logo após as constantes `ISA_*` já existentes:
 
@@ -195,7 +195,7 @@ function notaDoFeedback(f: Feedback): number {
 }
 ```
 
-- [ ] **Step 4: Reescrever o corpo de `calcularISA` para misturar em vez de substituir**
+- [x] **Step 4: Reescrever o corpo de `calcularISA` para misturar em vez de substituir**
 
 Substituir todo o corpo da função `calcularISA` (do `const fluxo = ...` até o `return` final) por:
 
@@ -226,17 +226,17 @@ Substituir todo o corpo da função `calcularISA` (do `const fluxo = ...` até o
   return Math.max(0, Math.min(100, Math.round(isa)));
 ```
 
-- [ ] **Step 5: Rodar a suíte inteira**
+- [x] **Step 5: Rodar a suíte inteira**
 
 Run: `npx vitest run`
 Expected: PASS — 63 testes. Os 20 de `route-planner.test.ts` continuam verdes (não usam ISA), e os de `mockData.test.ts` que checam o baseline sem feedbacks continuam valendo, porque com `n = 0` a mistura devolve o próprio baseline.
 
-- [ ] **Step 6: Typecheck e lint**
+- [x] **Step 6: Typecheck e lint**
 
 Run: `npx tsc --noEmit && npx eslint src/`
 Expected: sem saída (sucesso).
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/data/mockData.ts src/data/mockData.test.ts
@@ -267,7 +267,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
   - `PlanRouteOptions.isaByDestination?: Record<string, number>`
   - constantes exportadas `ISA_PIVOT = 60` e `ISA_CRITICAL = 60`
 
-- [ ] **Step 1: Escrever os testes que falham**
+- [x] **Step 1: Escrever os testes que falham**
 
 Adicionar ao final de `src/lib/route-planner.test.ts`:
 
@@ -327,12 +327,12 @@ describe('planRoute — ISA como peso', () => {
 });
 ```
 
-- [ ] **Step 2: Rodar para confirmar que falha**
+- [x] **Step 2: Rodar para confirmar que falha**
 
 Run: `npx vitest run src/lib/route-planner.test.ts`
 Expected: FAIL — TypeScript reclama que `isaByDestination` não existe em `PlanRouteOptions`.
 
-- [ ] **Step 3: Adicionar a opção e as constantes**
+- [x] **Step 3: Adicionar a opção e as constantes**
 
 Em `src/lib/route-planner.ts`, adicionar ao final da interface `PlanRouteOptions`:
 
@@ -352,7 +352,7 @@ export const ISA_CRITICAL = 60;
 const ISA_WEIGHT = 0.8;
 ```
 
-- [ ] **Step 4: Passar o mapa até a seleção e somar o termo**
+- [x] **Step 4: Passar o mapa até a seleção e somar o termo**
 
 Alterar a assinatura de `selectDestinations` para receber o mapa:
 
@@ -399,12 +399,12 @@ Lembrar de desestruturar `isaByDestination` do `options` no topo de `planRoute`:
   const { catalogue, style, transport, days, anchorName, isaByDestination } = options;
 ```
 
-- [ ] **Step 5: Rodar os testes**
+- [x] **Step 5: Rodar os testes**
 
 Run: `npx vitest run src/lib/route-planner.test.ts`
 Expected: PASS — 24 testes.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/lib/route-planner.ts src/lib/route-planner.test.ts
@@ -437,7 +437,7 @@ Destinos-assinatura entram forçados **antes** de qualquer pontuação, então o
   - `interface SeedReplacement { removed: string; isa: number; replacedBy: string }`
   - `PlannedRoute.replacements: SeedReplacement[]`
 
-- [ ] **Step 1: Escrever os testes que falham**
+- [x] **Step 1: Escrever os testes que falham**
 
 Adicionar ao final de `src/lib/route-planner.test.ts`:
 
@@ -541,12 +541,12 @@ describe('planRoute — substituição de destino-assinatura crítico', () => {
 });
 ```
 
-- [ ] **Step 2: Rodar para confirmar que falha**
+- [x] **Step 2: Rodar para confirmar que falha**
 
 Run: `npx vitest run src/lib/route-planner.test.ts`
 Expected: FAIL — `replacements` não existe em `PlannedRoute`.
 
-- [ ] **Step 3: Declarar o tipo do resultado da substituição**
+- [x] **Step 3: Declarar o tipo do resultado da substituição**
 
 Em `src/lib/route-planner.ts`, adicionar antes de `PlannedRoute`:
 
@@ -573,7 +573,7 @@ export interface PlannedRoute {
 }
 ```
 
-- [ ] **Step 4: Escrever a busca do substituto**
+- [x] **Step 4: Escrever a busca do substituto**
 
 Adicionar em `src/lib/route-planner.ts`, acima de `selectDestinations`:
 
@@ -625,7 +625,7 @@ function bestHealthyNear(
 }
 ```
 
-- [ ] **Step 5: Aplicar a regra na entrada dos assinatura**
+- [x] **Step 5: Aplicar a regra na entrada dos assinatura**
 
 Em `selectDestinations`, trocar o tipo de retorno e o bloco que insere os seeds.
 
@@ -692,7 +692,7 @@ E o `return` da função passa de `return selected;` para:
   return { selected, replacements };
 ```
 
-- [ ] **Step 6: Repassar em `planRoute`**
+- [x] **Step 6: Repassar em `planRoute`**
 
 Trocar a chamada e o retorno:
 
@@ -727,17 +727,17 @@ O retorno antecipado do catálogo vazio também precisa do campo:
   }
 ```
 
-- [ ] **Step 7: Rodar a suíte inteira**
+- [x] **Step 7: Rodar a suíte inteira**
 
 Run: `npx vitest run`
 Expected: PASS — 70 testes.
 
-- [ ] **Step 8: Typecheck e lint**
+- [x] **Step 8: Typecheck e lint**
 
 Run: `npx tsc --noEmit && npx eslint src/`
 Expected: sem saída.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/lib/route-planner.ts src/lib/route-planner.test.ts
@@ -770,7 +770,7 @@ Hoje a home chama `calcularISA(d.nome, [] as Feedback[])` — array vazio litera
 - Consumes: `planRoute` com `isaByDestination` (Tasks 2 e 3), `calcularISA` (Task 1).
 - Produces: `suggestedRoute.replacements: SeedReplacement[]` no state, consumido pela Task 5.
 
-- [ ] **Step 1: Importar o que falta**
+- [x] **Step 1: Importar o que falta**
 
 Em `src/components/tourist/TouristHomePage.tsx`, trocar:
 
@@ -796,7 +796,7 @@ Adicionar `SeedReplacement` ao import de tipos do planner:
 import type { PlannedDay, TravelStyle, TransportMode, SeedReplacement } from '@/lib/route-planner';
 ```
 
-- [ ] **Step 2: Assinar os feedbacks e derivar o mapa de ISA**
+- [x] **Step 2: Assinar os feedbacks e derivar o mapa de ISA**
 
 Adicionar logo abaixo de `const tRanking = useTranslations('ranking');`:
 
@@ -817,7 +817,7 @@ Adicionar logo abaixo de `const tRanking = useTranslations('ranking');`:
   }, [feedbacks]);
 ```
 
-- [ ] **Step 3: Fazer o memo `destinations` usar o ISA real**
+- [x] **Step 3: Fazer o memo `destinations` usar o ISA real**
 
 Substituir o memo `destinations` por:
 
@@ -832,7 +832,7 @@ Substituir o memo `destinations` por:
   }, [isaByDestination]);
 ```
 
-- [ ] **Step 4: Injetar o ISA na geração e guardar as substituições**
+- [x] **Step 4: Injetar o ISA na geração e guardar as substituições**
 
 Em `handleGenerateRoute`, acrescentar o campo na chamada:
 
@@ -859,7 +859,7 @@ E incluir as substituições no objeto gerado:
     };
 ```
 
-- [ ] **Step 5: Estender o tipo do state**
+- [x] **Step 5: Estender o tipo do state**
 
 Atualizar a declaração de `suggestedRoute`:
 
@@ -873,12 +873,12 @@ Atualizar a declaração de `suggestedRoute`:
   } | null>(null);
 ```
 
-- [ ] **Step 6: Typecheck, lint e testes**
+- [x] **Step 6: Typecheck, lint e testes**
 
 Run: `npx tsc --noEmit && npx eslint src/ && npx vitest run`
 Expected: sem erros; 70 testes passando.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/components/tourist/TouristHomePage.tsx
@@ -906,7 +906,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 - Consumes: `suggestedRoute.replacements` da Task 4.
 - Produces: nada — é a ponta da cadeia.
 
-- [ ] **Step 1: Adicionar a chave em pt-BR**
+- [x] **Step 1: Adicionar a chave em pt-BR**
 
 Em `src/i18n/messages/pt-BR.json`, logo após a linha `"dayPlanMulti": ...`:
 
@@ -914,7 +914,7 @@ Em `src/i18n/messages/pt-BR.json`, logo após a linha `"dayPlanMulti": ...`:
     "isaReplacement": "{removed} ficou fora do roteiro — ISA {isa} (crítico). Sugerimos {replacedBy} no lugar.",
 ```
 
-- [ ] **Step 2: Adicionar a chave em en**
+- [x] **Step 2: Adicionar a chave em en**
 
 Em `src/i18n/messages/en.json`, logo após a linha `"dayPlanMulti": ...`:
 
@@ -922,7 +922,7 @@ Em `src/i18n/messages/en.json`, logo após a linha `"dayPlanMulti": ...`:
     "isaReplacement": "{removed} was left out of this itinerary — ISA {isa} (critical). We suggest {replacedBy} instead.",
 ```
 
-- [ ] **Step 3: Adicionar a chave em es**
+- [x] **Step 3: Adicionar a chave em es**
 
 Em `src/i18n/messages/es.json`, logo após a linha `"dayPlanMulti": ...`:
 
@@ -930,7 +930,7 @@ Em `src/i18n/messages/es.json`, logo após a linha `"dayPlanMulti": ...`:
     "isaReplacement": "{removed} quedó fuera del itinerario — ISA {isa} (crítico). Sugerimos {replacedBy} en su lugar.",
 ```
 
-- [ ] **Step 4: Renderizar o aviso no passo 3**
+- [x] **Step 4: Renderizar o aviso no passo 3**
 
 Em `src/components/tourist/TouristHomePage.tsx`, no bloco `{step === 3 && (...)}`, inserir logo **depois** do parágrafo da descrição (`{suggestedRoute.description}</p>`) e **antes** da `<div>` que abre a lista de dias:
 
@@ -958,12 +958,12 @@ Em `src/components/tourist/TouristHomePage.tsx`, no bloco `{step === 3 && (...)}
 
 `ShieldAlert` já está importado de `lucide-react` no topo do arquivo — usado pelo aviso de caminhada longa.
 
-- [ ] **Step 5: Typecheck, lint e testes**
+- [x] **Step 5: Typecheck, lint e testes**
 
 Run: `npx tsc --noEmit && npx eslint src/ && npx vitest run`
 Expected: sem erros; 70 testes passando.
 
-- [ ] **Step 6: Verificar no app rodando**
+- [x] **Step 6: Verificar no app rodando**
 
 Iniciar o preview (`preview_start` com a configuração `dunastech-dev` de `.claude/launch.json`) e abrir `/pt-BR`.
 
@@ -974,7 +974,7 @@ Como forçar uma substituição sem depender do banco: no console da página, n�
 
 Confirmar também que não há erro no console (`read_console_messages`) nem no servidor (`preview_logs`).
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/components/tourist/TouristHomePage.tsx src/i18n/messages/pt-BR.json src/i18n/messages/en.json src/i18n/messages/es.json
@@ -994,13 +994,13 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 ## Verificação final
 
-- [ ] `npx vitest run` — 70 testes passando
-- [ ] `npx tsc --noEmit` — sem saída
-- [ ] `npx eslint src/` — sem saída
-- [ ] Roteiro de 6 dias renderiza 6 dias
-- [ ] Nenhum aviso âmbar com a calibragem atual (todos os destinos entre 82 e 90)
-- [ ] Duas avaliações ruins em um destino-assinatura disparam a substituição e o aviso
-- [ ] Sem erros no console do navegador e no log do servidor
+- [x] `npx vitest run` — 70 testes passando
+- [x] `npx tsc --noEmit` — sem saída
+- [x] `npx eslint src/` — sem saída
+- [x] Roteiro de 6 dias renderiza 6 dias
+- [x] Nenhum aviso âmbar com a calibragem atual (todos os destinos entre 82 e 90)
+- [x] Duas avaliações ruins em um destino-assinatura disparam a substituição e o aviso
+- [x] Sem erros no console do navegador e no log do servidor
 
 ## Fora deste plano
 

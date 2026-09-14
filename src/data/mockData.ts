@@ -20,6 +20,9 @@ export interface AttractionActivity {
   parceiroId: string; // Conexão com empresa Cadastur
 }
 
+/** Espelha o check de `destinos.status` (supabase/migrations/0001_schema.sql). */
+export type DestinoStatus = 'ATIVO' | 'EM_ANALISE' | 'INATIVO' | 'SUSPENSO';
+
 export interface DestinoInfo {
   nome: string;
   municipio: string;
@@ -30,6 +33,8 @@ export interface DestinoInfo {
   atracoes: AttractionActivity[];
   hashtag: string;
   monitorado?: boolean;
+  /** Ausente no catálogo estático = 'ATIVO'. Só a gestão (IGR/admin) altera. */
+  status?: DestinoStatus;
 }
 
 export interface IBGEData {
