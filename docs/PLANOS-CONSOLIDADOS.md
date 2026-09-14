@@ -32,7 +32,7 @@
 | A1 | ~~Cadastrar `NEXT_PUBLIC_MAPTILER_KEY` na Vercel em **Production e Preview**~~ — **FEITO**: conferido em 20/08 via `vercel env ls` (Production, Preview, 23d) | plano mapa 3D §Ações do PO |
 | A2 | ~~**Restringir a chave MapTiler por domínio**~~ — **FEITO em 20/08**: origens `dunastech.com.br`, `*.dunastech.com.br`, `*.vercel.app`, `localhost` | idem |
 | A3 | ~~Limpar a tabela `feedbacks`~~ — **FEITO em 20/08**: 18 linhas de teste removidas, backup em `supabase/backups/2026-08-20-feedbacks-teste.json` | spec ISA §Pré-voo |
-| A4 | Confirmar eventos Realtime de `feedbacks` chegando na home em produção | idem |
+| A4 | **BUG achado em 10/09** — eventos Realtime de `feedbacks` **não chegam** na home em produção: testado com insert real pela chave anon (login anônimo ok, canal `feedbacks-realtime` chega a `SUBSCRIBED`, insert aceito pela RLS), zero eventos em 30s, repetido 2x. Causa provável: a tabela nunca entrou na publicação `supabase_realtime` (passo manual de dashboard, como A7, nunca fez parte de uma migration). Migration `0012_feedbacks_realtime_publication.sql` escrita e aguardando OK do Leo para aplicar em produção (BRU-12) | idem |
 | A5 | ~~Rodar as migrations~~ — **FEITO em 20/08** (0004, 0005 e 0006 aplicadas via MCP) | esta sessão |
 | A7 | ~~**Habilitar "Anonymous sign-ins"**~~ — **FEITO em 20/08** (PO ligou no painel). Google ainda `false` se for manter login social (A8) | esta sessão |
 | A8 | **Configurar o provedor Google** no Supabase Auth, se o login social for para continuar | esta sessão |
