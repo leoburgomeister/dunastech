@@ -27,7 +27,7 @@ const DestinosMap = dynamic(
 );
 
 export default function DestinosGestaoPage() {
-  useSupabaseSync();
+  const syncTick = useSupabaseSync();
   const [monitoredSpots] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("dunastech_monitored_spots");
@@ -76,13 +76,17 @@ export default function DestinosGestaoPage() {
     return () => unsub();
   }, []);
 
+  // syncTick não aparece no corpo: destinosInfo é mutado in place pelo useSupabaseSync,
+  // e sem essa dep o memo fica preso no primeiro render mesmo após o sync.
   const activeSpots = useMemo(() => {
     return destinosInfo.filter(d => monitoredSpots.includes(d.nome));
-  }, [monitoredSpots]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [monitoredSpots, syncTick]);
 
   const inactiveSpots = useMemo(() => {
     return destinosInfo.filter(d => !monitoredSpots.includes(d.nome));
-  }, [monitoredSpots]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [monitoredSpots, syncTick]);
 
   return (
     <AdminLayout>

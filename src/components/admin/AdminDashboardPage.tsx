@@ -15,7 +15,7 @@ import { subscribeFeedbacks } from '@/lib/feedbacks';
 import { useSupabaseSync } from '@/lib/supabase-data';
 
 export default function AdminDashboardPage() {
-  useSupabaseSync();
+  const syncTick = useSupabaseSync();
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [mounted, setMounted] = useState(false);
   const [expandedKPI, setExpandedKPI] = useState<'visitors' | 'revenue' | 'isa' | 'variation' | null>(null);
@@ -42,8 +42,12 @@ export default function AdminDashboardPage() {
   };
 
   // Extract unique regions (municipalities) and spots
-  const regions = useMemo(() => Array.from(new Set(destinosInfo.map(d => d.municipio))), []);
-  const spots = useMemo(() => destinosInfo.map(d => d.nome), []);
+  // syncTick não aparece no corpo: destinosInfo é mutado in place pelo useSupabaseSync,
+  // e sem essa dep o memo fica preso no primeiro render mesmo após o sync.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const regions = useMemo(() => Array.from(new Set(destinosInfo.map(d => d.municipio))), [syncTick]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const spots = useMemo(() => destinosInfo.map(d => d.nome), [syncTick]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -72,6 +76,8 @@ export default function AdminDashboardPage() {
 
   // Always based on ALL destinations (not region-filtered) to match kpis.criticalCount,
   // which is intentionally a state-wide health warning regardless of the active region filter.
+  // syncTick não aparece no corpo: destinosInfo/fluxoData/investimentosData são mutados
+  // in place pelo useSupabaseSync, e sem essa dep o memo fica preso no primeiro render.
   const criticalDestinations = useMemo(() => {
     return destinosInfo.map(d => {
       const isa = calcularISA(d.nome, feedbacks);
@@ -79,9 +85,12 @@ export default function AdminDashboardPage() {
       const investimento = investimentosData.find(i => i.destino === d.nome);
       return { ...d, isa, fluxo, investimento };
     }).filter(d => d.isa < 60);
-  }, [feedbacks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feedbacks, syncTick]);
 
   // KPI calculations based on active filters
+  // syncTick não aparece no corpo: destinosInfo/fluxoData/transporteData são mutados
+  // in place pelo useSupabaseSync, e sem essa dep o memo fica preso no primeiro render.
   const kpis = useMemo(() => {
     let filteredSpots = destinosInfo;
     if (selectedMacroRegion !== 'all') {
@@ -123,9 +132,12 @@ export default function AdminDashboardPage() {
     const criticalCount = generalISA.filter(s => s < 60).length;
 
     return { totalVisitors, totalRevenue, avgISA, avgVariation, avgOccupancy, criticalCount };
-  }, [feedbacks, filterMode, selectedSpot, selectedRegion, selectedMacroRegion]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feedbacks, filterMode, selectedSpot, selectedRegion, selectedMacroRegion, syncTick]);
 
   // Chart data: ISA by destination
+  // syncTick não aparece no corpo: destinosInfo/fluxoData são mutados in place pelo
+  // useSupabaseSync, e sem essa dep o memo fica preso no primeiro render.
   const chartISA = useMemo(() => {
     let spotsForChart = destinosInfo;
     if (selectedMacroRegion !== 'all') {
@@ -157,9 +169,12 @@ export default function AdminDashboardPage() {
       isa: calcularISA(d.nome, feedbacks),
       saturacao: fluxoData.find(f => f.destino === d.nome)?.saturacao_turistica || 0,
     })).sort((a, b) => b.isa - a.isa);
-  }, [feedbacks, filterMode, selectedSpot, selectedRegion, selectedMacroRegion]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feedbacks, filterMode, selectedSpot, selectedRegion, selectedMacroRegion, syncTick]);
 
   // Chart data: Transport pressure
+  // syncTick não aparece no corpo: destinosInfo/transporteData são mutados in place pelo
+  // useSupabaseSync, e sem essa dep o memo fica preso no primeiro render.
   const chartTransport = useMemo(() => {
     let spotsForChart = destinosInfo;
     if (selectedMacroRegion !== 'all') {
@@ -180,7 +195,8 @@ export default function AdminDashboardPage() {
         veiculos: Math.round((t?.veiculos_terrestres_mensais || 0) / 100),
       };
     });
-  }, [filterMode, selectedSpot, selectedRegion, selectedMacroRegion]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterMode, selectedSpot, selectedRegion, selectedMacroRegion, syncTick]);
 
   // Recent feedbacks list
   const recentFeedbacks = currentFeedbacks.slice(0, 5);
